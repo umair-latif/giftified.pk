@@ -7,18 +7,23 @@ own folders.
 
 ## Status board
 
-| #   | Task                                                             | Owner                        | Branch                | Status                  |
-| --- | ---------------------------------------------------------------- | ---------------------------- | --------------------- | ----------------------- |
-| 00  | Editor core, image upload + DPI                                  | Lead (Claude, cloud session) | `feat/image-upload`   | in progress             |
-| 01  | [WooCommerce adapter + order webhook](01-woocommerce-adapter.md) | _unassigned_                 | `feat/woo-adapter`    | ready                   |
-| 02  | [WhatsApp messaging + reply webhook](02-whatsapp-messaging.md)   | Intern + Cursor              | `feat/whatsapp`       | ready                   |
-| 03  | [VendorProof.pdf builder](03-vendor-proof-pdf.md)                | _unassigned_                 | `feat/vendor-proof`   | ready                   |
-| 04  | [3D mug preview](04-mug-3d-preview.md)                           | _unassigned_                 | `feat/mug-3d`         | ready (needs a mug GLB) |
-| 05  | [COD checkout form](05-checkout-form.md)                         | Intern + Cursor              | `feat/checkout-form`  | ready                   |
-| 06  | [Text styling sheet](06-text-styling-sheet.md)                   | Intern + Cursor              | `feat/text-sheet`     | ready                   |
-| 07  | [300 DPI print renderer](07-print-renderer.md)                   | Lead (Claude)                | `feat/print-renderer` | after 00                |
+| #   | Task                                                             | Owner                        | Branch                | Status                   |
+| --- | ---------------------------------------------------------------- | ---------------------------- | --------------------- | ------------------------ |
+| 00  | Editor core, image upload + DPI                                  | Lead (Claude, cloud session) | `feat/image-upload`   | in progress              |
+| 01  | [WooCommerce adapter + order webhook](01-woocommerce-adapter.md) | _unassigned_                 | `feat/woo-adapter`    | ready                    |
+| 02  | [WhatsApp messaging + reply webhook](02-whatsapp-messaging.md)   | —                            | `feat/whatsapp`       | **postponed** (post-MVP) |
+| 03  | [VendorProof.pdf builder](03-vendor-proof-pdf.md)                | _unassigned_                 | `feat/vendor-proof`   | ready                    |
+| 04  | [3D mug preview](04-mug-3d-preview.md)                           | _unassigned_                 | `feat/mug-3d`         | ready (needs a mug GLB)  |
+| 05  | [COD checkout form](05-checkout-form.md)                         | Intern + Cursor              | `feat/checkout-form`  | ready                    |
+| 06  | [Text styling sheet](06-text-styling-sheet.md)                   | Intern + Cursor              | `feat/text-sheet`     | ready                    |
+| 07  | [300 DPI print renderer](07-print-renderer.md)                   | Lead (Claude)                | `feat/print-renderer` | after 00                 |
+| 08  | [Order pipeline, manual dispatch](08-order-pipeline.md)          | Lead (Claude)                | `feat/order-pipeline` | after 01, 03, 07         |
 
 Update this table in your PR when you pick up or finish a task.
+
+**MVP scope note:** COD confirmation and sending files to the vendor are done by the
+founder by hand. The WhatsApp contract and mock stay in the code so it can be added
+later without rework, but no MVP code may depend on it.
 
 ## Rules for every task
 

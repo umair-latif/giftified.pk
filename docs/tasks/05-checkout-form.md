@@ -12,7 +12,8 @@ The "Order" step: a mobile-first Cash on Delivery form that creates the order th
 - `src/features/checkout/`
 - `src/app/design/[product]/order/page.tsx` (new) and `src/app/order/[id]/page.tsx` (new)
 - `src/app/api/checkout/route.ts` **or** a Server Action in `src/features/checkout/actions.ts`
-- `src/lib/phone.ts` — coordinate with task 02 (whoever lands first owns it; the other reuses it)
+- `src/lib/phone.ts` (new) — `normalizePkMobile(input): PkMobile | null`, pure + unit-tested.
+  Accept `03001234567`, `3001234567`, `+92 300 1234567`, `0092-300-1234567`; reject landlines and wrong lengths.
 - `src/config/cities.ts` (new: Pakistani city list)
 - `tests/unit/checkout-*.test.ts`, `tests/e2e/checkout.spec.ts`
 - One line in `src/app/design/[product]/preview/page.tsx`: set `next={{ label: "Order", href: ... }}`
@@ -38,7 +39,8 @@ The "Order" step: a mobile-first Cash on Delivery form that creates the order th
   create two orders; disable the button while submitting.
 - Order summary: product, quantity (1–10), shipping by city from `quoteShipping`, total in
   PKR formatted `Rs 1,699`.
-- Confirmation page `/order/[id]`: "We'll send you a WhatsApp message to confirm your order."
+- Confirmation page `/order/[id]`: "Thank you! We'll call or message you on <number> to confirm your
+  order before we print it." (Confirmation is manual in the MVP.)
 - `designId`: for now use a placeholder `"draft-local"`; design upload to storage is a later task.
 - Keep the page's JS small: no form libraries heavier than ~10 KB gz.
 
