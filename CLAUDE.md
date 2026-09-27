@@ -141,7 +141,7 @@ Mobile PWA (Fabric.js editor + Three.js preview)
 - Fabric ignores mouse input for 400 ms after a touch gesture; in e2e tests use
   `page.touchscreen.tap` after a pinch, not `page.mouse.click`.
 - Selection bar (`components/selection-bar.tsx`) sits above the bottom toolbar while something is
-  selected: text → font, bold/italic/underline; photo → crop; both → copy, delete. Crop maths is
+  selected: text → font, colour (`config/colours.ts`), bold/italic/underline; photo → crop; both → copy, delete. Crop maths is
   pure in `engine/crop.ts` (normalised 0–1 rects); DPI accounts for the crop.
 - Drafts also save on `pagehide`/`visibilitychange`, so a reload right after an edit keeps it.
 - Text styling goes through `engine/text-style.ts` (`applyTextStyle`, `getTextStyle`),
