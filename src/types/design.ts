@@ -13,7 +13,12 @@ export interface DesignDocument {
   /** All coordinates inside `fabric` are millimetres from the print area's top-left. */
   units: "mm";
   printArea: PrintArea;
-  /** Fabric.js `canvas.toObject()` output (objects array, version). No viewport transform. */
+  /**
+   * Fabric.js `canvas.toObject()` output (objects array, version). No viewport transform.
+   * Images: `src` is `asset:<id>` (never a blob:/data: URL) and each image carries
+   * `assetId`, `sourceWidthPx`, `sourceHeightPx` (pixel size of the ORIGINAL upload).
+   * The print renderer resolves `asset:<id>` to the original file in storage.
+   */
   fabric: Record<string, unknown>;
 }
 

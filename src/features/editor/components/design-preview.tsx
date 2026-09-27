@@ -3,12 +3,17 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import type { ProductConfig } from "@/config/products";
+import {
+  printQualityReport,
+  type PrintQualityReport,
+} from "@/lib/print-quality";
+import { resolveAssetRefs } from "../assets/resolve";
 import { loadDraft } from "../draft";
 
 type State =
   | { kind: "loading" }
   | { kind: "empty" }
-  | { kind: "ready"; src: string; layers: number }
+  | { kind: "ready"; src: string; layers: number; quality: PrintQualityReport }
   | { kind: "error" };
 
 /**
@@ -31,10 +36,12 @@ export function DesignPreview({ product }: { product: ProductConfig }) {
       const width =
         Math.min(window.innerWidth, 448) *
         Math.min(window.devicePixelRatio || 1, 3);
+      const { fabric } = await resolveAssetRefs(draft.fabric);
       return {
         kind: "ready",
-        src: await renderDesignToDataUrl(draft, width),
+        src: await renderDesignToDataUrl({ ...draft, fabric }, width),
         layers,
+        quality: printQualityReport(draft.fabric),
       } as const;
     };
     run()
@@ -104,6 +111,18 @@ export function DesignPreview({ product }: { product: ProductConfig }) {
         <dd className="text-right text-zinc-900" data-testid="preview-layers">
           {state.kind === "ready" ? state.layers : 0}
         </dd>
+        {state.kind === "ready" && state.quality.worstDpi !== null && (
+          <>
+            <dt className="text-zinc-500">Photo quality</dt>
+            <dd
+              className={`text-right ${QUALITY[state.quality.status].className}`}
+              data-testid="preview-quality"
+            >
+              {QUALITY[state.quality.status].label} ·{" "}
+              {Math.round(state.quality.worstDpi)} DPI
+            </dd>
+          </>
+        )}
       </dl>
       <p className="text-[11px] text-zinc-400">
         A 3D preview of your mug arrives next. Ordering with Cash on Delivery
@@ -112,3 +131,12 @@ export function DesignPreview({ product }: { product: ProductConfig }) {
     </div>
   );
 }
+
+const QUALITY = {
+  ok: { label: "Sharp", className: "text-emerald-700" },
+  warn: { label: "May look soft", className: "text-amber-700" },
+  block: {
+    label: "Too blurry — go back and make it smaller",
+    className: "text-red-700",
+  },
+} as const;

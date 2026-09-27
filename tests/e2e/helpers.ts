@@ -34,6 +34,9 @@ export async function canvasBox(page: Page) {
 export async function openEditorWithText(page: Page) {
   await page.goto("/design/mug");
   await expect(status(page)).toHaveText(/0 layers/);
+  await expect(
+    page.getByRole("button", { name: "Text", exact: true }),
+  ).toBeEnabled();
   await page.getByRole("button", { name: "Text", exact: true }).click();
   await expect(status(page)).toHaveText(/textbox · centre 108, 45 mm/);
 }

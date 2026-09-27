@@ -40,8 +40,10 @@ export function dpiStatus(
   dpi: number,
   thresholds: DpiThresholds = DEFAULT_DPI_THRESHOLDS,
 ): DpiStatus {
-  if (dpi < thresholds.blockBelow) return "block";
-  if (dpi < thresholds.warnBelow) return "warn";
+  // Decide on 0.1 DPI so float noise (199.9999…) never flips a borderline image.
+  const d = Math.round(dpi * 10) / 10;
+  if (d < thresholds.blockBelow) return "block";
+  if (d < thresholds.warnBelow) return "warn";
   return "ok";
 }
 

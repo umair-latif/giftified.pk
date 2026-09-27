@@ -8,6 +8,7 @@ interface Props {
   hostRef: Ref<HTMLDivElement>;
   status: EditorStatus;
   guides: GuideState;
+  busy?: boolean;
 }
 
 /**
@@ -16,7 +17,13 @@ interface Props {
  * the safe zone, and the two centre lines, which light up when an object's
  * centre snaps onto them.
  */
-export function EditorStage({ product, hostRef, status, guides }: Props) {
+export function EditorStage({
+  product,
+  hostRef,
+  status,
+  guides,
+  busy = false,
+}: Props) {
   const { widthMm, heightMm, safeMarginMm } = product.printArea;
   const base = product.baseColors[0]?.hex ?? "#ffffff";
   const insetX = `${(safeMarginMm / widthMm) * 100}%`;
@@ -57,6 +64,11 @@ export function EditorStage({ product, hostRef, status, guides }: Props) {
           className="absolute inset-0 touch-none"
           data-testid="canvas-host"
         />
+        {busy && (
+          <div className="absolute inset-0 grid place-items-center bg-white/70 text-xs font-medium text-zinc-600">
+            Adding photo…
+          </div>
+        )}
         {status === "loading" && (
           <div className="absolute inset-0 grid place-items-center text-xs text-zinc-400">
             Loading editor…

@@ -10,7 +10,11 @@ import type {
   GuideState,
   TextStyle,
 } from "../engine";
-import { loadDraft, saveDraft } from "../draft";
+import { dpiStatus, type DpiStatus } from "@/lib/dpi";
+import { putAsset, pruneAssets, previewUrl } from "../assets/asset-store";
+import { ImageUploadError, prepareImage } from "../assets/prepare-image";
+import { resolveAssetRefs } from "../assets/resolve";
+import { allDraftAssetIds, loadDraft, saveDraft } from "../draft";
 // Only type imports from Fabric inside, so this does not pull Fabric into the initial bundle.
 import { getTextStyle } from "../engine/text-style";
 
@@ -27,6 +31,15 @@ export interface SelectionInfo {
   angle: number;
   /** Present when the selection is text. */
   text: TextStyle | null;
+  /** Effective print DPI when the selection is an image. */
+  dpi: number | null;
+  dpiStatus: DpiStatus | null;
+}
+
+export interface PrintQuality {
+  /** Lowest effective DPI of any image on the design (null = no images). */
+  worstDpi: number | null;
+  status: DpiStatus;
 }
 
 const NO_GUIDES: GuideState = { vertical: false, horizontal: false };
@@ -51,6 +64,12 @@ export function useFabricCanvas(product: ProductConfig) {
   const [guides, setGuides] = useState<GuideState>(NO_GUIDES);
   const [canUndo, setCanUndo] = useState(false);
   const [canRedo, setCanRedo] = useState(false);
+  const [quality, setQuality] = useState<PrintQuality>({
+    worstDpi: null,
+    status: "ok",
+  });
+  const [busy, setBusy] = useState(false);
+  const [notice, setNotice] = useState<string | null>(null);
 
   useEffect(() => {
     const host = hostRef.current;
@@ -78,9 +97,15 @@ export function useFabricCanvas(product: ProductConfig) {
       const draft = loadDraft(product.id);
       if (draft) {
         try {
-          await canvas.loadFromJSON(draft.fabric);
+          const { fabric, missing } = await resolveAssetRefs(draft.fabric);
+          await canvas.loadFromJSON(fabric);
           restyle(canvas.getObjects());
           canvas.requestRenderAll();
+          if (missing.length > 0) {
+            setNotice(
+              "A photo from your last visit couldn’t be found on this device, so it was removed.",
+            );
+          }
         } catch (err) {
           console.warn("[editor] ignoring unreadable draft", err);
           canvas.clear();
@@ -90,13 +115,27 @@ export function useFabricCanvas(product: ProductConfig) {
         void dc.dispose().finally(() => host.replaceChildren());
         return;
       }
+      // Forget photos no draft uses any more (keeps IndexedDB small).
+      void pruneAssets(allDraftAssetIds());
 
       let frame = 0;
       const sync = () => {
         cancelAnimationFrame(frame);
         frame = requestAnimationFrame(() => {
-          setLayerCount(canvas.getObjects().length);
-          setSelection(describe(canvas.getActiveObject()));
+          const objects = canvas.getObjects();
+          setLayerCount(objects.length);
+          setSelection(describe(engine, canvas.getActiveObject()));
+          const dpis = objects
+            .map(engine.objectDpi)
+            .filter((d): d is number => d !== null);
+          const worstDpi = dpis.length ? Math.min(...dpis) : null;
+          setQuality((prev) => {
+            const status = worstDpi === null ? "ok" : dpiStatus(worstDpi);
+            const rounded = worstDpi === null ? null : Math.round(worstDpi);
+            return prev.worstDpi === rounded && prev.status === status
+              ? prev
+              : { worstDpi: rounded, status };
+          });
         });
       };
 
@@ -232,6 +271,62 @@ export function useFabricCanvas(product: ProductConfig) {
     [applyTextStyle],
   );
 
+  /** Validates, stores (original + preview) and places an uploaded photo. */
+  const addImage = useCallback(async (file: File) => {
+    const dc = designRef.current;
+    const engine = engineRef.current;
+    if (!dc || !engine) return;
+    setBusy(true);
+    setNotice(null);
+    try {
+      const prepared = await prepareImage(file);
+      const id = crypto.randomUUID();
+      await putAsset({
+        id,
+        name: file.name,
+        mime: file.type,
+        widthPx: prepared.widthPx,
+        heightPx: prepared.heightPx,
+        original: file,
+        preview: prepared.preview,
+        createdAt: Date.now(),
+      });
+      const url = await previewUrl(id);
+      if (!url)
+        throw new ImageUploadError(
+          "We couldn't add that photo. Please try again.",
+          "decode",
+        );
+      await engine.addImage(dc.canvas, dc.area, url, {
+        assetId: id,
+        sourceWidthPx: prepared.widthPx,
+        sourceHeightPx: prepared.heightPx,
+      });
+    } catch (err) {
+      console.error("[editor] image upload failed", err);
+      setNotice(
+        err instanceof ImageUploadError
+          ? err.message
+          : "We couldn't add that photo. Please try another one.",
+      );
+    } finally {
+      setBusy(false);
+    }
+  }, []);
+
+  const dismissNotice = useCallback(() => setNotice(null), []);
+
+  /** Clear the selection (e.g. tap on empty space around the canvas). */
+  const deselect = useCallback(
+    () =>
+      run((_, dc) => {
+        if (!dc.canvas.getActiveObject()) return;
+        dc.canvas.discardActiveObject();
+        dc.canvas.requestRenderAll();
+      }),
+    [run],
+  );
+
   const getDesign = useCallback((): DesignDocument | null => {
     const dc = designRef.current;
     const engine = engineRef.current;
@@ -250,6 +345,12 @@ export function useFabricCanvas(product: ProductConfig) {
     undo,
     redo,
     addText,
+    addImage,
+    busy,
+    notice,
+    dismissNotice,
+    deselect,
+    quality,
     deleteSelected,
     straighten,
     centre,
@@ -259,9 +360,13 @@ export function useFabricCanvas(product: ProductConfig) {
   };
 }
 
-function describe(obj: FabricObject | undefined): SelectionInfo | null {
+function describe(
+  engine: Engine,
+  obj: FabricObject | undefined,
+): SelectionInfo | null {
   if (!obj) return null;
   const c = obj.getCenterPoint();
+  const dpi = engine.objectDpi(obj);
   return {
     kind: obj.type,
     centerXMm: c.x,
@@ -270,5 +375,7 @@ function describe(obj: FabricObject | undefined): SelectionInfo | null {
     heightMm: obj.getScaledHeight(),
     angle: ((obj.angle % 360) + 360) % 360,
     text: getTextStyle(obj),
+    dpi: dpi === null ? null : Math.round(dpi),
+    dpiStatus: dpi === null ? null : dpiStatus(dpi),
   };
 }
