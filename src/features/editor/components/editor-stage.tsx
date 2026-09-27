@@ -1,34 +1,61 @@
 import type { Ref } from "react";
 import type { ProductConfig } from "@/config/products";
+import type { GuideState } from "../engine/guides";
 import type { EditorStatus } from "../hooks/use-fabric-canvas";
 
 interface Props {
   product: ProductConfig;
   hostRef: Ref<HTMLDivElement>;
   status: EditorStatus;
+  guides: GuideState;
 }
 
 /**
  * Reserves the print area's exact aspect ratio before Fabric loads (no layout
- * shift) and draws screen-only guides as CSS so they never reach exports.
+ * shift) and draws screen-only guides as CSS so they never reach exports:
+ * the safe zone, and the two centre lines, which light up when an object's
+ * centre snaps onto them.
  */
-export function EditorStage({ product, hostRef, status }: Props) {
+export function EditorStage({ product, hostRef, status, guides }: Props) {
   const { widthMm, heightMm, safeMarginMm } = product.printArea;
   const base = product.baseColors[0]?.hex ?? "#ffffff";
   const insetX = `${(safeMarginMm / widthMm) * 100}%`;
   const insetY = `${(safeMarginMm / heightMm) * 100}%`;
+  const line = (active: boolean) =>
+    active
+      ? "border-pink-500 border-solid opacity-100"
+      : "border-zinc-400/60 border-dashed";
 
   return (
     <div className="relative w-full">
       <div
         className="relative w-full overflow-hidden rounded-md shadow-sm ring-1 ring-zinc-300"
-        style={{ aspectRatio: `${widthMm} / ${heightMm}`, backgroundColor: base }}
+        style={{
+          aspectRatio: `${widthMm} / ${heightMm}`,
+          backgroundColor: base,
+        }}
       >
-        <div ref={hostRef} className="absolute inset-0 touch-none" data-testid="canvas-host" />
+        {/* Guides sit under the Fabric canvas so handles stay on top. */}
+        <div aria-hidden className="pointer-events-none absolute inset-0">
+          <div
+            data-testid="guide-vertical"
+            data-active={guides.vertical}
+            className={`absolute inset-y-0 left-1/2 -translate-x-1/2 border-l ${line(guides.vertical)}`}
+          />
+          <div
+            data-testid="guide-horizontal"
+            data-active={guides.horizontal}
+            className={`absolute inset-x-0 top-1/2 -translate-y-1/2 border-t ${line(guides.horizontal)}`}
+          />
+          <div
+            className="absolute rounded-sm border border-dashed border-sky-400/70"
+            style={{ left: insetX, right: insetX, top: insetY, bottom: insetY }}
+          />
+        </div>
         <div
-          aria-hidden
-          className="pointer-events-none absolute rounded-sm border border-dashed border-sky-400/70"
-          style={{ left: insetX, right: insetX, top: insetY, bottom: insetY }}
+          ref={hostRef}
+          className="absolute inset-0 touch-none"
+          data-testid="canvas-host"
         />
         {status === "loading" && (
           <div className="absolute inset-0 grid place-items-center text-xs text-zinc-400">
@@ -36,7 +63,7 @@ export function EditorStage({ product, hostRef, status }: Props) {
           </div>
         )}
         {status === "error" && (
-          <div className="absolute inset-0 grid place-items-center p-4 text-center text-xs text-red-600">
+          <div className="absolute inset-0 grid place-items-center bg-white/90 p-4 text-center text-xs text-red-600">
             The editor couldn’t load. Check your connection and refresh.
           </div>
         )}

@@ -2,6 +2,7 @@ import type { Canvas, FabricObject } from "fabric";
 import { Point } from "fabric";
 import type { PrintArea } from "@/config/products";
 import { clampScaleRatio } from "./constraints";
+import { haptic, snapAngle } from "./snap";
 
 interface GestureStart {
   target: FabricObject;
@@ -25,6 +26,7 @@ export function attachTwoFingerGestures(
 ): () => void {
   const el = canvas.upperCanvasEl;
   let start: GestureStart | null = null;
+  let wasSnapped = false;
 
   const onStart = (e: TouchEvent) => {
     if (e.touches.length !== 2) return;
@@ -42,6 +44,7 @@ export function attachTwoFingerGestures(
       rotation: target.angle,
       widthMm: target.getScaledWidth(),
     };
+    wasSnapped = false;
   };
 
   const onMove = (e: TouchEvent) => {
@@ -50,10 +53,21 @@ export function attachTwoFingerGestures(
     const [a, b] = [e.touches[0]!, e.touches[1]!];
     const { target } = start;
     const center = target.getCenterPoint();
-    const ratio = clampScaleRatio(dist(a, b) / start.distance, start.widthMm, area);
+    const ratio = clampScaleRatio(
+      dist(a, b) / start.distance,
+      start.widthMm,
+      area,
+    );
     target.set({ scaleX: start.scaleX * ratio, scaleY: start.scaleY * ratio });
-    target.rotate(start.rotation + (angle(a, b) - start.angleDeg));
-    target.setPositionByOrigin(new Point(center.x, center.y), "center", "center");
+    const rotation = snapAngle(start.rotation + (angle(a, b) - start.angleDeg));
+    if (rotation.snapped && !wasSnapped) haptic();
+    wasSnapped = rotation.snapped;
+    target.rotate(rotation.value);
+    target.setPositionByOrigin(
+      new Point(center.x, center.y),
+      "center",
+      "center",
+    );
     target.setCoords();
     canvas.requestRenderAll();
     onChange(target);
@@ -85,5 +99,7 @@ function dist(a: Touch, b: Touch): number {
 }
 
 function angle(a: Touch, b: Touch): number {
-  return (Math.atan2(b.clientY - a.clientY, b.clientX - a.clientX) * 180) / Math.PI;
+  return (
+    (Math.atan2(b.clientY - a.clientY, b.clientX - a.clientX) * 180) / Math.PI
+  );
 }

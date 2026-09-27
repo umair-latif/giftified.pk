@@ -2,8 +2,12 @@ import type { Metadata, Viewport } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: { default: "Giftified.pk — Custom mugs, tees & hoodies", template: "%s · Giftified.pk" },
-  description: "Design custom mugs, t-shirts and hoodies on your phone. Cash on Delivery across Pakistan.",
+  title: {
+    default: "Giftified.pk — Custom mugs, tees & hoodies",
+    template: "%s · Giftified.pk",
+  },
+  description:
+    "Design custom mugs, t-shirts and hoodies on your phone. Cash on Delivery across Pakistan.",
 };
 
 export const viewport: Viewport = {

@@ -6,4 +6,12 @@ export { createDesignCanvas, type DesignCanvas } from "./create-canvas";
 export { applyTouchControls } from "./controls";
 export { addText, type AddTextOptions } from "./text";
 export { attachTwoFingerGestures } from "./gestures";
-export { toDesignDocument, type DesignDocument, DESIGN_SCHEMA_VERSION } from "./serialize";
+export { attachHistory, type CanvasHistory } from "./history";
+export { attachCentreSnapping, NO_GUIDES, type GuideState } from "./guides";
+export { straightenSelected, centreSelected, deleteSelected } from "./actions";
+export { renderDesignToDataUrl } from "./render";
+export {
+  toDesignDocument,
+  type DesignDocument,
+  DESIGN_SCHEMA_VERSION,
+} from "./serialize";

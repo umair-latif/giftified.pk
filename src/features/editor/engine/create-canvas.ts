@@ -38,7 +38,11 @@ export function createDesignCanvas(
     const c = target.getCenterPoint();
     const clamped = clampCenterToArea(c, area);
     if (clamped.x !== c.x || clamped.y !== c.y) {
-      target.setPositionByOrigin(new Point(clamped.x, clamped.y), "center", "center");
+      target.setPositionByOrigin(
+        new Point(clamped.x, clamped.y),
+        "center",
+        "center",
+      );
       target.setCoords();
     }
   };

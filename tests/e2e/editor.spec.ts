@@ -1,86 +1,166 @@
-import { expect, test, type Page } from "@playwright/test";
+import { expect, test } from "@playwright/test";
+import {
+  canvasBox,
+  openEditorWithText,
+  pinch,
+  readout,
+  status,
+} from "./helpers";
 
-const status = (page: Page) => page.getByTestId("editor-status");
+// Fail any test that throws an uncaught error in the page.
+let pageErrors: string[] = [];
+test.beforeEach(({ page }) => {
+  pageErrors = [];
+  page.on("pageerror", (e) => pageErrors.push(e.message));
+});
+test.afterEach(() => expect(pageErrors).toEqual([]));
 
-async function centre(page: Page): Promise<{ x: number; y: number; w: number; angle: string }> {
-  const text = (await status(page).textContent()) ?? "";
-  const m = text.match(/centre (\d+), (\d+) mm · (\d+) ×/);
-  expect(m, `unexpected status: ${text}`).not.toBeNull();
-  return { x: Number(m![1]), y: Number(m![2]), w: Number(m![3]), angle: text };
-}
+test("mug editor: add, drag, clamp, pinch, delete on a 360px phone", async ({
+  page,
+}) => {
+  await openEditorWithText(page);
 
-test("mug editor: add, drag, pinch, delete on a 360px phone", async ({ page }) => {
-  const errors: string[] = [];
-  page.on("pageerror", (e) => errors.push(e.message));
-
-  await page.goto("/design/mug");
-  await expect(page.getByRole("heading", { name: "Custom Mug" })).toBeVisible();
-  await expect(status(page)).toHaveText(/0 layers/);
-
-  // No horizontal page scroll at 360px.
-  const scrollWidth = await page.evaluate(() => document.documentElement.scrollWidth);
+  const scrollWidth = await page.evaluate(
+    () => document.documentElement.scrollWidth,
+  );
   expect(scrollWidth).toBeLessThanOrEqual(360);
 
-  await page.getByRole("button", { name: "Text" }).click();
-  await expect(status(page)).toHaveText(/textbox · centre 108, 45 mm/);
-
-  // Drag the text right by 60 CSS px.
-  const upper = page.locator("canvas.upper-canvas");
-  const box = (await upper.boundingBox())!;
-  const cx = box.x + box.width / 2;
-  const cy = box.y + box.height / 2;
+  const { cx, cy, x: left, pxPerMm } = await canvasBox(page);
   await page.mouse.move(cx, cy);
   await page.mouse.down();
   await page.mouse.move(cx + 30, cy, { steps: 5 });
   await page.mouse.move(cx + 60, cy, { steps: 5 });
   await page.mouse.up();
-  const afterDrag = await centre(page);
+  const afterDrag = await readout(page);
   expect(afterDrag.x).toBeGreaterThan(120);
 
-  // Dragging far off-canvas keeps the centre on the print area.
-  const now = afterDrag.x * (box.width / 216) + box.x;
+  const now = afterDrag.x * pxPerMm + left;
   await page.mouse.move(now, cy);
   await page.mouse.down();
   await page.mouse.move(now + 800, cy + 800, { steps: 10 });
   await page.mouse.up();
-  const clamped = await centre(page);
+  const clamped = await readout(page);
   expect(clamped.x).toBeLessThanOrEqual(216);
   expect(clamped.y).toBeLessThanOrEqual(89);
 
-  // Back to the middle for the pinch.
   await page.getByRole("button", { name: "Delete" }).click();
   await expect(status(page)).toHaveText(/0 layers/);
-  await page.getByRole("button", { name: "Text" }).click();
+  await page.getByRole("button", { name: "Text", exact: true }).click();
   await expect(status(page)).toHaveText(/textbox · centre 108, 45 mm/);
-  const before = await centre(page);
+  const before = await readout(page);
 
-  // Two-finger pinch-out + twist via raw CDP touch events.
-  const cdp = await page.context().newCDPSession(page);
-  const touch = (type: string, pts: { x: number; y: number }[]) =>
-    cdp.send("Input.dispatchTouchEvent", {
-      type,
-      touchPoints: pts.map((p, id) => ({ ...p, id })),
-    } as never);
-  await touch("touchStart", [
-    { x: cx - 20, y: cy },
-    { x: cx + 20, y: cy },
-  ]);
-  for (let i = 1; i <= 5; i++) {
-    const r = 20 + i * 6;
-    const a = (i * 4 * Math.PI) / 180;
-    await touch("touchMove", [
-      { x: cx - r * Math.cos(a), y: cy - r * Math.sin(a) },
-      { x: cx + r * Math.cos(a), y: cy + r * Math.sin(a) },
-    ]);
-  }
-  await touch("touchEnd", []);
-  await expect.poll(async () => (await centre(page)).w).toBeGreaterThan(before.w * 1.3);
-  const after = await centre(page);
+  await pinch(page, cx, cy, { fromRadius: 20, toRadius: 50, degrees: 20 });
+  await expect
+    .poll(async () => (await readout(page)).w)
+    .toBeGreaterThan(before.w * 1.3);
+  const after = await readout(page);
   expect(Math.abs(after.x - before.x)).toBeLessThanOrEqual(1);
+  expect(after.angle).toBe(20);
 
   await page.getByRole("button", { name: "Delete" }).click();
   await expect(status(page)).toHaveText(/0 layers/);
-  expect(errors).toEqual([]);
+});
+
+test("undo / redo steps through add and move", async ({ page }) => {
+  await openEditorWithText(page);
+  const undo = page.getByRole("button", { name: "Undo" });
+  const redo = page.getByRole("button", { name: "Redo" });
+  await expect(redo).toBeDisabled();
+
+  const { cx, cy } = await canvasBox(page);
+  await page.mouse.move(cx, cy);
+  await page.mouse.down();
+  await page.mouse.move(cx + 60, cy, { steps: 8 });
+  await page.mouse.up();
+  const moved = await readout(page);
+  expect(moved.x).toBeGreaterThan(120);
+
+  await undo.click();
+  await expect(status(page)).toHaveText(/1 layer\b/); // restore clears selection
+  await undo.click();
+  await expect(status(page)).toHaveText(/0 layers/);
+  await expect(undo).toBeDisabled();
+
+  await redo.click();
+  await expect(status(page)).toHaveText(/1 layer\b/);
+  await redo.click();
+  await expect(redo).toBeDisabled();
+
+  // The redone state has the text at the moved position: tap it to read it.
+  const { x: left, pxPerMm } = await canvasBox(page);
+  await page.mouse.click(left + moved.x * pxPerMm, cy);
+  await expect(status(page)).toHaveText(/textbox/);
+  expect((await readout(page)).x).toBe(moved.x);
+
+  // Keyboard shortcut.
+  await page.keyboard.press("Control+z");
+  await expect(status(page)).toHaveText(/1 layer\b/);
+});
+
+test("centre guides light up and snap while dragging", async ({ page }) => {
+  await openEditorWithText(page);
+  const vGuide = page.getByTestId("guide-vertical");
+  const { cx, cy, pxPerMm } = await canvasBox(page);
+
+  // Move well away, then back to within a few px of centre.
+  await page.mouse.move(cx, cy);
+  await page.mouse.down();
+  await page.mouse.move(cx + 50, cy, { steps: 5 });
+  await expect(vGuide).toHaveAttribute("data-active", "false");
+  await page.mouse.move(cx + 4, cy, { steps: 5 });
+  await expect(vGuide).toHaveAttribute("data-active", "true");
+  await page.mouse.up();
+  await expect(vGuide).toHaveAttribute("data-active", "false");
+  expect((await readout(page)).x).toBe(108);
+
+  // Outside the 8px snap zone it stays where it was dropped.
+  await page.mouse.move(cx, cy);
+  await page.mouse.down();
+  await page.mouse.move(cx + 20, cy, { steps: 5 });
+  await page.mouse.up();
+  expect((await readout(page)).x).toBe(Math.round(108 + 20 / pxPerMm));
+
+  // Centre chip puts it back.
+  await page.getByRole("button", { name: "Centre" }).click();
+  await expect.poll(async () => (await readout(page)).x).toBe(108);
+});
+
+test("rotation snaps level and Straighten resets it", async ({ page }) => {
+  await openEditorWithText(page);
+  const { cx, cy } = await canvasBox(page);
+  const straighten = page.getByRole("button", { name: "Straighten" });
+
+  // A small 3° twist snaps back to 0°.
+  await pinch(page, cx, cy, { fromRadius: 30, toRadius: 30, degrees: 3 });
+  await expect.poll(async () => (await readout(page)).angle).toBe(0);
+  await expect(straighten).toBeDisabled();
+
+  // 25° stays; Straighten fixes it.
+  await pinch(page, cx, cy, { fromRadius: 30, toRadius: 30, degrees: 25 });
+  await expect.poll(async () => (await readout(page)).angle).toBe(25);
+  await straighten.click();
+  await expect.poll(async () => (await readout(page)).angle).toBe(0);
+});
+
+test("back / next navigation keeps the design", async ({ page }) => {
+  await openEditorWithText(page);
+  await page.getByRole("link", { name: "Next" }).click();
+  await expect(page).toHaveURL(/\/design\/mug\/preview$/);
+  await expect(
+    page.getByRole("img", { name: /Custom Mug design/ }),
+  ).toBeVisible();
+  await expect(page.getByTestId("preview-layers")).toHaveText("1");
+
+  await page.getByRole("link", { name: "Back to editor" }).click();
+  await expect(page).toHaveURL(/\/design\/mug$/);
+  await expect(status(page)).toHaveText(/1 layer\b/);
+
+  // Survives a full reload too.
+  await page.reload();
+  await expect(status(page)).toHaveText(/1 layer\b/);
+
+  await page.getByRole("link", { name: "Back to products" }).click();
+  await expect(page).toHaveURL(/\/$/);
 });
 
 test("unknown products 404", async ({ page }) => {

@@ -9,7 +9,11 @@ export interface AddTextOptions {
   fontFamily?: string;
 }
 
-export function addText(canvas: Canvas, area: PrintArea, opts: AddTextOptions = {}): Textbox {
+export function addText(
+  canvas: Canvas,
+  area: PrintArea,
+  opts: AddTextOptions = {},
+): Textbox {
   const box = new Textbox(opts.text ?? "Your text", {
     left: area.widthMm / 2,
     top: area.heightMm / 2,

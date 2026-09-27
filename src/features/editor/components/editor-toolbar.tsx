@@ -6,18 +6,33 @@ interface Props {
 }
 
 /** Bottom tool bar. Placeholder slots mark where upcoming tools will go. */
-export function EditorToolbar({ ready, hasSelection, onAddText, onDelete }: Props) {
+export function EditorToolbar({
+  ready,
+  hasSelection,
+  onAddText,
+  onDelete,
+}: Props) {
   return (
     <nav
       aria-label="Editor tools"
       className="fixed inset-x-0 bottom-0 z-10 border-t border-zinc-200 bg-white/95 pb-[env(safe-area-inset-bottom)] backdrop-blur"
     >
       <div className="mx-auto flex max-w-md items-stretch justify-around px-2">
-        <ToolButton label="Text" icon="T" onClick={onAddText} disabled={!ready} />
+        <ToolButton
+          label="Text"
+          icon="T"
+          onClick={onAddText}
+          disabled={!ready}
+        />
         <ToolButton label="Image" icon="▣" disabled soon />
         <ToolButton label="Layers" icon="≡" disabled soon />
         <ToolButton label="3D" icon="◎" disabled soon />
-        <ToolButton label="Delete" icon="✕" onClick={onDelete} disabled={!hasSelection} />
+        <ToolButton
+          label="Delete"
+          icon="✕"
+          onClick={onDelete}
+          disabled={!hasSelection}
+        />
       </div>
     </nav>
   );

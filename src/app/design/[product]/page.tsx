@@ -17,7 +17,9 @@ export async function generateMetadata(
   return { title: product ? `Design your ${product.name}` : "Design" };
 }
 
-export default async function DesignPage(props: PageProps<"/design/[product]">) {
+export default async function DesignPage(
+  props: PageProps<"/design/[product]">,
+) {
   const { product: id } = await props.params;
   const product = getProduct(id);
   if (!product) notFound();

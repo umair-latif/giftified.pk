@@ -1,5 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { dpiStatus, effectiveDpi, effectiveDpi2D, maxPrintWidthMm } from "@/lib/dpi";
+import {
+  dpiStatus,
+  effectiveDpi,
+  effectiveDpi2D,
+  maxPrintWidthMm,
+} from "@/lib/dpi";
 
 describe("effective DPI", () => {
   it("is pixels per printed inch", () => {
@@ -12,7 +17,10 @@ describe("effective DPI", () => {
   });
 
   it("uses the worst axis", () => {
-    const dpi = effectiveDpi2D({ widthPx: 3000, heightPx: 1000 }, { widthMm: 254, heightMm: 254 });
+    const dpi = effectiveDpi2D(
+      { widthPx: 3000, heightPx: 1000 },
+      { widthMm: 254, heightMm: 254 },
+    );
     expect(dpi).toBeCloseTo(100, 10);
   });
 

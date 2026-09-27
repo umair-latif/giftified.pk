@@ -9,7 +9,9 @@ export const PRODUCTS: Partial<Record<ProductId, ProductConfig>> = {
 };
 
 export function getProduct(id: string): ProductConfig | null {
-  return Object.hasOwn(PRODUCTS, id) ? (PRODUCTS[id as ProductId] ?? null) : null;
+  return Object.hasOwn(PRODUCTS, id)
+    ? (PRODUCTS[id as ProductId] ?? null)
+    : null;
 }
 
 export function editableProductIds(): ProductId[] {
