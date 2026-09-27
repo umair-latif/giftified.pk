@@ -42,6 +42,9 @@ The "Order" step: a mobile-first Cash on Delivery form that creates the order th
 - Confirmation page `/order/[id]`: "Thank you! We'll call or message you on <number> to confirm your
   order before we print it." (Confirmation is manual in the MVP.)
 - `designId`: for now use a placeholder `"draft-local"`; design upload to storage is a later task.
+- **Block the order when a photo is too blurry:** `printQualityReport(draft.fabric).status === "block"`
+  (`src/lib/print-quality.ts`) → show "A photo is too blurry to print — go back and make it smaller"
+  with a link to the editor. `"warn"` → allow, but show a gentle note.
 - Keep the page's JS small: no form libraries heavier than ~10 KB gz.
 
 ## Acceptance criteria

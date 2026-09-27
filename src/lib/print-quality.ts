@@ -1,0 +1,74 @@
+import {
+  DEFAULT_DPI_THRESHOLDS,
+  dpiStatus,
+  effectiveDpi2D,
+  type DpiStatus,
+  type DpiThresholds,
+} from "./dpi";
+
+/**
+ * Print-quality report for a saved design. Used by the editor banner, the
+ * checkout (block below 150 DPI) and the server. Pure: reads Fabric JSON only.
+ */
+export interface ImageQuality {
+  assetId: string | null;
+  dpi: number;
+  status: DpiStatus;
+}
+
+export interface PrintQualityReport {
+  images: ImageQuality[];
+  /** Lowest effective DPI across images, or null when the design has no images. */
+  worstDpi: number | null;
+  status: DpiStatus;
+}
+
+interface ImageLike {
+  sourceWidthPx: number;
+  sourceHeightPx: number;
+  /** Printed size in mm (object width × scale). */
+  widthMm: number;
+  heightMm: number;
+}
+
+export function imageDpi(img: ImageLike): number {
+  return effectiveDpi2D(
+    { widthPx: img.sourceWidthPx, heightPx: img.sourceHeightPx },
+    { widthMm: img.widthMm, heightMm: img.heightMm },
+  );
+}
+
+const num = (v: unknown, fallback = 0) =>
+  typeof v === "number" && Number.isFinite(v) ? v : fallback;
+
+export function printQualityReport(
+  fabric: Record<string, unknown>,
+  thresholds: DpiThresholds = DEFAULT_DPI_THRESHOLDS,
+): PrintQualityReport {
+  const objects = Array.isArray(fabric.objects)
+    ? (fabric.objects as Record<string, unknown>[])
+    : [];
+  const images = objects
+    .filter(
+      (o) => typeof o.type === "string" && o.type.toLowerCase() === "image",
+    )
+    .map((o) => {
+      const dpi = imageDpi({
+        sourceWidthPx: num(o.sourceWidthPx),
+        sourceHeightPx: num(o.sourceHeightPx),
+        widthMm: num(o.width) * num(o.scaleX, 1),
+        heightMm: num(o.height) * num(o.scaleY, 1),
+      });
+      return {
+        assetId: typeof o.assetId === "string" ? o.assetId : null,
+        dpi,
+        status: dpiStatus(dpi, thresholds),
+      };
+    });
+  const worstDpi = images.length ? Math.min(...images.map((i) => i.dpi)) : null;
+  return {
+    images,
+    worstDpi,
+    status: worstDpi === null ? "ok" : dpiStatus(worstDpi, thresholds),
+  };
+}

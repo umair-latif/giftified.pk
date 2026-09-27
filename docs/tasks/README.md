@@ -9,7 +9,7 @@ own folders.
 
 | #   | Task                                                             | Owner                        | Branch                | Status                   |
 | --- | ---------------------------------------------------------------- | ---------------------------- | --------------------- | ------------------------ |
-| 00  | Editor core, image upload + DPI                                  | Lead (Claude, cloud session) | `feat/image-upload`   | in progress              |
+| 00  | Editor core, image upload + DPI                                  | Lead (Claude, cloud session) | `feat/image-upload`   | in review                |
 | 01  | [WooCommerce adapter + order webhook](01-woocommerce-adapter.md) | _unassigned_                 | `feat/woo-adapter`    | ready                    |
 | 02  | [WhatsApp messaging + reply webhook](02-whatsapp-messaging.md)   | —                            | `feat/whatsapp`       | **postponed** (post-MVP) |
 | 03  | [VendorProof.pdf builder](03-vendor-proof-pdf.md)                | _unassigned_                 | `feat/vendor-proof`   | ready                    |

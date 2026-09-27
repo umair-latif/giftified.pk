@@ -131,6 +131,13 @@ Mobile PWA (Fabric.js editor + Three.js preview)
   refresh never lose work. Keep designs small: images go in as storage URLs, never data URLs.
 - Snapping: object centre snaps to the centre lines within 8 screen px; rotation snaps to
   0/90/180/270° within 5° (`engine/snap.ts`, pure + unit-tested).
+- Photos: `features/editor/assets/` keeps the ORIGINAL upload + a ≤2048 px WebP preview in
+  IndexedDB; the canvas shows the preview, the design stores `src: "asset:<id>"` plus
+  `assetId`/`sourceWidthPx`/`sourceHeightPx`. DPI always uses the original's pixels
+  (`engine/image.ts` `objectDpi`, `lib/print-quality.ts` `printQualityReport` for whole designs).
+  Checkout uploads originals to storage and the print renderer resolves `asset:<id>` to them.
+- Fabric ignores mouse input for 400 ms after a touch gesture; in e2e tests use
+  `page.touchscreen.tap` after a pinch, not `page.mouse.click`.
 - Text styling goes through `engine/text-style.ts` (`applyTextStyle`, `getTextStyle`),
   exposed as `useFabricCanvas().applyTextStyle / setText / selection.text`.
 - Every screen uses `components/ui/app-header.tsx` (back arrow to a fixed parent route,

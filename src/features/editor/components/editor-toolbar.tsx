@@ -2,6 +2,7 @@ interface Props {
   ready: boolean;
   hasSelection: boolean;
   onAddText: () => void;
+  onAddImage: () => void;
   onDelete: () => void;
 }
 
@@ -10,6 +11,7 @@ export function EditorToolbar({
   ready,
   hasSelection,
   onAddText,
+  onAddImage,
   onDelete,
 }: Props) {
   return (
@@ -24,7 +26,12 @@ export function EditorToolbar({
           onClick={onAddText}
           disabled={!ready}
         />
-        <ToolButton label="Image" icon="▣" disabled soon />
+        <ToolButton
+          label="Image"
+          icon="▣"
+          onClick={onAddImage}
+          disabled={!ready}
+        />
         <ToolButton label="Layers" icon="≡" disabled soon />
         <ToolButton label="3D" icon="◎" disabled soon />
         <ToolButton
