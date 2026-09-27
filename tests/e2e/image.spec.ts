@@ -150,3 +150,20 @@ test("undo removes an added photo", async ({ page }) => {
     page.getByRole("button", { name: "Image", exact: true }),
   ).toBeEnabled();
 });
+
+test("uploads work on plain-HTTP pages without crypto.randomUUID (phone on LAN IP)", async ({
+  page,
+}) => {
+  // localhost is a secure context; simulate http://192.168.x.x where randomUUID is missing.
+  await page.addInitScript(() => {
+    Object.defineProperty(crypto, "randomUUID", {
+      value: undefined,
+      configurable: true,
+    });
+  });
+  await openEditor(page);
+  expect(await page.evaluate(() => typeof crypto.randomUUID)).toBe("undefined");
+  await upload(page, "big.png", await makePng(page, 1600, 1600));
+  await expect(badge(page)).toHaveAttribute("data-status", "ok");
+  await expect(page.getByTestId("editor-notice")).toHaveCount(0);
+});
