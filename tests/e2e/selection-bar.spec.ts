@@ -94,13 +94,11 @@ test("photo: crop to a square, reopen, and reset", async ({ page }) => {
   await expect(
     page.getByRole("button", { name: "Image", exact: true }),
   ).toBeEnabled();
-  await page
-    .getByTestId("image-input")
-    .setInputFiles({
-      name: "wide.png",
-      mimeType: "image/png",
-      buffer: await makePng(page, 3000, 1200),
-    });
+  await page.getByTestId("image-input").setInputFiles({
+    name: "wide.png",
+    mimeType: "image/png",
+    buffer: await makePng(page, 3000, 1200),
+  });
   await expect(bar(page)).toHaveAttribute("aria-label", "Photo tools");
   await expect(bar(page).getByRole("button", { name: "Bold" })).toHaveCount(0);
   const before = await readout(page);
@@ -156,13 +154,11 @@ test("crop survives reload (saved in the draft)", async ({ page }) => {
   await expect(
     page.getByRole("button", { name: "Image", exact: true }),
   ).toBeEnabled();
-  await page
-    .getByTestId("image-input")
-    .setInputFiles({
-      name: "wide.png",
-      mimeType: "image/png",
-      buffer: await makePng(page, 3000, 1200),
-    });
+  await page.getByTestId("image-input").setInputFiles({
+    name: "wide.png",
+    mimeType: "image/png",
+    buffer: await makePng(page, 3000, 1200),
+  });
   await bar(page).getByRole("button", { name: "Crop" }).click();
   await page.getByRole("dialog").getByRole("radio", { name: "Square" }).click();
   await page.getByRole("dialog").getByRole("button", { name: "Done" }).click();
@@ -175,5 +171,56 @@ test("crop survives reload (saved in the draft)", async ({ page }) => {
   await page.mouse.click(cx, cy);
   await expect(status(page)).toHaveText(
     new RegExp(` ${cropped.w} × ${cropped.w} mm`),
+  );
+});
+
+test("text colour: swatches, custom colour, one undo step each, and the bar fits 360 px", async ({
+  page,
+}) => {
+  await openEditorWithText(page);
+  const row = page.getByTestId("selection-bar-row");
+  const fits = await row.evaluate((el) => el.scrollWidth <= el.clientWidth);
+  expect(fits).toBe(true);
+
+  const colourButton = bar(page).getByRole("button", { name: "Text colour" });
+  const panel = page.getByTestId("colour-panel");
+
+  await colourButton.click();
+  await expect(panel.getByRole("button", { name: "Black" })).toHaveAttribute(
+    "aria-pressed",
+    "true",
+  );
+  await panel.getByRole("button", { name: "Red" }).click();
+  await expect(panel).toHaveCount(0); // closes after picking
+
+  await colourButton.click();
+  await expect(panel.getByRole("button", { name: "Red" })).toHaveAttribute(
+    "aria-pressed",
+    "true",
+  );
+
+  // Custom colour commits once when the native picker closes.
+  await panel.getByLabel("Custom colour").fill("#123456");
+  await expect(panel).toHaveCount(0);
+  await colourButton.click();
+  await expect(panel.getByRole("button", { name: "Red" })).toHaveAttribute(
+    "aria-pressed",
+    "false",
+  );
+  // Tapping outside closes the panel without changes.
+  const main = (await page.getByTestId("editor-main").boundingBox())!;
+  await page.mouse.click(main.x + 5, main.y + 5);
+  await expect(panel).toHaveCount(0);
+
+  // Undo goes back to red (one step), then black.
+  const { cx, cy } = await canvasBox(page);
+  const undo = page.getByRole("button", { name: "Undo" });
+  await undo.click();
+  await expect(page.getByRole("button", { name: "Redo" })).toBeEnabled();
+  await page.mouse.click(cx, cy);
+  await bar(page).getByRole("button", { name: "Text colour" }).click();
+  await expect(panel.getByRole("button", { name: "Red" })).toHaveAttribute(
+    "aria-pressed",
+    "true",
   );
 });

@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import { CopyIcon, CropIcon, TrashIcon } from "@/components/ui/icons";
 import { FONTS } from "@/config/fonts";
 import type { TextStyle } from "../engine/text-style";
+import { TextColourPicker } from "./text-colour-picker";
 
 interface Props {
   kind: "text" | "image" | "other";
@@ -14,7 +15,7 @@ interface Props {
 
 /**
  * Context bar shown above the main toolbar while something is selected.
- * Text: font, bold / italic / underline. Photo: crop. Both: copy, delete.
+ * Text: font, colour, bold / italic / underline. Photo: crop. Both: copy, delete.
  */
 export function SelectionBar({
   kind,
@@ -37,7 +38,10 @@ export function SelectionBar({
       data-testid="selection-bar"
       className="fixed inset-x-0 bottom-[calc(3.5rem+1px+env(safe-area-inset-bottom))] z-10 border-t border-zinc-200 bg-white"
     >
-      <div className="mx-auto flex h-12 max-w-md items-center gap-1 overflow-x-auto px-2">
+      <div
+        className="mx-auto flex h-12 max-w-md items-center gap-1 overflow-x-auto px-2"
+        data-testid="selection-bar-row"
+      >
         {kind === "text" && text && (
           <>
             <label className="sr-only" htmlFor="font-select">
@@ -51,7 +55,7 @@ export function SelectionBar({
                   : ""
               }
               onChange={(e) => onTextStyle({ fontFamily: e.target.value })}
-              className="h-9 w-24 shrink-0 rounded-md border border-zinc-300 bg-white px-2 text-sm text-zinc-800"
+              className="h-9 w-20 shrink-0 rounded-md border border-zinc-300 bg-white px-2 text-sm text-zinc-800"
               style={{ fontFamily: text.fontFamily }}
             >
               {!FONTS.some((f) => f.family === text.fontFamily) && (
@@ -67,6 +71,10 @@ export function SelectionBar({
                 </option>
               ))}
             </select>
+            <TextColourPicker
+              value={text.fill}
+              onChange={(fill) => onTextStyle({ fill })}
+            />
             <Toggle
               label="Bold"
               pressed={text.fontWeight === "bold"}
@@ -96,7 +104,6 @@ export function SelectionBar({
             >
               <span className="underline">U</span>
             </Toggle>
-            <Divider />
           </>
         )}
         {kind === "image" && (
@@ -135,7 +142,7 @@ function Toggle({
       aria-label={label}
       aria-pressed={pressed}
       onClick={onClick}
-      className={`grid size-10 shrink-0 place-items-center rounded-md text-base ${
+      className={`grid size-9 shrink-0 place-items-center rounded-md text-base ${
         pressed
           ? "bg-indigo-100 text-indigo-700"
           : "text-zinc-700 active:bg-zinc-100"
@@ -162,7 +169,7 @@ function Action({
       type="button"
       aria-label={label}
       onClick={onClick}
-      className={`flex h-11 w-12 shrink-0 flex-col items-center justify-center gap-0.5 rounded-md text-[10px] leading-none font-medium active:bg-zinc-100 ${
+      className={`flex h-11 w-11 shrink-0 flex-col items-center justify-center gap-0.5 rounded-md text-[10px] leading-none font-medium active:bg-zinc-100 ${
         danger ? "text-red-600" : "text-zinc-700"
       }`}
     >

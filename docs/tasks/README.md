@@ -9,15 +9,16 @@ own folders.
 
 | #   | Task                                                             | Owner                        | Branch                | Status                   |
 | --- | ---------------------------------------------------------------- | ---------------------------- | --------------------- | ------------------------ |
-| 00  | Editor core, image upload + DPI                                  | Lead (Claude, cloud session) | `feat/image-upload`   | in review                |
-| 01  | [WooCommerce adapter + order webhook](01-woocommerce-adapter.md) | Claude (2nd cloud session)   | `feat/woo-adapter`    | in review                |
+| 00  | Editor core, image upload + DPI                                  | Lead (Claude, cloud session) | `feat/image-upload`   | done (+ selection bar)   |
+| 01  | [WooCommerce adapter + order webhook](01-woocommerce-adapter.md) | _unassigned_                 | `feat/woo-adapter`    | ready                    |
 | 02  | [WhatsApp messaging + reply webhook](02-whatsapp-messaging.md)   | —                            | `feat/whatsapp`       | **postponed** (post-MVP) |
 | 03  | [VendorProof.pdf builder](03-vendor-proof-pdf.md)                | _unassigned_                 | `feat/vendor-proof`   | ready                    |
 | 04  | [3D mug preview](04-mug-3d-preview.md)                           | _unassigned_                 | `feat/mug-3d`         | ready (needs a mug GLB)  |
 | 05  | [COD checkout form](05-checkout-form.md)                         | Intern + Cursor              | `feat/checkout-form`  | ready                    |
 | 06  | [Text styling sheet](06-text-styling-sheet.md)                   | Intern + Cursor              | `feat/text-sheet`     | ready                    |
-| 07  | [300 DPI print renderer](07-print-renderer.md)                   | Lead (Claude)                | `feat/print-renderer` | after 00                 |
+| 07  | [300 DPI print renderer](07-print-renderer.md)                   | Lead (Claude)                | `feat/print-renderer` | next                     |
 | 08  | [Order pipeline, manual dispatch](08-order-pipeline.md)          | Lead (Claude)                | `feat/order-pipeline` | after 01, 03, 07         |
+| 09  | [Photo background removal](09-background-removal.md)             | —                            | `feat/bg-removal`     | **postponed**            |
 
 Update this table in your PR when you pick up or finish a task.
 
