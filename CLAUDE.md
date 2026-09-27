@@ -136,6 +136,8 @@ Mobile PWA (Fabric.js editor + Three.js preview)
   `assetId`/`sourceWidthPx`/`sourceHeightPx`. DPI always uses the original's pixels
   (`engine/image.ts` `objectDpi`, `lib/print-quality.ts` `printQualityReport` for whole designs).
   Checkout uploads originals to storage and the print renderer resolves `asset:<id>` to them.
+- IDs: use `newId()` (`src/lib/id.ts`), never `crypto.randomUUID()` directly — it doesn't exist on
+  plain-HTTP pages (phones testing the dev server by LAN IP). Same care for other secure-context APIs.
 - Fabric ignores mouse input for 400 ms after a touch gesture; in e2e tests use
   `page.touchscreen.tap` after a pinch, not `page.mouse.click`.
 - Text styling goes through `engine/text-style.ts` (`applyTextStyle`, `getTextStyle`),

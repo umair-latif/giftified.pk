@@ -35,7 +35,7 @@ The "Order" step: a mobile-first Cash on Delivery form that creates the order th
   plain language (English now; Urdu later).
 - Validate on the server with Zod; never trust client prices — show the total returned by
   `createOrder`.
-- Generate `checkoutId` once per attempt (`crypto.randomUUID()`) so double taps don't
+- Generate `checkoutId` once per attempt (`newId()` from `src/lib/id.ts` — not `crypto.randomUUID()`, which is missing on plain-HTTP pages such as the dev server opened from a phone) so double taps don't
   create two orders; disable the button while submitting.
 - Order summary: product, quantity (1–10), shipping by city from `quoteShipping`, total in
   PKR formatted `Rs 1,699`.

@@ -11,6 +11,7 @@ import type {
   TextStyle,
 } from "../engine";
 import { dpiStatus, type DpiStatus } from "@/lib/dpi";
+import { newId } from "@/lib/id";
 import { putAsset, pruneAssets, previewUrl } from "../assets/asset-store";
 import { ImageUploadError, prepareImage } from "../assets/prepare-image";
 import { resolveAssetRefs } from "../assets/resolve";
@@ -280,7 +281,7 @@ export function useFabricCanvas(product: ProductConfig) {
     setNotice(null);
     try {
       const prepared = await prepareImage(file);
-      const id = crypto.randomUUID();
+      const id = newId();
       await putAsset({
         id,
         name: file.name,
