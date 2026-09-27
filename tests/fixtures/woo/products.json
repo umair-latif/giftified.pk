@@ -1,0 +1,32 @@
+[
+  {
+    "id": 101,
+    "name": "Custom Mug",
+    "slug": "custom-mug",
+    "type": "variable",
+    "status": "publish",
+    "sku": "mug",
+    "price": "1499",
+    "regular_price": "",
+    "stock_status": "instock",
+    "attributes": [
+      { "id": 1, "name": "Colour", "position": 0, "visible": true, "variation": true, "options": ["Gloss White", "Black"] }
+    ],
+    "variations": [1011, 1012],
+    "meta_data": []
+  },
+  {
+    "id": 205,
+    "name": "Gift wrapping",
+    "slug": "gift-wrapping",
+    "type": "simple",
+    "status": "publish",
+    "sku": "gift-wrap",
+    "price": "150",
+    "regular_price": "150",
+    "stock_status": "instock",
+    "attributes": [],
+    "variations": [],
+    "meta_data": []
+  }
+]
