@@ -1,19 +1,11 @@
 interface Props {
   ready: boolean;
-  hasSelection: boolean;
   onAddText: () => void;
   onAddImage: () => void;
-  onDelete: () => void;
 }
 
-/** Bottom tool bar. Placeholder slots mark where upcoming tools will go. */
-export function EditorToolbar({
-  ready,
-  hasSelection,
-  onAddText,
-  onAddImage,
-  onDelete,
-}: Props) {
+/** Bottom tool bar for adding things. Actions on a selected item live in the SelectionBar above it. */
+export function EditorToolbar({ ready, onAddText, onAddImage }: Props) {
   return (
     <nav
       aria-label="Editor tools"
@@ -34,12 +26,6 @@ export function EditorToolbar({
         />
         <ToolButton label="Layers" icon="≡" disabled soon />
         <ToolButton label="3D" icon="◎" disabled soon />
-        <ToolButton
-          label="Delete"
-          icon="✕"
-          onClick={onDelete}
-          disabled={!hasSelection}
-        />
       </div>
     </nav>
   );

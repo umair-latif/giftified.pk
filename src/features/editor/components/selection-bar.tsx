@@ -1,0 +1,177 @@
+import type { ReactNode } from "react";
+import { CopyIcon, CropIcon, TrashIcon } from "@/components/ui/icons";
+import { FONTS } from "@/config/fonts";
+import type { TextStyle } from "../engine/text-style";
+
+interface Props {
+  kind: "text" | "image" | "other";
+  text: TextStyle | null;
+  onTextStyle: (style: Partial<TextStyle>) => void;
+  onCrop: () => void;
+  onCopy: () => void;
+  onDelete: () => void;
+}
+
+/**
+ * Context bar shown above the main toolbar while something is selected.
+ * Text: font, bold / italic / underline. Photo: crop. Both: copy, delete.
+ */
+export function SelectionBar({
+  kind,
+  text,
+  onTextStyle,
+  onCrop,
+  onCopy,
+  onDelete,
+}: Props) {
+  return (
+    <div
+      role="toolbar"
+      aria-label={
+        kind === "text"
+          ? "Text tools"
+          : kind === "image"
+            ? "Photo tools"
+            : "Selection tools"
+      }
+      data-testid="selection-bar"
+      className="fixed inset-x-0 bottom-[calc(3.5rem+1px+env(safe-area-inset-bottom))] z-10 border-t border-zinc-200 bg-white"
+    >
+      <div className="mx-auto flex h-12 max-w-md items-center gap-1 overflow-x-auto px-2">
+        {kind === "text" && text && (
+          <>
+            <label className="sr-only" htmlFor="font-select">
+              Font
+            </label>
+            <select
+              id="font-select"
+              value={
+                FONTS.some((f) => f.family === text.fontFamily)
+                  ? text.fontFamily
+                  : ""
+              }
+              onChange={(e) => onTextStyle({ fontFamily: e.target.value })}
+              className="h-9 w-24 shrink-0 rounded-md border border-zinc-300 bg-white px-2 text-sm text-zinc-800"
+              style={{ fontFamily: text.fontFamily }}
+            >
+              {!FONTS.some((f) => f.family === text.fontFamily) && (
+                <option value="">Custom</option>
+              )}
+              {FONTS.map((f) => (
+                <option
+                  key={f.family}
+                  value={f.family}
+                  style={{ fontFamily: f.family }}
+                >
+                  {f.label}
+                </option>
+              ))}
+            </select>
+            <Toggle
+              label="Bold"
+              pressed={text.fontWeight === "bold"}
+              onClick={() =>
+                onTextStyle({
+                  fontWeight: text.fontWeight === "bold" ? "normal" : "bold",
+                })
+              }
+            >
+              <span className="font-bold">B</span>
+            </Toggle>
+            <Toggle
+              label="Italic"
+              pressed={text.fontStyle === "italic"}
+              onClick={() =>
+                onTextStyle({
+                  fontStyle: text.fontStyle === "italic" ? "normal" : "italic",
+                })
+              }
+            >
+              <span className="font-serif italic">I</span>
+            </Toggle>
+            <Toggle
+              label="Underline"
+              pressed={text.underline}
+              onClick={() => onTextStyle({ underline: !text.underline })}
+            >
+              <span className="underline">U</span>
+            </Toggle>
+            <Divider />
+          </>
+        )}
+        {kind === "image" && (
+          <>
+            <Action label="Crop" onClick={onCrop}>
+              <CropIcon width={20} height={20} />
+            </Action>
+            <Divider />
+          </>
+        )}
+        <Action label="Copy" onClick={onCopy}>
+          <CopyIcon width={20} height={20} />
+        </Action>
+        <Action label="Delete" onClick={onDelete} danger>
+          <TrashIcon width={20} height={20} />
+        </Action>
+      </div>
+    </div>
+  );
+}
+
+function Toggle({
+  label,
+  pressed,
+  onClick,
+  children,
+}: {
+  label: string;
+  pressed: boolean;
+  onClick: () => void;
+  children: ReactNode;
+}) {
+  return (
+    <button
+      type="button"
+      aria-label={label}
+      aria-pressed={pressed}
+      onClick={onClick}
+      className={`grid size-10 shrink-0 place-items-center rounded-md text-base ${
+        pressed
+          ? "bg-indigo-100 text-indigo-700"
+          : "text-zinc-700 active:bg-zinc-100"
+      }`}
+    >
+      {children}
+    </button>
+  );
+}
+
+function Action({
+  label,
+  onClick,
+  danger,
+  children,
+}: {
+  label: string;
+  onClick: () => void;
+  danger?: boolean;
+  children: ReactNode;
+}) {
+  return (
+    <button
+      type="button"
+      aria-label={label}
+      onClick={onClick}
+      className={`flex h-11 w-12 shrink-0 flex-col items-center justify-center gap-0.5 rounded-md text-[10px] leading-none font-medium active:bg-zinc-100 ${
+        danger ? "text-red-600" : "text-zinc-700"
+      }`}
+    >
+      {children}
+      <span>{label}</span>
+    </button>
+  );
+}
+
+function Divider() {
+  return <span aria-hidden className="mx-1 h-6 w-px shrink-0 bg-zinc-200" />;
+}

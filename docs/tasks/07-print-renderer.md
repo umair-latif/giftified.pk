@@ -14,3 +14,5 @@
 - Fabric in Node (`fabric/node`) with `@napi-rs/canvas` or `canvas`; zoom = dpi / 25.4.
 - Golden-image tests against `tests/fixtures/design-mug.json`.
 - Resolve image URLs to originals in storage (never the compressed previews).
+- Crops are stored in preview pixels: scale `cropX/cropY/width/height` by
+  `sourceWidthPx / previewWidthPx` and divide `scaleX/scaleY` by it (see `src/types/design.ts`).

@@ -11,6 +11,7 @@ export interface TextStyle {
   fill: string;
   fontWeight: "normal" | "bold";
   fontStyle: "normal" | "italic";
+  underline: boolean;
   textAlign: "left" | "center" | "right";
   /** Outline colour, or null for no outline. */
   stroke: string | null;
@@ -36,6 +37,7 @@ export function getTextStyle(obj: FabricObject | undefined): TextStyle | null {
         ? "bold"
         : "normal",
     fontStyle: obj.fontStyle === "italic" ? "italic" : "normal",
+    underline: !!obj.underline,
     textAlign:
       obj.textAlign === "left" || obj.textAlign === "right"
         ? obj.textAlign

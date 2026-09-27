@@ -53,9 +53,14 @@ export function printQualityReport(
       (o) => typeof o.type === "string" && o.type.toLowerCase() === "image",
     )
     .map((o) => {
+      // Cropped images use only part of the original: scale by the visible fraction.
+      const visibleW = num(o.width) / num(o.previewWidthPx, num(o.width));
+      const visibleH = num(o.height) / num(o.previewHeightPx, num(o.height));
       const dpi = imageDpi({
-        sourceWidthPx: num(o.sourceWidthPx),
-        sourceHeightPx: num(o.sourceHeightPx),
+        sourceWidthPx:
+          num(o.sourceWidthPx) * (Number.isFinite(visibleW) ? visibleW : 1),
+        sourceHeightPx:
+          num(o.sourceHeightPx) * (Number.isFinite(visibleH) ? visibleH : 1),
         widthMm: num(o.width) * num(o.scaleX, 1),
         heightMm: num(o.height) * num(o.scaleY, 1),
       });

@@ -8,9 +8,22 @@ export { addText, type AddTextOptions } from "./text";
 export { attachTwoFingerGestures } from "./gestures";
 export { attachHistory, type CanvasHistory } from "./history";
 export { attachCentreSnapping, NO_GUIDES, type GuideState } from "./guides";
-export { straightenSelected, centreSelected, deleteSelected } from "./actions";
+export {
+  straightenSelected,
+  centreSelected,
+  deleteSelected,
+  duplicateSelected,
+} from "./actions";
 export { renderDesignToDataUrl } from "./render";
-export { addImage, objectDpi, type ImageAssetMeta } from "./image";
+export {
+  addImage,
+  applyCrop,
+  getCrop,
+  isAssetImage,
+  objectDpi,
+  type ImageAssetMeta,
+} from "./image";
+export { type NormRect } from "./crop";
 export { applyTextStyle, getTextStyle, type TextStyle } from "./text-style";
 export {
   toDesignDocument,
