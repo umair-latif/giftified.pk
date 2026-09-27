@@ -1,0 +1,26 @@
+[
+  {
+    "id": 1011,
+    "sku": "mug-white",
+    "price": "1499",
+    "regular_price": "1499",
+    "sale_price": "",
+    "status": "publish",
+    "stock_status": "instock",
+    "manage_stock": false,
+    "attributes": [{ "id": 1, "name": "Colour", "option": "Gloss White" }],
+    "meta_data": []
+  },
+  {
+    "id": 1012,
+    "sku": "mug-black",
+    "price": "1699.00",
+    "regular_price": "1699.00",
+    "sale_price": "",
+    "status": "publish",
+    "stock_status": "outofstock",
+    "manage_stock": false,
+    "attributes": [{ "id": 1, "name": "Colour", "option": "Black" }],
+    "meta_data": []
+  }
+]
