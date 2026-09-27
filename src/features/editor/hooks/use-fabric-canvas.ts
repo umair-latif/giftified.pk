@@ -8,8 +8,11 @@ import type {
   DesignCanvas,
   DesignDocument,
   GuideState,
+  TextStyle,
 } from "../engine";
 import { loadDraft, saveDraft } from "../draft";
+// Only type imports from Fabric inside, so this does not pull Fabric into the initial bundle.
+import { getTextStyle } from "../engine/text-style";
 
 export type EditorStatus = "loading" | "ready" | "error";
 
@@ -22,6 +25,8 @@ export interface SelectionInfo {
   heightMm: number;
   /** Degrees, 0–360. */
   angle: number;
+  /** Present when the selection is text. */
+  text: TextStyle | null;
 }
 
 const NO_GUIDES: GuideState = { vertical: false, horizontal: false };
@@ -217,6 +222,16 @@ export function useFabricCanvas(product: ProductConfig) {
     [run],
   );
 
+  const applyTextStyle = useCallback(
+    (style: Partial<TextStyle>) =>
+      run((e, dc) => e.applyTextStyle(dc.canvas, style)),
+    [run],
+  );
+  const setText = useCallback(
+    (text: string) => applyTextStyle({ text }),
+    [applyTextStyle],
+  );
+
   const getDesign = useCallback((): DesignDocument | null => {
     const dc = designRef.current;
     const engine = engineRef.current;
@@ -238,6 +253,8 @@ export function useFabricCanvas(product: ProductConfig) {
     deleteSelected,
     straighten,
     centre,
+    applyTextStyle,
+    setText,
     getDesign,
   };
 }
@@ -252,5 +269,6 @@ function describe(obj: FabricObject | undefined): SelectionInfo | null {
     widthMm: obj.getScaledWidth(),
     heightMm: obj.getScaledHeight(),
     angle: ((obj.angle % 360) + 360) % 360,
+    text: getTextStyle(obj),
   };
 }

@@ -88,10 +88,22 @@ Mobile PWA (Fabric.js editor + Three.js preview)
     (mm), placement offsets (mm from reference point), mockup preview, customer city.
     No customer phone/address in vendor docs unless the vendor needs it for shipping.
 
-## Workflow
-- Lead dev owns: engine/, 3d/, print/, pdf/, worker jobs, and reviews all intern PRs.
-- Intern owns: UI components, drawers/sheets, form handling, messaging adapter, DPI UI.
-- Small PRs. Run `pnpm lint && pnpm typecheck && pnpm test` before proposing a commit.
+## Workflow & parallel work
+- GitHub: `umair-latif/giftified.pk`. `main` only changes via PRs with green CI (`.github/workflows/ci.yml`), from
+  `feat/*`, `fix/*` or `chore/*` branches. Small PRs (ideally < 400 changed lines).
+- Modules are split into task briefs in `docs/tasks/` (status board in its README). Each
+  brief lists the folders you may edit — stay inside them.
+- **Shared contracts** (change only in a separate PR approved by the lead):
+  `src/types/design.ts` (DesignDocument), `src/types/order.ts`, `src/lib/commerce/types.ts`,
+  `src/lib/messaging/types.ts`, `src/server/print/types.ts`, `src/server/pdf/types.ts`,
+  `src/features/preview-3d/types.ts`.
+- Build against mocks and fixtures instead of waiting: `createMockCommerce()`,
+  `createMockMessenger()`, `tests/fixtures/design-mug.json`, `tests/fixtures/design-mug-preview.png`.
+- `package.json`, `CLAUDE.md` and `src/config/products/` change only in small dedicated PRs.
+  Lockfile conflicts: rebase, `pnpm install`, commit — never hand-edit `pnpm-lock.yaml`.
+- Lead (Claude) owns: editor engine + hooks, image upload/DPI, print renderer, contracts, reviews.
+  Intern owns: UI sheets/components, checkout form, messaging adapter.
+- Run `pnpm check` before every commit; UI changes also `pnpm build && pnpm e2e`.
 - When unsure about print dimensions or vendor requirements, ask — don't guess.
 
 ## Commands
@@ -106,6 +118,17 @@ Mobile PWA (Fabric.js editor + Three.js preview)
 - Fabric owns the DOM inside the editor host div (canvas created imperatively in
   `useFabricCanvas`); never render React children there.
 - Guides (safe zone, edge labels) are CSS overlays so they can never leak into exports.
+- Undo/redo = JSON snapshots of the canvas (`engine/history.ts`, pure stack in
+  `history-stack.ts`) recorded on add/remove/modified. Anything not serialised (control
+  styles, snap settings) must be re-applied in `applyTouchControls` after a restore.
+- Drafts autosave to localStorage per product (`features/editor/draft.ts`) so Back/Next and
+  refresh never lose work. Keep designs small: images go in as storage URLs, never data URLs.
+- Snapping: object centre snaps to the centre lines within 8 screen px; rotation snaps to
+  0/90/180/270° within 5° (`engine/snap.ts`, pure + unit-tested).
+- Text styling goes through `engine/text-style.ts` (`applyTextStyle`, `getTextStyle`),
+  exposed as `useFabricCanvas().applyTextStyle / setText / selection.text`.
+- Every screen uses `components/ui/app-header.tsx` (back arrow to a fixed parent route,
+  optional Next) and `step-bar.tsx` (Design → Preview → Order).
 - Fabric v7 has no built-in pinch/rotate; `engine/gestures.ts` implements it with raw touch
   events. Keep controls finger-sized (`engine/controls.ts`).
 
@@ -117,7 +140,10 @@ src/features/checkout/  COD form, address validation
 src/server/print/   300 DPI renderer (Fabric JSON -> PNG)
 src/server/pdf/     VendorProof.pdf builder
 src/server/jobs/    queued jobs: render-print-file, build-proof, dispatch-vendor
-src/lib/            commerce/woocommerce.ts, messaging/, email/, storage/, units.ts, dpi.ts
+src/lib/            commerce/ (types, mock, woocommerce), messaging/, email/, storage/, units.ts, dpi.ts
+src/types/          shared contracts: design.ts, order.ts
+docs/tasks/         per-module task briefs + status board
+tests/fixtures/     sample design JSON + rendered PNG for module work without the editor
 src/config/products/ mug.ts, tshirt.ts, hoodie.ts (print areas in mm, colours, sizes)
 public/models/      *.glb (Draco)   public/textures/  masks, normal maps
 public/fonts/       self-hosted, subset fonts (Latin + Urdu where licensed)

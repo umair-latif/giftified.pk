@@ -1,19 +1,8 @@
 import type { Canvas } from "fabric";
 import type { PrintArea, ProductId } from "@/config/products";
+import { DESIGN_SCHEMA_VERSION, type DesignDocument } from "@/types/design";
 
-export const DESIGN_SCHEMA_VERSION = 1 as const;
-
-/**
- * What gets saved and sent to the print worker. Coordinates are mm inside the
- * print area; the worker renders this at PRINT_DPI to make the vendor PNG.
- */
-export interface DesignDocument {
-  schemaVersion: typeof DESIGN_SCHEMA_VERSION;
-  productId: ProductId;
-  units: "mm";
-  printArea: PrintArea;
-  fabric: Record<string, unknown>;
-}
+export { DESIGN_SCHEMA_VERSION, type DesignDocument } from "@/types/design";
 
 export function toDesignDocument(
   canvas: Canvas,

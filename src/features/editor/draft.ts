@@ -1,5 +1,5 @@
 import type { ProductId } from "@/config/products";
-import { DESIGN_SCHEMA_VERSION, type DesignDocument } from "./engine/serialize";
+import { isDesignDocument, type DesignDocument } from "@/types/design";
 
 /**
  * Autosaved work-in-progress, per product, in this browser. Lets customers
@@ -33,20 +33,4 @@ export function clearDraft(productId: ProductId): void {
   } catch {
     /* ignore */
   }
-}
-
-function isDesignDocument(
-  v: unknown,
-  productId: ProductId,
-): v is DesignDocument {
-  if (typeof v !== "object" || v === null) return false;
-  const d = v as Partial<DesignDocument>;
-  return (
-    d.schemaVersion === DESIGN_SCHEMA_VERSION &&
-    d.productId === productId &&
-    d.units === "mm" &&
-    typeof d.fabric === "object" &&
-    d.fabric !== null &&
-    Array.isArray((d.fabric as { objects?: unknown }).objects)
-  );
 }

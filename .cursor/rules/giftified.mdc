@@ -1,0 +1,10 @@
+---
+description: Giftified.pk project rules
+alwaysApply: true
+---
+
+Before writing code, read `CLAUDE.md` (project rules and architecture), `AGENTS.md`
+(Next.js 16 notes) and `docs/tasks/README.md` (parallel-work rules). Follow the task
+brief in `docs/tasks/` you were given: only edit the folders it allows, build against
+the existing contracts and mocks, add tests, and run `pnpm check` before finishing.
+Use pnpm, never npm or yarn.
