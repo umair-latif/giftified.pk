@@ -1,0 +1,6 @@
+[
+  { "id": 0, "name": "Locations not covered by your other zones", "order": 0 },
+  { "id": 1, "name": "Lahore", "order": 1 },
+  { "id": 2, "name": "Gujrat, Sialkot, Jhelum", "order": 2 },
+  { "id": 3, "name": "Rest of Pakistan", "order": 3 }
+]
