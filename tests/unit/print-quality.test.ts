@@ -51,4 +51,17 @@ describe("print quality report", () => {
       "warn",
     );
   });
+
+  it("accounts for cropping: only the visible part of the original is printed", () => {
+    // Keep the left half of a 3000 px original (preview 1000 px) and print it 127 mm (5 in) wide.
+    const cropped = image(3000, 127, {
+      width: 500,
+      previewWidthPx: 1000,
+      previewHeightPx: 1000,
+      scaleX: 127 / 500,
+      scaleY: 127 / 500,
+    });
+    const r = printQualityReport({ objects: [cropped] });
+    expect(r.images[0]!.dpi).toBeCloseTo(300, 5); // 1500 px over 5 in
+  });
 });

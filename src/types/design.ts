@@ -17,6 +17,9 @@ export interface DesignDocument {
    * Fabric.js `canvas.toObject()` output (objects array, version). No viewport transform.
    * Images: `src` is `asset:<id>` (never a blob:/data: URL) and each image carries
    * `assetId`, `sourceWidthPx`, `sourceHeightPx` (pixel size of the ORIGINAL upload).
+   * Also `previewWidthPx`/`previewHeightPx`: size of the preview the editor drew. `cropX`,
+   * `cropY`, `width`, `height` are in PREVIEW pixels; when rendering with the original, scale
+   * them by `sourceWidthPx / previewWidthPx` (and divide `scaleX/Y` by the same factor).
    * The print renderer resolves `asset:<id>` to the original file in storage.
    */
   fabric: Record<string, unknown>;

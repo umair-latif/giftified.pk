@@ -1,11 +1,17 @@
 # 06 — Text styling sheet
 
+> **Scope reduced:** the lead's selection bar (`src/features/editor/components/selection-bar.tsx`)
+> already has the font picker, bold/italic/underline, copy and delete. This task is now the
+> **"More" sheet** for text: editing the words, colour, outline, alignment, and the self-hosted
+> font files (adding a font to `src/config/fonts.ts` makes it appear in the bar's picker too).
+> Open it from a new "More" / "Aa" button at the start of the selection bar (one small edit there).
+
 **Branch:** `feat/text-sheet` · **Suggested owner:** Intern + Cursor (lead reviews)
 
 ## Goal
 
-When a text layer is selected, a bottom sheet lets the customer change the words, font,
-colour, bold/italic, alignment and an outline.
+When a text layer is selected, a "More" bottom sheet lets the customer change the words,
+colour, alignment and an outline. (Font and bold/italic/underline are already in the selection bar.)
 
 ## You may edit
 
@@ -13,6 +19,7 @@ colour, bold/italic, alignment and an outline.
   `src/features/editor/components/`
 - `src/components/ui/` (generic Sheet / Swatch components)
 - `src/features/editor/components/design-editor.tsx` — only to mount the sheet
+- `src/features/editor/components/selection-bar.tsx` — only to add the "More" button that opens it
 - `src/config/fonts.ts` and `public/fonts/` (self-hosted fonts)
 - `tests/e2e/text-sheet.spec.ts`
 

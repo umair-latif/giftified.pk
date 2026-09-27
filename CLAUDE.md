@@ -140,6 +140,10 @@ Mobile PWA (Fabric.js editor + Three.js preview)
   plain-HTTP pages (phones testing the dev server by LAN IP). Same care for other secure-context APIs.
 - Fabric ignores mouse input for 400 ms after a touch gesture; in e2e tests use
   `page.touchscreen.tap` after a pinch, not `page.mouse.click`.
+- Selection bar (`components/selection-bar.tsx`) sits above the bottom toolbar while something is
+  selected: text → font, bold/italic/underline; photo → crop; both → copy, delete. Crop maths is
+  pure in `engine/crop.ts` (normalised 0–1 rects); DPI accounts for the crop.
+- Drafts also save on `pagehide`/`visibilitychange`, so a reload right after an edit keeps it.
 - Text styling goes through `engine/text-style.ts` (`applyTextStyle`, `getTextStyle`),
   exposed as `useFabricCanvas().applyTextStyle / setText / selection.text`.
 - Every screen uses `components/ui/app-header.tsx` (back arrow to a fixed parent route,

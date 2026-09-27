@@ -8,6 +8,7 @@ import type {
   DesignCanvas,
   DesignDocument,
   GuideState,
+  NormRect,
   TextStyle,
 } from "../engine";
 import { dpiStatus, type DpiStatus } from "@/lib/dpi";
@@ -35,6 +36,15 @@ export interface SelectionInfo {
   /** Effective print DPI when the selection is an image. */
   dpi: number | null;
   dpiStatus: DpiStatus | null;
+}
+
+export interface CropTarget {
+  /** Preview image URL to show in the crop screen. */
+  src: string;
+  /** Width ÷ height of the full, uncropped image. */
+  imageAspect: number;
+  /** Current crop (normalised). */
+  rect: NormRect;
 }
 
 export interface PrintQuality {
@@ -185,6 +195,13 @@ export function useFabricCanvas(product: ProductConfig) {
         setGuides,
       );
 
+      // Reloads, tab closes and app switches don't run React cleanup: save now.
+      const onHide = () => saveNow();
+      const onVisibility = () =>
+        document.visibilityState === "hidden" && saveNow();
+      window.addEventListener("pagehide", onHide);
+      document.addEventListener("visibilitychange", onVisibility);
+
       const ro = new ResizeObserver(([entry]) => {
         if (entry) dc.fit(entry.contentRect.width);
       });
@@ -194,6 +211,8 @@ export function useFabricCanvas(product: ProductConfig) {
       setStatus("ready");
       teardown = () => {
         saveNow(); // never lose the last change when navigating away
+        window.removeEventListener("pagehide", onHide);
+        document.removeEventListener("visibilitychange", onVisibility);
         cancelAnimationFrame(frame);
         ro.disconnect();
         detachSnap();
@@ -317,6 +336,27 @@ export function useFabricCanvas(product: ProductConfig) {
 
   const dismissNotice = useCallback(() => setNotice(null), []);
 
+  const copySelected = useCallback(
+    () => run((e, dc) => void e.duplicateSelected(dc.canvas, dc.area)),
+    [run],
+  );
+
+  /** What the crop screen needs for the selected photo, or null if it isn't a photo. */
+  const getCropTarget = useCallback((): CropTarget | null => {
+    const engine = engineRef.current;
+    const obj = designRef.current?.canvas.getActiveObject();
+    if (!engine || !engine.isAssetImage(obj)) return null;
+    const full = engine.getCrop(obj);
+    const previewW = obj.width / full.w;
+    const previewH = obj.height / full.h;
+    return { src: obj.getSrc(), imageAspect: previewW / previewH, rect: full };
+  }, []);
+
+  const applyCrop = useCallback(
+    (rect: NormRect) => run((e, dc) => e.applyCrop(dc.canvas, rect)),
+    [run],
+  );
+
   /** Clear the selection (e.g. tap on empty space around the canvas). */
   const deselect = useCallback(
     () =>
@@ -351,6 +391,9 @@ export function useFabricCanvas(product: ProductConfig) {
     notice,
     dismissNotice,
     deselect,
+    copySelected,
+    getCropTarget,
+    applyCrop,
     quality,
     deleteSelected,
     straighten,

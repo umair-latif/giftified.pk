@@ -1,14 +1,17 @@
 "use client";
 
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import type { ProductConfig } from "@/config/products";
 import { AppHeader } from "@/components/ui/app-header";
 import { RedoIcon, UndoIcon } from "@/components/ui/icons";
 import { StepBar } from "@/components/ui/step-bar";
 import {
   useFabricCanvas,
+  type CropTarget,
   type SelectionInfo,
 } from "../hooks/use-fabric-canvas";
+import { CropSheet } from "./crop-sheet";
+import { SelectionBar } from "./selection-bar";
 import { ACCEPTED_IMAGE_TYPES } from "../assets/prepare-image";
 import { EditorStage } from "./editor-stage";
 import { PrintQualityBadge } from "./print-quality-badge";
@@ -21,9 +24,19 @@ export function DesignEditor({ product }: { product: ProductConfig }) {
   const { widthMm, heightMm } = product.printArea;
   const ready = ed.status === "ready" && !ed.busy;
   const fileInput = useRef<HTMLInputElement>(null);
+  const [cropTarget, setCropTarget] = useState<CropTarget | null>(null);
+  const selectionKind = !ed.selection
+    ? null
+    : ed.selection.text
+      ? "text"
+      : ed.selection.dpi !== null
+        ? "image"
+        : "other";
 
   return (
-    <div className="flex min-h-dvh flex-col bg-zinc-50 pb-24">
+    <div
+      className={`flex min-h-dvh flex-col bg-zinc-50 ${selectionKind ? "pb-36" : "pb-24"}`}
+    >
       <AppHeader
         title={product.name}
         backHref="/"
@@ -141,13 +154,31 @@ export function DesignEditor({ product }: { product: ProductConfig }) {
         </p>
       </main>
 
+      {selectionKind && (
+        <SelectionBar
+          kind={selectionKind}
+          text={ed.selection?.text ?? null}
+          onTextStyle={ed.applyTextStyle}
+          onCrop={() => setCropTarget(ed.getCropTarget())}
+          onCopy={ed.copySelected}
+          onDelete={ed.deleteSelected}
+        />
+      )}
       <EditorToolbar
         ready={ready}
-        hasSelection={ed.selection !== null}
         onAddText={ed.addText}
         onAddImage={() => fileInput.current?.click()}
-        onDelete={ed.deleteSelected}
       />
+      {cropTarget && (
+        <CropSheet
+          target={cropTarget}
+          onCancel={() => setCropTarget(null)}
+          onApply={(rect) => {
+            ed.applyCrop(rect);
+            setCropTarget(null);
+          }}
+        />
+      )}
     </div>
   );
 }

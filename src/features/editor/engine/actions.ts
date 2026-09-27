@@ -1,5 +1,7 @@
 import { Point, type Canvas, type FabricObject } from "fabric";
 import type { PrintArea } from "@/config/products";
+import { clampCenterToArea } from "./constraints";
+import { applyTouchControls } from "./controls";
 
 function commit(canvas: Canvas, target: FabricObject) {
   target.setCoords();
@@ -37,5 +39,23 @@ export function deleteSelected(canvas: Canvas): void {
   if (!active) return;
   canvas.remove(active);
   canvas.discardActiveObject();
+  canvas.requestRenderAll();
+}
+
+/** Duplicate the selected object 5 mm down-right and select the copy. */
+export async function duplicateSelected(
+  canvas: Canvas,
+  area: PrintArea,
+): Promise<void> {
+  const source = canvas.getActiveObject();
+  if (!source) return;
+  const copy = await source.clone();
+  const c = source.getCenterPoint();
+  const at = clampCenterToArea({ x: c.x + 5, y: c.y + 5 }, area);
+  copy.setPositionByOrigin(new Point(at.x, at.y), "center", "center");
+  applyTouchControls(copy);
+  canvas.add(copy);
+  canvas.setActiveObject(copy);
+  copy.setCoords();
   canvas.requestRenderAll();
 }
