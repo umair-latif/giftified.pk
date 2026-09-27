@@ -5,14 +5,17 @@ Durable rules for AI-assisted development. Read this before every task.
 ## What we're building
 Mobile-first Print-on-Demand store for Pakistan. Customers design mugs, t-shirts and
 hoodies on their phone, preview in 2D/3D, and order with Cash on Delivery (COD).
-Orders are dispatched to Gujrat/Sialkot print partners by email + WhatsApp with a
-300 DPI PNG and a `VendorProof.pdf`. No vendor portal. No inventory.
+Orders go to Gujrat/Sialkot print partners with a 300 DPI PNG and a `VendorProof.pdf`.
+No vendor portal. No inventory. **MVP: COD confirmation and vendor hand-off are done
+manually by the founder**; WhatsApp automation is a later scaling step.
 
 Data flow:
 Mobile PWA (Fabric.js editor + Three.js preview)
   -> Next.js route handler creates the order in headless WooCommerce (REST v3, status on-hold)
-  -> WC webhook -> queue -> background worker (300 DPI render + PDF proof)
-  -> WhatsApp COD verification -> on confirm: email + WhatsApp dispatch to vendor
+  -> WC webhook -> queue -> background worker (300 DPI render + PDF proof, links on the order)
+  -> founder confirms with the customer (call/message), sets order to Processing in WP admin
+  -> founder sends the PNG + PDF to the vendor (their own WhatsApp/email)
+  (Later: automated WhatsApp confirmation + vendor dispatch behind `lib/messaging`.)
 
 ## Tech stack
 - Next.js 16 App Router (TypeScript) + React 19, Server Components by default. Next 16 differs from older docs: read AGENTS.md first.
@@ -25,7 +28,8 @@ Mobile PWA (Fabric.js editor + Three.js preview)
 - Server-side rendering of print files: node-canvas / @napi-rs/canvas + Fabric in Node
 - PDFs: pdf-lib or PDFKit (server only)
 - Object storage for uploads and print files (S3-compatible, e.g. Cloudflare R2)
-- WhatsApp: prefer official Meta WhatsApp Cloud API; any provider sits behind `lib/messaging`
+- WhatsApp (post-MVP): official Meta WhatsApp Cloud API behind `lib/messaging`. The contract and a
+  mock exist; nothing in the MVP flow may depend on it.
 
 ## Commerce: headless WooCommerce (decided)
 - WordPress + WooCommerce runs on separate PHP hosting; it is the admin/order back office only.
@@ -40,7 +44,7 @@ Mobile PWA (Fabric.js editor + Three.js preview)
   `payment_method: "cod"`, `set_paid: false`, `status: "on-hold"`, and line-item `meta_data`
   `_design_id`, `_print_png_url`, `_proof_pdf_url` (URLs filled in by the worker later).
 - Order statuses (built-in only, no custom PHP for MVP):
-  `on-hold` = awaiting WhatsApp COD verification -> `processing` = verified, dispatched to vendor
+  `on-hold` = awaiting COD confirmation (manual in MVP) -> `processing` = confirmed, sent to vendor
   -> `completed` = delivered/cash collected; `cancelled` = customer declined / no reply.
 - Webhooks: WC `order.created` / `order.updated` -> `/api/webhooks/commerce`. Verify
   `X-WC-Webhook-Signature` (base64 HMAC-SHA256 of the **raw** body with the webhook secret)
@@ -66,7 +70,8 @@ Mobile PWA (Fabric.js editor + Three.js preview)
 - Tests: Vitest for engine/units/pricing/DPI math; Playwright for the mobile editor flow.
 
 ## Hard operational rules
-1. **No vendor portal.** Vendor dispatch is email + WhatsApp with PNG + PDF only (MVP).
+1. **No vendor portal.** Vendors receive the PNG + PDF only. MVP: the founder sends them by hand
+   from the links on the order in WP admin; automation comes later.
 2. **Zero inventory.** Never model stock levels; availability comes from product config.
 3. **Performance budget:** LCP < 2.5s on mid-range Android over 4G. Initial JS for the
    product page < 200 KB gzipped. Fabric and Three load only when the editor/preview opens.
@@ -79,8 +84,9 @@ Mobile PWA (Fabric.js editor + Three.js preview)
    never render print files from the compressed preview images.
 6. **Client-side compression is for preview/upload bandwidth only.** Keep the original
    upload for print; compress a separate preview copy.
-7. **Orders go to production only after COD verification** via WhatsApp (address +
-   product/size confirmed). Unverified orders never trigger vendor dispatch.
+7. **Orders go to production only after COD confirmation** (address + product/size confirmed
+   with the customer; MVP: by the founder, recorded by setting the order to Processing).
+   Unconfirmed orders are never sent to a vendor.
 8. **Idempotency:** every webhook and job is keyed by order ID; re-delivery must not
    double-dispatch to a vendor.
 9. Print PNGs: transparent background, sRGB, exact print-area dimensions from config.
@@ -102,7 +108,7 @@ Mobile PWA (Fabric.js editor + Three.js preview)
 - `package.json`, `CLAUDE.md` and `src/config/products/` change only in small dedicated PRs.
   Lockfile conflicts: rebase, `pnpm install`, commit — never hand-edit `pnpm-lock.yaml`.
 - Lead (Claude) owns: editor engine + hooks, image upload/DPI, print renderer, contracts, reviews.
-  Intern owns: UI sheets/components, checkout form, messaging adapter.
+  Intern owns: UI sheets/components, checkout form. (Messaging adapter: postponed.)
 - Run `pnpm check` before every commit; UI changes also `pnpm build && pnpm e2e`.
 - When unsure about print dimensions or vendor requirements, ask — don't guess.
 

@@ -1,5 +1,10 @@
 # 02 — WhatsApp messaging + reply webhook
 
+> **POSTPONED — post-MVP scaling step.** In the MVP the founder confirms COD orders and
+> sends files to vendors by hand (see task 08). Don't start this until it's back on the
+> status board. The `Messenger` contract and mock stay in `src/lib/messaging/`.
+> Phone-number normalisation (`src/lib/phone.ts`) now belongs to task 05.
+
 **Branch:** `feat/whatsapp` · **Suggested owner:** Intern + Cursor (lead reviews)
 
 ## Goal

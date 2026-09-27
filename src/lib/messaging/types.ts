@@ -1,7 +1,8 @@
 import type { OrderId, PkMobile } from "@/types/order";
 
 /**
- * SHARED CONTRACT — WhatsApp messaging. Implemented by the Meta WhatsApp
+ * SHARED CONTRACT — WhatsApp messaging. POSTPONED for the MVP (manual confirmation and
+ * vendor hand-off); kept so automation can be added later without touching callers. Implemented by the Meta WhatsApp
  * Cloud API adapter (real) and `mock.ts` (dev/tests). Server-only.
  */
 export interface VerificationRequest {

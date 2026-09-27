@@ -10,8 +10,8 @@ export type OrderId = number;
 
 /**
  * Lifecycle, mapped 1:1 to WooCommerce built-in statuses:
- *  on-hold    = placed, waiting for WhatsApp COD confirmation
- *  processing = customer confirmed; print files sent to vendor
+ *  on-hold    = placed, waiting for COD confirmation (MVP: founder calls/messages)
+ *  processing = customer confirmed; print files sent to vendor (MVP: by hand)
  *  completed  = delivered, cash collected
  *  cancelled  = customer declined or never confirmed
  */
