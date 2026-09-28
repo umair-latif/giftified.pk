@@ -16,3 +16,50 @@
 - Resolve image URLs to originals in storage (never the compressed previews).
 - Crops are stored in preview pixels: scale `cropX/cropY/width/height` by
   `sourceWidthPx / previewWidthPx` and divide `scaleX/scaleY` by it (see `src/types/design.ts`).
+
+## What was built (in review)
+
+```ts
+import { renderPrintFile } from "@/server/print"; // server-only
+
+const file = await renderPrintFile(design, {
+  dpi: 300, // default
+  // Bytes of the ORIGINAL upload (from storage). Required when the design has images.
+  resolveAsset: (assetId) => storage.getOriginal(assetId),
+});
+// file.png: Uint8Array — store it and put the URL on the order (`_print_png_url`).
+```
+
+- **Output:** transparent RGBA PNG, exactly `printPixelSize(widthMm, heightMm, dpi)`
+  (mug @ 300 DPI = 2551 × 1051), `pHYs` = dpi, tagged `sRGB`, no `bKGD` chunk.
+- **Rendering:** `fabric/node` `StaticCanvas` (node-canvas + jsdom) sized to the pixel
+  size, viewport zoom `dpi / 25.4` over the mm scene. Canvas background/overlay are
+  dropped (print files are artwork only); object caching is disabled so large objects
+  are never downsampled by Fabric's cache size limits.
+- **Images:** every image must be an `asset:<id>` / `assetId`; anything else throws
+  (never print from previews or URLs). Originals are decoded with `sharp` (JPEG, PNG,
+  WebP; applies EXIF orientation, converts ICC profiles to sRGB) and drawn in place of
+  the preview. Crop/size are rescaled from preview px to original px by
+  `toOriginalGeometry` (`original-image.ts`, pure). Originals whose pixel size doesn't
+  match `sourceWidthPx/sourceHeightPx` are rejected ("wrong file?").
+- **Fonts:** `server-fonts.ts` maps each CSS stack in `src/config/fonts.ts` to a bundled
+  OFL font registered with node-canvas: Liberation Sans (Arial metrics), Gelasio
+  (Georgia metrics, Latin subset) and Liberation Mono (Courier New metrics), regular /
+  bold / italic / bold-italic, in `src/server/print/fonts/` with licence files. Unknown
+  fonts throw. To add a font: TTFs in `fonts/<dir>/`, an entry in `SERVER_FONTS` and its
+  CSS names in `FAMILY_ALIASES`; `tests/unit/print-fonts.test.ts` fails if any `FONTS`
+  entry has no server font.
+- **Deploy note:** fonts are read from `<cwd>/src/server/print/fonts` (override with
+  `PRINT_FONTS_DIR`). The route/job that calls the renderer (task 08) must add them to
+  the function bundle, e.g. `outputFileTracingIncludes: { "/api/jobs/*": ["./src/server/print/fonts/**"] }`.
+- **Try it:** `pnpm print:sample` → `out/print-sample.png` (fixture text + a generated photo).
+- **Tests:** `tests/unit/print-*.test.ts` — size, pHYs, sRGB, transparent corners, text ink
+  only inside the text objects' boxes (in their colours), crop/scale of an original with
+  coloured quadrants, missing asset / wrong-size original / non-asset image errors,
+  preview→original geometry, font coverage and real font metrics.
+
+### Open
+
+- Phones don't have Arial/Georgia/Courier New, so the editor preview may wrap text
+  differently from the print. Fix in task 06: self-host the same font files in the
+  browser and here.

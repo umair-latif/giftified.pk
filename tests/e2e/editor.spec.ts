@@ -1,6 +1,9 @@
 import { expect, test } from "@playwright/test";
 import {
+  AREA,
+  CX,
   canvasBox,
+  centreText,
   openEditorWithText,
   pinch,
   readout,
@@ -40,13 +43,13 @@ test("mug editor: add, drag, clamp, pinch, delete on a 360px phone", async ({
   await page.mouse.move(now + 800, cy + 800, { steps: 10 });
   await page.mouse.up();
   const clamped = await readout(page);
-  expect(clamped.x).toBeLessThanOrEqual(216);
-  expect(clamped.y).toBeLessThanOrEqual(89);
+  expect(clamped.x).toBeLessThanOrEqual(AREA.widthMm);
+  expect(clamped.y).toBeLessThanOrEqual(AREA.heightMm);
 
   await page.getByRole("button", { name: "Delete" }).click();
   await expect(status(page)).toHaveText(/0 layers/);
   await page.getByRole("button", { name: "Text", exact: true }).click();
-  await expect(status(page)).toHaveText(/textbox · centre 108, 45 mm/);
+  await expect(status(page)).toContainText(`textbox · ${centreText()}`);
   const before = await readout(page);
 
   await pinch(page, cx, cy, { fromRadius: 20, toRadius: 50, degrees: 20 });
@@ -111,18 +114,20 @@ test("centre guides light up and snap while dragging", async ({ page }) => {
   await expect(vGuide).toHaveAttribute("data-active", "true");
   await page.mouse.up();
   await expect(vGuide).toHaveAttribute("data-active", "false");
-  expect((await readout(page)).x).toBe(108);
+  expect((await readout(page)).x).toBe(CX);
 
   // Outside the 8px snap zone it stays where it was dropped.
   await page.mouse.move(cx, cy);
   await page.mouse.down();
   await page.mouse.move(cx + 20, cy, { steps: 5 });
   await page.mouse.up();
-  expect((await readout(page)).x).toBe(Math.round(108 + 20 / pxPerMm));
+  expect((await readout(page)).x).toBe(
+    Math.round(AREA.widthMm / 2 + 20 / pxPerMm),
+  );
 
   // Centre chip puts it back.
   await page.getByRole("button", { name: "Centre" }).click();
-  await expect.poll(async () => (await readout(page)).x).toBe(108);
+  await expect.poll(async () => (await readout(page)).x).toBe(CX);
 });
 
 test("rotation snaps level and Straighten resets it", async ({ page }) => {

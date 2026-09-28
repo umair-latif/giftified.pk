@@ -5,7 +5,7 @@
 > status board. The `Messenger` contract and mock stay in `src/lib/messaging/`.
 > Phone-number normalisation (`src/lib/phone.ts`) now belongs to task 05.
 
-**Branch:** `feat/whatsapp` · **Suggested owner:** Intern + Cursor (lead reviews)
+**Branch:** `feat/whatsapp` · **Suggested owner:** any AI assistant (lead reviews)
 
 ## Goal
 

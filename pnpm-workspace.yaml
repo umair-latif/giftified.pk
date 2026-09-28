@@ -1,3 +1,8 @@
 ignoredBuiltDependencies:
   - sharp
   - unrs-resolver
+
+# node-canvas downloads its prebuilt native binary (with cairo/pango bundled) in
+# its install script; the server print renderer needs it (fabric/node).
+onlyBuiltDependencies:
+  - canvas

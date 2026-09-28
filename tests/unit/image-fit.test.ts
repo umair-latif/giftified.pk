@@ -1,9 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { mug } from "@/config/products/mug";
 import { initialImageWidthMm } from "@/features/editor/engine/image-fit";
 import { effectiveDpi } from "@/lib/dpi";
 
-const area = mug.printArea; // 216 x 89 mm, 5 mm safe margin
+// A fixed example area (not the live mug config, which may change with vendor specs).
+const area = { widthMm: 216, heightMm: 89, safeMarginMm: 5 };
 
 describe("initial image size", () => {
   it("fits a large photo inside the safe zone", () => {
