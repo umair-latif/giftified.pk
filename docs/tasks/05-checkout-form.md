@@ -41,7 +41,10 @@ The "Order" step: a mobile-first Cash on Delivery form that creates the order th
   PKR formatted `Rs 1,699`.
 - Confirmation page `/order/[id]`: "Thank you! We'll call or message you on <number> to confirm your
   order before we print it." (Confirmation is manual in the MVP.)
-- `designId`: for now use a placeholder `"draft-local"`; design upload to storage is a later task.
+- `designId`: before creating the order, call `uploadDesignForOrder(productId, { onProgress })` from
+  `src/features/editor/upload-design.ts`. It saves the design and uploads the original photos straight
+  to storage (show a progress bar: "Uploading your photo 1 of 2…"), and returns `{ designId }` for the
+  order line. It throws `DesignUploadFailed` with a customer-friendly message — show it and let them retry.
 - **Block the order when a photo is too blurry:** `printQualityReport(draft.fabric).status === "block"`
   (`src/lib/print-quality.ts`) → show "A photo is too blurry to print — go back and make it smaller"
   with a link to the editor. `"warn"` → allow, but show a gentle note.
