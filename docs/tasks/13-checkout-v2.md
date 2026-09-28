@@ -25,6 +25,9 @@ default, with an optional email.
   prices for many lines: `quoteCart` in `src/features/cart/actions.ts` (reuse it for the summary). Empty cart → message + link to `/products`.
 - Summary: each line (thumbnail, product, colour/size, qty, price) + delivery by city + total; all
   prices from the server (`quoteOrder`-style Server Action for many lines).
+- **Marketing opt-in:** an unticked checkbox "Send me offers on WhatsApp (Eid deals, discounts)" →
+  order meta `_marketing_optin` (`"yes"`/absent). Required by `docs/content/privacy.md`: without an
+  explicit opt-in no marketing may be sent. Nothing sends messages yet (task 02).
 - Fields as today + **Email (optional)** "for your receipt and updates" → `CreateOrderInput.email`.
 - On _Place order_: for each entry of `distinctDesigns(items)` (`src/features/cart/cart-lines.ts`) call
   `uploadCartDesign(productId, designKey, { onProgress })` (`src/features/editor/upload-design.ts`) (progress:
