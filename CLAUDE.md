@@ -118,6 +118,7 @@ Mobile PWA (Fabric.js editor + Three.js preview)
 - `pnpm check` — lint + typecheck + unit tests (run before every commit)
 - `pnpm build && pnpm e2e` — production build + Playwright mobile tests (360px, touch).
   First time: `pnpm exec playwright install chromium` (or set `PW_CHROMIUM_PATH`).
+- `pnpm print:sample` — render the fixture design to `out/print-sample.png` (300 DPI print file).
 - `pnpm woo:seed` / `pnpm woo:smoke` — set up / live-check a WooCommerce test store from `.env.local`
   (guide: `docs/ops/woocommerce-staging.md`).
 - Print specs per product: `src/config/products/*.ts` (guide: `docs/ops/print-specs.md`). Tests read
