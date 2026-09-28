@@ -1,0 +1,24 @@
+import { getStorage } from "@/lib/storage";
+import { fileLinkSecret, verifyFileToken } from "@/server/files/links";
+
+/** GET /api/files/<signed token> → redirect to a 5-minute private storage link. */
+export async function GET(
+  _req: Request,
+  ctx: RouteContext<"/api/files/[token]">,
+): Promise<Response> {
+  const { token } = await ctx.params;
+  const claims = verifyFileToken(token, fileLinkSecret());
+  // Links are only ever issued for order files; never for designs/photos.
+  if (!claims || !claims.k.startsWith("orders/"))
+    return new Response("This link is invalid or has expired.", {
+      status: 404,
+    });
+  const url = await getStorage().presignGet(claims.k, {
+    expiresInS: 300,
+    downloadName: claims.n,
+  });
+  return new Response(null, {
+    status: 302,
+    headers: { location: url, "cache-control": "no-store" },
+  });
+}

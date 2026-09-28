@@ -2,6 +2,16 @@
 
 **Branch:** `feat/order-pipeline` · **Owner:** Lead (Claude) · **Needs:** 01, 03, 07
 
+## Status
+
+Implemented (Inngest, see `docs/ops/order-pipeline.md`): webhook → `order/files.requested`
+(deduped per order + status) → `prepare-order-files` renders each line's PNG to R2, writes
+`_print_png_url`, and adds a "Print files ready" note with signed 90-day links
+(`/api/files/<token>`). Each line also gets `VendorProof.pdf` (task 03) next to the PNG, linked in
+the same note; a PDF failure never blocks the PNG. Hand-typed landline phones no longer break `mapOrder`.
+Founder checklist: `docs/ops/manual-dispatch.md`. Still open: the double-submit lock (only if
+duplicates show up) and switching `toPkMobile` to `src/lib/phone.ts` (task 05 merged).
+
 ## Goal
 
 When an order is placed, everything the founder needs to confirm it and hand it to the

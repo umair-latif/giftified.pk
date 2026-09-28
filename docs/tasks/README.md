@@ -17,7 +17,7 @@ own folders.
 | 05  | [COD checkout form](05-checkout-form.md)                         | Claude (3rd cloud session)   | `feat/checkout-form`  | in review                |
 | 06  | [Text styling sheet](06-text-styling-sheet.md)                   | _unassigned_                 | `feat/text-sheet`     | ready                    |
 | 07  | [300 DPI print renderer](07-print-renderer.md)                   | Claude (cloud session)       | `feat/print-renderer` | done (reviewed)          |
-| 08  | [Order pipeline, manual dispatch](08-order-pipeline.md)          | Lead (Claude)                | `feat/order-pipeline` | after 01, 03, 07         |
+| 08  | [Order pipeline, manual dispatch](08-order-pipeline.md)          | Lead (Claude)                | `feat/order-pipeline` | in review                |
 | 09  | [Photo background removal](09-background-removal.md)             | —                            | `feat/bg-removal`     | **postponed**            |
 
 Update this table in your PR when you pick up or finish a task.

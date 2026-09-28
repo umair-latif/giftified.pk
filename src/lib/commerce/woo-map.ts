@@ -248,8 +248,13 @@ export function mapOrder(o: WooOrder, catalog: CatalogProduct[]): Order {
   if (!status) throw new Error(`Order ${o.id}: unknown status "${o.status}"`);
 
   const addr = o.shipping.address_1 ? o.shipping : o.billing;
-  const phone = toPkMobile(o.billing.phone || o.shipping.phone);
-  if (!phone) throw new Error(`Order ${o.id}: invalid phone`);
+  const rawPhone = o.billing.phone || o.shipping.phone;
+  // Orders typed into WP admin by hand may carry a landline or a typo. Don't
+  // fail the whole order (the print-file job must still run): keep the digits
+  // as a best-effort +92 number. Our checkout always writes a valid mobile.
+  const phone: PkMobile =
+    toPkMobile(rawPhone) ??
+    `+92${rawPhone.replace(/\D/g, "").replace(/^(0092|92|0)/, "")}`;
   const landmark = addr.address_2.trim();
   const customer: CustomerDetails = {
     fullName: `${addr.first_name} ${addr.last_name}`.trim(),

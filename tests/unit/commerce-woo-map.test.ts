@@ -128,6 +128,18 @@ describe("order mapping", () => {
     expect(toPkMobile("0092 300 1234567")).toBe("+923001234567");
     expect(toPkMobile("042 35761234")).toBeNull();
   });
+
+  it("doesn't fail an order typed in WP admin with a landline", () => {
+    const raw = wooFixture("order") as { billing: { phone: string } };
+    const order = mapOrder(
+      wooOrderSchema.parse({
+        ...raw,
+        billing: { ...raw.billing, phone: "042 35761234" },
+      }),
+      catalog,
+    );
+    expect(order.customer.phone).toBe("+924235761234");
+  });
 });
 
 describe("shipping by city", () => {
