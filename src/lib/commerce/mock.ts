@@ -24,10 +24,16 @@ const CATALOG: CatalogProduct[] = [
     slug: "mug",
     images: [],
     name: "Custom Mug",
+    shortDescription:
+      "11oz gloss white ceramic mug, printed all the way round with your photos and words.",
+    descriptionHtml:
+      "<p>Classic 11oz ceramic mug with a glossy finish.</p><ul><li>Full-wrap print, 216 × 89 mm</li><li>Dishwasher and microwave safe</li><li>Printed in Gujrat and checked before it ships</li></ul>",
     basePricePkr: 1499,
     variants: [
       {
         colourId: "white",
+        colourName: "Gloss White",
+        colourHex: "#ffffff",
         wooVariationId: 1011,
         pricePkr: 1499,
         inStock: true,

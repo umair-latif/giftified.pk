@@ -22,6 +22,15 @@ export const MUG = {
   pricePkr: 1499,
 };
 
+/**
+ * Colours as terms of the GLOBAL attribute "Colour" (pa_colour). The term
+ * description holds the swatch hex; the storefront reads it (task 11), so the
+ * founder can add a colour in WP admin → Products → Attributes without code.
+ */
+export const COLOURS: readonly { name: string; hex: `#${string}` }[] = [
+  { name: "White", hex: "#FFFFFF" },
+];
+
 /** Zone names list their cities — that's how the app matches a city to a rate. */
 export const ZONES: readonly { name: string; costPkr: number }[] = [
   { name: "Lahore", costPkr: 200 },
@@ -75,7 +84,43 @@ export async function seedWooCommerce(cfg: SeedConfig): Promise<void> {
   await call("PUT", "/payment_gateways/cod", { enabled: true });
   log("✓ Cash on Delivery enabled");
 
-  // 3. Mug: variable product, SKU "mug", Colour attribute, White variation.
+  // 3a. Global Colour attribute with one term per colour (description = hex).
+  type Attr = { id: number; name: string; slug: string };
+  type Term = { id: number; name: string; description?: string };
+  const attrs = await call<Attr[]>("GET", "/products/attributes");
+  let colourAttr = attrs.find(
+    (a) => a.slug === "pa_colour" || a.name.trim().toLowerCase() === "colour",
+  );
+  if (!colourAttr) {
+    colourAttr = await call<Attr>("POST", "/products/attributes", {
+      name: "Colour",
+      slug: "colour",
+      type: "select",
+      order_by: "menu_order",
+      has_archives: false,
+    });
+    log(`✓ Created global attribute "Colour" (id ${colourAttr.id})`);
+  } else {
+    log(`• Global attribute "Colour" exists (id ${colourAttr.id})`);
+  }
+  const termsPath = `/products/attributes/${colourAttr.id}/terms`;
+  const terms = await call<Term[]>("GET", `${termsPath}?per_page=100`);
+  for (const c of COLOURS) {
+    const term = terms.find(
+      (t) => t.name.trim().toLowerCase() === c.name.toLowerCase(),
+    );
+    if (!term) {
+      await call("POST", termsPath, { name: c.name, description: c.hex });
+      log(`✓ Colour "${c.name}" ${c.hex}`);
+    } else if (!/#?[0-9a-f]{3,6}/i.test(term.description ?? "")) {
+      await call("PUT", `${termsPath}/${term.id}`, { description: c.hex });
+      log(`✓ Colour "${c.name}": set swatch ${c.hex}`);
+    } else {
+      log(`• Colour "${c.name}" exists (not changed)`);
+    }
+  }
+
+  // 3b. Mug: variable product, SKU "mug", global Colour attribute, White variation.
   const existing = await call<Json[]>("GET", `/products?sku=${MUG.sku}`);
   let product = existing[0];
   if (!product) {
@@ -86,7 +131,7 @@ export async function seedWooCommerce(cfg: SeedConfig): Promise<void> {
       status: "publish",
       attributes: [
         {
-          name: "Colour",
+          id: colourAttr.id,
           visible: true,
           variation: true,
           options: [MUG.colour],
@@ -110,10 +155,19 @@ export async function seedWooCommerce(cfg: SeedConfig): Promise<void> {
     ),
   );
   if (!hasColour) {
+    // A product created before 3a has a LOCAL "Colour" attribute (id 0); keep
+    // using it. Colours then fall back to src/config/products in the storefront.
+    const usesGlobal = (
+      product.attributes as { id?: number }[] | undefined
+    )?.some((a) => a.id === colourAttr.id);
     await call("POST", `/products/${productId}/variations`, {
       regular_price: String(MUG.pricePkr),
       status: "publish",
-      attributes: [{ name: "Colour", option: MUG.colour }],
+      attributes: [
+        usesGlobal
+          ? { id: colourAttr.id, name: "Colour", option: MUG.colour }
+          : { name: "Colour", option: MUG.colour },
+      ],
     });
     log(`✓ Added variation ${MUG.colour} at Rs ${MUG.pricePkr}`);
   } else {

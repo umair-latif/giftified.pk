@@ -48,7 +48,9 @@ describe("WooCommerce client — requests", () => {
     );
     expect(call.init!.cache).toBe("no-store");
     const catalogCall = woo.calls.find((c) => c.path === "/products")!;
-    expect(catalogCall.init).toMatchObject({ next: { revalidate: 300 } });
+    expect(catalogCall.init).toMatchObject({
+      next: { revalidate: 3600, tags: ["catalog"] },
+    });
   });
 
   it("returns null for a missing order and throws typed errors otherwise", async () => {

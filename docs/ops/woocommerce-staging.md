@@ -50,7 +50,8 @@ pnpm woo:seed
 ```
 
 This sets the country to Pakistan and the currency to PKR, turns on **Cash on Delivery**,
-creates the **Custom Mug** (SKU `mug`, colour White, Rs 1499), and creates city shipping
+creates the global **Colour** attribute (colour White, swatch `#FFFFFF`), the **Custom Mug**
+(SKU `mug`, colour White, Rs 1499), and creates city shipping
 zones: Lahore, Karachi, Islamabad/Rawalpindi, Gujrat/Sialkot/Jhelum, and Rest of Pakistan.
 It's safe to run again: it only adds what's missing.
 
@@ -79,6 +80,42 @@ HTTPS address. Once the app is deployed:
 ```powershell
 pnpm woo:seed --webhook-url=https://YOUR-APP-ADDRESS/api/webhooks/commerce
 ```
+
+Then add a second webhook so the shop pages update within seconds when you change a
+product (price, photos, description, colours). In WP admin → **WooCommerce → Settings →
+Advanced → Webhooks → Add webhook**:
+
+| Field        | Value                                           |
+| ------------ | ----------------------------------------------- |
+| Name         | Giftified catalog                               |
+| Status       | Active                                          |
+| Topic        | **Product updated**                             |
+| Delivery URL | `https://YOUR-APP-ADDRESS/api/webhooks/catalog` |
+| Secret       | the same value as `WC_WEBHOOK_SECRET`           |
+| API version  | WP REST API Integration v3                      |
+
+Optional: add the same webhook again with topics **Product created** and **Product deleted**.
+Without these webhooks the shop pages still update, just up to an hour later.
+
+## 8. Products: photos, descriptions and colours
+
+What customers see on `/products` and each product page comes from WP admin → **Products**:
+
+- **Name, price** — as usual. The "from" price is the cheapest variation.
+- **Photos** — _Product image_ and _Product gallery_. The first image is the main one.
+- **Short description** — one or two sentences for cards and search results.
+- **Description** — shown under _Details_. Paragraphs, lists, **bold** and _italic_ are kept;
+  links, colours, fonts and embedded media are removed.
+- **SKU** must stay `mug` / `tshirt` / `hoodie`; that's how the app knows which product it is.
+  The product's **slug** (Permalink) becomes the address, e.g. `/products/custom-mug`.
+
+**Colours:** WP admin → **Products → Attributes → Colour → Configure terms**. Each colour is a
+term; put its swatch colour in the term's **Description** as a hex code, e.g. `#FFFFFF` or
+`#1E3A8A`. Then add the colour to the product (Attributes tab → Colour → select terms) and
+create a variation for it with a price. A colour without a hex code shows a grey dot.
+
+A product with the old per-product "Colour" attribute (created before this) keeps working;
+it just uses the swatches from the app's product settings.
 
 ## Troubleshooting
 

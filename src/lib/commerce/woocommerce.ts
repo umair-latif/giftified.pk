@@ -7,6 +7,8 @@ import {
   META,
   PRODUCT_SKUS,
   buildOrderBody,
+  colourHexesFromTerms,
+  isColourAttribute,
   findVariant,
   mapOrder,
   mapProduct,
@@ -16,6 +18,7 @@ import {
   type ZoneWithRates,
 } from "./woo-map";
 import {
+  wooAttributeTermSchema,
   wooOrderSchema,
   wooProductSchema,
   wooShippingZoneSchema,
@@ -23,6 +26,7 @@ import {
   wooZoneMethodSchema,
   type WooOrder,
   type WooProduct,
+  type WooVariation,
 } from "./woo-schemas";
 import { verifyWooWebhook } from "./woo-webhook";
 
@@ -54,8 +58,13 @@ export class WooCommerceError extends Error {
   }
 }
 
-/** Catalog changes rarely; prices are re-checked by WC on every order anyway. */
-const CATALOG_REVALIDATE_S = 300;
+/**
+ * Catalog reads are cached for an hour under one tag; the `product.*` webhook
+ * (`/api/webhooks/catalog`) revalidates the tag so edits in WP admin show within
+ * seconds. Prices are re-checked by WC on every order anyway.
+ */
+export const CATALOG_CACHE_TAG = "catalog";
+const CATALOG_CACHE = { revalidate: 3600, tags: [CATALOG_CACHE_TAG] };
 const SHIPPING_TTL_MS = 10 * 60 * 1000;
 /** How far back createOrder looks for an order with the same checkoutId. */
 const IDEMPOTENCY_WINDOW_MS = 48 * 60 * 60 * 1000;
@@ -100,6 +109,8 @@ interface RequestOpts {
   body?: unknown;
   /** Seconds of Next data-cache for GETs; omitted = never cached. */
   revalidate?: number;
+  /** Next cache tags for GETs (for on-demand revalidation). */
+  tags?: string[];
 }
 
 export function createWooCommerceClient(config: WooConfig): CommerceClient {
@@ -131,7 +142,12 @@ export function createWooCommerceClient(config: WooConfig): CommerceClient {
       signal: AbortSignal.timeout(TIMEOUT_MS),
       ...(opts.body !== undefined ? { body: JSON.stringify(opts.body) } : {}),
       ...(method === "GET" && opts.revalidate !== undefined
-        ? { next: { revalidate: opts.revalidate } }
+        ? {
+            next: {
+              revalidate: opts.revalidate,
+              ...(opts.tags ? { tags: opts.tags } : {}),
+            },
+          }
         : { cache: "no-store" as const }),
     };
 
@@ -195,16 +211,36 @@ export function createWooCommerceClient(config: WooConfig): CommerceClient {
     const variations =
       p.type === "variable"
         ? await getAll(`/products/${p.id}/variations`, wooVariationSchema, {
-            revalidate: CATALOG_REVALIDATE_S,
+            ...CATALOG_CACHE,
           })
         : [];
-    return mapProduct(p, variations);
+    return mapProduct(p, variations, await colourHexes(variations));
+  }
+
+  /**
+   * Hexes for the global Colour attribute (term description = "#RRGGBB").
+   * Variations name the attribute by its id when it is global (id > 0); a
+   * local "Colour" attribute has id 0 and simply gets the config fallback.
+   */
+  async function colourHexes(variations: WooVariation[]) {
+    const ids = new Set<number>();
+    for (const v of variations)
+      for (const a of v.attributes)
+        if (a.id && isColourAttribute(a.name)) ids.add(a.id);
+    const terms = await Promise.all(
+      [...ids].map((id) =>
+        getAll(`/products/attributes/${id}/terms`, wooAttributeTermSchema, {
+          ...CATALOG_CACHE,
+        }).catch(() => []),
+      ),
+    );
+    return colourHexesFromTerms(terms.flat());
   }
 
   async function listProducts(): Promise<CatalogProduct[]> {
     const products = await getAll("/products", wooProductSchema, {
       query: { status: "publish", sku: PRODUCT_SKUS.join(",") },
-      revalidate: CATALOG_REVALIDATE_S,
+      ...CATALOG_CACHE,
     });
     const mapped = await Promise.all(products.map(withVariations));
     return mapped.filter((p): p is CatalogProduct => p !== null);
@@ -213,7 +249,7 @@ export function createWooCommerceClient(config: WooConfig): CommerceClient {
   async function getProduct(productId: ProductId) {
     const products = await get("/products", z.array(wooProductSchema), {
       query: { sku: productId, status: "publish" },
-      revalidate: CATALOG_REVALIDATE_S,
+      ...CATALOG_CACHE,
     });
     const p = products.find((x) => x.sku === productId);
     return p ? withVariations(p) : null;

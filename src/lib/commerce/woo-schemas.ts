@@ -32,6 +32,9 @@ export const wooProductSchema = z.object({
   images: z
     .array(z.object({ src: z.string(), alt: z.string().default("") }))
     .default([]),
+  /** HTML from the WP editor; sanitised before it reaches a page. */
+  description: z.string().optional(),
+  short_description: z.string().optional(),
 });
 export type WooProduct = z.infer<typeof wooProductSchema>;
 
@@ -106,3 +109,15 @@ export const wooWebhookOrderSchema = z.object({
   id: z.number(),
   status: z.string(),
 });
+
+/**
+ * A term of a global attribute (Products → Attributes → Colour → terms).
+ * For colours the term description holds the swatch hex, e.g. "#FFFFFF".
+ */
+export const wooAttributeTermSchema = z.object({
+  id: z.number(),
+  name: z.string(),
+  slug: z.string().default(""),
+  description: z.string().default(""),
+});
+export type WooAttributeTerm = z.infer<typeof wooAttributeTermSchema>;

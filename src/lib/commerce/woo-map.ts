@@ -11,6 +11,7 @@ import type {
 } from "@/types/order";
 import type { CatalogProduct, CatalogVariant } from "./types";
 import type {
+  WooAttributeTerm,
   WooMeta,
   WooOrder,
   WooProduct,
@@ -57,6 +58,7 @@ export function slugify(s: string): string {
 }
 
 const COLOUR_ATTR = /^(pa_)?colou?r$/i;
+export const isColourAttribute = (name: string) => COLOUR_ATTR.test(name);
 const SIZE_ATTR = /^(pa_)?size$/i;
 
 /**
@@ -74,18 +76,68 @@ function defaultColourId(productId: ProductId): string {
   return getProductConfig(productId)?.baseColors[0]?.id ?? "default";
 }
 
+export type Hex = `#${string}`;
+
+/**
+ * Swatch hex from a colour term's description ("#FFFFFF", "fff", or the
+ * same wrapped in <p> by the WP editor). Null when it isn't a hex colour.
+ */
+export function parseHex(raw: string): Hex | null {
+  const m = /^#?([0-9a-f]{6}|[0-9a-f]{3})$/i.exec(htmlToText(raw));
+  if (!m) return null;
+  const h = m[1]!.toLowerCase();
+  return `#${h.length === 3 ? [...h].map((c) => c + c).join("") : h}`;
+}
+
+/** Colour hexes keyed by lower-cased term name (the option shown on variations). */
+export type ColourHexes = ReadonlyMap<string, Hex>;
+
+export function colourHexesFromTerms(terms: WooAttributeTerm[]): ColourHexes {
+  const out = new Map<string, Hex>();
+  for (const t of terms) {
+    const hex = parseHex(t.description);
+    if (hex) out.set(t.name.trim().toLowerCase(), hex);
+  }
+  return out;
+}
+
+/**
+ * Display name + swatch for a variant: WooCommerce first (term name, hex from
+ * the global Colour attribute), then the product config's `baseColors`.
+ */
+function colourDisplay(
+  productId: ProductId,
+  colourId: string,
+  wcName: string | undefined,
+  hexes: ColourHexes | undefined,
+): Pick<CatalogVariant, "colourName" | "colourHex"> {
+  const cfg = getProductConfig(productId)?.baseColors.find(
+    (c) => c.id === colourId,
+  );
+  const colourName = wcName?.trim() || cfg?.name;
+  const colourHex =
+    (wcName && hexes?.get(wcName.trim().toLowerCase())) || cfg?.hex;
+  return {
+    ...(colourName ? { colourName } : {}),
+    ...(colourHex ? { colourHex } : {}),
+  };
+}
+
 export function mapVariation(
   productId: ProductId,
   v: WooVariation,
+  hexes?: ColourHexes,
 ): CatalogVariant | null {
   const pricePkr = parsePkr(v.price);
   if (pricePkr === null || v.status !== "publish") return null;
   const colour = v.attributes.find((a) => COLOUR_ATTR.test(a.name));
   const size = v.attributes.find((a) => SIZE_ATTR.test(a.name));
+  const colourId = colour
+    ? colourIdFor(productId, colour.option)
+    : defaultColourId(productId);
   return {
-    colourId: colour
-      ? colourIdFor(productId, colour.option)
-      : defaultColourId(productId),
+    colourId,
+    ...colourDisplay(productId, colourId, colour?.option, hexes),
     ...(size ? { size: size.option } : {}),
     wooVariationId: v.id,
     pricePkr,
@@ -101,13 +153,14 @@ export function mapVariation(
 export function mapProduct(
   p: WooProduct,
   variations: WooVariation[],
+  hexes?: ColourHexes,
 ): CatalogProduct | null {
   if (!isProductId(p.sku) || p.status !== "publish") return null;
   const productId = p.sku;
   let variants: CatalogVariant[];
   if (p.type === "variable") {
     variants = variations
-      .map((v) => mapVariation(productId, v))
+      .map((v) => mapVariation(productId, v, hexes))
       .filter((v): v is CatalogVariant => v !== null);
   } else {
     const pricePkr = parsePkr(p.price);
@@ -117,6 +170,12 @@ export function mapProduct(
         : [
             {
               colourId: defaultColourId(productId),
+              ...colourDisplay(
+                productId,
+                defaultColourId(productId),
+                undefined,
+                hexes,
+              ),
               wooVariationId: 0,
               pricePkr,
               inStock: p.stock_status === "instock",
@@ -130,6 +189,7 @@ export function mapProduct(
     slug: p.slug || productId,
     name: p.name,
     images: p.images.map((i) => ({ src: i.src, alt: i.alt || p.name })),
+    ...describe(p),
     basePricePkr: Math.min(...variants.map((v) => v.pricePkr)),
     variants,
   };
@@ -381,4 +441,124 @@ export function quoteFromZones(
     if (cost !== null) return cost;
   }
   return null;
+}
+
+// ---------------------------------------------------------------------------
+// Product descriptions
+// ---------------------------------------------------------------------------
+
+const SHORT_MAX = 180;
+
+function describe(
+  p: WooProduct,
+): Pick<CatalogProduct, "shortDescription" | "descriptionHtml"> {
+  let short =
+    htmlToText(p.short_description ?? "") || htmlToText(p.description ?? "");
+  if (short.length > SHORT_MAX) {
+    const cut = short.lastIndexOf(" ", SHORT_MAX - 1);
+    short = `${short.slice(0, cut > 80 ? cut : SHORT_MAX - 1)}…`;
+  }
+  const html = sanitizeHtml(p.description ?? "");
+  return {
+    ...(short ? { shortDescription: short } : {}),
+    ...(html ? { descriptionHtml: html } : {}),
+  };
+}
+
+const ENTITIES: Record<string, string> = {
+  amp: "&",
+  lt: "<",
+  gt: ">",
+  quot: '"',
+  apos: "'",
+  nbsp: " ",
+  hellip: "…",
+  ndash: "–",
+  mdash: "—",
+  lsquo: "‘",
+  rsquo: "’",
+  ldquo: "“",
+  rdquo: "”",
+};
+
+/** WP editor HTML → one line of plain text (tags dropped, entities decoded). */
+export function htmlToText(html: string): string {
+  return html
+    .replace(/<!--[\s\S]*?-->/g, " ")
+    .replace(DROP_WITH_CONTENT, " ")
+    .replace(/<[^>]*>/g, " ")
+    .replace(/&(#x[0-9a-f]+|#\d+|[a-z]+);/gi, (m, e: string) => {
+      if (e[0] === "#") {
+        const cp =
+          e[1] === "x" || e[1] === "X"
+            ? parseInt(e.slice(2), 16)
+            : parseInt(e.slice(1), 10);
+        return Number.isFinite(cp) && cp > 0 && cp <= 0x10ffff
+          ? String.fromCodePoint(cp)
+          : " ";
+      }
+      return ENTITIES[e.toLowerCase()] ?? m;
+    })
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+/** Tags we keep (without any attributes). Everything else is dropped. */
+const ALLOWED_TAGS = new Set(["p", "ul", "li", "strong", "em", "br"]);
+const RENAMED_TAGS: Record<string, string> = {
+  b: "strong",
+  i: "em",
+  ol: "ul",
+  h1: "p",
+  h2: "p",
+  h3: "p",
+  h4: "p",
+  h5: "p",
+  h6: "p",
+};
+/** Dropped without a space, so "Gujrat</a>." stays "Gujrat." */
+const INLINE_TAGS = new Set([
+  "a",
+  "span",
+  "font",
+  "u",
+  "s",
+  "small",
+  "big",
+  "sub",
+  "sup",
+  "abbr",
+  "code",
+  "mark",
+  "img",
+]);
+/** Elements whose CONTENT must go too, not just the tags. */
+const DROP_WITH_CONTENT =
+  /<(script|style|iframe|object|embed|noscript|template|svg|math|textarea|select|title|head)\b[\s\S]*?<\/\1\s*>/gi;
+
+/**
+ * Allow-list sanitiser for product descriptions: only p, ul, li, strong, em
+ * and br survive, always WITHOUT attributes (so no links, styles or event
+ * handlers). Every `<` in the output comes from a tag we emitted ourselves;
+ * any other `<` or `>` is escaped. Text and entities pass through unchanged.
+ */
+export function sanitizeHtml(html: string): string {
+  return html
+    .replace(/<!--[\s\S]*?-->/g, "")
+    .replace(DROP_WITH_CONTENT, " ")
+    .replace(
+      /<(\/?)([a-zA-Z][a-zA-Z0-9-]*)\b[^>]*>|[<>]/g,
+      (m, slash: string | undefined, name: string | undefined) => {
+        if (!name) return m === "<" ? "&lt;" : "&gt;";
+        const lower = name.toLowerCase();
+        const tag = RENAMED_TAGS[lower] ?? lower;
+        if (!ALLOWED_TAGS.has(tag)) return INLINE_TAGS.has(tag) ? "" : " ";
+        if (tag === "br") return slash ? "" : "<br>";
+        return `<${slash ? "/" : ""}${tag}>`;
+      },
+    )
+    .replace(/\s+/g, " ")
+    .replace(/<(p|li|ul|strong|em)>\s*<\/\1>/g, "")
+    .replace(/\s*(<\/?(?:p|ul|li)>|<br>)\s*/g, "$1")
+    .trim();
 }
