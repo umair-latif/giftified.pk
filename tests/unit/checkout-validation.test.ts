@@ -1,24 +1,31 @@
 import { describe, expect, it } from "vitest";
 import { CITIES, canonicalCity, searchCities } from "@/config/cities";
 import { formatPkr } from "@/features/checkout/format";
-import { parseCheckout } from "@/features/checkout/schema";
+import { DESIGN_NOT_SAVED, parseCheckout } from "@/features/checkout/schema";
 import { createMockCommerce } from "@/lib/commerce/mock";
+import { MAX_CART_LINES } from "@/types/cart";
 
-const valid = {
-  checkoutId: "3f2b8c1e-0000-4000-8000-000000000001",
+const mugA = {
   productId: "mug",
   colourId: "white",
   designId: "k3Jd9sQx2LmN",
   quantity: 2,
+};
+const mugB = { ...mugA, designId: "p9Qw2ErTy7Ui", quantity: 1 };
+
+const valid = {
+  checkoutId: "3f2b8c1e-0000-4000-8000-000000000001",
+  lines: [mugA, mugB],
   fullName: "  Ayesha   Khan ",
   phone: "0300-1234567",
+  email: "",
   city: "lahore",
   addressLine: "House 12, Street 4, Model Town",
   landmark: "",
 };
 
-describe("parseCheckout", () => {
-  it("maps valid input to CreateOrderInput, normalised", () => {
+describe("parseCheckout (whole cart → one order)", () => {
+  it("maps valid input to CreateOrderInput with one line per cart item", () => {
     const r = parseCheckout(valid);
     expect(r).toEqual({
       ok: true,
@@ -37,25 +44,58 @@ describe("parseCheckout", () => {
             quantity: 2,
             designId: "k3Jd9sQx2LmN",
           },
+          {
+            productId: "mug",
+            colourId: "white",
+            quantity: 1,
+            designId: "p9Qw2ErTy7Ui",
+          },
         ],
       },
     });
   });
 
-  it("keeps a landmark and an 'Other' city as typed", () => {
+  it("keeps a size, a landmark and an 'Other' city as typed", () => {
     const r = parseCheckout({
       ...valid,
+      lines: [{ ...mugA, size: " L " }],
       city: " Mandi  Bahauddin ",
       landmark: " Near Jamia Masjid ",
     });
+    expect(r.ok && r.order.lines[0]?.size).toBe("L");
     expect(r.ok && r.order.customer).toMatchObject({
       city: "Mandi Bahauddin",
       landmark: "Near Jamia Masjid",
     });
   });
 
+  describe("optional email", () => {
+    it("is left out when empty or missing", () => {
+      const noEmail = { ...valid } as Record<string, unknown>;
+      delete noEmail.email;
+      for (const input of [valid, noEmail, { ...valid, email: "   " }]) {
+        const r = parseCheckout(input);
+        expect(r.ok && r.order).not.toHaveProperty("email");
+      }
+    });
+    it("is trimmed and lower-cased", () => {
+      const r = parseCheckout({ ...valid, email: "  Ayesha.Khan@Gmail.COM " });
+      expect(r.ok && r.order.email).toBe("ayesha.khan@gmail.com");
+    });
+    it("rejects something that isn't an email, in plain language", () => {
+      const r = parseCheckout({ ...valid, email: "ayesha@" });
+      expect(!r.ok && r.errors.email).toBe(
+        "Please check your email address, or leave it empty.",
+      );
+    });
+  });
+
   it("ignores any price the client sends", () => {
-    const r = parseCheckout({ ...valid, unitPricePkr: 1, totalPkr: 1 });
+    const r = parseCheckout({
+      ...valid,
+      totalPkr: 1,
+      lines: [{ ...mugA, unitPricePkr: 1 }],
+    });
     expect(r.ok && JSON.stringify(r.order)).not.toContain("Pkr");
   });
 
@@ -85,43 +125,82 @@ describe("parseCheckout", () => {
     expect(!r.ok && r.errors.phone).toBe("Please write your mobile number.");
   });
 
-  it.each([0, 11, 1.5, "abc"])("rejects quantity %s", (quantity) => {
-    const r = parseCheckout({ ...valid, quantity });
-    expect(!r.ok && r.errors.quantity).toBeTruthy();
+  describe("limits", () => {
+    it("needs at least one line", () => {
+      const r = parseCheckout({ ...valid, lines: [] });
+      expect(!r.ok && r.errors.lines).toBe("Your cart is empty.");
+      expect(parseCheckout({ ...valid, lines: undefined }).ok).toBe(false);
+    });
+    it(`allows at most ${MAX_CART_LINES} lines`, () => {
+      const lines = (n: number) =>
+        Array.from({ length: n }, (_, i) => ({ ...mugA, designId: `d${i}` }));
+      expect(parseCheckout({ ...valid, lines: lines(MAX_CART_LINES) }).ok).toBe(
+        true,
+      );
+      const r = parseCheckout({ ...valid, lines: lines(MAX_CART_LINES + 1) });
+      expect(!r.ok && r.errors.lines).toBe(
+        `You can order up to ${MAX_CART_LINES} designs at a time.`,
+      );
+    });
+    it.each([0, 11, 1.5, "abc"])(
+      "rejects quantity %s on any line",
+      (quantity) => {
+        const r = parseCheckout({
+          ...valid,
+          lines: [mugA, { ...mugB, quantity }],
+        });
+        expect(!r.ok && r.errors.lines).toBeTruthy();
+      },
+    );
+    it("accepts quantity from a string (form data)", () => {
+      const r = parseCheckout({
+        ...valid,
+        lines: [{ ...mugA, quantity: "10" }],
+      });
+      expect(r.ok && r.order.lines[0]?.quantity).toBe(10);
+    });
   });
 
-  it("accepts quantity from a string (form data)", () => {
-    const r = parseCheckout({ ...valid, quantity: "10" });
-    expect(r.ok && r.order.lines[0]?.quantity).toBe(10);
+  it("rejects unknown products and colours on any line", () => {
+    expect(
+      parseCheckout({ ...valid, lines: [mugA, { ...mugB, productId: "sofa" }] })
+        .ok,
+    ).toBe(false);
+    const r = parseCheckout({
+      ...valid,
+      lines: [mugA, { ...mugB, colourId: "neon" }],
+    });
+    expect(!r.ok && r.errors.lines).toBe(
+      "An item in your cart can’t be ordered right now.",
+    );
   });
 
-  it("rejects unknown products and colours", () => {
-    expect(parseCheckout({ ...valid, productId: "sofa" }).ok).toBe(false);
-    expect(parseCheckout({ ...valid, colourId: "neon" }).ok).toBe(false);
+  it("rejects missing or unsafe design IDs", () => {
+    for (const designId of [undefined, "", "../x", "a/b"]) {
+      const r = parseCheckout({ ...valid, lines: [{ ...mugA, designId }] });
+      expect(!r.ok && r.errors.lines).toBe(DESIGN_NOT_SAVED);
+    }
   });
 
-  it("rejects missing or odd checkout IDs", () => {
+  it("rejects missing or odd checkout IDs and non-objects", () => {
     expect(parseCheckout({ ...valid, checkoutId: "" }).ok).toBe(false);
     expect(parseCheckout({ ...valid, checkoutId: "a b c d e f g h" }).ok).toBe(
       false,
     );
-  });
-
-  it("rejects non-objects", () => {
-    expect(parseCheckout({ ...valid, designId: undefined }).ok).toBe(false);
-    expect(parseCheckout({ ...valid, designId: "../x" }).ok).toBe(false);
     expect(parseCheckout(null).ok).toBe(false);
     expect(parseCheckout("hello").ok).toBe(false);
   });
 
   it("produces input the store accepts, once per checkoutId", async () => {
     const commerce = createMockCommerce();
-    const r = parseCheckout(valid);
+    const r = parseCheckout({ ...valid, email: "a@b.pk" });
     if (!r.ok) throw new Error("expected valid");
     const a = await commerce.createOrder(r.order);
     const b = await commerce.createOrder(r.order);
     expect(b.id).toBe(a.id);
-    expect(a.totalPkr).toBe(1499 * 2 + 200);
+    expect(a.lines).toHaveLength(2);
+    expect(a.totalPkr).toBe(1499 * 3 + 200);
+    expect(a.email).toBe("a@b.pk");
   });
 });
 
