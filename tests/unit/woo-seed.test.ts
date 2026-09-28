@@ -1,6 +1,11 @@
 import { describe, expect, it } from "vitest";
-import { mapProduct, quoteFromZones } from "@/lib/commerce/woo-map";
 import {
+  colourHexesFromTerms,
+  mapProduct,
+  quoteFromZones,
+} from "@/lib/commerce/woo-map";
+import {
+  wooAttributeTermSchema,
   wooProductSchema,
   wooVariationSchema,
 } from "@/lib/commerce/woo-schemas";
@@ -18,6 +23,11 @@ function fakeWoo() {
   ];
   const methods = new Map<number, Record<string, unknown>[]>();
   const webhooks: Record<string, unknown>[] = [];
+  const attributes: { id: number; name: string; slug: string }[] = [];
+  const terms = new Map<
+    number,
+    { id: number; name: string; description: string }[]
+  >();
   const writes: string[] = [];
 
   const fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
@@ -91,6 +101,24 @@ function fakeWoo() {
       );
       return ok(inst);
     }
+    if (path === "/products/attributes") {
+      if (method === "GET") return ok(attributes);
+      const a = { id: nextId++, name: body.name, slug: `pa_${body.slug}` };
+      attributes.push(a);
+      terms.set(a.id, []);
+      return ok(a);
+    }
+    if ((m = path.match(/^\/products\/attributes\/(\d+)\/terms$/))) {
+      const list = terms.get(Number(m[1]))!;
+      if (method === "GET") return ok(list);
+      const t = {
+        id: nextId++,
+        name: body.name,
+        description: body.description,
+      };
+      list.push(t);
+      return ok(t);
+    }
     if (path === "/webhooks") {
       if (method === "GET") return ok(webhooks);
       webhooks.push(body);
@@ -107,6 +135,8 @@ function fakeWoo() {
     zones,
     methods,
     webhooks,
+    attributes,
+    terms,
     writes,
     cod: () => codEnabled,
   };
@@ -141,6 +171,14 @@ describe("woo:seed", () => {
         inStock: true,
       }),
     ]);
+
+    // The swatch comes from the global Colour attribute's term description.
+    const colourTerms = wooAttributeTermSchema
+      .array()
+      .parse(wc.terms.get(wc.attributes[0]!.id));
+    expect(
+      mapProduct(product, vars, colourHexesFromTerms(colourTerms))?.variants[0],
+    ).toMatchObject({ colourName: "White", colourHex: "#ffffff" });
 
     // Shipping quotes work by city name, with a fallback for everywhere else.
     const withRates = wc.zones.map((zone) => ({

@@ -48,12 +48,15 @@ describe("catalog mapping", () => {
       variants: [
         {
           colourId: "white",
+          colourName: "Gloss White",
+          colourHex: "#ffffff",
           wooVariationId: 1011,
           pricePkr: 1499,
           inStock: true,
         },
         {
           colourId: "black",
+          colourName: "Black",
           wooVariationId: 1012,
           pricePkr: 1699,
           inStock: false,
