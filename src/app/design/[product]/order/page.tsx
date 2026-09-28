@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import { AppHeader } from "@/components/ui/app-header";
 import { StepBar } from "@/components/ui/step-bar";
 import { editableProductIds, getProduct } from "@/config/products";
-import { DesignPreview } from "@/features/editor/components/design-preview";
+import { CheckoutForm } from "@/features/checkout/components/checkout-form";
 
 export const dynamicParams = false;
 
@@ -12,15 +12,15 @@ export function generateStaticParams() {
 }
 
 export async function generateMetadata(
-  props: PageProps<"/design/[product]/preview">,
+  props: PageProps<"/design/[product]/order">,
 ): Promise<Metadata> {
   const { product: id } = await props.params;
   const product = getProduct(id);
-  return { title: product ? `Preview your ${product.name}` : "Preview" };
+  return { title: product ? `Order your ${product.name}` : "Order" };
 }
 
-export default async function PreviewPage(
-  props: PageProps<"/design/[product]/preview">,
+export default async function OrderPage(
+  props: PageProps<"/design/[product]/order">,
 ) {
   const { product: id } = await props.params;
   const product = getProduct(id);
@@ -28,14 +28,13 @@ export default async function PreviewPage(
   return (
     <div className="min-h-dvh bg-zinc-50">
       <AppHeader
-        title="Preview"
-        backHref={`/design/${product.id}`}
-        backLabel="Back to editor"
-        next={{ label: "Order", href: `/design/${product.id}/order` }}
+        title="Order"
+        backHref={`/design/${product.id}/preview`}
+        backLabel="Back to preview"
       />
-      <StepBar current="Preview" />
+      <StepBar current="Order" />
       <main className="mx-auto max-w-md px-4 pb-8">
-        <DesignPreview product={product} />
+        <CheckoutForm product={product} />
       </main>
     </div>
   );
