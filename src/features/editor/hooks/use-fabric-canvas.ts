@@ -64,7 +64,10 @@ type Engine = typeof import("../engine");
  * in their initial bundle. React never renders children into `hostRef`;
  * Fabric owns that DOM subtree.
  */
-export function useFabricCanvas(product: ProductConfig) {
+/**
+ * @param designKey edit a saved cart design instead of the product's draft.
+ */
+export function useFabricCanvas(product: ProductConfig, designKey?: string) {
   const hostRef = useRef<HTMLDivElement>(null);
   const engineRef = useRef<Engine | null>(null);
   const designRef = useRef<DesignCanvas | null>(null);
@@ -105,7 +108,7 @@ export function useFabricCanvas(product: ProductConfig) {
         objs.forEach(engine.applyTouchControls);
 
       // Restore autosaved work before history starts recording.
-      const draft = loadDraft(product.id);
+      const draft = loadDraft(product.id, designKey);
       if (draft) {
         try {
           const { fabric, missing } = await resolveAssetRefs(draft.fabric);
@@ -155,6 +158,7 @@ export function useFabricCanvas(product: ProductConfig) {
         clearTimeout(saveTimer);
         saveDraft(
           engine.toDesignDocument(canvas, product.id, product.printArea),
+          designKey,
         );
       };
 
@@ -234,7 +238,7 @@ export function useFabricCanvas(product: ProductConfig) {
       disposed = true;
       teardown?.();
     };
-  }, [product]);
+  }, [product, designKey]);
 
   const undo = useCallback(() => void historyRef.current?.undo(), []);
   const redo = useCallback(() => void historyRef.current?.redo(), []);

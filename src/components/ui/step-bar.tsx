@@ -1,7 +1,7 @@
-const STEPS = ["Design", "Preview", "Order"] as const;
+const STEPS = ["Design", "Preview", "Cart"] as const;
 export type FlowStep = (typeof STEPS)[number];
 
-/** "Design → Preview → Order" progress indicator shown under the header. */
+/** "Design → Preview → Cart" progress indicator shown under the header. */
 export function StepBar({ current }: { current: FlowStep }) {
   const currentIndex = STEPS.indexOf(current);
   return (

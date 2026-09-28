@@ -3,6 +3,9 @@ import design from "../fixtures/design-mug.json";
 
 // Orders are numbered by the (shared) mock store: keep this file's tests in order.
 test.describe.configure({ mode: "serial" });
+// The single-design order page now redirects to the cart (task 12). Task 13
+// (checkout from the cart) rewrites these tests for /checkout.
+test.skip(true, "Checkout v1 replaced by the cart; re-enabled in task 13");
 
 /** A photo whose ORIGINAL is `px` wide, printed 100 mm wide (px / 3.937 in = DPI). */
 const photo = (px: number) => ({

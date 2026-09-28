@@ -2,6 +2,7 @@
 
 import { useRef, useState } from "react";
 import type { ProductConfig } from "@/config/products";
+import type { CartItem } from "@/types/cart";
 import { AppHeader } from "@/components/ui/app-header";
 import { RedoIcon, UndoIcon } from "@/components/ui/icons";
 import { StepBar } from "@/components/ui/step-bar";
@@ -19,8 +20,18 @@ import { EditorToolbar } from "./editor-toolbar";
 
 const fmt = (n: number) => n.toFixed(0);
 
-export function DesignEditor({ product }: { product: ProductConfig }) {
-  const ed = useFabricCanvas(product);
+/**
+ * @param item when set, edits that cart line's design (changes save to it
+ * directly); otherwise the product's draft.
+ */
+export function DesignEditor({
+  product,
+  item,
+}: {
+  product: ProductConfig;
+  item?: CartItem;
+}) {
+  const ed = useFabricCanvas(product, item?.designKey);
   const { widthMm, heightMm } = product.printArea;
   const ready = ed.status === "ready" && !ed.busy;
   const fileInput = useRef<HTMLInputElement>(null);
@@ -38,10 +49,13 @@ export function DesignEditor({ product }: { product: ProductConfig }) {
       className={`bg-cream flex min-h-dvh flex-col ${selectionKind ? "pb-36" : "pb-24"}`}
     >
       <AppHeader
-        title={product.name}
-        backHref="/"
-        backLabel="Back to products"
-        next={{ label: "Next", href: `/design/${product.id}/preview` }}
+        title={item ? "Edit design" : product.name}
+        backHref={item ? "/cart" : "/"}
+        backLabel={item ? "Back to cart" : "Back to products"}
+        next={{
+          label: "Next",
+          href: `/design/${product.id}/preview${item ? `?item=${encodeURIComponent(item.id)}` : ""}`,
+        }}
         actions={
           <>
             <IconButton

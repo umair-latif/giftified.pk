@@ -21,20 +21,44 @@ export interface UploadDeps {
 
 export class DesignUploadFailed extends Error {}
 
+export type UploadOptions = Partial<Omit<UploadDeps, "loadDraft">>;
+
 export async function uploadDesignForOrder(
   productId: ProductId,
   deps: Partial<UploadDeps> = {},
 ): Promise<{ designId: string }> {
-  const d: UploadDeps = {
+  const design = (deps.loadDraft ?? loadDraft)(productId);
+  if (!design) throw new DesignUploadFailed("There's no design to order yet.");
+  return uploadDesign(design, deps);
+}
+
+/** Uploads a saved cart design (see `src/features/cart`). */
+export async function uploadCartDesign(
+  productId: ProductId,
+  designKey: string,
+  deps: UploadOptions = {},
+): Promise<{ designId: string }> {
+  const design = loadDraft(productId, designKey);
+  if (!design)
+    throw new DesignUploadFailed(
+      "A design in your cart is no longer on this phone. Please remove it and design it again.",
+    );
+  return uploadDesign(design, deps);
+}
+
+/** Uploads one design + its ORIGINAL photos; returns the server's designId. */
+export async function uploadDesign(
+  design: DesignDocument,
+  deps: UploadOptions = {},
+): Promise<{ designId: string }> {
+  const d = {
     // Wrapped: calling the browser's fetch as a method of `d` throws "Illegal invocation".
-    fetch: deps.fetch ?? ((input, init) => fetch(input, init)),
-    loadDraft: deps.loadDraft ?? loadDraft,
+    fetch:
+      deps.fetch ??
+      ((input: RequestInfo | URL, init?: RequestInit) => fetch(input, init)),
     getAsset: deps.getAsset ?? getAsset,
     onProgress: deps.onProgress,
   };
-
-  const design = d.loadDraft(productId);
-  if (!design) throw new DesignUploadFailed("There's no design to order yet.");
 
   const ids = collectAssetIds(design.fabric);
   const assets = await Promise.all(
