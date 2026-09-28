@@ -12,8 +12,6 @@ by guessing a number (today `/order/<id>` opens for anyone).
 
 - `src/app/order/[id]/page.tsx` (move under `src/app/(store)/order/[id]/`)
 - `src/app/(store)/track/page.tsx` (new), `src/features/orders/` (new)
-- `src/lib/commerce/woo-map.ts` + `mock.ts`: map order meta `_courier`, `_tracking_number`,
-  `_tracking_url` → `Order.tracking` (contract from A0), and implement `findOrderForTracking`
 - `tests/unit/order-*.test.ts`, `tests/e2e/tracking.spec.ts`
 
 ## Do not touch
@@ -29,6 +27,8 @@ by guessing a number (today `/order/<id>` opens for anyone).
   (processing) → **Shipped** (when `tracking` is set: courier, number, "Track parcel" link if URL)
   → **Delivered** (completed); **Cancelled** shown instead when cancelled.
 - Lines: product, colour/size, qty, price; delivery; total.
+- A0 already provides `Order.tracking` (mapped from order custom fields `_courier`,
+  `_tracking_number`, `_tracking_url`) and `getCommerce().findOrderForTracking(id, phone)`.
 - `/track`: order number + mobile (normalise with `normalizePkMobile`) → Server Action →
   `findOrderForTracking(id, phone)` → redirect to the token URL. Same error for "no such order" and
   "wrong phone". Rate-limit per IP (10 tries / hour; an in-memory map is fine for MVP — note it in

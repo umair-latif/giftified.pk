@@ -19,7 +19,7 @@ own folders.
 | 07  | [300 DPI print renderer](07-print-renderer.md)                         | Claude (cloud session)         | `feat/print-renderer`       | done                     |
 | 08  | [Order pipeline, manual dispatch](08-order-pipeline.md)                | Lead                           | `feat/order-pipeline`       | done (live)              |
 | 09  | [Photo background removal](09-background-removal.md)                   | —                              | `feat/bg-removal`           | **postponed**            |
-| A0  | Contracts + site shell (header/cart badge, footer, `config/site.ts`)   | Lead                           | `feat/storefront-contracts` | in progress              |
+| A0  | Contracts + site shell (header/cart badge, footer, `config/site.ts`)   | Lead                           | `feat/storefront-contracts` | in review                |
 | 10  | [Home page](10-home-page.md)                                           | _unassigned_                   | `feat/home`                 | after A0                 |
 | 11  | [Catalog + product pages](11-catalog-product-pages.md)                 | _unassigned_                   | `feat/catalog`              | after A0                 |
 | 12  | [Cart](12-cart.md)                                                     | Lead                           | `feat/cart`                 | after A0                 |
