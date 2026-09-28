@@ -4,8 +4,8 @@
 
 ## Goal
 
-`/products` lists all products; `/products/[slug]` lets the customer pick colour/size, see price and
-delivery cost, and tap **Start designing**. Plan: `docs/plans/storefront-and-accounts.md` §4–5.
+`/products` lists all products; `/products/[slug]` is the category page: **Design your own** first, then
+(later) the design gallery, with price, delivery cost and details. Plan: `docs/plans/storefront-and-accounts.md` §4–5.
 
 ## You may edit
 
@@ -65,7 +65,7 @@ Document the webhook in `docs/ops/woocommerce-staging.md` (topic _Product update
 ## Acceptance criteria
 
 - Unit tests: mapping of images/descriptions/colours (WC fixtures), HTML sanitiser, fallback colours.
-- E2E at 360 px (mock commerce): catalog → mug page → pick colour → _Start designing_ opens the
-  editor with `?colour=white`; delivery estimate shows "Rs 200" for Lahore; no horizontal scroll.
+- E2E at 360 px (mock commerce): catalog → mugs page → first card is "Design your own" and
+  _Start designing_ opens the editor; delivery estimate shows "Rs 200" for Lahore; no horizontal scroll.
 - `/products` and `/products/mug` are static/ISR in `pnpm build`; no Fabric/Three in their bundles.
 - `pnpm check` + `pnpm e2e` green.
