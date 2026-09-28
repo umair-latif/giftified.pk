@@ -10,6 +10,7 @@ import type { CreateOrderInput } from "@/types/order";
  * Messages are plain language because they are shown to the customer as-is.
  */
 export const MAX_QUANTITY = 10;
+export const DESIGN_NOT_SAVED = "Your design wasn’t saved. Please try again.";
 
 const text = (min: number, max: number, tooShort: string, tooLong: string) =>
   z
@@ -24,6 +25,10 @@ export const checkoutSchema = z
       .regex(/^[\w-]{8,64}$/, "Something went wrong. Please reload the page."),
     productId: z.string(),
     colourId: z.string(),
+    /** From `uploadDesignForOrder` (same safe-id rule as storage keys). */
+    designId: z
+      .string(DESIGN_NOT_SAVED)
+      .regex(/^[A-Za-z0-9][A-Za-z0-9_-]{0,63}$/, DESIGN_NOT_SAVED),
     quantity: z.coerce
       .number("Choose how many you want.")
       .int("Choose how many you want.")
@@ -79,9 +84,6 @@ export type CheckoutFields = z.input<typeof checkoutSchema>;
 export type CheckoutFieldName = keyof CheckoutFields;
 export type FieldErrors = Partial<Record<CheckoutFieldName, string>>;
 
-/** Placeholder until designs are uploaded to storage (later task). */
-export const LOCAL_DESIGN_ID = "draft-local";
-
 export type ParsedCheckout =
   { ok: true; order: CreateOrderInput } | { ok: false; errors: FieldErrors };
 
@@ -114,7 +116,7 @@ export function parseCheckout(input: unknown): ParsedCheckout {
             v.productId as CreateOrderInput["lines"][number]["productId"],
           colourId: v.colourId,
           quantity: v.quantity,
-          designId: LOCAL_DESIGN_ID,
+          designId: v.designId,
         },
       ],
     },

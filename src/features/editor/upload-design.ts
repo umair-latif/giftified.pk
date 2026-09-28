@@ -26,7 +26,8 @@ export async function uploadDesignForOrder(
   deps: Partial<UploadDeps> = {},
 ): Promise<{ designId: string }> {
   const d: UploadDeps = {
-    fetch: deps.fetch ?? fetch,
+    // Wrapped: calling the browser's fetch as a method of `d` throws "Illegal invocation".
+    fetch: deps.fetch ?? ((input, init) => fetch(input, init)),
     loadDraft: deps.loadDraft ?? loadDraft,
     getAsset: deps.getAsset ?? getAsset,
     onProgress: deps.onProgress,

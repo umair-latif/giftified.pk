@@ -5,6 +5,10 @@ import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import type { ProductConfig } from "@/config/products";
 import { loadDraft } from "@/features/editor/draft";
+import {
+  DesignUploadFailed,
+  uploadDesignForOrder,
+} from "@/features/editor/upload-design";
 import { newId } from "@/lib/id";
 import { normalizePkMobile } from "@/lib/phone";
 import { printQualityReport } from "@/lib/print-quality";
@@ -45,7 +49,10 @@ export function CheckoutForm({ product }: { product: ProductConfig }) {
   const [errors, setErrors] = useState<FieldErrors>({});
   const [message, setMessage] = useState<string>();
   const [submitting, setSubmitting] = useState(false);
+  const [progress, setProgress] = useState<string>();
   const inFlight = useRef(false);
+  // Uploaded once per visit: a retry after a failed order reuses it.
+  const designId = useRef<string | null>(null);
   // One checkoutId per attempt: re-sending the same details reuses it, so a
   // retry after a lost response can never create a second order.
   const attempt = useRef<{ key: string; id: string } | null>(null);
@@ -84,11 +91,31 @@ export function CheckoutForm({ product }: { product: ProductConfig }) {
     setSubmitting(true);
     setMessage(undefined);
     try {
-      const r = await placeOrder({ ...data, checkoutId: attempt.current.id });
+      if (!designId.current) {
+        setProgress("Saving your design…");
+        designId.current = (
+          await uploadDesignForOrder(product.id, {
+            onProgress: (done, total) =>
+              total > 0 &&
+              setProgress(
+                done < total
+                  ? `Uploading photo ${done + 1} of ${total}…`
+                  : "Placing order…",
+              ),
+          })
+        ).designId;
+      }
+      setProgress("Placing order…");
+      const r = await placeOrder({
+        ...data,
+        designId: designId.current,
+        checkoutId: attempt.current.id,
+      });
       if (r.ok) {
         router.push(`/order/${r.orderId}`);
         return; // stay disabled while the confirmation page loads
       }
+      if (r.errors.designId) designId.current = null; // upload again next time
       setErrors(r.errors);
       setMessage(
         r.message ??
@@ -96,11 +123,17 @@ export function CheckoutForm({ product }: { product: ProductConfig }) {
       );
       const first = FIELDS.find((f) => r.errors[f]);
       if (first) document.getElementById(first)?.focus();
-    } catch {
-      setMessage("No connection. Please check your internet and try again.");
+    } catch (err) {
+      console.error("[checkout]", err);
+      setMessage(
+        err instanceof DesignUploadFailed
+          ? err.message
+          : "No connection. Please check your internet and try again.",
+      );
     }
     inFlight.current = false;
     setSubmitting(false);
+    setProgress(undefined);
   }
 
   if (draft === "loading") return null;
@@ -259,7 +292,9 @@ export function CheckoutForm({ product }: { product: ProductConfig }) {
         disabled={submitting}
         className="h-12 rounded-full bg-indigo-600 text-base font-semibold text-white active:bg-indigo-700 disabled:bg-indigo-300"
       >
-        {submitting ? "Placing order…" : "Place order · Cash on Delivery"}
+        {submitting
+          ? (progress ?? "Placing order…")
+          : "Place order · Cash on Delivery"}
       </button>
     </form>
   );

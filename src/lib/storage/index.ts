@@ -49,7 +49,11 @@ export function getStorage(
       "STORAGE_* is not set in production. Configure R2 (see .env.example) or set COMMERCE_MOCK=1 for a demo build.",
     );
   }
-  storage = createMemoryStorage().storage;
+  // One store per process: route handlers and server actions can be separate
+  // bundles with their own copy of this module, but must see the same files.
+  const g = globalThis as { __giftifiedMemoryStorage?: ObjectStorage };
+  g.__giftifiedMemoryStorage ??= createMemoryStorage().storage;
+  storage = g.__giftifiedMemoryStorage;
   memory = true;
   return storage;
 }
