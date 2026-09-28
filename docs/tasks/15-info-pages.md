@@ -24,8 +24,9 @@ number, email, social links — read from it).
   (what "too blurry" means), how to track an order, reprint policy, cancellations.
 - **Contact:** WhatsApp button (`https://wa.me/<number>`), email, hours.
 - **About:** short story, Gujrat/Sialkot printing partners, brand values from the brand sheet.
-- **Privacy:** what we store (order details, photos for printing — deleted after N days), who sees
-  what (vendors: no phone/address), cookies. **Terms:** orders, COD, reprints, content rules
+- **Privacy:** build it from **`docs/content/privacy.md`** — the founder's approved wording. Keep the
+  text as written (headings/formatting are yours); fill only the `TODO(founder)` parts if the founder
+  has supplied them, otherwise leave them marked. Do not add claims that aren't in that file. **Terms:** orders, COD, reprints, content rules
   (no copyrighted logos/characters), liability.
 
 Write clear draft text marked `TODO(founder)` where facts are needed (days, prices, policies); the
