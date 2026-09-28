@@ -1,6 +1,6 @@
 # Plan: storefront, cart, guest tracking and accounts
 
-Status: **proposal** — decisions marked ❓ need the founder's OK before briefs are handed out.
+Status: **agreed** (2026-09-28). Task briefs: `docs/tasks/10-…` to `23-…`, board in `docs/tasks/README.md`.
 Inspiration: zazzle.com, adapted to Pakistan (mobile-first, COD, WhatsApp, occasions like Eid).
 
 ## 1. Principles
@@ -113,7 +113,7 @@ the editor. Category chips appear only when there are enough products to need th
 ### Order status `/order/[id]?t=…` and tracking `/track`
 
 - Timeline: **Placed** (on-hold) → **Confirmed** (processing) → **Shipped** (courier + tracking
-  number, see ❓3) → **Delivered** (completed); or **Cancelled**.
+  number, see §7.3) → **Delivered** (completed); or **Cancelled**.
 - Shows items with thumbnails, delivery city, total, and the confirmation note
   "We'll call you on 0300 •••• 567 before printing".
 - `/track`: order number + mobile number → status page. Rate-limited.
@@ -122,12 +122,12 @@ the editor. Category chips appear only when there are enough products to need th
 
 ### Accounts (Phase B)
 
-- `/sign-in`: **Continue with Google** and **Email me a sign-in link** (❓1). No passwords.
+- `/sign-in` and `/sign-up`: **Continue with Google**, or **email + password** (with _Forgot password_).
 - `/account/orders`: list and detail (same timeline), **Order again** (copies the design into
   the cart).
 - `/account/designs`: designs saved to the cloud from the editor ("Save to my designs");
   continue editing on any device.
-- `/account/addresses`: saved addresses; the default fills checkout.
+- `/account/addresses`: the default delivery address (fills checkout).
 - `/account/profile`: name, phone, email; sign out; delete account.
 
 ## 5. Technical design
@@ -148,7 +148,7 @@ the editor. Category chips appear only when there are enough products to need th
   (`src/server/files/links.ts` pattern). Without a valid token → 404.
 - `/track` checks order number + mobile against WooCommerce, then redirects with a token.
   Rate-limited by IP (e.g. 10 per hour).
-- Shipped/courier: see ❓3.
+- Shipped/courier: see §7.3.
 
 ### Catalog data
 
@@ -159,16 +159,23 @@ the editor. Category chips appear only when there are enough products to need th
 - Images through `next/image`; WooCommerce media domain added to `images.remotePatterns`.
 - SEO: page metadata, Open Graph images, `sitemap.xml`, Product structured data in PKR.
 
-### Accounts (Phase B)
+### Accounts (Phase B) — WooCommerce is the account store, no extra database
 
-- **Auth:** Better Auth (TypeScript, runs in Next route handlers; Google + magic link now,
-  phone/WhatsApp OTP plugin later). Email via Resend (behind `src/lib/email`).
-- **Database:** Postgres on Neon (Vercel Marketplace, free tier) + Drizzle ORM (❓2). Tables:
-  auth (user, session, account, verification), `address`, `saved_design`
-  (user, product, designId in R2, thumbnail, name, updatedAt).
-- **WooCommerce link:** on first sign-in, create a WC customer (`POST /customers`) and store its ID;
-  orders placed while signed in get `customer_id`; the account's order list = `GET /orders?customer=`.
-- Orders stay in WooCommerce only — no copy in our DB, so there's nothing to keep in sync.
+- **Customers are WooCommerce customers** (visible in WP admin → Customers). Name, email, phone and
+  the default address live on the WC customer; saved designs as a small list in customer meta.
+- **Sessions:** a signed, http-only cookie (stateless; Auth.js or equivalent — lead picks in task 19).
+- **Google:** verified Google email → find the WC customer by email or create it.
+- **Email + password:** sign-up creates the WC customer with a password (WordPress stores the hash).
+  Sign-in checks the password through the **JWT Authentication for WP REST API** plugin
+  (server-side only), then we issue our own cookie. Same email = same account for both methods.
+- **Forgot password:** our own 1-hour signed reset link (no database), emailed via **Resend**
+  (`src/lib/email`); the new password is saved with `PUT /customers/{id}`.
+- **Brute force:** **Limit Login Attempts** plugin on WordPress + a per-IP limit on our sign-in route.
+- **Orders:** placed while signed in carry `customer_id`; "My orders" = `GET /orders?customer=`.
+  WooCommerce's own customer emails (order received / processing / completed) are used as-is once
+  WP Mail SMTP is set up.
+- A small database can be added later (email sign-in links, many saved designs) without changing
+  what customers see.
 
 ### Contract changes (lead, one small PR before assistants start)
 
@@ -180,27 +187,28 @@ the editor. Category chips appear only when there are enough products to need th
 
 ## 6. Phases and task briefs
 
-**Phase A: storefront and cart (no accounts)**
+Briefs are in `docs/tasks/`; owners and status on the board in `docs/tasks/README.md`.
 
-| #   | Task                                                            | Who                              | Needs |
-| --- | --------------------------------------------------------------- | -------------------------------- | ----- |
-| A0  | Contracts PR (§5) + site shell (header with cart badge, footer) | Lead                             | —     |
-| 10  | Home page                                                       | Assistant                        | A0    |
-| 11  | Catalog + product pages (WooCommerce data, caching, SEO)        | Assistant                        | A0    |
-| 12  | Cart store + editor "Add to cart"/"Edit design" + cart page     | Lead (touches editor)            | A0    |
-| 13  | Checkout v2: from cart, many lines, optional email              | Assistant (did task 05)          | 12    |
-| 14  | Order status page with token, `/track`, recent orders           | Assistant (lead reviews)         | A0    |
-| 15  | Help/FAQ, delivery, reprint policy, privacy, terms              | Founder writes, assistant builds | —     |
+**Phase A — storefront and cart (no accounts)**
 
-**Phase B: accounts**
+| #   | Task                                                               | Who                              | Needs |
+| --- | ------------------------------------------------------------------ | -------------------------------- | ----- |
+| A0  | Contracts + site shell (header with cart badge, footer)            | Lead                             | —     |
+| 10  | Home page                                                          | Assistant                        | A0    |
+| 11  | Catalog + product pages                                            | Assistant                        | A0    |
+| 12  | Cart: store, editor "Add to cart"/"Edit design", cart page         | Lead                             | A0    |
+| 13  | Checkout v2: from the cart, many lines, optional email             | Assistant                        | 12    |
+| 14  | Order status page (token), `/track`, recent orders, shipped info   | Assistant (lead reviews)         | A0    |
+| 15  | Help/FAQ, delivery, reprint policy, privacy, terms, contact        | Founder writes, assistant builds | A0    |
+| 16  | Editor ↔ print font parity (same font files in browser and server) | Lead                             | —     |
 
-| #   | Task                                                                  | Who              | Needs |
-| --- | --------------------------------------------------------------------- | ---------------- | ----- |
-| 16  | Auth + database foundation, sign-in page, WC customer link            | Lead             | A     |
-| 17  | Account area: orders, addresses, profile, order again                 | Assistant        | 16    |
-| 18  | Saved designs in the cloud ("Save to my designs", `/account/designs`) | Lead + assistant | 16    |
+**Phase A2 — frames and templates**
 
-**Phase C: growth** (order to be decided with real data)
+| #   | Task                                                             | Who       | Needs  |
+| --- | ---------------------------------------------------------------- | --------- | ------ |
+| 17  | Photo frames: "Crop & shape", Polaroid, Replace photo            | Lead      | —      |
+| 18  | Templates: placeholders, "Save as template", placeholder library | Lead      | 17     |
+| 19  | Template gallery on product pages + occasion pages               | Assistant | 11, 18 |
 
 - **Photo frames** (editor, lead; before templates): the crop screen becomes **Crop & shape** with
   shape chips (Original, Circle, Rounded, Heart, Arch, Star, Polaroid). The photo fills the shape and
@@ -211,7 +219,7 @@ the editor. Category chips appear only when there are enough products to need th
 - **Templates — "Personalize this design"** (Zazzle's main traffic driver): a template is a saved
   `design.json` with placeholder frames ("Tap to add photo") and editable text. The founder creates
   them with _Save as template_; they appear in a gallery on each product page and on occasion pages
-  (`/occasions/eid`); tapping one opens the editor with it loaded (❓4).
+  (`/occasions/eid`); tapping one opens the editor with it loaded.
 - **Customer templates** (after accounts): signed-in customers can _Share as template_.
   - Customers' photos are **always removed** on sharing. Each photo frame gets a generic sample
     photo from a **placeholder library**: AI-generated images the founder creates and approves in
@@ -220,20 +228,30 @@ the editor. Category chips appear only when there are enough products to need th
     Founder templates use the same library.
   - Every submission waits for the founder's approval (offensive content, logos/copyright).
   - Shown as "Design by <first name>"; creator rewards (discount codes, revenue share) later.
-- Reviews with customer photos · WhatsApp order updates (task 02) · search · Urdu UI ·
-  quantity discounts for teams/events · gift note.
 
-## 7. Decisions for the founder
+**Phase B — accounts**
 
-1. ❓ **Sign-in methods:** Google + email link now; WhatsApp OTP when task 02 comes.
-   _Recommended._ (SMS OTP costs money per message and delivery in Pakistan is unreliable.)
-2. ❓ **Database for accounts:** Neon Postgres (free tier, Vercel integration). _Recommended._
-   Alternative: WooCommerce customers + a WP login plugin — fewer services, but slower and
-   more PHP plugins.
-3. ❓ **Shipped status:** type courier + tracking number into two custom fields on the order in
-   WP admin (no plugin). _Recommended for MVP._ Alternative: a shipment-tracking plugin.
-4. ❓ **Templates before or after accounts?** For gifting (Eid, birthdays), ready-made designs
-   probably sell more than accounts do. _Recommended:_ Phase A → a few occasion templates → Phase B.
-5. ❓ **Email at checkout optional** (not required). _Recommended._
-6. **Founder inputs needed:** logo and brand colours, product photos/mockups for the catalog,
-   delivery times per city, reprint/return policy text, t-shirt/hoodie print specs and prices.
+| #   | Task                                                                  | Who                      | Needs  |
+| --- | --------------------------------------------------------------------- | ------------------------ | ------ |
+| 20  | Auth: Google + email/password on WooCommerce customers, reset, limits | Lead                     | A      |
+| 21  | Account area: orders, address, profile, order again                   | Assistant                | 20     |
+| 22  | Saved designs ("Save to my designs", `/account/designs`)              | Lead + assistant         | 20     |
+| 23  | Customer-shared templates (photos replaced, founder approval)         | Assistant (lead reviews) | 19, 22 |
+
+**Later:** reviews with customer photos · WhatsApp order updates (task 02) · search · Urdu UI ·
+quantity discounts for teams/events · gift note · Apple sign-in if many iPhone users.
+
+## 7. Decisions (2026-09-28)
+
+1. **Sign-in:** Google + email/password. No sign-in links. WhatsApp code later (task 02).
+2. **Accounts:** stored in WooCommerce customers; no extra database for now.
+3. **Shipped:** the founder fills two custom fields on the order in WP admin: `_courier` and
+   `_tracking_number` (optional `_tracking_url`). No plugin.
+4. **Order of work:** Phase A → photo frames → templates → accounts.
+5. **Email at checkout:** optional.
+6. **No claiming of earlier guest orders** (test data is wiped before launch).
+7. **Customer-shared templates:** customers' photos are always removed and replaced with samples from
+   the founder's AI-generated placeholder library; the founder approves every submission.
+
+**Founder inputs needed:** SVG logo, product photos/mockups, delivery times per city, reprint/return
+policy text, t-shirt/hoodie print specs and prices, placeholder photo library.

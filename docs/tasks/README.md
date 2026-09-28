@@ -7,18 +7,38 @@ own folders.
 
 ## Status board
 
-| #   | Task                                                             | Owner                        | Branch                | Status                   |
-| --- | ---------------------------------------------------------------- | ---------------------------- | --------------------- | ------------------------ |
-| 00  | Editor core, image upload + DPI                                  | Lead (Claude, cloud session) | `feat/image-upload`   | done (+ selection bar)   |
-| 01  | [WooCommerce adapter + order webhook](01-woocommerce-adapter.md) | Claude (2nd cloud session)   | `feat/woo-adapter`    | done (reviewed)          |
-| 02  | [WhatsApp messaging + reply webhook](02-whatsapp-messaging.md)   | —                            | `feat/whatsapp`       | **postponed** (post-MVP) |
-| 03  | [VendorProof.pdf builder](03-vendor-proof-pdf.md)                | Claude (2nd cloud session)   | `feat/vendor-proof`   | in review                |
-| 04  | [3D mug preview](04-mug-3d-preview.md)                           | _unassigned_                 | `feat/mug-3d`         | ready (needs a mug GLB)  |
-| 05  | [COD checkout form](05-checkout-form.md)                         | Claude (3rd cloud session)   | `feat/checkout-form`  | in review                |
-| 06  | [Text styling sheet](06-text-styling-sheet.md)                   | _unassigned_                 | `feat/text-sheet`     | ready                    |
-| 07  | [300 DPI print renderer](07-print-renderer.md)                   | Claude (cloud session)       | `feat/print-renderer` | done (reviewed)          |
-| 08  | [Order pipeline, manual dispatch](08-order-pipeline.md)          | Lead (Claude)                | `feat/order-pipeline` | in review                |
-| 09  | [Photo background removal](09-background-removal.md)             | —                            | `feat/bg-removal`     | **postponed**            |
+| #   | Task                                                                   | Owner                          | Branch                      | Status                   |
+| --- | ---------------------------------------------------------------------- | ------------------------------ | --------------------------- | ------------------------ |
+| 00  | Editor core, image upload + DPI                                        | Lead                           | `feat/image-upload`         | done                     |
+| 01  | [WooCommerce adapter + order webhook](01-woocommerce-adapter.md)       | Claude (2nd session)           | `feat/woo-adapter`          | done                     |
+| 02  | [WhatsApp messaging + reply webhook](02-whatsapp-messaging.md)         | —                              | `feat/whatsapp`             | **postponed** (post-MVP) |
+| 03  | [VendorProof.pdf builder](03-vendor-proof-pdf.md)                      | Claude (2nd session)           | `feat/vendor-proof`         | done (live)              |
+| 04  | [3D mug preview](04-mug-3d-preview.md)                                 | Founder (model) + _unassigned_ | `feat/mug-3d`               | waiting for the mug GLB  |
+| 05  | [COD checkout form](05-checkout-form.md)                               | Claude (3rd session)           | `feat/checkout-form`        | done (live)              |
+| 06  | [Text styling sheet](06-text-styling-sheet.md)                         | _unassigned_                   | `feat/text-sheet`           | ready                    |
+| 07  | [300 DPI print renderer](07-print-renderer.md)                         | Claude (cloud session)         | `feat/print-renderer`       | done                     |
+| 08  | [Order pipeline, manual dispatch](08-order-pipeline.md)                | Lead                           | `feat/order-pipeline`       | done (live)              |
+| 09  | [Photo background removal](09-background-removal.md)                   | —                              | `feat/bg-removal`           | **postponed**            |
+| A0  | Contracts + site shell (header/cart badge, footer, `config/site.ts`)   | Lead                           | `feat/storefront-contracts` | in progress              |
+| 10  | [Home page](10-home-page.md)                                           | _unassigned_                   | `feat/home`                 | after A0                 |
+| 11  | [Catalog + product pages](11-catalog-product-pages.md)                 | _unassigned_                   | `feat/catalog`              | after A0                 |
+| 12  | [Cart](12-cart.md)                                                     | Lead                           | `feat/cart`                 | after A0                 |
+| 13  | [Checkout v2 (from the cart)](13-checkout-v2.md)                       | _unassigned_ (did 05?)         | `feat/checkout-v2`          | after 12                 |
+| 14  | [Order status + guest tracking](14-order-status-tracking.md)           | _unassigned_                   | `feat/order-tracking`       | after A0                 |
+| 15  | [Help and info pages](15-info-pages.md)                                | _unassigned_ + founder text    | `feat/info-pages`           | after A0                 |
+| 16  | [Editor ↔ print font parity](16-font-parity.md)                        | Lead                           | `fix/font-parity`           | ready                    |
+| 17  | [Photo frames (Crop & shape)](17-photo-frames.md)                      | Lead                           | `feat/photo-frames`         | after 12                 |
+| 18  | [Templates: placeholders, Save as template](18-templates-authoring.md) | Lead                           | `feat/templates`            | after 17                 |
+| 19  | [Template gallery + occasion pages](19-template-gallery.md)            | _unassigned_                   | `feat/template-gallery`     | after 11, 18             |
+| 20  | [Accounts: sign-in/sign-up](20-auth.md)                                | Lead                           | `feat/auth`                 | after phase A            |
+| 21  | [Account area](21-account-area.md)                                     | _unassigned_                   | `feat/account`              | after 20                 |
+| 22  | [Saved designs](22-saved-designs.md)                                   | Lead + assistant               | `feat/saved-designs`        | after 20                 |
+| 23  | [Customer-shared templates](23-shared-templates.md)                    | _unassigned_                   | `feat/shared-templates`     | after 19, 22             |
+
+**Right now, assistants can take:** 06 at once; 10, 11, 14, 15 as soon as A0 is merged (they don't
+depend on each other); 13 after 12. The plan behind 10–23 is in
+[`docs/plans/storefront-and-accounts.md`](../plans/storefront-and-accounts.md); brand rules in
+[`docs/brand.md`](../brand.md). Briefs 19–23 are outlines and get detail when their dependencies land.
 
 Update this table in your PR when you pick up or finish a task.
 
