@@ -118,7 +118,7 @@ export function CropSheet({ target, onCancel, onApply }: Props) {
         <button
           type="button"
           onClick={() => onApply(viewToRect(imageAspect, view))}
-          className="h-9 rounded-full bg-indigo-500 px-4 text-sm font-medium"
+          className="bg-brand-500 h-9 rounded-full px-4 text-sm font-medium"
         >
           Done
         </button>
@@ -179,7 +179,7 @@ export function CropSheet({ target, onCancel, onApply }: Props) {
                 zoom: clampZoom(Number(e.target.value)),
               }))
             }
-            className="flex-1 accent-indigo-400"
+            className="accent-brand-400 flex-1"
             aria-label="Zoom"
           />
           <button

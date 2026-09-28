@@ -22,7 +22,7 @@ export default async function OrderConfirmationPage(
   if (!order) notFound();
 
   return (
-    <div className="min-h-dvh bg-zinc-50">
+    <div className="bg-cream min-h-dvh">
       <AppHeader title="Order placed" backHref="/" backLabel="Home" />
       <StepBar current="Order" />
       <main className="mx-auto flex max-w-md flex-col gap-4 px-4 pb-8">
@@ -68,7 +68,7 @@ export default async function OrderConfirmationPage(
         </dl>
         <Link
           href="/"
-          className="grid h-12 place-items-center rounded-full bg-indigo-600 font-semibold text-white active:bg-indigo-700"
+          className="bg-brand-600 active:bg-brand-700 grid h-12 place-items-center rounded-full font-semibold text-white"
         >
           Back to the shop
         </Link>

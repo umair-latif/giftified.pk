@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import { nunito, poppins } from "./fonts";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -16,12 +17,15 @@ export const viewport: Viewport = {
   viewportFit: "cover",
   // Android Chrome: shrink the layout when the keyboard opens so bottom bars stay visible.
   interactiveWidget: "resizes-content",
-  themeColor: "#4f46e5",
+  themeColor: "#2b8496",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="en" className="h-full antialiased">
+    <html
+      lang="en"
+      className={`h-full antialiased ${poppins.variable} ${nunito.variable}`}
+    >
       <body className="min-h-full">{children}</body>
     </html>
   );

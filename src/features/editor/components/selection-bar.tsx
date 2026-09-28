@@ -144,7 +144,7 @@ function Toggle({
       onClick={onClick}
       className={`grid size-9 shrink-0 place-items-center rounded-md text-base ${
         pressed
-          ? "bg-indigo-100 text-indigo-700"
+          ? "bg-brand-100 text-brand-700"
           : "text-zinc-700 active:bg-zinc-100"
       }`}
     >

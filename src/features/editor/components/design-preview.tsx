@@ -86,7 +86,7 @@ export function DesignPreview({ product }: { product: ProductConfig }) {
             Nothing designed yet.{" "}
             <Link
               href={`/design/${product.id}`}
-              className="font-medium text-indigo-600 underline"
+              className="text-brand-600 font-medium underline"
             >
               Go back and add some text
             </Link>
