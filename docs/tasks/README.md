@@ -19,10 +19,10 @@ own folders.
 | 07  | [300 DPI print renderer](07-print-renderer.md)                         | Claude (cloud session)         | `feat/print-renderer`       | done                     |
 | 08  | [Order pipeline, manual dispatch](08-order-pipeline.md)                | Lead                           | `feat/order-pipeline`       | done (live)              |
 | 09  | [Photo background removal](09-background-removal.md)                   | —                              | `feat/bg-removal`           | **postponed**            |
-| A0  | Contracts + site shell (header/cart badge, footer, `config/site.ts`)   | Lead                           | `feat/storefront-contracts` | in review                |
+| A0  | Contracts + site shell (header/cart badge, footer, `config/site.ts`)   | Lead                           | `feat/storefront-contracts` | done                     |
 | 10  | [Home page](10-home-page.md)                                           | _unassigned_                   | `feat/home`                 | after A0                 |
 | 11  | [Catalog + product pages](11-catalog-product-pages.md)                 | _unassigned_                   | `feat/catalog`              | after A0                 |
-| 12  | [Cart](12-cart.md)                                                     | Lead                           | `feat/cart`                 | after A0                 |
+| 12  | [Cart](12-cart.md)                                                     | Lead                           | `feat/cart`                 | in review                |
 | 13  | [Checkout v2 (from the cart)](13-checkout-v2.md)                       | _unassigned_ (did 05?)         | `feat/checkout-v2`          | after 12                 |
 | 14  | [Order status + guest tracking](14-order-status-tracking.md)           | _unassigned_                   | `feat/order-tracking`       | after A0                 |
 | 15  | [Help and info pages](15-info-pages.md)                                | _unassigned_ + founder text    | `feat/info-pages`           | after A0                 |

@@ -11,9 +11,9 @@ default, with an optional email.
 ## You may edit
 
 - `src/features/checkout/` (form, schema, actions)
-- `src/app/(store)/checkout/page.tsx` (new); remove `src/app/design/[product]/order/` (task 12
-  leaves a redirect — keep it)
-- `tests/unit/checkout-*.test.ts`, `tests/e2e/checkout.spec.ts`
+- `src/app/(store)/checkout/page.tsx` (new); keep the redirect at `src/app/design/[product]/order/`
+- `tests/unit/checkout-*.test.ts`, `tests/e2e/checkout.spec.ts` (task 12 skipped it — rewrite it for `/checkout`
+  and remove the `test.skip`)
 
 ## Do not touch
 
@@ -21,11 +21,13 @@ default, with an optional email.
 
 ## Requirements
 
-- Read items with the cart API from task 12. Empty cart → message + link to `/products`.
+- Read items with `useCart()` from `src/features/cart/cart.ts`; clear with `clearCart()` after success;
+  prices for many lines: `quoteCart` in `src/features/cart/actions.ts` (reuse it for the summary). Empty cart → message + link to `/products`.
 - Summary: each line (thumbnail, product, colour/size, qty, price) + delivery by city + total; all
   prices from the server (`quoteOrder`-style Server Action for many lines).
 - Fields as today + **Email (optional)** "for your receipt and updates" → `CreateOrderInput.email`.
-- On _Place order_: for each distinct `designKey` call `uploadCartDesign(designKey)` (progress:
+- On _Place order_: for each entry of `distinctDesigns(items)` (`src/features/cart/cart-lines.ts`) call
+  `uploadCartDesign(productId, designKey, { onProgress })` (`src/features/editor/upload-design.ts`) (progress:
   "Uploading design 1 of 2…", photos inside it counted too), then `placeOrder` with all lines.
   Upload results are cached per attempt so a retry doesn't re-upload.
 - Server: Zod-validate every line; max 10 lines, qty 1–10; each line's design must exist in storage
