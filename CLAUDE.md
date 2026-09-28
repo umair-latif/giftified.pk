@@ -24,7 +24,8 @@ Mobile PWA (Fabric.js editor + Three.js preview)
 - Three.js via @react-three/fiber + drei for 3D preview — lazy-loaded, never in the initial bundle
 - GLB assets with Draco (meshes) + KTX2/WebP (textures)
 - Zod for all external input (API routes, webhooks, form data, Fabric JSON)
-- Worker: queued job runner (Inngest / QStash / Trigger.dev — decide once, then use only that)
+- Worker: **Inngest** (decided). Client `src/server/jobs/client.ts`, functions in `src/server/jobs/functions.ts`,
+  served at `/api/inngest`. Job logic stays SDK-free with injected deps (`prepare-order-files.ts`).
 - Server-side rendering of print files: node-canvas / @napi-rs/canvas + Fabric in Node
 - PDFs: pdf-lib or PDFKit (server only)
 - Object storage for uploads and print files (S3-compatible, e.g. Cloudflare R2)
@@ -120,6 +121,8 @@ Mobile PWA (Fabric.js editor + Three.js preview)
   First time: `pnpm exec playwright install chromium` (or set `PW_CHROMIUM_PATH`).
 - `pnpm print:sample` — render the fixture design to `out/print-sample.png` (300 DPI print file).
 - `pnpm storage:check` — checks the R2/S3 settings in `.env.local` (write, read, signed links, CORS).
+- `pnpm order:files <orderId>` — makes an order's print files now (same code as the job), from `.env.local`.
+  Pipeline setup and troubleshooting: `docs/ops/order-pipeline.md`; founder checklist: `docs/ops/manual-dispatch.md`.
   Guide: `docs/ops/storage-r2.md`.
 - `pnpm woo:seed` / `pnpm woo:smoke` — set up / live-check a WooCommerce test store from `.env.local`
   (guide: `docs/ops/woocommerce-staging.md`).
@@ -170,7 +173,8 @@ src/features/preview-3d/ scenes/ (mug, tshirt, hoodie), materials/, hooks/
 src/features/checkout/  COD form, address validation
 src/server/print/   300 DPI renderer (Fabric JSON -> PNG)
 src/server/pdf/     VendorProof.pdf builder
-src/server/jobs/    queued jobs: render-print-file, build-proof, dispatch-vendor
+src/server/jobs/    Inngest client/functions + prepare-order-files (render → R2 → links + order note)
+src/server/files/   signed 90-day download links (/api/files/<token> → 5-min R2 link)
 src/lib/            commerce/ (types, mock, woocommerce), messaging/, email/, storage/, units.ts, dpi.ts
 src/types/          shared contracts: design.ts, order.ts
 docs/tasks/         per-module task briefs + status board
