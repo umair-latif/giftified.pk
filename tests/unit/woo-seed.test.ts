@@ -31,6 +31,15 @@ function fakeWoo() {
     let m: RegExpMatchArray | null;
 
     if ((m = path.match(/^\/settings\/general\/(.+)$/))) {
+      // Real WooCommerce rejects a bare country code for countries with states.
+      if (
+        m[1] === "woocommerce_default_country" &&
+        !/^[A-Z]{2}:[A-Z]{2}$/.test(body.value)
+      )
+        return new Response(
+          JSON.stringify({ code: "rest_setting_value_invalid" }),
+          { status: 400 },
+        );
       settings[m[1]!] = body.value;
       return ok({});
     }
@@ -125,6 +134,7 @@ describe("woo:seed", () => {
     await seedWooCommerce({ ...base, fetch: wc.fetch });
 
     expect(wc.settings.woocommerce_currency).toBe("PKR");
+    expect(wc.settings.woocommerce_default_country).toBe("PK:PB");
     expect(wc.cod()).toBe(true);
 
     // The adapter maps the seeded product to our mug with a white variant.
@@ -177,5 +187,24 @@ describe("woo:seed", () => {
       "order.created",
       "order.updated",
     ]);
+  });
+
+  it("keeps going if the store location is refused (it's only a warning)", async () => {
+    const wc = fakeWoo();
+    const lines: string[] = [];
+    const refusing = (async (input: RequestInfo | URL, init?: RequestInit) =>
+      String(input).includes("woocommerce_default_country")
+        ? new Response('{"code":"rest_setting_value_invalid"}', { status: 400 })
+        : wc.fetch(input, init)) as typeof fetch;
+    await seedWooCommerce({
+      ...base,
+      fetch: refusing,
+      log: (l) => lines.push(l),
+    });
+    expect(
+      lines.some((l) => l.startsWith("! Couldn't set the store location")),
+    ).toBe(true);
+    expect(wc.settings.woocommerce_currency).toBe("PKR");
+    expect(wc.products).toHaveLength(1);
   });
 });

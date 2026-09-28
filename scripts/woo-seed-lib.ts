@@ -15,6 +15,9 @@ export interface SeedConfig {
   log?: (line: string) => void;
 }
 
+/** WooCommerce store location: Pakistan, Punjab (Gujrat/Lahore). */
+export const STORE_COUNTRY = "PK:PB";
+
 export const MUG = {
   sku: "mug",
   name: "Custom Mug",
@@ -61,15 +64,26 @@ export async function seedWooCommerce(cfg: SeedConfig): Promise<void> {
     return (text ? JSON.parse(text) : null) as T;
   }
 
-  // 1. Store basics: Pakistan, rupees without decimals.
-  await call("PUT", "/settings/general/woocommerce_default_country", {
-    value: "PK",
-  });
+  // 1. Store basics: Pakistan (Punjab), rupees without decimals.
+  // For countries with provinces WooCommerce only accepts "COUNTRY:STATE",
+  // e.g. "PK:PB" (Punjab); plain "PK" is rejected with 400.
+  // The store address isn't used by the app, so a refusal here is only a warning.
+  try {
+    await call("PUT", "/settings/general/woocommerce_default_country", {
+      value: STORE_COUNTRY,
+    });
+    log(`✓ Store location ${STORE_COUNTRY} (Pakistan, Punjab)`);
+  } catch (err) {
+    log(
+      `! Couldn't set the store location (${err instanceof Error ? err.message : String(err)}). ` +
+        "Set it by hand in WooCommerce → Settings → General; the app doesn't depend on it.",
+    );
+  }
   await call("PUT", "/settings/general/woocommerce_currency", { value: "PKR" });
   await call("PUT", "/settings/general/woocommerce_price_num_decimals", {
     value: "0",
   });
-  log("✓ Store country Pakistan, currency PKR, no decimals");
+  log("✓ Currency PKR, no decimals");
 
   // 2. Cash on Delivery on.
   await call("PUT", "/payment_gateways/cod", { enabled: true });
