@@ -213,8 +213,11 @@ the editor. Category chips appear only when there are enough products to need th
   them with _Save as template_; they appear in a gallery on each product page and on occasion pages
   (`/occasions/eid`); tapping one opens the editor with it loaded (❓4).
 - **Customer templates** (after accounts): signed-in customers can _Share as template_.
-  - Photos become empty "Tap to add photo" frames by default (customers' photos are personal);
-    keeping an image requires ticking "I own this image".
+  - Customers' photos are **always removed** on sharing. Each photo frame gets a generic sample
+    photo from a **placeholder library**: AI-generated images the founder creates and approves in
+    advance (couples, kids, friends, family, pets, landscapes…), matched to the frame's shape. The
+    customer who later uses the template taps the sample photo to replace it with their own.
+    Founder templates use the same library.
   - Every submission waits for the founder's approval (offensive content, logos/copyright).
   - Shown as "Design by <first name>"; creator rewards (discount codes, revenue share) later.
 - Reviews with customer photos · WhatsApp order updates (task 02) · search · Urdu UI ·
