@@ -14,6 +14,8 @@ export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   viewportFit: "cover",
+  // Android Chrome: shrink the layout when the keyboard opens so bottom bars stay visible.
+  interactiveWidget: "resizes-content",
   themeColor: "#4f46e5",
 };
 

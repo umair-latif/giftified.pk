@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { TEXT_SWATCHES } from "@/config/colours";
+import { hexDigits, parseHexColour } from "@/lib/colour";
 
 interface Props {
   value: string;
@@ -98,8 +99,84 @@ export function TextColourPicker({ value, onChange }: Props) {
               />
             </label>
           </div>
+          {/* key: start fresh whenever the colour changes elsewhere (swatch, undo) */}
+          <HexField key={value} value={value} onApply={pick} />
         </div>
       )}
     </div>
+  );
+}
+
+/** Colour code field: shows the current colour's code; Enter or Apply sets a typed one. */
+function HexField({
+  value,
+  onApply,
+}: {
+  value: string;
+  onApply: (hex: string) => void;
+}) {
+  const [draft, setDraft] = useState(() => hexDigits(value));
+  const [touched, setTouched] = useState(false);
+  const parsed = parseHexColour(draft);
+  const invalid = touched && parsed === null;
+
+  const apply = () => {
+    setTouched(true);
+    if (parsed) onApply(parsed);
+  };
+
+  return (
+    <form
+      className="mx-auto mt-3 flex max-w-md items-center gap-2"
+      onSubmit={(e) => {
+        e.preventDefault();
+        apply();
+      }}
+    >
+      <span
+        aria-hidden
+        className="size-9 shrink-0 rounded-full ring-1 ring-zinc-300"
+        style={{ backgroundColor: parsed ?? value }}
+      />
+      <label htmlFor="colour-hex" className="sr-only">
+        Colour code
+      </label>
+      <div
+        className={`flex h-10 flex-1 items-center rounded-md border px-2 font-mono text-sm ${
+          invalid ? "border-red-500" : "border-zinc-300"
+        }`}
+      >
+        <span className="text-zinc-400">#</span>
+        <input
+          id="colour-hex"
+          value={draft}
+          onChange={(e) => {
+            setDraft(
+              e.target.value.replace(/^#/, "").toUpperCase().slice(0, 6),
+            );
+            setTouched(false);
+          }}
+          maxLength={7}
+          autoComplete="off"
+          autoCapitalize="characters"
+          spellCheck={false}
+          enterKeyHint="done"
+          aria-invalid={invalid}
+          aria-describedby={invalid ? "colour-hex-error" : undefined}
+          className="h-full w-full min-w-0 bg-transparent px-1 uppercase outline-none"
+        />
+      </div>
+      <button
+        type="submit"
+        className="h-10 shrink-0 rounded-md bg-indigo-600 px-3 text-sm font-medium text-white active:bg-indigo-700"
+      >
+        Apply
+      </button>
+      {invalid && (
+        <p id="colour-hex-error" role="alert" className="sr-only">
+          Use a 6-digit colour code like 1D4ED8.
+        </p>
+      )}
+    </form>
   );
 }

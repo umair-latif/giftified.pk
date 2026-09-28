@@ -10,15 +10,29 @@
   "total": "3198",
   "customer_id": 0,
   "billing": {
-    "first_name": "Ayesha", "last_name": "Khan", "company": "",
-    "address_1": "House 12, Street 4, Model Town", "address_2": "Near Model Town Park",
-    "city": "Lahore", "state": "", "postcode": "", "country": "PK", "email": "",
+    "first_name": "Ayesha",
+    "last_name": "Khan",
+    "company": "",
+    "address_1": "House 12, Street 4, Model Town",
+    "address_2": "Near Model Town Park",
+    "city": "Lahore",
+    "state": "",
+    "postcode": "",
+    "country": "PK",
+    "email": "",
     "phone": "+923001234567"
   },
   "shipping": {
-    "first_name": "Ayesha", "last_name": "Khan", "company": "",
-    "address_1": "House 12, Street 4, Model Town", "address_2": "Near Model Town Park",
-    "city": "Lahore", "state": "", "postcode": "", "country": "PK", "phone": "+923001234567"
+    "first_name": "Ayesha",
+    "last_name": "Khan",
+    "company": "",
+    "address_1": "House 12, Street 4, Model Town",
+    "address_2": "Near Model Town Park",
+    "city": "Lahore",
+    "state": "",
+    "postcode": "",
+    "country": "PK",
+    "phone": "+923001234567"
   },
   "payment_method": "cod",
   "payment_method_title": "Cash on Delivery",
@@ -35,12 +49,29 @@
       "sku": "mug-white",
       "price": 1499,
       "meta_data": [
-        { "id": 9101, "key": "colour", "value": "Gloss White", "display_key": "Colour", "display_value": "Gloss White" },
-        { "id": 9102, "key": "_design_id", "value": "d-1", "display_key": "_design_id", "display_value": "d-1" }
+        {
+          "id": 9101,
+          "key": "colour",
+          "value": "Gloss White",
+          "display_key": "Colour",
+          "display_value": "Gloss White"
+        },
+        {
+          "id": 9102,
+          "key": "_design_id",
+          "value": "d-1",
+          "display_key": "_design_id",
+          "display_value": "d-1"
+        }
       ]
     }
   ],
   "shipping_lines": [
-    { "id": 78, "method_title": "Flat rate", "method_id": "flat_rate", "total": "200" }
+    {
+      "id": 78,
+      "method_title": "Flat rate",
+      "method_id": "flat_rate",
+      "total": "200"
+    }
   ]
 }

@@ -224,3 +224,37 @@ test("text colour: swatches, custom colour, one undo step each, and the bar fits
     "true",
   );
 });
+
+test("text colour: type a colour code", async ({ page }) => {
+  await openEditorWithText(page);
+  const colourButton = bar(page).getByRole("button", { name: "Text colour" });
+  const panel = page.getByTestId("colour-panel");
+  const field = panel.getByLabel("Colour code");
+
+  await colourButton.click();
+  await expect(field).toHaveValue("111827"); // current colour (black)
+
+  // Enter applies a valid code and closes the panel.
+  await field.fill("#1d4ed8");
+  await field.press("Enter");
+  await expect(panel).toHaveCount(0);
+  await colourButton.click();
+  await expect(field).toHaveValue("1D4ED8");
+  await expect(panel.getByRole("button", { name: "Blue" })).toHaveAttribute(
+    "aria-pressed",
+    "true",
+  );
+
+  // Invalid codes are flagged and nothing changes.
+  await field.fill("zz12");
+  await panel.getByRole("button", { name: "Apply" }).click();
+  await expect(field).toHaveAttribute("aria-invalid", "true");
+  await expect(panel).toBeVisible();
+
+  // Short codes are expanded.
+  await field.fill("f0a");
+  await panel.getByRole("button", { name: "Apply" }).click();
+  await expect(panel).toHaveCount(0);
+  await colourButton.click();
+  await expect(field).toHaveValue("FF00AA");
+});
