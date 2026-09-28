@@ -119,6 +119,8 @@ Mobile PWA (Fabric.js editor + Three.js preview)
 - `pnpm build && pnpm e2e` — production build + Playwright mobile tests (360px, touch).
   First time: `pnpm exec playwright install chromium` (or set `PW_CHROMIUM_PATH`).
 - `pnpm print:sample` — render the fixture design to `out/print-sample.png` (300 DPI print file).
+- `pnpm storage:check` — checks the R2/S3 settings in `.env.local` (write, read, signed links, CORS).
+  Guide: `docs/ops/storage-r2.md`.
 - `pnpm woo:seed` / `pnpm woo:smoke` — set up / live-check a WooCommerce test store from `.env.local`
   (guide: `docs/ops/woocommerce-staging.md`).
 - Print specs per product: `src/config/products/*.ts` (guide: `docs/ops/print-specs.md`). Tests read
@@ -150,6 +152,10 @@ Mobile PWA (Fabric.js editor + Three.js preview)
   selected: text → font, colour (`config/colours.ts`), bold/italic/underline; photo → crop; both → copy, delete. Crop maths is
   pure in `engine/crop.ts` (normalised 0–1 rects); DPI accounts for the crop.
 - Drafts also save on `pagehide`/`visibilitychange`, so a reload right after an edit keeps it.
+- Storage: `src/lib/storage` (`getStorage()`, R2/S3 via aws4fetch; in-memory in dev/demo). Keys live in
+  `keys.ts` (`designs/<id>/design.json`, `designs/<id>/assets/<assetId>`, `orders/<id>/line-<n>/…`).
+  Photos go phone → storage via presigned PUT (`/api/designs` + `features/editor/upload-design.ts`),
+  never through our functions (Vercel's 4.5 MB request limit). Bucket stays private.
 - Text styling goes through `engine/text-style.ts` (`applyTextStyle`, `getTextStyle`),
   exposed as `useFabricCanvas().applyTextStyle / setText / selection.text`.
 - Every screen uses `components/ui/app-header.tsx` (back arrow to a fixed parent route,
