@@ -10,7 +10,14 @@
     "regular_price": "",
     "stock_status": "instock",
     "attributes": [
-      { "id": 1, "name": "Colour", "position": 0, "visible": true, "variation": true, "options": ["Gloss White", "Black"] }
+      {
+        "id": 1,
+        "name": "Colour",
+        "position": 0,
+        "visible": true,
+        "variation": true,
+        "options": ["Gloss White", "Black"]
+      }
     ],
     "variations": [1011, 1012],
     "meta_data": []

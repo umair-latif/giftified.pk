@@ -1,16 +1,44 @@
 {
   "0": [],
   "1": [
-    { "instance_id": 1, "title": "Flat rate", "order": 1, "enabled": true, "method_id": "flat_rate",
-      "settings": { "title": { "id": "title", "value": "Flat rate" }, "cost": { "id": "cost", "value": "200" } } }
+    {
+      "instance_id": 1,
+      "title": "Flat rate",
+      "order": 1,
+      "enabled": true,
+      "method_id": "flat_rate",
+      "settings": {
+        "title": { "id": "title", "value": "Flat rate" },
+        "cost": { "id": "cost", "value": "200" }
+      }
+    }
   ],
   "2": [
-    { "instance_id": 4, "title": "Free shipping", "order": 1, "enabled": false, "method_id": "free_shipping", "settings": {} },
-    { "instance_id": 5, "title": "Flat rate", "order": 2, "enabled": true, "method_id": "flat_rate",
-      "settings": { "cost": { "id": "cost", "value": "150" } } }
+    {
+      "instance_id": 4,
+      "title": "Free shipping",
+      "order": 1,
+      "enabled": false,
+      "method_id": "free_shipping",
+      "settings": {}
+    },
+    {
+      "instance_id": 5,
+      "title": "Flat rate",
+      "order": 2,
+      "enabled": true,
+      "method_id": "flat_rate",
+      "settings": { "cost": { "id": "cost", "value": "150" } }
+    }
   ],
   "3": [
-    { "instance_id": 7, "title": "Flat rate", "order": 1, "enabled": true, "method_id": "flat_rate",
-      "settings": { "cost": { "id": "cost", "value": "300" } } }
+    {
+      "instance_id": 7,
+      "title": "Flat rate",
+      "order": 1,
+      "enabled": true,
+      "method_id": "flat_rate",
+      "settings": { "cost": { "id": "cost", "value": "300" } }
+    }
   ]
 }
