@@ -16,7 +16,7 @@ own folders.
 | 04  | [3D mug preview](04-mug-3d-preview.md)                           | _unassigned_                 | `feat/mug-3d`         | ready (needs a mug GLB)  |
 | 05  | [COD checkout form](05-checkout-form.md)                         | Intern + Cursor              | `feat/checkout-form`  | ready                    |
 | 06  | [Text styling sheet](06-text-styling-sheet.md)                   | Intern + Cursor              | `feat/text-sheet`     | ready                    |
-| 07  | [300 DPI print renderer](07-print-renderer.md)                   | Lead (Claude)                | `feat/print-renderer` | next                     |
+| 07  | [300 DPI print renderer](07-print-renderer.md)                   | Claude (cloud session)       | `feat/print-renderer` | in review                |
 | 08  | [Order pipeline, manual dispatch](08-order-pipeline.md)          | Lead (Claude)                | `feat/order-pipeline` | after 01, 03, 07         |
 | 09  | [Photo background removal](09-background-removal.md)             | —                            | `feat/bg-removal`     | **postponed**            |
 

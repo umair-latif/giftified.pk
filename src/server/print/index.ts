@@ -1,11 +1,10 @@
 import "server-only";
-import type { RenderPrintFile } from "./types";
 
 export type * from "./types";
 
-/** Implemented in the print-renderer task (lead). Until then, callers get a clear error. */
-export const renderPrintFile: RenderPrintFile = async () => {
-  throw new Error(
-    "renderPrintFile is not implemented yet (see docs/tasks/07-print-renderer.md)",
-  );
-};
+/**
+ * 300 DPI print file renderer (task 07). Pure async function: callers (the
+ * render-print-file job) pass the design and a `resolveAsset` that loads the
+ * ORIGINAL uploads from storage, then store the PNG themselves.
+ */
+export { renderPrintFile } from "./render";
