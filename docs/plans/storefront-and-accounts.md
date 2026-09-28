@@ -194,16 +194,29 @@ the editor. Category chips appear only when there are enough products to need th
 
 **Phase B: accounts**
 
-| #   | Task                                                                  | Who              | Needs  |
-| --- | --------------------------------------------------------------------- | ---------------- | ------ |
-| 16  | Auth + database foundation, sign-in page, WC customer link            | Lead             | A      |
-| 17  | Account area: orders, addresses, profile, order again                 | Assistant        | 16     |
-| 18  | Saved designs in the cloud ("Save to my designs", `/account/designs`) | Lead + assistant | 16     |
+| #   | Task                                                                  | Who              | Needs |
+| --- | --------------------------------------------------------------------- | ---------------- | ----- |
+| 16  | Auth + database foundation, sign-in page, WC customer link            | Lead             | A     |
+| 17  | Account area: orders, addresses, profile, order again                 | Assistant        | 16    |
+| 18  | Saved designs in the cloud ("Save to my designs", `/account/designs`) | Lead + assistant | 16    |
 
 **Phase C: growth** (order to be decided with real data)
 
-- **Templates — "Personalize this design"** (Zazzle's main traffic driver): the founder designs
-  templates in our editor with placeholder text/photos; occasion pages list them (❓4).
+- **Photo frames** (editor, lead; before templates): the crop screen becomes **Crop & shape** with
+  shape chips (Original, Circle, Rounded, Heart, Arch, Star, Polaroid). The photo fills the shape and
+  can be moved/zoomed inside it; the selection bar gets _Replace photo_. Polaroid = white frame,
+  caption, slight tilt, drop shadow. Soft shadows: fine on mugs; on apparel (DTF) switch to a solid
+  offset shadow or off — confirm with vendors. Frames are saved in `design.json`, so the print file
+  matches; the DPI check measures only the visible part of the photo.
+- **Templates — "Personalize this design"** (Zazzle's main traffic driver): a template is a saved
+  `design.json` with placeholder frames ("Tap to add photo") and editable text. The founder creates
+  them with _Save as template_; they appear in a gallery on each product page and on occasion pages
+  (`/occasions/eid`); tapping one opens the editor with it loaded (❓4).
+- **Customer templates** (after accounts): signed-in customers can _Share as template_.
+  - Photos become empty "Tap to add photo" frames by default (customers' photos are personal);
+    keeping an image requires ticking "I own this image".
+  - Every submission waits for the founder's approval (offensive content, logos/copyright).
+  - Shown as "Design by <first name>"; creator rewards (discount codes, revenue share) later.
 - Reviews with customer photos · WhatsApp order updates (task 02) · search · Urdu UI ·
   quantity discounts for teams/events · gift note.
 
