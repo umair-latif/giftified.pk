@@ -76,8 +76,17 @@ test("COD checkout on a 360px phone: preview → order → confirmation", async 
   );
   expect(scrollWidth).toBeLessThanOrEqual(360);
 
+  const upload = page.waitForResponse(
+    (r) => r.url().endsWith("/api/designs") && r.request().method() === "POST",
+  );
   await page.getByRole("button", { name: /Place order/ }).tap();
+  const { designId } = (await (await upload).json()) as { designId: string };
   await expect(page).toHaveURL(/\/order\/\d+$/);
+  // The design the print job needs is really in storage.
+  const saved = await page.request.get(
+    `/api/dev-storage/designs/${designId}/design.json`,
+  );
+  expect(saved.status()).toBe(200);
   await expect(page.getByText("Thank you!")).toBeVisible();
   await expect(page.getByTestId("confirm-message")).toContainText(
     "+92 300 ***4567",

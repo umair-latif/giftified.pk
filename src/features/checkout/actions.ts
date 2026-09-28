@@ -3,9 +3,16 @@
 import { z } from "zod";
 import { canonicalCity } from "@/config/cities";
 import { getCommerce } from "@/lib/commerce";
+import { getStorage } from "@/lib/storage";
+import { designKey } from "@/lib/storage/keys";
 import type { ProductId } from "@/config/products";
 import type { OrderId } from "@/types/order";
-import { MAX_QUANTITY, parseCheckout, type FieldErrors } from "./schema";
+import {
+  DESIGN_NOT_SAVED,
+  MAX_QUANTITY,
+  parseCheckout,
+  type FieldErrors,
+} from "./schema";
 
 /**
  * Server Actions for the Order step. They are public HTTP endpoints: every
@@ -56,6 +63,15 @@ export async function placeOrder(input: unknown): Promise<PlaceOrderResult> {
   const parsed = parseCheckout(input);
   if (!parsed.ok) return { ok: false, errors: parsed.errors };
   try {
+    // The print job needs the uploaded design; never create an order without it.
+    for (const line of parsed.order.lines) {
+      if (!(await getStorage().head(designKey(line.designId))))
+        return {
+          ok: false,
+          errors: { designId: DESIGN_NOT_SAVED },
+          message: DESIGN_NOT_SAVED,
+        };
+    }
     const order = await getCommerce().createOrder(parsed.order);
     return { ok: true, orderId: order.id };
   } catch (err) {

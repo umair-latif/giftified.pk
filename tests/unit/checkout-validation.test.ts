@@ -1,13 +1,14 @@
 import { describe, expect, it } from "vitest";
 import { CITIES, canonicalCity, searchCities } from "@/config/cities";
 import { formatPkr } from "@/features/checkout/format";
-import { LOCAL_DESIGN_ID, parseCheckout } from "@/features/checkout/schema";
+import { parseCheckout } from "@/features/checkout/schema";
 import { createMockCommerce } from "@/lib/commerce/mock";
 
 const valid = {
   checkoutId: "3f2b8c1e-0000-4000-8000-000000000001",
   productId: "mug",
   colourId: "white",
+  designId: "k3Jd9sQx2LmN",
   quantity: 2,
   fullName: "  Ayesha   Khan ",
   phone: "0300-1234567",
@@ -34,7 +35,7 @@ describe("parseCheckout", () => {
             productId: "mug",
             colourId: "white",
             quantity: 2,
-            designId: LOCAL_DESIGN_ID,
+            designId: "k3Jd9sQx2LmN",
           },
         ],
       },
@@ -107,6 +108,8 @@ describe("parseCheckout", () => {
   });
 
   it("rejects non-objects", () => {
+    expect(parseCheckout({ ...valid, designId: undefined }).ok).toBe(false);
+    expect(parseCheckout({ ...valid, designId: "../x" }).ok).toBe(false);
     expect(parseCheckout(null).ok).toBe(false);
     expect(parseCheckout("hello").ok).toBe(false);
   });
