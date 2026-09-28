@@ -129,8 +129,6 @@ the editor. Category chips appear only when there are enough products to need th
   continue editing on any device.
 - `/account/addresses`: saved addresses; the default fills checkout.
 - `/account/profile`: name, phone, email; sign out; delete account.
-- **Claim guest orders:** after sign-in with a verified email, offer to add earlier orders placed
-  with that email. Phone matching only once phone numbers can be verified (WhatsApp OTP, later).
 
 ## 5. Technical design
 
@@ -177,8 +175,7 @@ the editor. Category chips appear only when there are enough products to need th
 - `src/types/cart.ts` (new).
 - `CreateOrderInput`: optional `email`, optional `customerId` (Phase B).
 - `CommerceClient`: `getOrderForTracking(id, phone)`, `listCategories()` (when needed),
-  Phase B: `ensureCustomer(email, name)`, `listOrdersForCustomer(customerId)`,
-  `findOrdersByEmail(email)`.
+  Phase B: `ensureCustomer(email, name)`, `listOrdersForCustomer(customerId)`.
 - `Order`: optional `tracking?: { courier: string; number: string; url?: string }`.
 
 ## 6. Phases and task briefs
@@ -202,7 +199,6 @@ the editor. Category chips appear only when there are enough products to need th
 | 16  | Auth + database foundation, sign-in page, WC customer link            | Lead             | A      |
 | 17  | Account area: orders, addresses, profile, order again                 | Assistant        | 16     |
 | 18  | Saved designs in the cloud ("Save to my designs", `/account/designs`) | Lead + assistant | 16     |
-| 19  | Claim earlier guest orders by verified email                          | Assistant        | 16, 17 |
 
 **Phase C: growth** (order to be decided with real data)
 
