@@ -25,13 +25,23 @@ and not the links.
 
 ## One-time setup (Vercel)
 
+Nothing to install: the `inngest` package is already in the project (don't run `npm install`).
+Inngest's Quickstart tabs (.env.local, route, client, function) are already done in the code.
+
 1. Vercel → your project → **Integrations** → add **Inngest** and connect it to this project.
-   It sets `INNGEST_EVENT_KEY` and `INNGEST_SIGNING_KEY` in the Production environment.
+   Leave **Custom Environment Variable Prefix** empty (the code reads the exact names), and pick
+   Production. It sets `INNGEST_EVENT_KEY` and `INNGEST_SIGNING_KEY`.
 2. Vercel → Settings → Environment Variables → add `INNGEST_SERVE_ORIGIN` =
    `https://giftified.microw.me` (Production), so Inngest calls your domain, not `*.vercel.app`.
-3. Redeploy. In the Inngest dashboard → **Apps**, you should see `giftified` with the function
-   `prepare-order-files`. If not, click **Sync** and use `https://giftified.microw.me/api/inngest`.
-4. Optional env vars (Production):
+3. **Redeploy** (new env vars only reach new deployments). Then open
+   `https://giftified.microw.me/api/inngest` in a browser:
+   - `{"message":"Unauthorized"}` → correct (only Inngest may call it).
+   - `{"code":"internal_server_error"}` → the deployment has no `INNGEST_SIGNING_KEY`: check it's
+     set for Production and redeploy.
+4. Inngest dashboard → **Apps**: you should see `giftified` with the function
+   `prepare-order-files`. If not, click **Sync new app** and use
+   `https://giftified.microw.me/api/inngest`.
+5. Optional env vars (Production):
    - `FILES_LINK_SECRET`: signs the download links. If it isn't set, a secret is derived from
      `WC_WEBHOOK_SECRET`. Changing either one breaks existing links, which you can recreate with
      `pnpm order:files`.
