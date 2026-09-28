@@ -1,4 +1,16 @@
 import { expect, type Page } from "@playwright/test";
+import { mug } from "@/config/products/mug";
+
+/**
+ * Print-area geometry comes from the product config, so changing the mug size
+ * in src/config/products/mug.ts never requires editing these tests.
+ */
+export const AREA = mug.printArea;
+/** Where a new object lands (centre of the print area), rounded like the status line. */
+export const CX = Math.round(AREA.widthMm / 2);
+export const CY = Math.round(AREA.heightMm / 2);
+export const centreText = (dx = 0, dy = 0) =>
+  `centre ${Math.round(AREA.widthMm / 2 + dx)}, ${Math.round(AREA.heightMm / 2 + dy)} mm`;
 
 export const status = (page: Page) => page.getByTestId("editor-status");
 
@@ -27,7 +39,7 @@ export async function canvasBox(page: Page) {
     ...box,
     cx: box.x + box.width / 2,
     cy: box.y + box.height / 2,
-    pxPerMm: box.width / 216,
+    pxPerMm: box.width / AREA.widthMm,
   };
 }
 
@@ -38,7 +50,7 @@ export async function openEditorWithText(page: Page) {
     page.getByRole("button", { name: "Text", exact: true }),
   ).toBeEnabled();
   await page.getByRole("button", { name: "Text", exact: true }).click();
-  await expect(status(page)).toHaveText(/textbox · centre 108, 45 mm/);
+  await expect(status(page)).toContainText(`textbox · ${centreText()}`);
 }
 
 /** Two-finger pinch/twist around (cx, cy) via raw CDP touch events. */

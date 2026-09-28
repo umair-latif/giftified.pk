@@ -13,7 +13,9 @@
     "e2e": "playwright test",
     "format": "prettier --write .",
     "check": "pnpm lint && pnpm typecheck && pnpm test",
-    "print:sample": "tsx scripts/print-sample.ts"
+    "print:sample": "tsx scripts/print-sample.ts",
+    "woo:seed": "tsx scripts/woo-seed.ts",
+    "woo:smoke": "tsx scripts/woo-smoke.ts"
   },
   "dependencies": {
     "canvas": "^3.2.3",
@@ -28,6 +30,7 @@
   },
   "devDependencies": {
     "@next/bundle-analyzer": "^16.3.6",
+    "@next/env": "16.3.6",
     "@playwright/test": "^1.63.0",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",

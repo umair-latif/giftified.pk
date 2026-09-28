@@ -6,7 +6,7 @@
 > font files (adding a font to `src/config/fonts.ts` makes it appear in the bar's picker too).
 > Open it from a new "More" / "Aa" button at the start of the selection bar (one small edit there).
 
-**Branch:** `feat/text-sheet` · **Suggested owner:** Intern + Cursor (lead reviews)
+**Branch:** `feat/text-sheet` · **Suggested owner:** any AI assistant — a second Claude session, Cursor or Gemini (lead reviews)
 
 ## Goal
 

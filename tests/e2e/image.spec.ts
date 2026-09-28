@@ -1,5 +1,5 @@
 import { expect, test, type Page } from "@playwright/test";
-import { canvasBox, pinch, status } from "./helpers";
+import { canvasBox, centreText, pinch, status } from "./helpers";
 
 let pageErrors: string[] = [];
 test.beforeEach(({ page }) => {
@@ -59,7 +59,7 @@ test("a large photo prints sharp, and enlarging it too much turns the badge red"
 }) => {
   await openEditor(page);
   await upload(page, "big.png", await makePng(page, 3000, 1200));
-  await expect(status(page)).toHaveText(/image · centre 108, 45 mm/);
+  await expect(status(page)).toContainText(`image · ${centreText()}`);
   await expect(badge(page)).toHaveAttribute("data-status", "ok");
   await expect(badge(page)).toContainText(/Sharp print · \d+ DPI/);
 

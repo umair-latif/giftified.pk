@@ -1,5 +1,11 @@
 import { expect, test, type Page } from "@playwright/test";
-import { canvasBox, openEditorWithText, readout, status } from "./helpers";
+import {
+  canvasBox,
+  centreText,
+  openEditorWithText,
+  readout,
+  status,
+} from "./helpers";
 
 let pageErrors: string[] = [];
 test.beforeEach(({ page }) => {
@@ -84,7 +90,7 @@ test("copy makes a second layer 5 mm down-right, delete removes the selection", 
 }) => {
   await openEditorWithText(page);
   await bar(page).getByRole("button", { name: "Copy" }).click();
-  await expect(status(page)).toHaveText(/centre 113, 50 mm/);
+  await expect(status(page)).toContainText(centreText(5, 5));
   await bar(page).getByRole("button", { name: "Delete" }).click();
   await expect(status(page)).toHaveText(/1 layer\b/);
 });
