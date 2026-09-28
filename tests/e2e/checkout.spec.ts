@@ -92,7 +92,7 @@ test("COD checkout on a 360px phone: preview → order → confirmation", async 
   expect(saved.status()).toBe(200);
   await expect(page.getByText("Thank you!")).toBeVisible();
   await expect(page.getByTestId("confirm-message")).toContainText(
-    "+92 300 ***4567",
+    "0300 •••• 567",
   );
   await expect(page.getByTestId("order-total")).toHaveText("Rs 3,198");
   expect(await orderNumber(page)).toBeGreaterThan(0);
