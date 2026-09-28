@@ -4,6 +4,7 @@ import type {
   Order,
   OrderId,
   OrderStatus,
+  PkMobile,
 } from "@/types/order";
 
 /**
@@ -11,8 +12,16 @@ import type {
  * Implemented by `woocommerce.ts` (real) and `mock.ts` (dev/tests).
  * Server-only: never import from client components.
  */
+export interface CatalogImage {
+  src: string;
+  alt: string;
+}
+
 export interface CatalogVariant {
   colourId: string;
+  /** Display name and swatch from WooCommerce (task 11); fall back to config. */
+  colourName?: string;
+  colourHex?: `#${string}`;
   size?: string;
   /** WooCommerce variation ID. */
   wooVariationId: number;
@@ -23,7 +32,15 @@ export interface CatalogVariant {
 export interface CatalogProduct {
   productId: ProductId;
   wooProductId: number;
+  /** URL slug for /products/[slug]. */
+  slug: string;
   name: string;
+  /** Plain text, one or two sentences (task 11). */
+  shortDescription?: string;
+  /** Sanitised HTML (task 11). */
+  descriptionHtml?: string;
+  /** Product gallery, first = main image. May be empty. */
+  images: CatalogImage[];
   basePricePkr: number;
   variants: CatalogVariant[];
 }
@@ -54,6 +71,11 @@ export interface CommerceClient {
    */
   createOrder(input: CreateOrderInput): Promise<Order>;
   getOrder(id: OrderId): Promise<Order | null>;
+  /**
+   * Guest tracking: the order, only if `phone` (E.164) matches its customer
+   * phone; otherwise null (same result as "no such order").
+   */
+  findOrderForTracking(id: OrderId, phone: PkMobile): Promise<Order | null>;
   setOrderStatus(id: OrderId, status: OrderStatus): Promise<void>;
   /** Attach print/proof URLs to a line item (WC line-item meta_data). */
   setLineFiles(

@@ -59,3 +59,18 @@ export const CropIcon = (p: IconProps) => (
     <path d="M18 22V8a2 2 0 00-2-2H2" />
   </svg>
 );
+
+export const BagIcon = (p: IconProps) => (
+  <svg {...base} {...p}>
+    <path d="M6 7h12l1 13H5L6 7z" />
+    <path d="M9 7a3 3 0 0 1 6 0" />
+  </svg>
+);
+
+export const TruckIcon = (p: IconProps) => (
+  <svg {...base} {...p}>
+    <path d="M3 6h11v10H3zM14 10h4l3 3v3h-7" />
+    <circle cx="7" cy="17.5" r="1.5" />
+    <circle cx="17" cy="17.5" r="1.5" />
+  </svg>
+);

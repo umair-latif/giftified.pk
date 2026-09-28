@@ -29,6 +29,9 @@ export const PRODUCT_SKUS: readonly ProductId[] = ["mug", "tshirt", "hoodie"];
 
 export const META = {
   checkoutId: "_checkout_id",
+  courier: "_courier",
+  trackingNumber: "_tracking_number",
+  trackingUrl: "_tracking_url",
   designId: "_design_id",
   printPngUrl: "_print_png_url",
   proofPdfUrl: "_proof_pdf_url",
@@ -124,7 +127,9 @@ export function mapProduct(
   return {
     productId,
     wooProductId: p.id,
+    slug: p.slug || productId,
     name: p.name,
+    images: p.images.map((i) => ({ src: i.src, alt: i.alt || p.name })),
     basePricePkr: Math.min(...variants.map((v) => v.pricePkr)),
     variants,
   };
@@ -210,6 +215,7 @@ export function buildOrderBody(
 ) {
   const { first, last } = splitName(input.customer.fullName);
   const address = {
+    ...(input.email ? { email: input.email } : {}),
     first_name: first,
     last_name: last,
     address_1: input.customer.addressLine,
@@ -231,6 +237,7 @@ export function buildOrderBody(
       quantity: l.quantity,
       meta_data: [{ key: META.designId, value: l.designId }],
     })),
+    ...(input.customerId ? { customer_id: input.customerId } : {}),
     shipping_lines: [
       {
         method_id: "flat_rate",
@@ -291,6 +298,11 @@ export function mapOrder(o: WooOrder, catalog: CatalogProduct[]): Order {
     };
   });
 
+  const courier = metaValue(o.meta_data, META.courier);
+  const trackingNumber = metaValue(o.meta_data, META.trackingNumber);
+  const trackingUrl = metaValue(o.meta_data, META.trackingUrl);
+  const email = o.billing.email?.trim().toLowerCase();
+
   const created = o.date_created_gmt;
   return {
     id: o.id,
@@ -301,6 +313,18 @@ export function mapOrder(o: WooOrder, catalog: CatalogProduct[]): Order {
         ).toISOString()
       : new Date(0).toISOString(),
     customer,
+    ...(email ? { email } : {}),
+    ...(courier && trackingNumber
+      ? {
+          tracking: {
+            courier,
+            number: trackingNumber,
+            ...(trackingUrl && /^https:\/\//.test(trackingUrl)
+              ? { url: trackingUrl }
+              : {}),
+          },
+        }
+      : {}),
     lines,
     shippingPkr: parsePkr(o.shipping_total) ?? 0,
     totalPkr: parsePkr(o.total) ?? 0,

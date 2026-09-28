@@ -41,7 +41,9 @@ describe("catalog mapping", () => {
     expect(p).toEqual({
       productId: "mug",
       wooProductId: 101,
+      slug: "custom-mug",
       name: "Custom Mug",
+      images: [],
       basePricePkr: 1499,
       variants: [
         {

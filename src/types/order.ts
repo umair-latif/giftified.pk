@@ -41,6 +41,10 @@ export interface OrderLineInput {
 
 export interface CreateOrderInput {
   customer: CustomerDetails;
+  /** Optional, for the receipt and WooCommerce's order emails. Lower-cased. */
+  email?: string;
+  /** WooCommerce customer ID when signed in (task 20). */
+  customerId?: number;
   lines: OrderLineInput[];
   /** Idempotency key generated on the client per checkout attempt. */
   checkoutId: string;
@@ -54,11 +58,23 @@ export interface OrderLine extends OrderLineInput {
   proofPdfUrl?: string;
 }
 
+/** Set by the founder in WP admin when the parcel ships (order custom fields). */
+export interface OrderTracking {
+  /** `_courier`, e.g. "TCS", "Leopards", "M&P". */
+  courier: string;
+  /** `_tracking_number`. */
+  number: string;
+  /** `_tracking_url`, optional. */
+  url?: string;
+}
+
 export interface Order {
   id: OrderId;
   status: OrderStatus;
   createdAt: string; // ISO 8601
   customer: CustomerDetails;
+  email?: string;
+  tracking?: OrderTracking;
   lines: OrderLine[];
   shippingPkr: number;
   totalPkr: number;

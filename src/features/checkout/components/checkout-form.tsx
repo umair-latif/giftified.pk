@@ -112,7 +112,7 @@ export function CheckoutForm({ product }: { product: ProductConfig }) {
         checkoutId: attempt.current.id,
       });
       if (r.ok) {
-        router.push(`/order/${r.orderId}`);
+        router.push(r.statusUrl);
         return; // stay disabled while the confirmation page loads
       }
       if (r.errors.designId) designId.current = null; // upload again next time

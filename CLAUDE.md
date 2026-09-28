@@ -101,7 +101,7 @@ Mobile PWA (Fabric.js editor + Three.js preview)
 - Modules are split into task briefs in `docs/tasks/` (status board in its README). Each
   brief lists the folders you may edit — stay inside them.
 - **Shared contracts** (change only in a separate PR approved by the lead):
-  `src/types/design.ts` (DesignDocument), `src/types/order.ts`, `src/lib/commerce/types.ts`,
+  `src/types/design.ts` (DesignDocument), `src/types/order.ts`, `src/types/cart.ts`, `src/lib/commerce/types.ts`,
   `src/lib/messaging/types.ts`, `src/server/print/types.ts`, `src/server/pdf/types.ts`,
   `src/features/preview-3d/types.ts`.
 - Build against mocks and fixtures instead of waiting: `createMockCommerce()`,
@@ -176,7 +176,10 @@ src/server/pdf/     VendorProof.pdf builder
 src/server/jobs/    Inngest client/functions + prepare-order-files (render → R2 → links + order note)
 src/server/files/   signed 90-day download links (/api/files/<token> → 5-min R2 link)
 src/lib/            commerce/ (types, mock, woocommerce), messaging/, email/, storage/, units.ts, dpi.ts
-src/types/          shared contracts: design.ts, order.ts
+src/types/          shared contracts: design.ts, order.ts, cart.ts
+src/components/site/ shop header (cart badge) + footer; src/app/(store)/ = shop routes with that shell
+src/server/orders/  order-link.ts: private order-status links (/order/<id>?t=)
+src/config/site.ts  WhatsApp number, email, social links
 docs/tasks/         per-module task briefs + status board
 tests/fixtures/     sample design JSON + rendered PNG for module work without the editor
 src/config/products/ mug.ts, tshirt.ts, hoodie.ts (print areas in mm, colours, sizes)

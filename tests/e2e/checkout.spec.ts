@@ -81,7 +81,7 @@ test("COD checkout on a 360px phone: preview → order → confirmation", async 
   );
   await page.getByRole("button", { name: /Place order/ }).tap();
   const { designId } = (await (await upload).json()) as { designId: string };
-  await expect(page).toHaveURL(/\/order\/\d+$/);
+  await expect(page).toHaveURL(/\/order\/\d+\?t=[\w-]+$/);
   // The design the print job needs is really in storage.
   const saved = await page.request.get(
     `/api/dev-storage/designs/${designId}/design.json`,
@@ -107,7 +107,7 @@ test("double submit creates one order", async ({ page }) => {
       form.requestSubmit();
       form.requestSubmit();
     });
-    await expect(page).toHaveURL(/\/order\/\d+$/);
+    await expect(page).toHaveURL(/\/order\/\d+\?t=[\w-]+$/);
     return orderNumber(page);
   };
   const first = await place();
