@@ -12,7 +12,7 @@ own folders.
 | 00  | Editor core, image upload + DPI                                  | Lead (Claude, cloud session) | `feat/image-upload`   | done (+ selection bar)   |
 | 01  | [WooCommerce adapter + order webhook](01-woocommerce-adapter.md) | Claude (2nd cloud session)   | `feat/woo-adapter`    | done (reviewed)          |
 | 02  | [WhatsApp messaging + reply webhook](02-whatsapp-messaging.md)   | —                            | `feat/whatsapp`       | **postponed** (post-MVP) |
-| 03  | [VendorProof.pdf builder](03-vendor-proof-pdf.md)                | _unassigned_                 | `feat/vendor-proof`   | ready                    |
+| 03  | [VendorProof.pdf builder](03-vendor-proof-pdf.md)                | Claude (2nd cloud session)   | `feat/vendor-proof`   | in review                |
 | 04  | [3D mug preview](04-mug-3d-preview.md)                           | _unassigned_                 | `feat/mug-3d`         | ready (needs a mug GLB)  |
 | 05  | [COD checkout form](05-checkout-form.md)                         | Intern + Cursor              | `feat/checkout-form`  | ready                    |
 | 06  | [Text styling sheet](06-text-styling-sheet.md)                   | Intern + Cursor              | `feat/text-sheet`     | ready                    |
