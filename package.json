@@ -18,10 +18,12 @@
     "woo:smoke": "tsx scripts/woo-smoke.ts"
   },
   "dependencies": {
+    "@pdf-lib/upng": "^1.0.1",
     "canvas": "^3.2.3",
     "fabric": "7.4.0",
     "jsdom": "^26.1.0",
     "next": "16.3.6",
+    "pdf-lib": "^1.17.1",
     "react": "19.2.8",
     "react-dom": "19.2.8",
     "server-only": "^0.0.1",
