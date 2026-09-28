@@ -26,7 +26,7 @@ export default async function OrderPage(
   const product = getProduct(id);
   if (!product) notFound();
   return (
-    <div className="min-h-dvh bg-zinc-50">
+    <div className="bg-cream min-h-dvh">
       <AppHeader
         title="Order"
         backHref={`/design/${product.id}/preview`}

@@ -9,7 +9,7 @@ interface NextAction {
 }
 
 interface Props {
-  title: string;
+  title: ReactNode;
   /** Where the back arrow goes. Omit on top-level screens. */
   backHref?: string;
   backLabel?: string;
@@ -53,7 +53,7 @@ export function AppHeader({
           (next.href ? (
             <Link
               href={next.href}
-              className="ml-1 flex h-9 shrink-0 items-center gap-0.5 rounded-full bg-indigo-600 pr-2 pl-3.5 text-sm font-medium text-white active:bg-indigo-700"
+              className="bg-brand-600 active:bg-brand-700 ml-1 flex h-9 shrink-0 items-center gap-0.5 rounded-full pr-2 pl-3.5 text-sm font-medium text-white"
             >
               {next.label}
               <ArrowRightIcon width={18} height={18} />

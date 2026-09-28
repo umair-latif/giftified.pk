@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 
 export const inputClass = (invalid: boolean) =>
-  `block h-12 w-full rounded-lg border bg-white px-3 text-base text-zinc-900 placeholder:text-zinc-400 focus:border-indigo-600 focus:ring-2 focus:ring-indigo-600/20 focus:outline-none ${
+  `block h-12 w-full rounded-lg border bg-white px-3 text-base text-zinc-900 placeholder:text-zinc-400 focus:border-brand-600 focus:ring-2 focus:ring-brand-600/20 focus:outline-none ${
     invalid ? "border-red-500" : "border-zinc-300"
   }`;
 

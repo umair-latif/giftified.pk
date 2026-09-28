@@ -150,7 +150,7 @@ export function CheckoutForm({ product }: { product: ProductConfig }) {
         </p>
         <Link
           href={editorHref}
-          className="mt-3 inline-flex h-11 items-center rounded-full bg-indigo-600 px-5 font-medium text-white"
+          className="bg-brand-600 mt-3 inline-flex h-11 items-center rounded-full px-5 font-medium text-white"
         >
           Back to the editor
         </Link>
@@ -290,7 +290,7 @@ export function CheckoutForm({ product }: { product: ProductConfig }) {
       <button
         type="submit"
         disabled={submitting}
-        className="h-12 rounded-full bg-indigo-600 text-base font-semibold text-white active:bg-indigo-700 disabled:bg-indigo-300"
+        className="bg-brand-600 active:bg-brand-700 disabled:bg-brand-300 h-12 rounded-full text-base font-semibold text-white"
       >
         {submitting
           ? (progress ?? "Placing order…")

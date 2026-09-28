@@ -35,7 +35,7 @@ export function DesignEditor({ product }: { product: ProductConfig }) {
 
   return (
     <div
-      className={`flex min-h-dvh flex-col bg-zinc-50 ${selectionKind ? "pb-36" : "pb-24"}`}
+      className={`bg-cream flex min-h-dvh flex-col ${selectionKind ? "pb-36" : "pb-24"}`}
     >
       <AppHeader
         title={product.name}

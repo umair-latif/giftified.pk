@@ -18,7 +18,7 @@ export function StepBar({ current }: { current: FlowStep }) {
           <span
             className={`grid size-5 place-items-center rounded-full text-[10px] font-semibold ${
               i <= currentIndex
-                ? "bg-indigo-600 text-white"
+                ? "bg-brand-600 text-white"
                 : "bg-zinc-200 text-zinc-500"
             }`}
           >

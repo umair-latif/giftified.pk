@@ -80,7 +80,7 @@ export function TextColourPicker({ value, onChange }: Props) {
                 onClick={() => pick(s.hex)}
                 className={`size-9 rounded-full ring-1 ring-zinc-300 ${
                   s.hex.toLowerCase() === current
-                    ? "outline-2 outline-offset-2 outline-indigo-600"
+                    ? "outline-brand-600 outline-2 outline-offset-2"
                     : ""
                 }`}
                 style={{ backgroundColor: s.hex }}
@@ -168,7 +168,7 @@ function HexField({
       </div>
       <button
         type="submit"
-        className="h-10 shrink-0 rounded-md bg-indigo-600 px-3 text-sm font-medium text-white active:bg-indigo-700"
+        className="bg-brand-600 active:bg-brand-700 h-10 shrink-0 rounded-md px-3 text-sm font-medium text-white"
       >
         Apply
       </button>

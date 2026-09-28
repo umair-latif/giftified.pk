@@ -1,13 +1,47 @@
 @import "tailwindcss";
 
+/*
+ * Brand tokens (docs/brand.md). Colours sampled from the brand sheet;
+ * brand-600 is the button colour (white text 5.3:1, WCAG AA).
+ */
 @theme {
-  --font-sans:
-    system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans", Arial, sans-serif;
+  --font-sans: var(--font-poppins), system-ui, Roboto, Arial, sans-serif;
+  --font-display:
+    var(--font-nunito), var(--font-poppins), system-ui, sans-serif;
+
+  /* Personalized Teal (logo = 500) */
+  --color-brand-50: #eef7f8;
+  --color-brand-100: #d5ecef;
+  --color-brand-200: #b0dbe2;
+  --color-brand-300: #8cc7d1;
+  --color-brand-400: #5aaab8;
+  --color-brand-500: #2b8496;
+  --color-brand-600: #237585;
+  --color-brand-700: #1f6b7a;
+  --color-brand-800: #1b5e6b;
+  --color-brand-900: #154a54;
+
+  /* Creative Mint */
+  --color-mint-100: #e3f6ec;
+  --color-mint-300: #9ddfbc;
+  --color-mint-500: #6fcb9c;
+
+  /* Secondary */
+  --color-magenta: #c5448a;
+  --color-sunny: #fed847;
+  --color-ink: #484847;
+  --color-cream: #fbf8ec;
 }
 
 body {
-  background: #fafafa;
-  color: #18181b;
+  background: var(--color-cream);
+  color: #1f1f1e;
   font-family: var(--font-sans);
   -webkit-tap-highlight-color: transparent;
+}
+
+h1,
+h2,
+.font-display {
+  font-family: var(--font-display);
 }
