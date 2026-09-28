@@ -5,7 +5,12 @@ import type {
   OrderId,
   OrderStatus,
 } from "@/types/order";
-import type { CatalogProduct, CommerceClient, VerifiedWebhook } from "./types";
+import type {
+  CatalogProduct,
+  CommerceClient,
+  VerifiedWebhook,
+  WebhookVerification,
+} from "./types";
 
 /**
  * In-memory store for local development and tests. Deterministic prices so
@@ -104,22 +109,25 @@ export function createMockCommerce(): CommerceClient {
     async addOrderNote() {
       /* notes are not kept in the mock */
     },
-    async verifyWebhook(rawBody: string): Promise<VerifiedWebhook | null> {
-      // The mock accepts any JSON body shaped like a WC order; no signature check.
+    async verifyWebhook(rawBody: string): Promise<WebhookVerification> {
+      // DEV ONLY: accepts any JSON body shaped like a WC order, no signature
+      // check. getCommerce() refuses to use the mock in production.
       try {
         const body = JSON.parse(rawBody) as {
           id?: number;
           status?: OrderStatus;
         };
-        if (typeof body.id !== "number" || !body.status) return null;
-        return {
+        if (typeof body.id !== "number" || !body.status)
+          return { kind: "invalid" };
+        const event: VerifiedWebhook = {
           topic: "order.updated",
           orderId: body.id,
           status: body.status,
           deliveryId: `mock-${body.id}-${body.status}`,
         };
+        return { kind: "event", event };
       } catch {
-        return null;
+        return { kind: "invalid" };
       }
     },
   };

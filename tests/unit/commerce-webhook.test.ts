@@ -29,10 +29,13 @@ function headers(over: Record<string, string> = {}) {
 describe("WooCommerce webhook signature", () => {
   it("accepts a valid signature and parses the event", () => {
     expect(verifyWooWebhook(raw, headers(), SECRET)).toEqual({
-      topic: "order.updated",
-      orderId: 5123,
-      status: "processing",
-      deliveryId: "dlv-42",
+      kind: "event",
+      event: {
+        topic: "order.updated",
+        orderId: 5123,
+        status: "processing",
+        deliveryId: "dlv-42",
+      },
     });
   });
 
@@ -40,12 +43,14 @@ describe("WooCommerce webhook signature", () => {
     const h = headers({
       "x-wc-webhook-signature": signWooPayload(raw, "nope"),
     });
-    expect(verifyWooWebhook(raw, h, SECRET)).toBeNull();
+    expect(verifyWooWebhook(raw, h, SECRET)).toEqual({ kind: "invalid" });
   });
 
   it("rejects a tampered body", () => {
     const tampered = raw.replace('"processing"', '"completed"');
-    expect(verifyWooWebhook(tampered, headers(), SECRET)).toBeNull();
+    expect(verifyWooWebhook(tampered, headers(), SECRET)).toEqual({
+      kind: "invalid",
+    });
   });
 
   it("rejects missing/garbage signatures without throwing", () => {
@@ -56,9 +61,23 @@ describe("WooCommerce webhook signature", () => {
     );
   });
 
-  it("ignores topics we don't handle", () => {
+  it("ignores (does not reject) authentic topics we don't handle", () => {
     const h = headers({ "x-wc-webhook-topic": "product.updated" });
-    expect(verifyWooWebhook(raw, h, SECRET)).toBeNull();
+    expect(verifyWooWebhook(raw, h, SECRET)).toEqual({
+      kind: "ignored",
+      reason: "topic product.updated",
+    });
+  });
+
+  it("ignores authentic orders with a plugin's custom status (e.g. courier 'shipped')", () => {
+    const custom = raw.replace('"processing"', '"shipped"');
+    const h = headers({
+      "x-wc-webhook-signature": signWooPayload(custom, SECRET),
+    });
+    expect(verifyWooWebhook(custom, h, SECRET)).toEqual({
+      kind: "ignored",
+      reason: "status shipped",
+    });
   });
 });
 
@@ -111,5 +130,17 @@ describe("POST /api/webhooks/commerce handler", () => {
         deliveryId: "dlv-42",
       }),
     );
+  });
+
+  it("answers 200 (not 401) for authentic deliveries it ignores, so WC keeps the webhook enabled", async () => {
+    const sink = vi.fn();
+    const h = headers({ "x-wc-webhook-topic": "order.deleted" });
+    const res = await handleCommerceWebhook(post(raw, h), wooLike, sink);
+    expect(res.status).toBe(200);
+    expect(await res.json()).toEqual({
+      ok: true,
+      ignored: "topic order.deleted",
+    });
+    expect(sink).not.toHaveBeenCalled();
   });
 });

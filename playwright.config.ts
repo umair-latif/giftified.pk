@@ -23,5 +23,7 @@ export default defineConfig({
     command: `pnpm start -p ${PORT}`,
     port: PORT,
     reuseExistingServer: !process.env.CI,
+    // e2e runs a production build without WooCommerce: opt in to the mock store.
+    env: { COMMERCE_MOCK: "1" },
   },
 });

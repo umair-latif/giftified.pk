@@ -1,5 +1,5 @@
 import { createHmac, timingSafeEqual } from "node:crypto";
-import type { VerifiedWebhook, WebhookTopic } from "./types";
+import type { WebhookTopic, WebhookVerification } from "./types";
 import { mapStatus } from "./woo-map";
 import { wooWebhookOrderSchema } from "./woo-schemas";
 
@@ -37,37 +37,46 @@ export function isWooPing(rawBody: string, headers: Headers): boolean {
 
 const TOPICS: readonly WebhookTopic[] = ["order.created", "order.updated"];
 
-/** Signature check + payload parse. Null for bad signatures or payloads. */
+/**
+ * Signature check + payload parse. Only a bad signature is `invalid`; an
+ * authentic delivery we don't handle (other topic, a plugin's custom status
+ * like "shipped", unexpected payload) is `ignored` so the route still answers
+ * 200 — WooCommerce disables webhooks after repeated failed deliveries.
+ */
 export function verifyWooWebhook(
   rawBody: string,
   headers: Headers,
   secret: string,
-): VerifiedWebhook | null {
+): WebhookVerification {
   if (
     !isValidWooSignature(rawBody, headers.get("x-wc-webhook-signature"), secret)
   )
-    return null;
+    return { kind: "invalid" };
 
   const topic = headers.get("x-wc-webhook-topic");
-  if (!topic || !(TOPICS as readonly string[]).includes(topic)) return null;
+  if (!topic || !(TOPICS as readonly string[]).includes(topic))
+    return { kind: "ignored", reason: `topic ${topic ?? "(none)"}` };
 
   let json: unknown;
   try {
     json = JSON.parse(rawBody);
   } catch {
-    return null;
+    return { kind: "ignored", reason: "body is not JSON" };
   }
   const body = wooWebhookOrderSchema.safeParse(json);
-  if (!body.success) return null;
+  if (!body.success) return { kind: "ignored", reason: "unexpected payload" };
   const status = mapStatus(body.data.status);
-  if (!status) return null;
+  if (!status) return { kind: "ignored", reason: `status ${body.data.status}` };
 
   return {
-    topic: topic as WebhookTopic,
-    orderId: body.data.id,
-    status,
-    deliveryId:
-      headers.get("x-wc-webhook-delivery-id") ??
-      `${body.data.id}-${body.data.status}`,
+    kind: "event",
+    event: {
+      topic: topic as WebhookTopic,
+      orderId: body.data.id,
+      status,
+      deliveryId:
+        headers.get("x-wc-webhook-delivery-id") ??
+        `${body.data.id}-${body.data.status}`,
+    },
   };
 }
