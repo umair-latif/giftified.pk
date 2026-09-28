@@ -108,7 +108,8 @@ Mobile PWA (Fabric.js editor + Three.js preview)
 - `package.json`, `CLAUDE.md` and `src/config/products/` change only in small dedicated PRs.
   Lockfile conflicts: rebase, `pnpm install`, commit — never hand-edit `pnpm-lock.yaml`.
 - Lead (Claude) owns: editor engine + hooks, image upload/DPI, print renderer, contracts, reviews.
-  Intern owns: UI sheets/components, checkout form. (Messaging adapter: postponed.)
+  Other assistants (a second Claude session, Cursor, Gemini) take the other briefs, e.g. checkout
+  form (05), text "More" sheet (06), vendor PDF (03), 3D mug (04). The lead reviews every PR.
 - Run `pnpm check` before every commit; UI changes also `pnpm build && pnpm e2e`.
 - When unsure about print dimensions or vendor requirements, ask — don't guess.
 
@@ -117,6 +118,10 @@ Mobile PWA (Fabric.js editor + Three.js preview)
 - `pnpm check` — lint + typecheck + unit tests (run before every commit)
 - `pnpm build && pnpm e2e` — production build + Playwright mobile tests (360px, touch).
   First time: `pnpm exec playwright install chromium` (or set `PW_CHROMIUM_PATH`).
+- `pnpm woo:seed` / `pnpm woo:smoke` — set up / live-check a WooCommerce test store from `.env.local`
+  (guide: `docs/ops/woocommerce-staging.md`).
+- Print specs per product: `src/config/products/*.ts` (guide: `docs/ops/print-specs.md`). Tests read
+  the config, so changing a size is a one-file edit.
 
 ## Editor engine notes
 - Fabric scene units are **mm**; the canvas is exactly the print area, and the viewport

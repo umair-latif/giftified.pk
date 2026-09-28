@@ -1,6 +1,6 @@
 # 05 — COD checkout form
 
-**Branch:** `feat/checkout-form` · **Suggested owner:** Intern + Cursor (lead reviews)
+**Branch:** `feat/checkout-form` · **Suggested owner:** any AI assistant — a second Claude session, Cursor or Gemini (lead reviews)
 
 ## Goal
 
