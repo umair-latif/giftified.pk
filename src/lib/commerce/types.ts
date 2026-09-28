@@ -66,10 +66,22 @@ export interface CommerceClient {
 
   /**
    * Verifies `X-WC-Webhook-Signature` (base64 HMAC-SHA256 of the RAW body)
-   * and parses the payload. Returns null when the signature is invalid.
+   * and parses the payload.
    */
   verifyWebhook(
     rawBody: string,
     headers: Headers,
-  ): Promise<VerifiedWebhook | null>;
+  ): Promise<WebhookVerification>;
 }
+
+/**
+ * Result of checking a webhook delivery.
+ * - `event`: authentic and something we act on.
+ * - `ignored`: authentic, but a topic/status/payload we don't handle. Must be
+ *   answered 200: WooCommerce DISABLES a webhook after repeated non-2xx replies.
+ * - `invalid`: bad or missing signature → 401.
+ */
+export type WebhookVerification =
+  | { kind: "event"; event: VerifiedWebhook }
+  | { kind: "ignored"; reason: string }
+  | { kind: "invalid" };

@@ -24,13 +24,18 @@ export async function handleCommerceWebhook(
   if (isWooPing(rawBody, req.headers))
     return Response.json({ ok: true, ping: true });
 
-  const event = await commerce.verifyWebhook(rawBody, req.headers);
-  if (!event)
+  const result = await commerce.verifyWebhook(rawBody, req.headers);
+  if (result.kind === "invalid")
     return Response.json(
       { ok: false, error: "invalid signature" },
       { status: 401 },
     );
+  if (result.kind === "ignored") {
+    // Authentic but not for us: still 200, or WooCommerce disables the webhook.
+    console.info(`[commerce-webhook] ignored: ${result.reason}`);
+    return Response.json({ ok: true, ignored: result.reason });
+  }
 
-  await sink(event);
+  await sink(result.event);
   return Response.json({ ok: true });
 }
