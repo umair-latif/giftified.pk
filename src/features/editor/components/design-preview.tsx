@@ -20,7 +20,23 @@ type State =
  * Flat preview of the autosaved design. The 3D mug/garment preview replaces
  * this image in Milestone 2; the data flow (draft → render) stays the same.
  */
-export function DesignPreview({ product }: { product: ProductConfig }) {
+export interface PreviewResult {
+  /** Rendered design (PNG data URL at display size). */
+  src: string;
+  quality: PrintQualityReport;
+}
+
+export function DesignPreview({
+  product,
+  designKey,
+  onReady,
+}: {
+  product: ProductConfig;
+  /** Preview a saved cart design instead of the product's draft. */
+  designKey?: string;
+  /** Called once the design has rendered, or with null when there is nothing to order. */
+  onReady?: (result: PreviewResult | null) => void;
+}) {
   const [state, setState] = useState<State>({ kind: "loading" });
   const { widthMm, heightMm } = product.printArea;
   const base = product.baseColors[0]?.hex ?? "#ffffff";
@@ -28,7 +44,7 @@ export function DesignPreview({ product }: { product: ProductConfig }) {
   useEffect(() => {
     let cancelled = false;
     const run = async () => {
-      const draft = loadDraft(product.id);
+      const draft = loadDraft(product.id, designKey);
       const layers =
         (draft?.fabric.objects as unknown[] | undefined)?.length ?? 0;
       if (!draft || layers === 0) return { kind: "empty" } as const;
@@ -45,7 +61,13 @@ export function DesignPreview({ product }: { product: ProductConfig }) {
       } as const;
     };
     run()
-      .then((s) => !cancelled && setState(s))
+      .then((s) => {
+        if (cancelled) return;
+        setState(s);
+        onReady?.(
+          s.kind === "ready" ? { src: s.src, quality: s.quality } : null,
+        );
+      })
       .catch((err: unknown) => {
         console.error("[preview] render failed", err);
         if (!cancelled) setState({ kind: "error" });
@@ -53,7 +75,9 @@ export function DesignPreview({ product }: { product: ProductConfig }) {
     return () => {
       cancelled = true;
     };
-  }, [product]);
+    // onReady is a callback prop; re-rendering the preview for it is not wanted.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [product, designKey]);
 
   return (
     <div className="flex flex-col gap-3">
@@ -124,10 +148,6 @@ export function DesignPreview({ product }: { product: ProductConfig }) {
           </>
         )}
       </dl>
-      <p className="text-[11px] text-zinc-400">
-        A 3D preview of your mug arrives next. Ordering with Cash on Delivery
-        comes after that.
-      </p>
     </div>
   );
 }

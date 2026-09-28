@@ -3,7 +3,6 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { connection } from "next/server";
 import { AppHeader } from "@/components/ui/app-header";
-import { StepBar } from "@/components/ui/step-bar";
 import { getProduct } from "@/config/products";
 import { formatPkr } from "@/features/checkout/format";
 import { getCommerce } from "@/lib/commerce";
@@ -24,7 +23,6 @@ export default async function OrderConfirmationPage(
   return (
     <div className="bg-cream min-h-dvh">
       <AppHeader title="Order placed" backHref="/" backLabel="Home" />
-      <StepBar current="Order" />
       <main className="mx-auto flex max-w-md flex-col gap-4 px-4 pb-8">
         <section className="rounded-lg bg-white p-4 ring-1 ring-zinc-200">
           <p className="text-lg font-semibold text-zinc-900">Thank you!</p>

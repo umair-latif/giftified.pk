@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { editableProductIds, getProduct } from "@/config/products";
-import { DesignEditor } from "@/features/editor/components/design-editor";
+import { Suspense } from "react";
+import { EditorEntry } from "@/features/editor/components/editor-entry";
 
 export const dynamicParams = false;
 
@@ -23,5 +24,10 @@ export default async function DesignPage(
   const { product: id } = await props.params;
   const product = getProduct(id);
   if (!product) notFound();
-  return <DesignEditor product={product} />;
+  // Suspense: the editor reads ?item= on the client (the page stays static).
+  return (
+    <Suspense>
+      <EditorEntry product={product} />
+    </Suspense>
+  );
 }

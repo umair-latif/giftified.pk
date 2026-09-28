@@ -1,9 +1,8 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { AppHeader } from "@/components/ui/app-header";
-import { StepBar } from "@/components/ui/step-bar";
+import { Suspense } from "react";
 import { editableProductIds, getProduct } from "@/config/products";
-import { DesignPreview } from "@/features/editor/components/design-preview";
+import { PreviewScreen } from "@/features/editor/components/preview-screen";
 
 export const dynamicParams = false;
 
@@ -25,18 +24,10 @@ export default async function PreviewPage(
   const { product: id } = await props.params;
   const product = getProduct(id);
   if (!product) notFound();
+  // Suspense: the screen reads ?item= on the client (the page stays static).
   return (
-    <div className="bg-cream min-h-dvh">
-      <AppHeader
-        title="Preview"
-        backHref={`/design/${product.id}`}
-        backLabel="Back to editor"
-        next={{ label: "Order", href: `/design/${product.id}/order` }}
-      />
-      <StepBar current="Preview" />
-      <main className="mx-auto max-w-md px-4 pb-8">
-        <DesignPreview product={product} />
-      </main>
-    </div>
+    <Suspense>
+      <PreviewScreen product={product} />
+    </Suspense>
   );
 }
