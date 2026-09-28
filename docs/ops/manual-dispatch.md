@@ -28,4 +28,25 @@ For every new order in WP admin → WooCommerce → Orders (status **On hold**):
    quantity and the customer's city. Share the customer's phone or address only if the vendor
    ships the parcel.
 6. **Add an order note:** "Sent to {vendor} on {date}".
-7. After delivery and cash collected, set the order to **Completed**.
+7. **When you ship:** add the courier details as order **custom fields** so the customer sees
+   them on their order page (the "Shipped" step). In the order screen, open the **Custom Fields**
+   box (if you can't see it: **Screen Options** at the top right → tick **Custom Fields**), then
+   **Add Custom Field** → **Enter new**:
+
+   | Name               | Value                                       | Needed?  |
+   | ------------------ | ------------------------------------------- | -------- |
+   | `_courier`         | Courier name, e.g. `TCS`, `Leopards`, `M&P` | Yes      |
+   | `_tracking_number` | The consignment / tracking number           | Yes      |
+   | `_tracking_url`    | Full `https://` link to the courier's page  | Optional |
+
+   Type the names exactly as shown, including the leading underscore. The page shows "Shipped"
+   only when **both** `_courier` and `_tracking_number` are filled in and the order is
+   **Processing**; the "Track parcel" button appears only for an `https://` link. Click
+   **Update** to save.
+
+   > **Known issue (waiting for the lead):** WordPress treats field names that start with `_` as
+   > hidden, and WooCommerce's Custom Fields box refuses to add them (`protected_meta` error).
+   > Until the site reads names without the underscore, ask the lead to set these fields for you
+   > (they can be set through the WooCommerce REST API).
+
+8. After delivery and cash collected, set the order to **Completed**.
