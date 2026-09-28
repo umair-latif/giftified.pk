@@ -362,6 +362,13 @@ export function createWooCommerceClient(config: WooConfig): CommerceClient {
       return o ? mapOrder(o, await listProducts()) : null;
     },
 
+    async findOrderForTracking(id, phone) {
+      const o = await rawOrder(id);
+      if (!o) return null;
+      const order = mapOrder(o, await listProducts());
+      return order.customer.phone === phone ? order : null;
+    },
+
     async setOrderStatus(id, status) {
       await request("PUT", `/orders/${id}`, { body: { status } });
     },

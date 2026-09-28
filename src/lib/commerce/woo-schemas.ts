@@ -22,12 +22,16 @@ const wooAttributeOptionSchema = z.object({
 export const wooProductSchema = z.object({
   id: z.number(),
   name: z.string(),
+  slug: z.string().default(""),
   sku: z.string(),
   type: z.string(),
   status: z.string(),
   price: z.string(),
   stock_status: z.string(),
   variations: z.array(z.number()).default([]),
+  images: z
+    .array(z.object({ src: z.string(), alt: z.string().default("") }))
+    .default([]),
 });
 export type WooProduct = z.infer<typeof wooProductSchema>;
 
@@ -48,6 +52,7 @@ const wooAddressSchema = z.object({
   address_2: z.string().default(""),
   city: z.string().default(""),
   phone: z.string().default(""),
+  email: z.string().nullish(),
 });
 
 export const wooLineItemSchema = z.object({

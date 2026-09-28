@@ -21,6 +21,8 @@ const CATALOG: CatalogProduct[] = [
   {
     productId: "mug",
     wooProductId: 101,
+    slug: "mug",
+    images: [],
     name: "Custom Mug",
     basePricePkr: 1499,
     variants: [
@@ -87,6 +89,7 @@ export function createMockCommerce(): CommerceClient {
         status: "on-hold",
         createdAt: new Date().toISOString(),
         customer: input.customer,
+        ...(input.email ? { email: input.email } : {}),
         lines,
         shippingPkr,
         totalPkr: subtotal + shippingPkr,
@@ -98,6 +101,10 @@ export function createMockCommerce(): CommerceClient {
     },
 
     getOrder: async (id) => structuredClone(orders.get(id) ?? null),
+    findOrderForTracking: async (id, phone) => {
+      const o = orders.get(id);
+      return o && o.customer.phone === phone ? structuredClone(o) : null;
+    },
     async setOrderStatus(id: OrderId, status: OrderStatus) {
       must(id).status = status;
     },

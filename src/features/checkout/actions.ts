@@ -5,6 +5,7 @@ import { canonicalCity } from "@/config/cities";
 import { getCommerce } from "@/lib/commerce";
 import { getStorage } from "@/lib/storage";
 import { designKey } from "@/lib/storage/keys";
+import { orderStatusUrl } from "@/server/orders/order-link";
 import type { ProductId } from "@/config/products";
 import type { OrderId } from "@/types/order";
 import {
@@ -55,7 +56,11 @@ export async function quoteOrder(input: unknown): Promise<OrderQuote | null> {
 }
 
 export type PlaceOrderResult =
-  | { ok: true; orderId: OrderId }
+  | {
+      ok: true;
+      orderId: OrderId;
+      /** Private status page (task 14 enforces the token). */ statusUrl: string;
+    }
   | { ok: false; errors: FieldErrors; message?: string };
 
 /** Creates the COD order (status on-hold). Idempotent on `checkoutId`. */
@@ -73,7 +78,7 @@ export async function placeOrder(input: unknown): Promise<PlaceOrderResult> {
         };
     }
     const order = await getCommerce().createOrder(parsed.order);
-    return { ok: true, orderId: order.id };
+    return { ok: true, orderId: order.id, statusUrl: orderStatusUrl(order) };
   } catch (err) {
     console.error("[checkout] createOrder failed", err);
     return {

@@ -1,6 +1,4 @@
 import Link from "next/link";
-import { AppHeader } from "@/components/ui/app-header";
-import { Wordmark } from "@/components/ui/wordmark";
 
 const items = [
   {
@@ -21,7 +19,6 @@ const items = [
 export default function Home() {
   return (
     <>
-      <AppHeader title={<Wordmark />} />
       <main className="mx-auto max-w-md px-4 py-6">
         <p className="text-sm text-zinc-600">
           Design it on your phone. Cash on Delivery across Pakistan.
