@@ -35,7 +35,7 @@ Inspiration: zazzle.com, adapted to Pakistan (mobile-first, COD, WhatsApp, occas
 ```
 /                         Home
 /products                 Catalog (all products; ?category= later)
-/products/[slug]          Product page (mug, t-shirt, hoodie)
+/products/[slug]          Category page: "Design your own" first, then its design gallery
 /design/[product]         Editor (exists) ?colour=&size=  or  ?item=<cartItemId> to edit a cart item
 /design/[product]/preview Preview (exists) → "Add to cart"
 /cart                     Cart
@@ -73,15 +73,17 @@ Grid of product cards: image, name, one-line spec, "from" price (from WooCommerc
 Products without print specs yet (t-shirt, hoodie) show **Coming soon** and aren't clickable into
 the editor. Category chips appear only when there are enough products to need them.
 
-### Product page `/products/[slug]`
+### Product category page `/products/[slug]` (e.g. `/products/mugs`)
 
-- Gallery (WooCommerce images; the 3D preview can be added here later, lazy, when task 04 lands).
-- Name, price (updates with size), **Cash on Delivery** badge.
-- Options: colour swatches; size buttons + size chart (apparel).
-- **Start designing** → `/design/<product>?colour=…&size=…`.
-- Delivery estimate: "Delivery to Lahore: Rs 200 · 3–5 working days" (city remembered).
-- Details: material, print method, print area (mm, from `src/config/products`), care, reprint policy.
-- Phase C: "Personalize a design" (templates for this product).
+One page per product type; it is both the product page and its design gallery:
+
+1. Compact header: name, "from Rs 1,499", **Cash on Delivery** badge, **Details** (expands: gallery,
+   material, print method, print area in mm, delivery estimate for your city, reprint policy).
+2. **First card, always: "Design your own"** — large, prominent, brand teal, blank-product image,
+   button **Start designing** → editor (colour/size chosen in the editor; sizes also at _Add to cart_).
+3. **Design gallery** after it: templates for this product (task 19), occasion chips to filter
+   (Eid, Birthday, Shaadi…), tap → editor with the template loaded. Until templates exist the page
+   shows only the "Design your own" card and the details.
 
 ### Editor → Preview → **Add to cart** (change)
 

@@ -28,18 +28,22 @@ delivery cost, and tap **Start designing**. Plan: `docs/plans/storefront-and-acc
 - Grid (2 columns at 360 px): image, name, one-line spec, "from Rs …", colour dots.
 - Products without a print config show **Coming soon** and link nowhere.
 
-## Product page `/products/[slug]`
+## Category page `/products/[slug]` (e.g. `/products/mugs`)
 
-- Gallery from WooCommerce images (swipe with CSS scroll-snap, no library).
-- Name, price (updates when size changes), **Cash on Delivery** badge.
-- Colour swatches (name + hex from WooCommerce, see below), size buttons (apparel) + size chart
-  (static table from WC description for now).
-- **Start designing** → `/design/<productId>?colour=<colourId>&size=<size>`.
-- Delivery estimate: city picker (reuse `src/features/checkout/components/city-picker.tsx`) →
-  "Delivery to Lahore: Rs 200". Remember the city in `localStorage` (`giftified:city`) inside a
-  try/catch. Use a Server Action that calls `getCommerce().quoteShipping(city)`.
-- Details: WC description (sanitise: strip scripts/styles/iframes — allow p, ul, li, strong, em, br),
-  print area in mm from `src/config/products` (`printArea.widthMm × heightMm`), reprint policy line.
+It is the product page and, later, its design gallery (plan §4):
+
+- Compact header: name, "from Rs …", **Cash on Delivery** badge, and a **Details** section
+  (`<details>`, closed by default): WooCommerce gallery (CSS scroll-snap, no library), sanitised
+  description (allow p, ul, li, strong, em, br only), print area in mm from `src/config/products`,
+  colours (swatches, see below), sizes + size chart for apparel, reprint policy line, and a
+  delivery estimate — city picker (reuse `src/features/checkout/components/city-picker.tsx`) →
+  "Delivery to Lahore: Rs 200", city remembered in `localStorage` (`giftified:city`, try/catch),
+  Server Action calling `getCommerce().quoteShipping(city)`.
+- **First card, always: "Design your own"** — the biggest thing on the page: blank-product image,
+  short line ("Your photos, your words"), brand-teal button **Start designing** →
+  `/design/<productId>` (colour/size are chosen in the editor and at _Add to cart_).
+- Below it a **design gallery slot**: an empty `<section id="designs">` with a heading
+  "Ready-made designs — coming soon" for now; task 19 fills it with templates and occasion chips.
 - `generateMetadata` (title, description, Open Graph image), JSON-LD `Product` with `Offer` in PKR,
   `generateStaticParams` for the products in config.
 
