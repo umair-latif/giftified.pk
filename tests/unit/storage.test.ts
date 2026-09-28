@@ -21,9 +21,11 @@ describe("storage keys", () => {
 
 describe("S3/R2 adapter", () => {
   const seen: Request[] = [];
-  const fakeFetch = (async (input: RequestInfo | URL) => {
-    const req = input instanceof Request ? input : new Request(String(input));
+  const bodies: unknown[] = [];
+  const fakeFetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
+    const req = new Request(input, init);
     seen.push(req);
+    bodies.push(init?.body);
     if (req.method === "GET" && req.url.includes("missing"))
       return new Response("", { status: 404 });
     if (req.method === "HEAD")
@@ -54,6 +56,18 @@ describe("S3/R2 adapter", () => {
     expect(req.headers.get("authorization")).toMatch(
       /^AWS4-HMAC-SHA256 Credential=AKID\/\d{8}\/auto\/s3\/aws4_request/,
     );
+  });
+
+  it("hands fetch the raw bytes, so Content-Length is sent (R2 rejects chunked PUTs)", async () => {
+    const png = new Uint8Array([137, 80, 78, 71]);
+    await s3.put("orders/1/line-0/print.png", png, {
+      contentType: "image/png",
+    });
+    expect(bodies.at(-1)).toBe(png);
+    const req = seen.at(-1)!;
+    // Signature doesn't cover the body, so sending it separately stays valid.
+    expect(req.headers.get("x-amz-content-sha256")).toBe("UNSIGNED-PAYLOAD");
+    expect(new Uint8Array(await req.arrayBuffer())).toEqual(png);
   });
 
   it("returns null for missing objects and reads existing ones", async () => {

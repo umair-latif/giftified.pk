@@ -32,7 +32,14 @@ export function createS3Storage(cfg: S3Config): ObjectStorage {
 
   async function send(method: string, key: string, init: RequestInit = {}) {
     const signed = await aws.sign(url(key), { method, ...init });
-    return doFetch(signed);
+    // Send the ORIGINAL body, not the signed Request's stream: inside Next.js a
+    // Request body goes out chunked without Content-Length, which R2 rejects
+    // (411 MissingContentLength). Same bytes, so the signature still matches.
+    return doFetch(signed.url, {
+      method,
+      headers: signed.headers,
+      ...(init.body !== undefined ? { body: init.body } : {}),
+    });
   }
 
   async function presign(
