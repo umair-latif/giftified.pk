@@ -25,9 +25,14 @@ default, with an optional email.
   prices for many lines: `quoteCart` in `src/features/cart/actions.ts` (reuse it for the summary). Empty cart → message + link to `/products`.
 - Summary: each line (thumbnail, product, colour/size, qty, price) + delivery by city + total; all
   prices from the server (`quoteOrder`-style Server Action for many lines).
-- **Marketing opt-in:** an unticked checkbox "Send me offers on WhatsApp (Eid deals, discounts)" →
-  order meta `_marketing_optin` (`"yes"`/absent). Required by `docs/content/privacy.md`: without an
-  explicit opt-in no marketing may be sent. Nothing sends messages yet (task 02).
+- **Above the Place order button**, one line of small print with links:
+  "By placing your order you agree to our [Terms](/terms) and [Privacy notice](/privacy)."
+  (Links open in the same tab; the cart survives, so customers can read and come back.)
+- **Marketing opt-in:** one unticked checkbox under it — "Send me offers and discounts (Eid deals,
+  new products)" → order meta `_marketing_optin` (`"yes"`/absent). Unticked by default; the order
+  must go through whether or not it is ticked. Required by `docs/content/privacy.md`: without an
+  explicit opt-in no marketing may be sent. Nothing sends messages yet (task 02). Signed-in
+  customers can later change it in their profile (task 21).
 - Fields as today + **Email (optional)** "for your receipt and updates" → `CreateOrderInput.email`.
 - On _Place order_: for each entry of `distinctDesigns(items)` (`src/features/cart/cart-lines.ts`) call
   `uploadCartDesign(productId, designKey, { onProgress })` (`src/features/editor/upload-design.ts`) (progress:

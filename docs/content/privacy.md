@@ -26,8 +26,9 @@ photos you upload, and basic order details.
 ## Marketing messages
 
 We will only send you marketing or promotional messages (such as special Eid offers or discounts) if
-you explicitly check the opt-in box during checkout. You can opt out at any time by replying 'STOP'
-to any WhatsApp/SMS message or contacting support.
+you explicitly check the opt-in box during checkout. You can opt out at any time by contacting
+support, or in your account settings if you have an account. TODO(founder): once WhatsApp/SMS
+messaging is live, add "or by replying 'STOP' to any message".
 
 ## How long we keep things
 
@@ -60,5 +61,8 @@ The page may only claim these once they are built:
    answer on the order; without it, no marketing messages may be sent. "Reply STOP" only applies once
    WhatsApp/SMS exists (task 02) — until then the text should say "or contact support".
 3. **Signed file links** last 90 days; the purge job must also make older links 404 by then.
-4. **localStorage** claim is accurate today (cart, drafts, city, recent orders) — keep it true if
+4. **Where the opt-in lives:** the checkbox at checkout is the one that must exist (most customers
+   order as guests and have no profile). Signed-in customers can change the same setting in
+   `/account/profile` (task 21); it then pre-fills the checkout box.
+5. **localStorage** claim is accurate today (cart, drafts, city, recent orders) — keep it true if
    analytics are ever added.
