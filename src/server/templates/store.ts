@@ -86,10 +86,19 @@ export async function getTemplate(
 
 /** Marks every photo as a placeholder the customer must replace. */
 export function markPlaceholders(fabric: Record<string, unknown>) {
-  return mapImageSources(fabric, (o) => {
+  const marked = mapImageSources(fabric, (o) => {
     o.placeholder = true;
+    o.customizable = true;
     return typeof o.src === "string" ? o.src : null;
   });
+  // `templateLocked` is a customer-side stamp; a saved template never carries it.
+  return {
+    ...marked,
+    objects: (marked.objects as Record<string, unknown>[]).map((o) => ({
+      ...o,
+      templateLocked: undefined,
+    })),
+  };
 }
 
 export async function saveTemplate(

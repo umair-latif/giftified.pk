@@ -1,4 +1,5 @@
 import { expect, test, type Page } from "@playwright/test";
+import { signInEditor } from "./helpers";
 
 async function makePng(page: Page, width: number, height: number) {
   const dataUrl = await page.evaluate(
@@ -16,9 +17,6 @@ async function makePng(page: Page, width: number, height: number) {
   return Buffer.from(dataUrl.split(",")[1]!, "base64");
 }
 
-// Playwright starts the server with TEMPLATE_EDITOR_EMAILS=template-editor@example.pk.
-const EDITOR = "template-editor@example.pk";
-
 test("a template editor saves a template; a customer starts from it and must replace the sample photo", async ({
   page,
 }) => {
@@ -31,13 +29,7 @@ test("a template editor saves a template; a customer starts from it and must rep
     page.getByRole("button", { name: "Save as template" }),
   ).toHaveCount(0);
 
-  // Sign up as the listed editor.
-  await page.goto("/sign-up");
-  await page.getByLabel("Your name").fill("Template Editor");
-  await page.getByLabel("Email").fill(EDITOR);
-  await page.locator("#su-password").fill("correct horse");
-  await page.getByRole("button", { name: "Create account" }).tap();
-  await expect(page).toHaveURL(/\/account$/);
+  await signInEditor(page);
 
   await page.goto("/design/mug");
   await expect(

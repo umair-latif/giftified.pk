@@ -39,6 +39,8 @@ export interface SelectionInfo {
   heightMm: number;
   /** Degrees, 0–360. */
   angle: number;
+  /** Template designers: customers may change this layer. */
+  customizable: boolean;
   /** Present when the selection is text. */
   text: TextStyle | null;
   /** Effective print DPI when the selection is an image. */
@@ -409,6 +411,11 @@ export function useFabricCanvas(product: ProductConfig, designKey?: string) {
     };
   }, []);
 
+  const setCustomizable = useCallback(
+    (value: boolean) => run((e, dc) => e.setCustomizable(dc.canvas, value)),
+    [run],
+  );
+
   const applyCrop = useCallback(
     (rect: NormRect, shape: FrameShape | null) =>
       // Soft shadows are only OK on mugs; apparel prints none (vendors unconfirmed).
@@ -454,6 +461,7 @@ export function useFabricCanvas(product: ProductConfig, designKey?: string) {
     copySelected,
     getCropTarget,
     applyCrop,
+    setCustomizable,
     quality,
     deleteSelected,
     straighten,
@@ -478,6 +486,7 @@ function describe(
     widthMm: obj.getScaledWidth(),
     heightMm: obj.getScaledHeight(),
     angle: ((obj.angle % 360) + 360) % 360,
+    customizable: engine.isCustomizable(obj),
     text: getTextStyle(obj),
     dpi: dpi === null ? null : Math.round(dpi),
     dpiStatus: dpi === null ? null : dpiStatus(dpi),

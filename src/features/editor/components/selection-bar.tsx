@@ -14,6 +14,8 @@ interface Props {
   onCopy: () => void;
   onDelete: () => void;
   onMore: () => void;
+  /** Template designers only: mark the layer as customer-editable. */
+  layerRole?: { customizable: boolean; onToggle: () => void };
 }
 
 /**
@@ -29,6 +31,7 @@ export function SelectionBar({
   onCopy,
   onDelete,
   onMore,
+  layerRole,
 }: Props) {
   // Bold/italic only where the font has a REAL face for it (the print can't
   // fake one the way a browser does) — e.g. no italic for Caveat, neither for Urdu.
@@ -153,6 +156,18 @@ export function SelectionBar({
               <ReplaceIcon />
             </Action>
             <Divider />
+          </>
+        )}
+        {layerRole && kind !== "image" && (
+          <>
+            <Divider />
+            <Toggle
+              label="Customers can edit"
+              pressed={layerRole.customizable}
+              onClick={layerRole.onToggle}
+            >
+              <span aria-hidden>✎</span>
+            </Toggle>
           </>
         )}
         <Action label="Copy" onClick={onCopy}>

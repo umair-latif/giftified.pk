@@ -238,3 +238,49 @@ describe("template editors", () => {
     ).toBe("founder@giftified.pk");
   });
 });
+
+describe("template layer roles", () => {
+  it("locks every layer except customizable ones and sample photos", async () => {
+    const { lockLayersForCustomer } =
+      await import("@/features/templates/lock-layers");
+    const out = lockLayersForCustomer({
+      version: "7",
+      objects: [
+        { type: "Textbox", text: "Happy Birthday" },
+        { type: "Textbox", text: "Name", customizable: true },
+        { type: "Image", placeholder: true },
+        { type: "Rect", templateLocked: true, customizable: true },
+      ],
+    });
+    const flags = (out.objects as { templateLocked?: boolean }[]).map(
+      (o) => o.templateLocked,
+    );
+    expect(flags).toEqual([true, undefined, undefined, undefined]);
+    expect(out.version).toBe("7");
+  });
+
+  it("saving forces photos to be customizable placeholders and drops customer lock stamps", async () => {
+    const { storage } = createMemoryStorage();
+    const d = design();
+    const objects = d.fabric.objects as Record<string, unknown>[];
+    objects.push({ type: "Textbox", text: "x", templateLocked: true });
+    const meta = await saveTemplate(
+      {
+        name: "Roles",
+        productId: "mug",
+        occasions: [],
+        published: true,
+        design: d,
+        assets: [sample],
+      },
+      storage,
+      ids,
+    );
+    const saved = await getTemplate(meta.id, {}, storage);
+    const list = saved!.design.fabric.objects as Record<string, unknown>[];
+    const img = list.find((o) => o.type === "Image")!;
+    expect(img.customizable).toBe(true);
+    expect(img.placeholder).toBe(true);
+    expect(list.every((o) => o.templateLocked === undefined)).toBe(true);
+  });
+});
