@@ -67,9 +67,16 @@ describe("server print fonts", () => {
     expect(
       measure(`100px '${SERVER_FONTS.mono.family}'`, "abcdefghij"),
     ).toBeCloseTo(600, 0);
-    const fallback = measure("100px 'No Such Font Anywhere'");
-    for (const font of Object.values(SERVER_FONTS)) {
-      expect(measure(`100px '${font.family}'`)).not.toBeCloseTo(fallback, 0);
+    for (const [key, font] of Object.entries(SERVER_FONTS)) {
+      // Urdu is subset to the Arabic block only (no Latin glyphs, keeping the
+      // browser payload under budget — see src/config/fonts.ts), so it needs
+      // Urdu text to prove it's really registered.
+      const text = key === "urdu" ? "سلام" : undefined;
+      const fallback = measure("100px 'No Such Font Anywhere'", text);
+      expect(measure(`100px '${font.family}'`, text)).not.toBeCloseTo(
+        fallback,
+        0,
+      );
     }
   });
 });

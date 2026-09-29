@@ -15,7 +15,7 @@ own folders.
 | 03  | [VendorProof.pdf builder](03-vendor-proof-pdf.md)                      | Claude (2nd session)                  | `feat/vendor-proof`         | done (live)               |
 | 04  | [3D mug preview](04-mug-3d-preview.md)                                 | Founder (model) + _unassigned_        | `feat/mug-3d`               | waiting for the mug GLB   |
 | 05  | [COD checkout form](05-checkout-form.md)                               | Claude (3rd session)                  | `feat/checkout-form`        | done (live)               |
-| 06  | [Text styling sheet](06-text-styling-sheet.md)                         | _unassigned_                          | `feat/text-sheet`           | ready                     |
+| 06  | [Text styling sheet](06-text-styling-sheet.md)                         | Claude (cloud session)                | `feat/text-sheet`           | in review                 |
 | 07  | [300 DPI print renderer](07-print-renderer.md)                         | Claude (cloud session)                | `feat/print-renderer`       | done                      |
 | 08  | [Order pipeline, manual dispatch](08-order-pipeline.md)                | Lead                                  | `feat/order-pipeline`       | done (live)               |
 | 09  | [Photo background removal](09-background-removal.md)                   | —                                     | `feat/bg-removal`           | **postponed**             |
@@ -37,8 +37,8 @@ own folders.
 | 23  | [Customer-shared templates](23-shared-templates.md)                    | _unassigned_                          | `feat/shared-templates`     | after 19, 22              |
 | 24  | [Delete customer photos 30 days after delivery](24-data-retention.md)  | Lead                                  | `feat/retention`            | after 12                  |
 
-**Right now, assistants can take:** 06 at once; 10, 11, 14, 15 as soon as A0 is merged (they don't
-depend on each other); 13 after 12. The plan behind 10–23 is in
+**Right now, assistants can take:** 16 (font parity), 17 (after 12, merged), 20 (after phase A). The
+plan behind 10–23 is in
 [`docs/plans/storefront-and-accounts.md`](../plans/storefront-and-accounts.md); brand rules in
 [`docs/brand.md`](../brand.md). Briefs 19–23 are outlines and get detail when their dependencies land.
 
