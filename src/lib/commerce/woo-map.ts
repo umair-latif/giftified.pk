@@ -256,6 +256,14 @@ function splitName(fullName: string): { first: string; last: string } {
   return { first: parts[0] ?? "", last: parts.slice(1).join(" ") };
 }
 
+/** IPv4 or IPv6 literal (no ports, no names) — never pass header junk to WooCommerce. */
+export function isIp(v: string): boolean {
+  return (
+    /^(25[0-5]|2[0-4]\d|1?\d?\d)(\.(25[0-5]|2[0-4]\d|1?\d?\d)){3}$/.test(v) ||
+    (/^[0-9a-f:]+$/i.test(v) && v.includes(":") && v.length <= 45)
+  );
+}
+
 export interface ResolvedLine {
   wooProductId: number;
   wooVariationId: number;
@@ -298,6 +306,9 @@ export function buildOrderBody(
       meta_data: [{ key: META.designId, value: l.designId }],
     })),
     ...(input.customerId ? { customer_id: input.customerId } : {}),
+    ...(input.customerIp && isIp(input.customerIp)
+      ? { customer_ip_address: input.customerIp }
+      : {}),
     shipping_lines: [
       {
         method_id: "flat_rate",

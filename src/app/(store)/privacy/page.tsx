@@ -1,11 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import {
-  DraftNotice,
-  InfoPage,
-  InfoSection,
-  Todo,
-} from "@/features/info/info-page";
+import { DraftNotice, InfoPage, InfoSection } from "@/features/info/info-page";
 
 export const metadata: Metadata = {
   title: "Privacy",
@@ -13,6 +8,11 @@ export const metadata: Metadata = {
     "What Giftified.pk stores about you and your order, who can see it, and how long we keep it.",
 };
 
+/**
+ * Source of truth for the wording: docs/content/privacy.md (founder-approved).
+ * Every promise here must match what the code does — see the "Engineering
+ * follow-ups" list in that file (30-day deletion = task 24).
+ */
 export default function PrivacyPage() {
   return (
     <InfoPage
@@ -21,21 +21,20 @@ export default function PrivacyPage() {
     >
       <DraftNotice />
 
-      <InfoSection id="what-we-store" title="What we store">
+      <InfoSection id="what-we-store" title="What we collect">
         <ul>
           <li>
             <strong>Order details:</strong> your name, mobile number, delivery
-            address and city, email if you give one, the products you ordered
-            and the price.
+            address and city, email if you give one, the products you ordered,
+            the price, and the network (IP) address the order was placed from.
           </li>
           <li>
             <strong>Your design:</strong> the layout of your design and the
-            photos you upload for it, so we can print it.
+            photos and text you upload for it, so we can print it.
           </li>
           <li>
             <strong>On your phone only:</strong> your cart and unfinished
-            designs are saved in your browser so you don&rsquo;t lose them. They
-            stay on your device until you order or clear your browser data.
+            designs are saved in your browser so you don&rsquo;t lose them.
           </li>
         </ul>
         <p>
@@ -46,71 +45,105 @@ export default function PrivacyPage() {
       <InfoSection id="why" title="Why we use it">
         <ul>
           <li>To confirm your order with you by phone or message.</li>
-          <li>To print your design and deliver it.</li>
+          <li>To check, print and deliver your design.</li>
           <li>To answer your questions about an order.</li>
         </ul>
-        <p>
-          <Todo>
-            TODO(founder): will we send marketing messages (e.g. Eid offers)? If
-            yes, only with consent &ndash; describe how to opt in/out
-          </Todo>
-        </p>
       </InfoSection>
 
       <InfoSection id="who-sees-what" title="Who sees what">
         <ul>
           <li>
-            <strong>Printing partners</strong> (in Gujrat/Sialkot) receive only
-            the print file and a production sheet: order number, product,
-            colour, size, print size and position, a preview and your city. We
-            don&rsquo;t give them your phone number or address.
+            <strong>Printing partners:</strong> receive only the production
+            sheet and high-resolution print file (order number, item, size,
+            print graphics, and destination city). They do not receive your
+            phone number or exact street address.
           </li>
           <li>
-            <strong>Courier:</strong> receives your name, phone number and
-            address so they can deliver and collect the cash.{" "}
-            <Todo>TODO(founder): name the courier company/companies</Todo>
+            <strong>Courier &amp; logistics partners:</strong> receive your
+            recipient name, delivery address, and phone number solely to deliver
+            your parcel and collect Cash on Delivery.
           </li>
           <li>
-            <strong>Service providers</strong> that run the shop for us: website
-            hosting, our order system and file storage. They store data on our
-            behalf.{" "}
-            <Todo>
-              TODO(founder): confirm the list of providers to name (hosting,
-              WooCommerce host, file storage) and where their servers are
-            </Todo>
+            <strong>Technical service providers:</strong> secure cloud hosting,
+            database, file storage, and messaging providers that process data
+            strictly on our behalf to run the website and send order
+            confirmations.
+          </li>
+          <li>
+            <strong>No data selling:</strong> we never sell, rent, or trade your
+            personal information or uploaded designs to third parties or
+            advertisers under any circumstances.
           </li>
         </ul>
+      </InfoSection>
+
+      <InfoSection id="marketing" title="Marketing messages">
         <p>
-          We never sell your data.{" "}
-          <Todo>TODO(founder): confirm this commitment</Todo>
+          We will only send you marketing or promotional messages (such as
+          special Eid offers or discounts) if you explicitly tick the opt-in box
+          during checkout. You can opt out at any time by{" "}
+          <Link href="/contact">contacting support</Link>.
+          {/* TODO(founder): once WhatsApp/SMS messaging is live, add "or by replying STOP to any message". */}
         </p>
       </InfoSection>
 
-      <InfoSection id="how-long" title="How long we keep it">
+      <InfoSection id="how-long" title="How long we keep things">
         <ul>
           <li>
-            Photos and print files:{" "}
-            <Todo>TODO(founder): deleted how many days after delivery?</Todo>
+            <strong>Photos &amp; print files:</strong> uploaded photos, canvas
+            layers, and high-resolution print files are automatically purged
+            from our servers 30 days after your order has been successfully
+            delivered.
           </li>
           <li>
-            Order records:{" "}
-            <Todo>
-              TODO(founder): how long order records are kept (accounting/tax
-              needs)
-            </Todo>
+            <strong>Order &amp; transaction records:</strong> basic order
+            details (name, address, purchased items, total price) are kept for
+            up to 3 years to fulfil legal, accounting, and tax requirements
+            under Pakistani business regulations.
           </li>
         </ul>
+      </InfoSection>
+
+      <InfoSection
+        id="compliance"
+        title="Uploaded content and legal compliance"
+      >
+        <ul>
+          <li>
+            <strong>Design review:</strong> every design is checked by our team
+            before it is printed. Approved designs are kept only for as long as
+            described above, for production and customer support.
+          </li>
+          <li>
+            <strong>Refused content:</strong> if a design is refused because it
+            breaks the law, including the Prevention of Electronic Crimes Act
+            (PECA), we may keep the uploaded file and the related order details
+            (including phone number and IP address) instead of deleting them
+            after 30 days.
+          </li>
+          <li>
+            <strong>Law enforcement:</strong> we cooperate with the National
+            Cyber Crime Investigation Agency (NCCIA) and the Federal
+            Investigation Agency (FIA). If an upload constitutes a criminal
+            offence under PECA &ndash; such as blasphemy, incitement of
+            inter-faith or sectarian hatred, state defamation, or child
+            exploitation &ndash; we will hand over the related order details,
+            contact numbers, and IP addresses to the relevant authorities on
+            official request.
+          </li>
+        </ul>
+        <p>
+          What we don&rsquo;t print is listed in our{" "}
+          <Link href="/printing-guidelines">Printing guidelines</Link>.
+        </p>
       </InfoSection>
 
       <InfoSection id="cookies" title="Cookies and browser storage">
         <p>
-          The shop uses your browser&rsquo;s storage to remember your cart and
-          your unfinished designs. At the moment the shop has no advertising or
-          tracking cookies.{" "}
-          <Todo>
-            TODO(founder): will we add analytics or ad pixels (Google Analytics,
-            Meta Pixel)? If yes, list them here
-          </Todo>
+          We use essential browser storage (<code>localStorage</code>) solely to
+          keep track of your active cart and draft designs on your device. We do
+          not use third-party cross-site tracking cookies or advertising pixels
+          without your explicit consent.
         </p>
       </InfoSection>
 
@@ -118,17 +151,13 @@ export default function PrivacyPage() {
         <p>
           You can ask us to see, correct or delete the details we hold about
           you, or to delete your photos sooner.{" "}
-          <Link href="/contact">Contact us</Link> and we&rsquo;ll help.{" "}
-          <Todo>
-            TODO(founder): how quickly we act on these requests, and anything we
-            must keep by law
-          </Todo>
+          <Link href="/contact">Contact us</Link> and we&rsquo;ll reply within 7
+          working days. Order records we must keep for accounting and tax (see
+          above) can only be deleted once that period has ended.
         </p>
       </InfoSection>
 
-      <p className="text-xs text-zinc-600">
-        Last updated: <Todo>TODO(founder): date when this page is final</Todo>
-      </p>
+      <p className="text-xs text-zinc-600">Last updated: September 2026</p>
     </InfoPage>
   );
 }
