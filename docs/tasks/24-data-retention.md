@@ -11,9 +11,13 @@ this ships.
 
 ## Scope
 
-- A scheduled Inngest function (daily): find orders completed or cancelled ≥ 30 days ago, delete
-  `designs/<designId>/**` (design + original photos) and `orders/<id>/**` (print PNG, vendor PDF)
-  from storage, then add an order note "Print files deleted (30-day retention)". Idempotent.
+- A scheduled Inngest function (daily): find orders completed or cancelled ≥ 30 days ago and:
+  - **always** delete `orders/<id>/**` (print PNG, vendor PDF — they can be re-rendered);
+  - **guest orders** (no `customer_id`): also delete `designs/<designId>/**` (design + photos);
+  - **account orders** (`customer_id` set): keep the design — it belongs to the account until the
+    customer deletes it or the account (tasks 21/22); the job only deletes it if it is no longer in
+    the customer's saved designs;
+  - add an order note "Print files deleted (30-day retention)". Idempotent.
 - Storage: add `list(prefix)` and `deletePrefix(prefix)` to the storage adapter (+ memory mock).
 - **Skip refused content:** orders with meta `_retain_for_review` = `yes` (the founder sets it in WP
   admin when a design is refused for breaking the law) are never purged — the privacy notice says

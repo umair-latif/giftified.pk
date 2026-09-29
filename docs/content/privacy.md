@@ -32,8 +32,13 @@ messaging is live, add "or by replying 'STOP' to any message".
 
 ## How long we keep things
 
-- **Photos & Print Files:** Uploaded photos, canvas layers, and high-resolution print files are
-  automatically purged from our servers 30 days after your order has been successfully delivered.
+- **Photos & designs (guest orders):** Uploaded photos and canvas layers are automatically purged
+  from our servers 30 days after your order has been successfully delivered.
+- **Photos & designs (with an account):** If you order while signed in, your designs and their photos
+  stay in your account so you can order again or keep editing, until you delete them or close your
+  account. Deleting a design or your account removes its photos from our servers.
+- **Print files:** The high-resolution print files made for production are purged 30 days after
+  delivery for every order.
 - **Order & Transaction Records:** Basic order details (name, address, purchased items, total price)
   are kept for up to 3 years to fulfill legal, accounting, and tax compliance requirements under
   Pakistani business regulations.
@@ -71,7 +76,11 @@ Contact page; reply within 7 working days (on the page).
 
 The page may only claim these once they are built:
 
-1. **30-day purge** — task 24: a scheduled job that deletes `designs/<id>/**` and
+1. **Retention model (29 Sep 2026):** guests → design + photos deleted 30 days after delivery;
+   signed-in customers → design + photos kept in the account until they delete the design or the
+   account (tasks 21/22 must really delete the files); print PNG + vendor PDF → deleted after 30 days
+   for everyone (they can be re-rendered from the design).
+   **30-day purge** — task 24: a scheduled job that deletes `designs/<id>/**` and
    `orders/<id>/**` from R2 30 days after an order is completed (and after cancellation).
    Until it ships, files are kept indefinitely.
 2. **Marketing opt-in box at checkout** — task 13 must add an unticked opt-in checkbox and store the

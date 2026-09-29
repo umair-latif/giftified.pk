@@ -90,10 +90,20 @@ export default function PrivacyPage() {
       <InfoSection id="how-long" title="How long we keep things">
         <ul>
           <li>
-            <strong>Photos &amp; print files:</strong> uploaded photos, canvas
-            layers, and high-resolution print files are automatically purged
-            from our servers 30 days after your order has been successfully
-            delivered.
+            <strong>Photos &amp; designs (guest orders):</strong> uploaded
+            photos and canvas layers are automatically purged from our servers
+            30 days after your order has been successfully delivered.
+          </li>
+          <li>
+            <strong>Photos &amp; designs (with an account):</strong> if you
+            order while signed in, your designs and their photos stay in your
+            account so you can order again or keep editing, until you delete
+            them or close your account. Deleting a design or your account
+            removes its photos from our servers.
+          </li>
+          <li>
+            <strong>Print files:</strong> the high-resolution print files made
+            for production are purged 30 days after delivery for every order.
           </li>
           <li>
             <strong>Order &amp; transaction records:</strong> basic order
@@ -112,7 +122,7 @@ export default function PrivacyPage() {
           <li>
             <strong>Design review:</strong> every design is checked by our team
             before it is printed. Approved designs are kept only for as long as
-            described above, for production and customer support.
+            described above.
           </li>
           <li>
             <strong>Refused content:</strong> if a design is refused because it
