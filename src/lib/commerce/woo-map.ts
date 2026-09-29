@@ -9,12 +9,13 @@ import type {
   OrderStatus,
   PkMobile,
 } from "@/types/order";
-import type { CatalogProduct, CatalogVariant } from "./types";
+import type { CatalogProduct, CatalogVariant, RetentionOrder } from "./types";
 import type {
   WooAttributeTerm,
   WooMeta,
   WooOrder,
   WooProduct,
+  WooRetentionOrder,
   WooShippingZone,
   WooVariation,
   WooZoneMethod,
@@ -38,6 +39,8 @@ export const META = {
   proofPdfUrl: "_proof_pdf_url",
   contentConfirmed: "_content_confirmed",
   marketingOptIn: "_marketing_optin",
+  retainForReview: "_retain_for_review",
+  retentionDone: "_retention_done",
 } as const;
 
 export function isProductId(sku: string): sku is ProductId {
@@ -253,6 +256,25 @@ export function metaValue(meta: WooMeta[], key: string): string | undefined {
   return typeof v === "string" && v !== "" ? v : undefined;
 }
 
+/**
+ * A field the founder fills in by hand in WP admin → order → Custom fields.
+ * WordPress hides and refuses names starting with "_" in that box, so the
+ * plain name ("courier") is accepted as well as the underscore one ("_courier",
+ * which the REST API can still write). The underscore one wins if both exist.
+ */
+export function founderMetaRaw(meta: WooMeta[], key: string): unknown {
+  const plain = key.replace(/^_/, "");
+  return (
+    meta.find((m) => m.key === key)?.value ??
+    meta.find((m) => m.key === plain)?.value
+  );
+}
+
+export function founderMeta(meta: WooMeta[], key: string): string | undefined {
+  const v = founderMetaRaw(meta, key);
+  return typeof v === "string" && v.trim() !== "" ? v.trim() : undefined;
+}
+
 function splitName(fullName: string): { first: string; last: string } {
   const parts = fullName.trim().split(/\s+/);
   return { first: parts[0] ?? "", last: parts.slice(1).join(" ") };
@@ -384,9 +406,9 @@ export function mapOrder(o: WooOrder, catalog: CatalogProduct[]): Order {
     };
   });
 
-  const courier = metaValue(o.meta_data, META.courier);
-  const trackingNumber = metaValue(o.meta_data, META.trackingNumber);
-  const trackingUrl = metaValue(o.meta_data, META.trackingUrl);
+  const courier = founderMeta(o.meta_data, META.courier);
+  const trackingNumber = founderMeta(o.meta_data, META.trackingNumber);
+  const trackingUrl = founderMeta(o.meta_data, META.trackingUrl);
   const email = o.billing.email?.trim().toLowerCase();
 
   const created = o.date_created_gmt;
@@ -587,4 +609,52 @@ export function sanitizeHtml(html: string): string {
     .replace(/<(p|li|ul|strong|em)>\s*<\/\1>/g, "")
     .replace(/\s*(<\/?(?:p|ul|li)>|<br>)\s*/g, "$1")
     .trim();
+}
+
+/** WC "…_gmt" date ("2026-09-27T12:04:11", no zone) → ISO 8601 UTC; null if absent/invalid. */
+export function wooGmtToIso(d: string | null | undefined): string | null {
+  if (!d) return null;
+  const ms = Date.parse(/[zZ]|[+-]\d\d:?\d\d$/.test(d) ? d : `${d}Z`);
+  return Number.isNaN(ms) ? null : new Date(ms).toISOString();
+}
+
+/**
+ * `_retain_for_review`: the founder types "yes". Anything yes-like counts —
+ * when in doubt the files are kept.
+ */
+export function isRetainFlag(v: unknown): boolean {
+  if (v === true || v === 1) return true;
+  return (
+    typeof v === "string" &&
+    ["yes", "y", "true", "1"].includes(v.trim().toLowerCase())
+  );
+}
+
+/** Slim WC order → what the retention job needs (task 24). */
+export function mapRetentionOrder(o: WooRetentionOrder): RetentionOrder {
+  const modified = wooGmtToIso(o.date_modified_gmt);
+  const closedAt =
+    o.status === "completed"
+      ? (wooGmtToIso(o.date_completed_gmt) ?? modified)
+      : o.status === "cancelled"
+        ? modified
+        : null;
+  const designIds = [
+    ...new Set(
+      o.line_items
+        .map((li) => metaValue(li.meta_data, META.designId)?.trim())
+        .filter((id): id is string => !!id),
+    ),
+  ];
+  return {
+    id: o.id,
+    status: o.status,
+    closedAt,
+    customerId: o.customer_id,
+    designIds,
+    retainForReview: isRetainFlag(
+      founderMetaRaw(o.meta_data, META.retainForReview),
+    ),
+    retentionDoneAt: metaValue(o.meta_data, META.retentionDone) ?? null,
+  };
 }

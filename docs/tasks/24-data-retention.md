@@ -2,6 +2,32 @@
 
 **Branch:** `feat/retention` · **Owner:** Lead · **Needs:** 08 (order pipeline)
 
+## Status: in review (`feat/retention`)
+
+Done:
+
+- Storage contract: `list(prefix, { cursor?, limit? })` → `{ objects: {key, size, lastModified}[], cursor? }`
+  and `deletePrefix(prefix)` → count (folder prefixes only, `assertFolderPrefix`). R2/S3 via
+  ListObjectsV2 + per-object DELETE (8 in parallel); memory store too.
+- Commerce contract: `listOrdersForRetention(page)` (ALL orders, oldest id first, `_fields`-slim,
+  with `closedAt`, `customerId`, `designIds`, `retainForReview`, `retentionDoneAt`, plus
+  `total`/`totalPages`) and `markRetentionDone(id, doneAt)` (`_retention_done` meta).
+- `src/server/jobs/retention.ts` (pure, injected deps): `planRetention` (read-only) →
+  `purgeOrder` / `purgeDesigns`; Inngest `data-retention` cron `TZ=Asia/Karachi 30 3 * * *`,
+  concurrency 1, one step per order / 25 abandoned designs. `pnpm retention:dry-run`.
+- `/api/files/<token>` answers a plain 404 ("no longer available") once the file is gone.
+- Why all orders instead of `modified_before`: to delete a design safely the job must know every
+  order that still uses it (open, recent, signed-in, refused). WC REST can't filter by meta, and
+  `modified_before` would miss orders edited after completion.
+
+Open:
+
+- Account orders: the design is always kept for now. Tasks 21/22 must delete `designs/<id>/` when the
+  customer deletes a design/account, and saved designs that were never ordered must be protected
+  from the abandoned-upload sweep (it currently treats "on no order" as abandoned).
+- Refunded/failed orders are never purged (kept conservatively) — decide with the founder.
+- The daily scan reads every order; fine for thousands, revisit (e.g. an `after` window) at ~50k.
+
 ## Why
 
 `docs/content/privacy.md` promises: "Uploaded photos, canvas layers, and high-resolution print files

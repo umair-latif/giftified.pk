@@ -35,9 +35,10 @@ own folders.
 | 21  | [Account area](21-account-area.md)                                     | _unassigned_                          | `feat/account`              | after 20                  |
 | 22  | [Saved designs](22-saved-designs.md)                                   | Lead + assistant                      | `feat/saved-designs`        | after 20                  |
 | 23  | [Customer-shared templates](23-shared-templates.md)                    | _unassigned_                          | `feat/shared-templates`     | after 19, 22              |
-| 24  | [Delete customer photos 30 days after delivery](24-data-retention.md)  | Lead                                  | `feat/retention`            | after 12                  |
+| 24  | [Delete customer photos 30 days after delivery](24-data-retention.md)  | Lead                                  | `feat/retention`            | in review (PR #34)        |
+| 25  | [Design-system cleanup: buttons, cards, tokens](25-design-consistency.md) | _unassigned_                       | `feat/design-tokens`        | ready                     |
 
-**Right now, assistants can take:** 17 (after 12, merged). The
+**Right now, assistants can take:** 17 (after 12, merged), 25 (ready, independent). The
 plan behind 10–23 is in
 [`docs/plans/storefront-and-accounts.md`](../plans/storefront-and-accounts.md); brand rules in
 [`docs/brand.md`](../brand.md). Briefs 19–23 are outlines and get detail when their dependencies land.

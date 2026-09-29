@@ -7,3 +7,9 @@ Signed-in customers tap **Save to my designs** in the editor: the design and pho
 customer's meta. `/account/designs` shows them; tap → editor on any device; rename, delete. **Delete removes the design and its photos from
 storage** (privacy notice). Designs of orders placed while signed in are added to this list
 automatically, so they survive the 30-day purge (task 24).
+
+**Retention (task 24) — must handle before shipping:** the nightly job deletes any design that no
+order references and whose files are older than 30 days. Saved designs that were never ordered
+would be deleted. Add a check (e.g. the job skips design ids listed in any customer's saved
+designs, or saved designs live under their own `accounts/<id>/designs/` prefix the job never
+touches) and a test for it.

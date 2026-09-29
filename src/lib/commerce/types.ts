@@ -81,6 +81,38 @@ export interface VerifiedWebhook {
   deliveryId: string;
 }
 
+/**
+ * One order as the retention job (task 24) sees it. Deliberately every
+ * status, not just closed ones: the job must know which designs are still
+ * used by open, recent, signed-in or refused orders before deleting any.
+ */
+export interface RetentionOrder {
+  id: OrderId;
+  /** Raw WooCommerce status ("completed", "on-hold", "refunded", …). */
+  status: string;
+  /**
+   * When the order became completed/cancelled (ISO 8601, UTC); null for any
+   * other status. completed → `date_completed_gmt` (else `date_modified_gmt`);
+   * cancelled → `date_modified_gmt` (WC stores no cancellation date).
+   */
+  closedAt: string | null;
+  /** WooCommerce customer ID; 0 = guest order. */
+  customerId: number;
+  /** `_design_id` of each line (empty ones left out). */
+  designIds: string[];
+  /** Order meta `_retain_for_review` = "yes" (refused content): never purge. */
+  retainForReview: boolean;
+  /** Order meta `_retention_done` (ISO 8601) once files were purged. */
+  retentionDoneAt: string | null;
+}
+
+export interface RetentionOrderPage {
+  orders: RetentionOrder[];
+  /** Total orders / pages at the time of this request (X-WP-Total, X-WP-TotalPages). */
+  total: number;
+  totalPages: number;
+}
+
 export interface CommerceClient {
   listProducts(): Promise<CatalogProduct[]>;
   getProduct(productId: ProductId): Promise<CatalogProduct | null>;
@@ -124,6 +156,15 @@ export interface CommerceClient {
     clientIp?: string,
   ): Promise<Customer | null>;
   setCustomerPassword(id: number, password: string): Promise<void>;
+
+  /**
+   * Retention job (task 24): page `page` (1-based, 100 per page) of ALL
+   * orders in every status except trash, oldest ID first, so pages stay
+   * stable while new orders arrive.
+   */
+  listOrdersForRetention(page: number): Promise<RetentionOrderPage>;
+  /** Sets order meta `_retention_done` = `doneAt` (ISO 8601). */
+  markRetentionDone(id: OrderId, doneAt: string): Promise<void>;
 
   /**
    * Verifies `X-WC-Webhook-Signature` (base64 HMAC-SHA256 of the RAW body)
