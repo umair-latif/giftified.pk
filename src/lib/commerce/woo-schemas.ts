@@ -121,3 +121,12 @@ export const wooAttributeTermSchema = z.object({
   description: z.string().default(""),
 });
 export type WooAttributeTerm = z.infer<typeof wooAttributeTermSchema>;
+
+export const wooCustomerSchema = z.object({
+  id: z.number(),
+  email: z.string(),
+  first_name: z.string().default(""),
+  last_name: z.string().default(""),
+  date_modified_gmt: z.string().nullish(),
+});
+export type WooCustomer = z.infer<typeof wooCustomerSchema>;

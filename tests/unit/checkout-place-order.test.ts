@@ -120,3 +120,25 @@ describe("placeOrder (checkout v2 server action)", () => {
     spy.mockRestore();
   });
 });
+
+describe("placeOrder while signed in (task 20)", () => {
+  it("attaches the customer id from the session cookie; guests stay guests", async () => {
+    const cookies = await import("@/server/auth/cookies");
+    const spy = vi.spyOn(cookies, "getSessionCustomerId");
+    const commerce = getCommerce();
+    const create = vi.spyOn(commerce, "createOrder");
+    await saveDesigns("designAcct1", "designAcct2");
+
+    spy.mockResolvedValueOnce(77);
+    const signedIn = await placeOrder(
+      input("chk-acct-000001", ["designAcct1"]),
+    );
+    expect(signedIn.ok).toBe(true);
+    expect(create.mock.calls.at(-1)![0].customerId).toBe(77);
+
+    spy.mockResolvedValueOnce(null);
+    const guest = await placeOrder(input("chk-acct-000002", ["designAcct2"]));
+    expect(guest.ok).toBe(true);
+    expect(create.mock.calls.at(-1)![0].customerId).toBeUndefined();
+  });
+});

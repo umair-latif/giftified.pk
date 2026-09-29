@@ -2,7 +2,12 @@ import "server-only";
 import { z } from "zod";
 import type { ProductId } from "@/config/products";
 import type { CreateOrderInput, Order, OrderId } from "@/types/order";
-import type { CatalogProduct, CommerceClient, ShippingQuote } from "./types";
+import type {
+  CatalogProduct,
+  CommerceClient,
+  Customer,
+  ShippingQuote,
+} from "./types";
 import {
   META,
   PRODUCT_SKUS,
@@ -19,11 +24,13 @@ import {
 } from "./woo-map";
 import {
   wooAttributeTermSchema,
+  wooCustomerSchema,
   wooOrderSchema,
   wooProductSchema,
   wooShippingZoneSchema,
   wooVariationSchema,
   wooZoneMethodSchema,
+  type WooCustomer,
   type WooOrder,
   type WooProduct,
   type WooVariation,
@@ -112,6 +119,22 @@ interface RequestOpts {
   /** Next cache tags for GETs (for on-demand revalidation). */
   tags?: string[];
 }
+
+function mapCustomer(c: WooCustomer): Customer {
+  return {
+    id: c.id,
+    email: c.email.toLowerCase(),
+    firstName: c.first_name,
+    lastName: c.last_name,
+    modifiedAt: c.date_modified_gmt ?? "",
+  };
+}
+
+/** WooCommerce error codes for "this email/username is taken". */
+const EXISTS_CODES = new Set([
+  "registration-error-email-exists",
+  "registration-error-username-exists",
+]);
 
 export function createWooCommerceClient(config: WooConfig): CommerceClient {
   const doFetch = config.fetch ?? fetch;
@@ -377,10 +400,83 @@ export function createWooCommerceClient(config: WooConfig): CommerceClient {
     return mapOrder(created, catalog);
   }
 
+  // -------------------------------------------------------------------------
+  // Customers (accounts)
+  // -------------------------------------------------------------------------
+
+  async function findCustomerByEmail(email: string) {
+    const wanted = email.trim().toLowerCase();
+    const found = await get("/customers", z.array(wooCustomerSchema), {
+      query: { email: wanted, per_page: 5 },
+    });
+    const c = found.find((x) => x.email.toLowerCase() === wanted);
+    return c ? mapCustomer(c) : null;
+  }
+
   return {
     listProducts,
     getProduct,
     quoteShipping,
+
+    findCustomerByEmail,
+
+    async getCustomer(id) {
+      try {
+        return mapCustomer(await get(`/customers/${id}`, wooCustomerSchema));
+      } catch (e) {
+        if (e instanceof WooCommerceError && e.status === 404) return null;
+        throw e;
+      }
+    },
+
+    async createCustomer(input) {
+      try {
+        const { json } = await request("POST", "/customers", {
+          body: {
+            email: input.email,
+            first_name: input.firstName,
+            last_name: input.lastName,
+            password: input.password,
+          },
+        });
+        return mapCustomer(wooCustomerSchema.parse(json));
+      } catch (e) {
+        if (e instanceof WooCommerceError && e.code && EXISTS_CODES.has(e.code))
+          return null;
+        throw e;
+      }
+    },
+
+    async verifyCustomerPassword(email, password, clientIp) {
+      // JWT Authentication for WP REST API. WordPress accepts the email as the username.
+      const res = await doFetch(
+        `${config.url.replace(/\/+$/, "")}/wp-json/jwt-auth/v1/token`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Accept: "application/json",
+            ...(clientIp ? { "X-Forwarded-For": clientIp } : {}),
+          },
+          body: JSON.stringify({ username: email, password }),
+          cache: "no-store",
+          signal: AbortSignal.timeout(TIMEOUT_MS),
+        },
+      );
+      await res.body?.cancel();
+      // 403 = wrong credentials (or a lockout); 404 = plugin not installed.
+      if (res.status === 401 || res.status === 403) return null;
+      if (!res.ok)
+        throw new WooCommerceError(
+          `WordPress sign-in check failed (${res.status}); is the JWT Authentication plugin installed?`,
+          res.status,
+        );
+      return findCustomerByEmail(email);
+    },
+
+    async setCustomerPassword(id, password) {
+      await request("PUT", `/customers/${id}`, { body: { password } });
+    },
 
     createOrder(input) {
       // Same checkoutId submitted twice at once (double tap) → one WC order.

@@ -50,6 +50,27 @@ export interface ShippingQuote {
   shippingPkr: number;
 }
 
+/** A WooCommerce customer (the account store, task 20). */
+export interface Customer {
+  id: number;
+  /** Lower-cased. */
+  email: string;
+  firstName: string;
+  lastName: string;
+  /**
+   * When the customer record last changed (ISO 8601). Password-reset links
+   * embed it, so changing the password makes an old link stop working.
+   */
+  modifiedAt: string;
+}
+
+export interface NewCustomer {
+  email: string;
+  firstName: string;
+  lastName: string;
+  password: string;
+}
+
 export type WebhookTopic = "order.created" | "order.updated";
 
 export interface VerifiedWebhook {
@@ -85,6 +106,24 @@ export interface CommerceClient {
   ): Promise<void>;
   /** Audit trail visible in WP admin. */
   addOrderNote(id: OrderId, note: string): Promise<void>;
+
+  // Accounts (task 20): WooCommerce customers are the accounts.
+  findCustomerByEmail(email: string): Promise<Customer | null>;
+  getCustomer(id: number): Promise<Customer | null>;
+  /** Creates the customer; null when the email is already registered. */
+  createCustomer(input: NewCustomer): Promise<Customer | null>;
+  /**
+   * Checks email + password (WooCommerce: the JWT Authentication plugin).
+   * Null for a wrong password or unknown email — never says which.
+   * `clientIp` is passed on so WordPress' login limiter sees the customer,
+   * not our server.
+   */
+  verifyCustomerPassword(
+    email: string,
+    password: string,
+    clientIp?: string,
+  ): Promise<Customer | null>;
+  setCustomerPassword(id: number, password: string): Promise<void>;
 
   /**
    * Verifies `X-WC-Webhook-Signature` (base64 HMAC-SHA256 of the RAW body)
