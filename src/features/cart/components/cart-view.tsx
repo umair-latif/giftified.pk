@@ -77,7 +77,7 @@ export function CartView() {
   const unavailable = quote?.unitPricePkr.some((p) => p === null) ?? false;
 
   return (
-    <div className="mt-4 flex flex-col gap-4">
+    <div className="mt-4 flex max-w-2xl flex-col gap-4 lg:grid lg:max-w-none lg:grid-cols-[minmax(0,1fr)_22rem] lg:items-start lg:gap-x-8">
       <ul className="flex flex-col gap-3" aria-label="Cart items">
         {cart.map((item, i) => (
           <CartLine
@@ -88,70 +88,76 @@ export function CartView() {
         ))}
       </ul>
 
-      <section
-        aria-label="Order summary"
-        className="rounded-2xl bg-white p-4 text-sm ring-1 ring-zinc-200"
-      >
-        <label htmlFor="city" className="mb-1 block font-medium text-zinc-900">
-          Delivery city
-        </label>
-        <CityPicker
-          value={city}
-          onChange={setCity}
-          onCommit={(c) => {
-            setQuoteCity(c);
-            try {
-              localStorage.setItem(CITY_KEY, c);
-            } catch {
-              /* not remembered, fine */
-            }
-          }}
-          invalid={false}
-        />
-        <dl className="mt-3 grid grid-cols-2 gap-y-1 border-t border-zinc-100 pt-3">
-          <dt className="text-zinc-500">Subtotal</dt>
-          <dd className="text-right" data-testid="cart-subtotal">
-            {quote ? formatPkr(quote.subtotalPkr) : "…"}
-          </dd>
-          <dt className="text-zinc-500">Delivery</dt>
-          <dd className="text-right" data-testid="cart-shipping">
-            {quote?.shippingPkr != null
-              ? formatPkr(quote.shippingPkr)
-              : "Choose your city"}
-          </dd>
-          <dt className="font-semibold text-zinc-900">Total</dt>
-          <dd className="text-right font-semibold" data-testid="cart-total">
-            {quote ? formatPkr(quote.totalPkr) : "…"}
-          </dd>
-        </dl>
-        <p className="mt-2 text-xs text-zinc-500">
-          Pay in cash when it arrives. We’ll call or message you to confirm
-          before we print.
-        </p>
-      </section>
+      {/* Summary column (from lg); on phones the wrapper dissolves and everything stacks. */}
+      <div className="contents lg:sticky lg:top-20 lg:flex lg:flex-col lg:gap-4">
+        <section
+          aria-label="Order summary"
+          className="rounded-2xl bg-white p-4 text-sm ring-1 ring-zinc-200"
+        >
+          <label
+            htmlFor="city"
+            className="mb-1 block font-medium text-zinc-900"
+          >
+            Delivery city
+          </label>
+          <CityPicker
+            value={city}
+            onChange={setCity}
+            onCommit={(c) => {
+              setQuoteCity(c);
+              try {
+                localStorage.setItem(CITY_KEY, c);
+              } catch {
+                /* not remembered, fine */
+              }
+            }}
+            invalid={false}
+          />
+          <dl className="mt-3 grid grid-cols-2 gap-y-1 border-t border-zinc-100 pt-3">
+            <dt className="text-zinc-500">Subtotal</dt>
+            <dd className="text-right" data-testid="cart-subtotal">
+              {quote ? formatPkr(quote.subtotalPkr) : "…"}
+            </dd>
+            <dt className="text-zinc-500">Delivery</dt>
+            <dd className="text-right" data-testid="cart-shipping">
+              {quote?.shippingPkr != null
+                ? formatPkr(quote.shippingPkr)
+                : "Choose your city"}
+            </dd>
+            <dt className="font-semibold text-zinc-900">Total</dt>
+            <dd className="text-right font-semibold" data-testid="cart-total">
+              {quote ? formatPkr(quote.totalPkr) : "…"}
+            </dd>
+          </dl>
+          <p className="mt-2 text-xs text-zinc-500">
+            Pay in cash when it arrives. We’ll call or message you to confirm
+            before we print.
+          </p>
+        </section>
 
-      {unavailable && (
-        <p className="text-sm text-red-700" role="alert">
-          One design can’t be ordered any more. Please remove it to continue.
-        </p>
-      )}
-      <Link
-        href="/checkout"
-        aria-disabled={unavailable || undefined}
-        className={`focus-visible:ring-brand-600/40 flex h-12 items-center justify-center rounded-full text-base font-semibold text-white focus-visible:ring-2 focus-visible:outline-none ${
-          unavailable
-            ? "pointer-events-none bg-zinc-300"
-            : "bg-brand-600 hover:bg-brand-700 active:bg-brand-700"
-        }`}
-      >
-        Checkout · Cash on Delivery
-      </Link>
-      <Link
-        href="/design/mug"
-        className="text-brand-700 hover:text-brand-800 focus-visible:ring-brand-600/20 rounded text-center text-sm font-medium underline focus-visible:ring-2 focus-visible:outline-none"
-      >
-        Design another one
-      </Link>
+        {unavailable && (
+          <p className="text-sm text-red-700" role="alert">
+            One design can’t be ordered any more. Please remove it to continue.
+          </p>
+        )}
+        <Link
+          href="/checkout"
+          aria-disabled={unavailable || undefined}
+          className={`focus-visible:ring-brand-600/40 flex h-12 items-center justify-center rounded-full text-base font-semibold text-white focus-visible:ring-2 focus-visible:outline-none ${
+            unavailable
+              ? "pointer-events-none bg-zinc-300"
+              : "bg-brand-600 hover:bg-brand-700 active:bg-brand-700"
+          }`}
+        >
+          Checkout · Cash on Delivery
+        </Link>
+        <Link
+          href="/products"
+          className="text-brand-700 hover:text-brand-800 focus-visible:ring-brand-600/20 rounded text-center text-sm font-medium underline focus-visible:ring-2 focus-visible:outline-none"
+        >
+          Design another one
+        </Link>
+      </div>
     </div>
   );
 }

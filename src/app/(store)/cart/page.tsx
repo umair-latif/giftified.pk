@@ -7,7 +7,7 @@ export const metadata: Metadata = { title: "Your cart" };
 
 export default function CartPage() {
   return (
-    <Page width="content">
+    <Page width="content" className="lg:max-w-5xl">
       <StepBar current="Order" inPage />
       <PageTitle>Your cart</PageTitle>
       <CartView />

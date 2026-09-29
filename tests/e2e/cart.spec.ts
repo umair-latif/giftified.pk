@@ -56,8 +56,12 @@ test("two designs → cart → edit one → quantities → reload keeps it", asy
   await expect(page).toHaveURL(/\/cart$/);
   await expect(lines).toHaveCount(1);
 
-  // A second design starts from an empty editor.
+  // "Design another one" goes to the products page, where the product is chosen.
   await page.getByRole("link", { name: "Design another one" }).tap();
+  await expect(page).toHaveURL(/\/products$/);
+  await page.getByTestId("product-card-mug").tap();
+  await page.getByRole("link", { name: "Start designing" }).tap();
+  // A second design starts from an empty editor.
   await expect(status(page)).toHaveText(/0 layers/);
   await expect(
     page.getByRole("button", { name: "Text", exact: true }),
