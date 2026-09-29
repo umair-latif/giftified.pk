@@ -58,10 +58,10 @@ export function SelectionBar({
             : "Selection tools"
       }
       data-testid="selection-bar"
-      className="fixed inset-x-0 bottom-[calc(3.5rem+1px+env(safe-area-inset-bottom))] z-10 border-t border-zinc-200 bg-white"
+      className="fixed inset-x-0 bottom-[calc(3.5rem+1px+env(safe-area-inset-bottom))] z-10 border-t border-zinc-200 bg-white lg:static lg:rounded-2xl lg:border lg:shadow-sm"
     >
       <div
-        className="mx-auto flex h-12 max-w-md items-center gap-0.5 overflow-x-auto px-1.5"
+        className="mx-auto flex h-12 max-w-md items-center gap-0.5 overflow-x-auto px-1.5 lg:h-auto lg:max-w-none lg:flex-wrap lg:overflow-visible lg:py-1.5"
         data-testid="selection-bar-row"
       >
         {kind === "text" && text && (

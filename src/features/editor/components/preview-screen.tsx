@@ -65,7 +65,7 @@ export function PreviewScreen({ product }: { product: ProductConfig }) {
         backLabel="Back to editor"
       />
       <StepBar current="Preview" />
-      <main className="mx-auto max-w-md px-4">
+      <main className="mx-auto max-w-md px-4 lg:max-w-5xl">
         <DesignPreview
           product={product}
           {...(item ? { designKey: item.designKey } : {})}

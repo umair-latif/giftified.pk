@@ -33,7 +33,7 @@ export function AppHeader({
 }: Props) {
   return (
     <header className="sticky top-0 z-20 border-b border-zinc-200 bg-white/95 pt-[env(safe-area-inset-top)] backdrop-blur">
-      <div className="mx-auto flex h-14 max-w-md items-center gap-1 px-1">
+      <div className="mx-auto flex h-14 max-w-md items-center gap-1 px-1 lg:max-w-5xl lg:px-3">
         {backHref ? (
           <Link
             href={backHref}

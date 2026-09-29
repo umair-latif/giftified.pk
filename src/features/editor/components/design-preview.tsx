@@ -152,107 +152,112 @@ export function DesignPreview({
   const first = specs?.[0];
 
   return (
-    <div className="flex flex-col gap-3">
-      {useGallery && state.kind === "ready" && first && (
-        <div
-          className="flex flex-col gap-2"
-          role="group"
-          aria-label="Preview gallery"
-          data-testid="preview-gallery"
-        >
+    <div className="flex flex-col gap-3 lg:grid lg:grid-cols-[minmax(0,1fr)_18rem] lg:items-start lg:gap-x-6">
+      <div className="flex min-w-0 flex-col gap-3">
+        {useGallery && state.kind === "ready" && first && (
           <div
-            className="relative w-full overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-zinc-200"
-            style={{
-              aspectRatio: `${(shown?.spec ?? first).widthPx} / ${(shown?.spec ?? first).heightPx}`,
-            }}
-            data-testid="preview-mockup"
+            className="flex flex-col gap-2"
+            role="group"
+            aria-label="Preview gallery"
+            data-testid="preview-gallery"
           >
-            {shown ? (
-              // eslint-disable-next-line @next/next/no-img-element -- local data URL
-              <img
-                src={shown.src}
-                alt={`Your ${product.name}, ${shown.spec.label.toLowerCase()} view`}
-                className="absolute inset-0 size-full"
-              />
-            ) : (
-              <span className="absolute inset-0 grid place-items-center text-xs text-zinc-400">
-                Rendering preview…
-              </span>
+            <div
+              className="relative w-full overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-zinc-200"
+              style={{
+                aspectRatio: `${(shown?.spec ?? first).widthPx} / ${(shown?.spec ?? first).heightPx}`,
+              }}
+              data-testid="preview-mockup"
+            >
+              {shown ? (
+                // eslint-disable-next-line @next/next/no-img-element -- local data URL
+                <img
+                  src={shown.src}
+                  alt={`Your ${product.name}, ${shown.spec.label.toLowerCase()} view`}
+                  className="absolute inset-0 size-full"
+                />
+              ) : (
+                <span className="absolute inset-0 grid place-items-center text-xs text-zinc-400">
+                  Rendering preview…
+                </span>
+              )}
+            </div>
+            {gallery.length > 1 && (
+              <ul
+                className="flex gap-2 overflow-x-auto pb-1"
+                aria-label="Views"
+              >
+                {gallery.map((g) => (
+                  <li key={g.spec.id} className="shrink-0">
+                    <button
+                      type="button"
+                      onClick={() => setSelected(g.spec.id)}
+                      aria-label={g.spec.label}
+                      aria-current={g.spec.id === shown?.spec.id}
+                      data-testid={`preview-thumb-${g.spec.id}`}
+                      className={`focus-visible:ring-brand-600/60 block h-16 overflow-hidden rounded-lg bg-white ring-2 focus-visible:outline-none ${
+                        g.spec.id === shown?.spec.id
+                          ? "ring-brand-600"
+                          : "ring-zinc-200 hover:ring-zinc-300"
+                      }`}
+                      style={{
+                        aspectRatio: `${g.spec.widthPx} / ${g.spec.heightPx}`,
+                      }}
+                    >
+                      {/* eslint-disable-next-line @next/next/no-img-element -- local data URL */}
+                      <img src={g.src} alt="" className="size-full" />
+                    </button>
+                  </li>
+                ))}
+              </ul>
             )}
           </div>
-          {gallery.length > 1 && (
-            <ul className="flex gap-2 overflow-x-auto pb-1" aria-label="Views">
-              {gallery.map((g) => (
-                <li key={g.spec.id} className="shrink-0">
-                  <button
-                    type="button"
-                    onClick={() => setSelected(g.spec.id)}
-                    aria-label={g.spec.label}
-                    aria-current={g.spec.id === shown?.spec.id}
-                    data-testid={`preview-thumb-${g.spec.id}`}
-                    className={`focus-visible:ring-brand-600/60 block h-16 overflow-hidden rounded-lg bg-white ring-2 focus-visible:outline-none ${
-                      g.spec.id === shown?.spec.id
-                        ? "ring-brand-600"
-                        : "ring-zinc-200 hover:ring-zinc-300"
-                    }`}
-                    style={{
-                      aspectRatio: `${g.spec.widthPx} / ${g.spec.heightPx}`,
-                    }}
-                  >
-                    {/* eslint-disable-next-line @next/next/no-img-element -- local data URL */}
-                    <img src={g.src} alt="" className="size-full" />
-                  </button>
-                </li>
-              ))}
-            </ul>
+        )}
+        <div
+          hidden={!showFlat}
+          className="relative grid w-full place-items-center overflow-hidden rounded-2xl shadow-sm ring-1 ring-zinc-300"
+          style={{
+            aspectRatio: `${widthMm} / ${heightMm}`,
+            backgroundColor: base,
+          }}
+          data-testid="preview-frame"
+        >
+          {state.kind === "ready" && (
+            // eslint-disable-next-line @next/next/no-img-element -- local data URL, nothing to optimise
+            <img
+              src={state.src}
+              alt={`Your ${product.name} design`}
+              className="absolute inset-0 size-full"
+            />
+          )}
+          {state.kind === "loading" && (
+            <span className="text-xs text-zinc-400">Rendering preview…</span>
+          )}
+          {state.kind === "error" && (
+            <span className="p-4 text-center text-xs text-red-600">
+              Couldn’t render the preview. Go back and try again.
+            </span>
+          )}
+          {state.kind === "empty" && (
+            <span className="p-4 text-center text-xs text-zinc-500">
+              Nothing designed yet.{" "}
+              <Link
+                href={`/design/${product.id}`}
+                className="text-brand-600 font-medium underline"
+              >
+                Go back and add some text
+              </Link>
+            </span>
           )}
         </div>
-      )}
-      <div
-        hidden={!showFlat}
-        className="relative grid w-full place-items-center overflow-hidden rounded-2xl shadow-sm ring-1 ring-zinc-300"
-        style={{
-          aspectRatio: `${widthMm} / ${heightMm}`,
-          backgroundColor: base,
-        }}
-        data-testid="preview-frame"
-      >
-        {state.kind === "ready" && (
-          // eslint-disable-next-line @next/next/no-img-element -- local data URL, nothing to optimise
-          <img
-            src={state.src}
-            alt={`Your ${product.name} design`}
-            className="absolute inset-0 size-full"
-          />
-        )}
-        {state.kind === "loading" && (
-          <span className="text-xs text-zinc-400">Rendering preview…</span>
-        )}
-        {state.kind === "error" && (
-          <span className="p-4 text-center text-xs text-red-600">
-            Couldn’t render the preview. Go back and try again.
-          </span>
-        )}
-        {state.kind === "empty" && (
-          <span className="p-4 text-center text-xs text-zinc-500">
-            Nothing designed yet.{" "}
-            <Link
-              href={`/design/${product.id}`}
-              className="text-brand-600 font-medium underline"
-            >
-              Go back and add some text
-            </Link>
-          </span>
+        {product.edgeLabels && showFlat && (
+          <div className="-mt-2 flex justify-between text-[10px] tracking-wide text-zinc-400 uppercase">
+            <span>← {product.edgeLabels.left}</span>
+            <span>Front</span>
+            <span>{product.edgeLabels.right} →</span>
+          </div>
         )}
       </div>
-      {product.edgeLabels && showFlat && (
-        <div className="-mt-2 flex justify-between text-[10px] tracking-wide text-zinc-400 uppercase">
-          <span>← {product.edgeLabels.left}</span>
-          <span>Front</span>
-          <span>{product.edgeLabels.right} →</span>
-        </div>
-      )}
-      <dl className="grid grid-cols-2 gap-y-1 rounded-md bg-white p-3 text-xs ring-1 ring-zinc-200">
+      <dl className="grid grid-cols-2 gap-y-1 rounded-2xl bg-white p-3 text-xs ring-1 ring-zinc-200 lg:sticky lg:top-28">
         <dt className="text-zinc-500">Product</dt>
         <dd className="text-right text-zinc-900">{product.subtitle}</dd>
         <dt className="text-zinc-500">Print size</dt>

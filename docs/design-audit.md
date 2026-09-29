@@ -36,6 +36,14 @@ Header with cart/account/track icons, footer, brand teal and cream, pill buttons
 - **Footer:** brand block plus Shop / Help / Legal columns (4 columns from `md`), one `Footer` navigation landmark.
 - **404:** a root `not-found.tsx` with the shop header and footer and links to Products and Track.
 
+## Done in the fourth pass (item 2, editor on desktop)
+
+- From `lg` (1024 px) the editor is two panes: the canvas on the left (about 650 px wide instead of 328) and a
+  sticky tools panel on the right (Text / Image, the selection tools, status, Centre / Straighten, hint). The
+  bottom bars are no longer fixed there. On phones nothing changes.
+- The Design and Preview header spans the same 1024 px column as the content on desktop. Preview is two columns
+  too: gallery on the left, details on the right.
+
 ## Suggested optimisations (biggest impact first)
 
 ### 1. One width system (the main desktop inconsistency)
