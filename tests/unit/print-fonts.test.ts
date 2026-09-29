@@ -1,4 +1,6 @@
-import { existsSync } from "node:fs";
+import { createHash } from "node:crypto";
+import { existsSync, readFileSync } from "node:fs";
+import path from "node:path";
 import { beforeAll, describe, expect, it, vi } from "vitest";
 import { createCanvas } from "canvas";
 import { FONTS } from "@/config/fonts";
@@ -38,7 +40,14 @@ describe("server print fonts", () => {
     },
   );
 
-  it("maps the editor stacks to the metric-compatible fonts", () => {
+  it("maps current families and pre-task-16 device stacks", () => {
+    expect(serverFontFor("'Giftified Sans', sans-serif")).toBe(
+      SERVER_FONTS.sans,
+    );
+    expect(serverFontFor("'Caveat', cursive")).toBe(SERVER_FONTS.handwritten);
+    expect(serverFontFor("'Noto Nastaliq Urdu', serif")).toBe(
+      SERVER_FONTS.urdu,
+    );
     expect(serverFontFor("Arial, Helvetica, sans-serif")).toBe(
       SERVER_FONTS.sans,
     );
@@ -51,10 +60,33 @@ describe("server print fonts", () => {
     expect(serverFontFor("Comic Sans MS")).toBeNull();
   });
 
-  it("ships every font file (regular, bold, italic, bold italic)", () => {
+  it("ships every face's TTF on the server and the same file as WOFF2 in the browser", () => {
     const files = serverFontFiles();
-    expect(files).toHaveLength(Object.keys(SERVER_FONTS).length * 4);
-    for (const f of files) expect(existsSync(f.path), f.path).toBe(true);
+    expect(files).toHaveLength(FONTS.reduce((n, f) => n + f.faces.length, 0));
+    for (const f of files) {
+      expect(existsSync(f.path), f.path).toBe(true);
+      expect(existsSync(path.join(path.dirname(f.path), "OFL.txt"))).toBe(true);
+    }
+    for (const font of FONTS) {
+      for (const face of font.faces) {
+        const woff2 = path.join(
+          "public/fonts/print",
+          font.dir,
+          `${face.file}.woff2`,
+        );
+        expect(existsSync(woff2), woff2).toBe(true);
+      }
+      expect(
+        existsSync(path.join("public/fonts/print", font.dir, "OFL.txt")),
+      ).toBe(true);
+    }
+  });
+
+  it("registers no fake faces (no upright copy in a bold/italic slot)", () => {
+    const hashes = serverFontFiles().map((f) =>
+      createHash("md5").update(readFileSync(f.path)).digest("hex"),
+    );
+    expect(new Set(hashes).size).toBe(hashes.length);
   });
 
   it("node-canvas really uses the bundled fonts (no silent system fallback)", () => {

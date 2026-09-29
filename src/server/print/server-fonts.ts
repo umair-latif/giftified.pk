@@ -1,31 +1,34 @@
 import { existsSync } from "node:fs";
 import path from "node:path";
 
+import {
+  FONTS,
+  fontForFamily,
+  type FontId,
+  type FontOption,
+  type FontStyle,
+  type FontWeight,
+} from "@/config/fonts";
+
+export { parseFontStack } from "@/config/fonts";
+
 /**
- * Fonts for the server print renderer. The editor stores CSS font stacks
- * (`src/config/fonts.ts`); servers have none of those fonts, so each stack is
- * mapped to an open-licence font bundled in `./fonts` (SIL OFL 1.1, licence
- * files next to the fonts):
+ * Fonts for the server print renderer — derived from `src/config/fonts.ts`,
+ * the single list shared with the browser editor (task 16). Each font's TTFs
+ * live in `./fonts/<dir>/` (SIL OFL 1.1, licence next to them) and the SAME
+ * files are served to the browser as WOFF2 from `public/fonts/print/<dir>/`
+ * (`python3 scripts/build-fonts.py`), registered under the same unique family
+ * name on both sides, so the print lays text out exactly like the editor.
  *
- * - Liberation Sans 2.1.5  — metric-compatible with Arial / Helvetica
- * - Gelasio 1.008 (Latin)  — metric-compatible with Georgia
- * - Liberation Mono 2.1.5  — metric-compatible with Courier New
- *
- * Gelasio TTFs are the Latin subset from @fontsource/gelasio 5.3.0, unwrapped
- * from WOFF (container change only, glyph tables untouched).
- *
- * Metric compatibility keeps line breaks and text widths the same as a
- * browser that has the Microsoft fonts. Phones usually don't (Android falls
- * back to Roboto etc.), so the long-term fix is to self-host the SAME font
- * files in the browser and here (task 06). To add a font: drop its TTFs in
- * `./fonts/<dir>/`, add an entry to SERVER_FONTS and its CSS names to
- * FAMILY_ALIASES. `tests/unit/print-fonts.test.ts` fails if any FONTS entry
- * has no server font.
+ * Only real faces are registered — never an upright copy in an italic/bold
+ * slot. Designs are normalised first (`features/editor/fonts/migrate.ts`)
+ * so a style a font doesn't have (Caveat italic, Urdu bold) is dropped,
+ * exactly as the editor does.
  */
 export interface ServerFontFace {
   file: string;
-  weight: "normal" | "bold";
-  style: "normal" | "italic";
+  weight: FontWeight;
+  style: FontStyle;
 }
 
 export interface ServerFont {
@@ -36,105 +39,26 @@ export interface ServerFont {
   faces: readonly ServerFontFace[];
 }
 
-const faces = (prefix: string): ServerFontFace[] => [
-  { file: `${prefix}-Regular.ttf`, weight: "normal", style: "normal" },
-  { file: `${prefix}-Bold.ttf`, weight: "bold", style: "normal" },
-  { file: `${prefix}-Italic.ttf`, weight: "normal", style: "italic" },
-  { file: `${prefix}-BoldItalic.ttf`, weight: "bold", style: "italic" },
-];
-
-export const SERVER_FONTS = {
-  sans: {
-    family: "Giftified Print Sans",
-    dir: "liberation",
-    faces: faces("LiberationSans"),
-  },
-  serif: {
-    family: "Giftified Print Serif",
-    dir: "gelasio",
-    faces: faces("Gelasio"),
-  },
-  mono: {
-    family: "Giftified Print Mono",
-    dir: "liberation",
-    faces: faces("LiberationMono"),
-  },
-  // Task 06 (text styling sheet) adds these four as self-hosted webfonts —
-  // same files in the browser (`public/fonts/text-sheet/`) and here, so the
-  // print render matches the editor exactly (no metric-compatible-substitute
-  // guessing needed, unlike sans/serif/mono above — see task 16).
-  playful: {
-    family: "Giftified Print Poppins",
-    dir: "poppins",
-    faces: faces("Poppins"),
-  },
-  elegant: {
-    family: "Giftified Print Playfair",
-    dir: "playfair-display",
-    faces: faces("PlayfairDisplay"),
-  },
-  // Caveat and Noto Nastaliq Urdu ship no italic design; the Bold/BoldItalic
-  // and Italic files are copies of the upright face registered under those
-  // weight/style slots (see docs/tasks/06-text-styling-sheet.md) so a bold or
-  // italic toggle never falls back to an unstyled system font server-side.
-  handwritten: {
-    family: "Giftified Print Caveat",
-    dir: "caveat",
-    faces: faces("Caveat"),
-  },
-  urdu: {
-    family: "Giftified Print Nastaliq Urdu",
-    dir: "noto-nastaliq-urdu",
-    faces: faces("NotoNastaliqUrdu"),
-  },
-} as const satisfies Record<string, ServerFont>;
-
-export type ServerFontKey = keyof typeof SERVER_FONTS;
-
-/** Lower-case CSS family names (as they appear in font stacks) → server font. */
-export const FAMILY_ALIASES: Readonly<Record<string, ServerFontKey>> = {
-  arial: "sans",
-  helvetica: "sans",
-  arimo: "sans",
-  "liberation sans": "sans",
-  "sans-serif": "sans",
-  georgia: "serif",
-  gelasio: "serif",
-  "times new roman": "serif",
-  times: "serif",
-  serif: "serif",
-  "courier new": "mono",
-  courier: "mono",
-  cousine: "mono",
-  "liberation mono": "mono",
-  monospace: "mono",
-  poppins: "playful",
-  "playfair display": "elegant",
-  caveat: "handwritten",
-  "noto nastaliq urdu": "urdu",
-};
-
-/** `"Georgia, 'Times New Roman', serif"` → `["georgia", "times new roman", "serif"]`. */
-export function parseFontStack(stack: string): string[] {
-  return stack
-    .split(",")
-    .map((f) =>
-      f
-        .trim()
-        .replace(/^(['"])(.*)\1$/, "$2")
-        .trim()
-        .toLowerCase(),
-    )
-    .filter(Boolean);
+function toServerFont(font: FontOption): ServerFont {
+  return {
+    family: font.name,
+    dir: font.dir,
+    faces: font.faces.map((f) => ({ ...f, file: `${f.file}.ttf` })),
+  };
 }
 
-/** The server font for a CSS font stack: the first family in it we know, or null. */
+/** Server fonts keyed by `FontOption.id` (`sans`, `serif`, …, `urdu`). */
+export const SERVER_FONTS = Object.fromEntries(
+  FONTS.map((f) => [f.id, toServerFont(f)]),
+) as Readonly<Record<FontId, ServerFont>>;
+
+/**
+ * The server font for a CSS font stack: current family names and the old
+ * pre-task-16 device stacks (`Arial, …` → Sans) — or null if unknown.
+ */
 export function serverFontFor(stack: string): ServerFont | null {
-  for (const name of parseFontStack(stack)) {
-    const key = FAMILY_ALIASES[name];
-    if (key) return SERVER_FONTS[key];
-  }
-  return null;
+  const font = fontForFamily(stack);
+  return font ? SERVER_FONTS[font.id] : null;
 }
 
 /**

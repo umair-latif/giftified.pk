@@ -15,6 +15,8 @@ export {
   duplicateSelected,
 } from "./actions";
 export { renderDesignToDataUrl } from "./render";
+export { relayoutText } from "./fonts";
+export { textLayouts, type TextLayout } from "./text-layout";
 export {
   addImage,
   applyCrop,

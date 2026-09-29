@@ -42,13 +42,13 @@ const file = await renderPrintFile(design, {
   the preview. Crop/size are rescaled from preview px to original px by
   `toOriginalGeometry` (`original-image.ts`, pure). Originals whose pixel size doesn't
   match `sourceWidthPx/sourceHeightPx` are rejected ("wrong file?").
-- **Fonts:** `server-fonts.ts` maps each CSS stack in `src/config/fonts.ts` to a bundled
-  OFL font registered with node-canvas: Liberation Sans (Arial metrics), Gelasio
-  (Georgia metrics, Latin subset) and Liberation Mono (Courier New metrics), regular /
-  bold / italic / bold-italic, in `src/server/print/fonts/` with licence files. Unknown
-  fonts throw. To add a font: TTFs in `fonts/<dir>/`, an entry in `SERVER_FONTS` and its
-  CSS names in `FAMILY_ALIASES`; `tests/unit/print-fonts.test.ts` fails if any `FONTS`
-  entry has no server font.
+- **Fonts:** since task 16 `server-fonts.ts` derives from `src/config/fonts.ts` — the
+  same OFL files (Liberation Sans/Mono, Gelasio, Poppins, Playfair, Caveat, Noto Nastaliq
+  Urdu) the browser editor loads as WOFF2, under the same "Giftified …" family names, real
+  faces only. Old device stacks (`Arial, …`) are mapped by `features/editor/fonts/migrate.ts`.
+  Unknown fonts throw. To add a font: TTFs in `fonts/<dir>/`, an entry in `FONTS`, then
+  `python3 scripts/build-fonts.py` and re-record the parity test (see
+  [16](16-font-parity.md)).
 - **Deploy note:** fonts are read from `<cwd>/src/server/print/fonts` (override with
   `PRINT_FONTS_DIR`). The route/job that calls the renderer (task 08) must add them to
   the function bundle, e.g. `outputFileTracingIncludes: { "/api/jobs/*": ["./src/server/print/fonts/**"] }`.

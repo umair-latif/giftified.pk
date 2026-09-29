@@ -176,6 +176,11 @@ Mobile PWA (Fabric.js editor + Three.js preview)
   never through our functions (Vercel's 4.5 MB request limit). Bucket stays private.
 - Text styling goes through `engine/text-style.ts` (`applyTextStyle`, `getTextStyle`),
   exposed as `useFabricCanvas().applyTextStyle / setText / selection.text`.
+- Fonts (task 16): `config/fonts.ts` is the one list; browser (`public/fonts/print/*.woff2`) and print
+  (`server/print/fonts/*.ttf`) use the same files under the same "Giftified …" names, real faces only
+  (no Caveat italic, no Urdu bold/italic). Before any render, `fonts/migrate.ts` maps old device stacks
+  (`Arial, …`) to them and `fonts/load-fonts.ts` loads just the faces the design uses (`designFontFaces`
+  → `loadFaces`); late faces re-layout the text. Rebuild with `python3 scripts/build-fonts.py`.
 - Every screen uses `components/ui/app-header.tsx` (back arrow to a fixed parent route,
   optional Next) and `step-bar.tsx` (Design → Preview → Order).
 - Fabric v7 has no built-in pinch/rotate; `engine/gestures.ts` implements it with raw touch

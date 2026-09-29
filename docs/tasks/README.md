@@ -27,7 +27,7 @@ own folders.
 | 13b | Checkout legal: content confirmation, small print, opt-in, IP          | Claude (subagent)                     | `feat/checkout-legal`       | in review                 |
 | 14  | [Order status + guest tracking](14-order-status-tracking.md)           | Claude (cloud session)                | `feat/order-tracking`       | done                      |
 | 15  | [Help and info pages](15-info-pages.md)                                | Claude (cloud session) + founder text | `feat/info-pages`           | done (founder TODOs open) |
-| 16  | [Editor ↔ print font parity](16-font-parity.md)                        | Lead                                  | `fix/font-parity`           | ready                     |
+| 16  | [Editor ↔ print font parity](16-font-parity.md)                        | Lead                                  | `fix/font-parity`           | in review                 |
 | 17  | [Photo frames (Crop & shape)](17-photo-frames.md)                      | Lead                                  | `feat/photo-frames`         | after 12                  |
 | 18  | [Templates: placeholders, Save as template](18-templates-authoring.md) | Lead                                  | `feat/templates`            | after 17                  |
 | 19  | [Template gallery + occasion pages](19-template-gallery.md)            | _unassigned_                          | `feat/template-gallery`     | after 11, 18              |
@@ -37,7 +37,7 @@ own folders.
 | 23  | [Customer-shared templates](23-shared-templates.md)                    | _unassigned_                          | `feat/shared-templates`     | after 19, 22              |
 | 24  | [Delete customer photos 30 days after delivery](24-data-retention.md)  | Lead                                  | `feat/retention`            | after 12                  |
 
-**Right now, assistants can take:** 16 (font parity), 17 (after 12, merged), 20 (after phase A). The
+**Right now, assistants can take:** 17 (after 12, merged), 20 (after phase A). The
 plan behind 10–23 is in
 [`docs/plans/storefront-and-accounts.md`](../plans/storefront-and-accounts.md); brand rules in
 [`docs/brand.md`](../brand.md). Briefs 19–23 are outlines and get detail when their dependencies land.

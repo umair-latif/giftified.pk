@@ -1,4 +1,5 @@
 import { Textbox, type Canvas } from "fabric";
+import { DEFAULT_TEXT_FONT } from "@/config/fonts";
 import type { PrintArea } from "@/config/products";
 import { applyTouchControls } from "./controls";
 
@@ -21,7 +22,7 @@ export function addText(
     originY: "center",
     width: area.widthMm * 0.6,
     fontSize: area.heightMm * 0.2,
-    fontFamily: opts.fontFamily ?? "Arial, Helvetica, sans-serif",
+    fontFamily: opts.fontFamily ?? DEFAULT_TEXT_FONT.family,
     fontWeight: "bold",
     fill: opts.fill ?? "#111827",
     textAlign: "center",

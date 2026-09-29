@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { FabricObject } from "fabric";
+import { fontForFamily } from "@/config/fonts";
 import type { ProductConfig } from "@/config/products";
 import type {
   CanvasHistory,
@@ -17,6 +18,12 @@ import { putAsset, pruneAssets, previewUrl } from "../assets/asset-store";
 import { ImageUploadError, prepareImage } from "../assets/prepare-image";
 import { resolveAssetRefs } from "../assets/resolve";
 import { allDraftAssetIds, loadDraft, saveDraft } from "../draft";
+import {
+  DEFAULT_TEXT_FACE,
+  loadFaces,
+  onFontLoaded,
+} from "../fonts/load-fonts";
+import { designFontFaces, migrateDesignFonts } from "../fonts/migrate";
 // Only type imports from Fabric inside, so this does not pull Fabric into the initial bundle.
 import { getTextStyle } from "../engine/text-style";
 
@@ -107,11 +114,21 @@ export function useFabricCanvas(product: ProductConfig, designKey?: string) {
       const restyle = (objs: FabricObject[]) =>
         objs.forEach(engine.applyTouchControls);
 
+      // Fonts: the face new text uses, plus (below) every face the draft
+      // uses — awaited before its first render. A late face re-measures text.
+      void loadFaces([DEFAULT_TEXT_FACE]);
+      const offFonts = onFontLoaded(() => engine.relayoutText(canvas));
+
       // Restore autosaved work before history starts recording.
       const draft = loadDraft(product.id, designKey);
       if (draft) {
         try {
-          const { fabric, missing } = await resolveAssetRefs(draft.fabric);
+          // Old device-font stacks → our self-hosted families (task 16).
+          const migrated = migrateDesignFonts(draft.fabric);
+          const [{ fabric, missing }] = await Promise.all([
+            resolveAssetRefs(migrated),
+            loadFaces(designFontFaces(migrated)),
+          ]);
           await canvas.loadFromJSON(fabric);
           restyle(canvas.getObjects());
           canvas.requestRenderAll();
@@ -126,6 +143,7 @@ export function useFabricCanvas(product: ProductConfig, designKey?: string) {
         }
       }
       if (disposed) {
+        offFonts();
         void dc.dispose().finally(() => host.replaceChildren());
         return;
       }
@@ -211,10 +229,21 @@ export function useFabricCanvas(product: ProductConfig, designKey?: string) {
       });
       ro.observe(host);
 
+      // Test probe (font-parity e2e only; the flag is set by Playwright).
+      const probe = window as unknown as {
+        __GIFTIFIED_E2E__?: boolean;
+        __giftifiedTextLayout?: () => unknown;
+      };
+      if (probe.__GIFTIFIED_E2E__)
+        probe.__giftifiedTextLayout = () =>
+          engine.textLayouts(canvas.getObjects());
+
       sync();
       setStatus("ready");
       teardown = () => {
         saveNow(); // never lose the last change when navigating away
+        offFonts();
+        delete probe.__giftifiedTextLayout;
         window.removeEventListener("pagehide", onHide);
         document.removeEventListener("visibilitychange", onVisibility);
         cancelAnimationFrame(frame);
@@ -287,7 +316,15 @@ export function useFabricCanvas(product: ProductConfig, designKey?: string) {
 
   const applyTextStyle = useCallback(
     (style: Partial<TextStyle>) =>
-      run((e, dc) => e.applyTextStyle(dc.canvas, style)),
+      run((e, dc) => {
+        e.applyTextStyle(dc.canvas, style);
+        // Fetch the face the text now uses (e.g. first Bold tap); when it
+        // arrives, onFontLoaded re-measures the text.
+        const t = getTextStyle(dc.canvas.getActiveObject());
+        const font = t && fontForFamily(t.fontFamily);
+        if (t && font)
+          void loadFaces([{ font, weight: t.fontWeight, style: t.fontStyle }]);
+      }),
     [run],
   );
   const setText = useCallback(
