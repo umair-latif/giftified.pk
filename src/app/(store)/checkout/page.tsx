@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { CheckoutForm } from "@/features/checkout/components/checkout-form";
 import { Page, PageTitle } from "@/components/ui/page";
+import { StepBar } from "@/components/ui/step-bar";
 
 export const metadata: Metadata = {
   title: "Checkout",
@@ -11,7 +12,8 @@ export const metadata: Metadata = {
 /** The whole cart → one Cash on Delivery order (guest; email optional). */
 export default function CheckoutPage() {
   return (
-    <Page width="content">
+    <Page width="content" className="lg:max-w-5xl">
+      <StepBar current="Order" inPage />
       <Link
         href="/cart"
         className="text-brand-700 hover:text-brand-800 focus-visible:ring-brand-600/20 rounded text-sm font-medium focus-visible:ring-2 focus-visible:outline-none"
