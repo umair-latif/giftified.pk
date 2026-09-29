@@ -3,6 +3,7 @@ import {
   centreY,
   columnAngleDeg,
   designXmm,
+  outlineBand,
   printBandTop,
   verticalPxPerMm,
   type MockupSide,
@@ -116,12 +117,22 @@ export async function composeMockup(
     bottom: b.bottom,
     rimSag: spec.sag.rim,
     baseSag: spec.sag.base,
+    // A mirrored photo flips left/right, so the tilt flips too.
+    tilt: (mirror ? -1 : 1) * (spec.tilt ?? 0),
   };
-  const sagMax = Math.max(Math.abs(spec.sag.rim), Math.abs(spec.sag.base));
+  const outline = spec.outline;
+  // Fractions of the mug height where the print starts and ends.
+  const vTop = (y0 - b.top) / (b.bottom - b.top);
+  const vBot = vTop + bandPx / (b.bottom - b.top);
+  const sagMax =
+    Math.max(Math.abs(spec.sag.rim), Math.abs(spec.sag.base)) +
+    Math.abs(spec.tilt ?? 0);
+  const yFrom = outline ? 0 : Math.max(0, Math.floor(y0 - sagMax - 2));
+  const yTo = outline
+    ? H - 1
+    : Math.min(H - 1, Math.ceil(y0 + bandPx + sagMax + 2));
   const s = [0, 0, 0, 0];
   const SUB = [-1 / 3, 0, 1 / 3];
-  const yFrom = Math.max(0, Math.floor(y0 - sagMax - 2));
-  const yTo = Math.min(H - 1, Math.ceil(y0 + bandPx + sagMax + 2));
   for (let y = yFrom; y <= yTo; y++) {
     for (let x = Math.ceil(left) + 1; x < right - 1; x++) {
       // Average a few sub-columns: the edge of the mug compresses the design.
@@ -133,13 +144,24 @@ export async function composeMockup(
         const angle = columnAngleDeg(x + 0.5 + o, cx, r);
         const mm = designXmm(angle, geo, side);
         if (mm === null) continue;
-        // Row on a flat (centre-of-mug) scale: the print band follows the
-        // mug's curved horizontal lines.
-        const inBand = centreY(y + 0.5, angle, curve) - y0;
+        let inBand: number;
+        let height: number;
+        if (outline) {
+          // Band edges follow the mug's measured top/base edges in this column.
+          const sx = mirror ? W - (x + 0.5 + o) : x + 0.5 + o;
+          const e = outlineBand(outline, sx, vTop, vBot);
+          height = e.bottom - e.top;
+          inBand = y + 0.5 - e.top;
+        } else {
+          // Row on a flat (centre-of-mug) scale: the band follows the mug's
+          // curved horizontal lines.
+          inBand = centreY(y + 0.5, angle, curve) - y0;
+          height = bandPx;
+        }
         // Soft top/bottom edge (1 px) so the curved edges are not jagged.
-        const cover = Math.min(1, inBand + 0.5, bandPx - inBand + 0.5);
+        const cover = Math.min(1, inBand + 0.5, height - inBand + 0.5);
         if (cover <= 0) continue;
-        const fy = Math.min(dh, Math.max(0, (inBand / bandPx) * dh));
+        const fy = Math.min(dh, Math.max(0, (inBand / height) * dh));
         sample(dd, dw, dh, (mm / geo.wrapMm) * dw, fy, s);
         const a = (s[3]! / 255) * cover;
         ar += s[0]! * a;
