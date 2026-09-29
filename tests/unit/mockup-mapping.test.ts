@@ -7,6 +7,7 @@ import {
   designXmm,
   printArcDeg,
   printBandTop,
+  verticalPxPerMm,
   type WrapGeometry,
 } from "@/features/editor/mockup/mapping";
 import { MOCKUP_SPECS } from "@/features/editor/mockup/specs";
@@ -102,11 +103,12 @@ describe("print band position", () => {
     expect(printBandTop(body, 400, 5, 8)).toBeCloseTo(140);
   });
 
-  it("fits the mug print height inside the photographed body", () => {
+  it("sizes the band against the mug height, not the diameter", () => {
     const s = MOCKUP_SPECS.mug!;
-    const pxPerMm =
-      (s.body.right - s.body.left) / 2 / (s.geometry.diameterMm / 2);
+    const pxPerMm = verticalPxPerMm(s.body, s.mugHeightMm);
     const bandPx = mug.printArea.heightMm * pxPerMm;
-    expect(bandPx).toBeLessThan(s.body.bottom - s.body.top);
+    const bodyPx = s.body.bottom - s.body.top;
+    expect(bandPx).toBeLessThan(bodyPx);
+    expect(bandPx / bodyPx).toBeCloseTo(mug.printArea.heightMm / s.mugHeightMm);
   });
 });

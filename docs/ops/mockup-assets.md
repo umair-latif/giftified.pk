@@ -34,6 +34,7 @@ stops short of the handle (the gap).
 | --------------------- | ------------------------------------------------------------------------ |
 | Print width x height  | `src/config/products/mug.ts` `printArea` only; mockups follow it.        |
 | Mug outer diameter    | `mockup/specs.ts` `geometry.diameterMm`.                                 |
+| Mug height            | `mockup/specs.ts` `mugHeightMm` (the print band is sized against it).    |
 | Rim-to-print distance | `mockup/specs.ts` `topMarginMm` (omit = centred on the body).            |
 | Handle gap            | Nothing: computed from wrap and diameter. A mismatch means one is wrong. |
 
@@ -43,5 +44,6 @@ Never edit `body` or `sag` for vendor numbers; they describe the photo.
 
 ## Vendor TODO
 
-`geometry.diameterMm` (82 mm) and the handle gap are assumptions. Confirm with
+`geometry.diameterMm` (83 mm) and `mugHeightMm` (96 mm) are Printful's approximate
+values, and the handle gap follows from them; all are assumptions. Confirm with
 the vendor (see `docs/ops/print-specs.md`).

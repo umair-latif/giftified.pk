@@ -4,6 +4,7 @@ import {
   columnAngleDeg,
   designXmm,
   printBandTop,
+  verticalPxPerMm,
   type MockupSide,
   type WrapGeometry,
 } from "./mapping";
@@ -93,7 +94,7 @@ export async function composeMockup(
   const right = side === "left" ? W - b.left : b.right;
   const cx = (left + right) / 2;
   const r = (right - left) / 2;
-  const pxPerMm = r / (geo.diameterMm / 2);
+  const pxPerMm = verticalPxPerMm(b, spec.mugHeightMm);
   const bandPx = product.printArea.heightMm * pxPerMm;
   const y0 = printBandTop(b, bandPx, pxPerMm, spec.topMarginMm);
 
