@@ -12,19 +12,23 @@ export function SiteHeader() {
   return (
     <header className="sticky top-0 z-20 border-b border-zinc-200 bg-white/95 pt-[env(safe-area-inset-top)] backdrop-blur">
       <div className="mx-auto flex h-14 max-w-5xl items-center gap-1 pr-1 pl-4">
-        <Link href="/" aria-label="Giftified.pk home" className="mr-auto">
+        <Link
+          href="/"
+          aria-label="Giftified.pk home"
+          className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-600/20 mr-auto rounded"
+        >
           <Wordmark />
         </Link>
         <Link
           href="/products"
-          className="text-ink active:bg-mint-100 hidden h-11 items-center rounded-full px-3 text-sm font-medium sm:flex"
+          className="text-ink hover:bg-mint-100 active:bg-mint-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-600/20 hidden h-11 items-center rounded-full px-3 text-sm font-medium sm:flex"
         >
           Products
         </Link>
         <Link
           href="/track"
           aria-label="Track your order"
-          className="text-ink active:bg-mint-100 grid size-11 place-items-center rounded-full"
+          className="text-ink hover:bg-mint-100 active:bg-mint-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-600/20 grid size-11 place-items-center rounded-full"
         >
           <TruckIcon />
         </Link>

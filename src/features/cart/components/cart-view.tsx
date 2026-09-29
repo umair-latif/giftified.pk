@@ -67,7 +67,7 @@ export function CartView() {
         </p>
         <Link
           href="/design/mug"
-          className="bg-brand-600 active:bg-brand-700 mt-4 inline-flex h-11 items-center rounded-full px-5 font-medium text-white"
+          className="bg-brand-600 hover:bg-brand-700 active:bg-brand-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-600/40 mt-4 inline-flex h-11 items-center rounded-full px-5 font-medium text-white"
         >
           Start designing
         </Link>
@@ -138,17 +138,17 @@ export function CartView() {
       <Link
         href="/checkout"
         aria-disabled={unavailable || undefined}
-        className={`flex h-12 items-center justify-center rounded-full text-base font-semibold text-white ${
+        className={`flex h-12 items-center justify-center rounded-full text-base font-semibold text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-600/40 ${
           unavailable
             ? "pointer-events-none bg-zinc-300"
-            : "bg-brand-600 active:bg-brand-700"
+            : "bg-brand-600 hover:bg-brand-700 active:bg-brand-700"
         }`}
       >
         Checkout · Cash on Delivery
       </Link>
       <Link
         href="/design/mug"
-        className="text-brand-700 text-center text-sm font-medium underline"
+        className="text-brand-700 hover:text-brand-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-600/20 rounded text-center text-sm font-medium underline"
       >
         Design another one
       </Link>
@@ -214,7 +214,7 @@ function CartLine({
               aria-label="One less"
               disabled={item.quantity <= 1}
               onClick={() => updateQuantity(item.id, item.quantity - 1)}
-              className="size-9 rounded-full text-lg text-zinc-700 active:bg-zinc-100 disabled:text-zinc-300"
+              className="size-9 rounded-full text-lg text-zinc-700 hover:bg-zinc-100 active:bg-zinc-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-600/20 disabled:text-zinc-300 disabled:hover:bg-transparent"
             >
               −
             </button>
@@ -229,7 +229,7 @@ function CartLine({
               aria-label="One more"
               disabled={item.quantity >= MAX_LINE_QUANTITY}
               onClick={() => updateQuantity(item.id, item.quantity + 1)}
-              className="size-9 rounded-full text-lg text-zinc-700 active:bg-zinc-100 disabled:text-zinc-300"
+              className="size-9 rounded-full text-lg text-zinc-700 hover:bg-zinc-100 active:bg-zinc-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-600/20 disabled:text-zinc-300 disabled:hover:bg-transparent"
             >
               +
             </button>
@@ -237,14 +237,14 @@ function CartLine({
           <div className="flex gap-3 text-xs font-medium">
             <Link
               href={`/design/${item.productId}?item=${encodeURIComponent(item.id)}`}
-              className="text-brand-700 underline"
+              className="text-brand-700 hover:text-brand-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-600/20 rounded underline"
             >
               Edit design
             </Link>
             <button
               type="button"
               onClick={() => removeFromCart(item.id)}
-              className="text-zinc-500 underline"
+              className="text-zinc-500 hover:text-zinc-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-600/20 rounded underline"
             >
               Remove
             </button>

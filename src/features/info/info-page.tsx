@@ -40,7 +40,7 @@ export function InfoSection({
       >
         {title}
       </h2>
-      <div className="[&_a]:text-brand-700 mt-2 space-y-3 text-sm text-zinc-800 [&_a]:underline [&_li]:ml-5 [&_ol]:list-decimal [&_ol]:space-y-1 [&_ul]:list-disc [&_ul]:space-y-1">
+      <div className="[&_a]:text-brand-700 [&_a]:hover:text-brand-800 [&_a]:focus-visible:outline-none [&_a]:focus-visible:ring-2 [&_a]:focus-visible:ring-brand-600/20 [&_a]:rounded mt-2 space-y-3 text-sm text-zinc-800 [&_a]:underline [&_li]:ml-5 [&_ol]:list-decimal [&_ol]:space-y-1 [&_ul]:list-disc [&_ul]:space-y-1">
         {children}
       </div>
     </section>

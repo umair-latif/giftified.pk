@@ -26,7 +26,7 @@ export function MissingItem() {
       <p className="text-zinc-700">This design is no longer in your cart.</p>
       <Link
         href="/cart"
-        className="bg-brand-600 mt-4 inline-flex h-11 items-center rounded-full px-5 font-medium text-white"
+        className="bg-brand-600 hover:bg-brand-700 active:bg-brand-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-600/40 mt-4 inline-flex h-11 items-center rounded-full px-5 font-medium text-white"
       >
         Go to cart
       </Link>

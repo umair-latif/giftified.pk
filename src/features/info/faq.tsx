@@ -17,7 +17,7 @@ export function Faq({ items }: { items: readonly FaqItem[] }) {
     <div className="divide-y divide-zinc-200 rounded-xl border border-zinc-200 bg-white">
       {items.map((item) => (
         <details key={item.id} id={item.id} className="group">
-          <summary className="text-ink active:bg-mint-100 flex min-h-12 cursor-pointer list-none items-center gap-3 px-4 py-3 font-medium [&::-webkit-details-marker]:hidden">
+          <summary className="text-ink hover:bg-mint-100 active:bg-mint-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-600/20 flex min-h-12 cursor-pointer list-none items-center gap-3 px-4 py-3 font-medium [&::-webkit-details-marker]:hidden">
             <span className="flex-1">{item.question}</span>
             <svg
               aria-hidden

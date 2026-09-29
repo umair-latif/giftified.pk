@@ -55,7 +55,7 @@ export function ProductCard({
   return card.href ? (
     <Link
       href={card.href}
-      className="block rounded-2xl bg-white p-2 shadow-sm ring-1 ring-zinc-200 active:bg-zinc-50"
+      className="block rounded-2xl bg-white p-2 shadow-sm ring-1 ring-zinc-200 hover:bg-zinc-50 active:bg-zinc-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-600/40"
       data-testid={`product-card-${card.productId}`}
     >
       {body}
