@@ -10,17 +10,23 @@ import {
   type CropView,
   type NormRect,
 } from "../engine/crop";
+import {
+  FRAME_SHAPES,
+  FRAME_SHAPE_INFO,
+  type FrameShape,
+} from "../engine/frame-shape";
+import { POLAROID } from "../engine/polaroid";
 import type { CropTarget } from "../hooks/use-fabric-canvas";
 
 interface Props {
   target: CropTarget;
   onCancel: () => void;
-  onApply: (rect: NormRect) => void;
+  onApply: (rect: NormRect, shape: FrameShape | null) => void;
 }
 
 /**
  * Full-screen crop: the frame stays still, the photo moves under it.
- * Drag to move, pinch or use the slider to zoom, pick a shape below.
+ * Drag to move, pinch or use the slider to zoom, pick a shape and proportions below.
  */
 export function CropSheet({ target, onCancel, onApply }: Props) {
   const { imageAspect } = target;
@@ -37,6 +43,7 @@ export function CropSheet({ target, onCancel, onApply }: Props) {
   const [view, setView] = useState<CropView>(() =>
     rectToView(imageAspect, target.rect),
   );
+  const [shape, setShape] = useState<FrameShape | null>(target.shape);
   const areaRef = useRef<HTMLDivElement>(null);
   const [area, setArea] = useState({ w: 320, h: 320 });
 
@@ -52,9 +59,12 @@ export function CropSheet({ target, onCancel, onApply }: Props) {
   }, []);
 
   // Frame fits the available space with 24 px breathing room.
+  // A polaroid's border sits outside the photo frame: leave it room.
+  const polaroid = shape === "polaroid";
+  const room = polaroid ? 0.8 : 1;
   const frameW = Math.max(
     40,
-    Math.min(area.w - 48, (area.h - 48) * view.frameAspect),
+    Math.min(area.w - 48, (area.h - 48) * view.frameAspect) * room,
   );
   const frameH = frameW / view.frameAspect;
   const rect = viewToRect(imageAspect, view);
@@ -114,10 +124,10 @@ export function CropSheet({ target, onCancel, onApply }: Props) {
         >
           Cancel
         </button>
-        <h2 className="text-sm font-semibold">Crop photo</h2>
+        <h2 className="text-sm font-semibold">Crop &amp; shape</h2>
         <button
           type="button"
-          onClick={() => onApply(viewToRect(imageAspect, view))}
+          onClick={() => onApply(viewToRect(imageAspect, view), shape)}
           className="bg-brand-500 hover:bg-brand-400 h-9 rounded-full px-4 text-sm font-medium focus-visible:ring-2 focus-visible:ring-white/40 focus-visible:outline-none"
         >
           Done
@@ -137,19 +147,39 @@ export function CropSheet({ target, onCancel, onApply }: Props) {
           onPointerUp={onPointerUp}
           onPointerCancel={onPointerUp}
         >
-          {/* eslint-disable-next-line @next/next/no-img-element -- local blob preview */}
-          <img
-            src={target.src}
-            alt=""
-            draggable={false}
-            className="pointer-events-none absolute max-w-none"
+          {shape && FRAME_SHAPE_INFO[shape].path && (
+            <svg width={0} height={0} aria-hidden className="absolute">
+              <clipPath id="crop-shape-clip" clipPathUnits="objectBoundingBox">
+                <path
+                  d={FRAME_SHAPE_INFO[shape].path}
+                  transform="scale(0.01)"
+                />
+              </clipPath>
+            </svg>
+          )}
+          <div
+            className="absolute inset-0 overflow-hidden"
             style={{
-              width: imgW,
-              height: imgH,
-              left: -rect.x * imgW,
-              top: -rect.y * imgH,
+              clipPath:
+                shape && FRAME_SHAPE_INFO[shape].path
+                  ? "url(#crop-shape-clip)"
+                  : undefined,
             }}
-          />
+          >
+            {/* eslint-disable-next-line @next/next/no-img-element -- local blob preview */}
+            <img
+              src={target.src}
+              alt=""
+              draggable={false}
+              className="pointer-events-none absolute max-w-none"
+              style={{
+                width: imgW,
+                height: imgH,
+                left: -rect.x * imgW,
+                top: -rect.y * imgH,
+              }}
+            />
+          </div>
           {/* Dim everything outside the frame; thin border + thirds grid inside. */}
           <div
             aria-hidden
@@ -160,6 +190,19 @@ export function CropSheet({ target, onCancel, onApply }: Props) {
             <div className="absolute inset-x-0 top-1/3 border-t border-white/30" />
             <div className="absolute inset-x-0 top-2/3 border-t border-white/30" />
           </div>
+          {polaroid && (
+            <div
+              aria-hidden
+              data-testid="polaroid-border"
+              className="pointer-events-none absolute bg-white"
+              style={{
+                left: -frameW * POLAROID.side,
+                top: -frameW * POLAROID.top,
+                width: frameW * (1 + 2 * POLAROID.side),
+                height: frameH + frameW * (POLAROID.top + POLAROID.bottom),
+              }}
+            />
+          )}
         </div>
       </div>
 
@@ -195,6 +238,31 @@ export function CropSheet({ target, onCancel, onApply }: Props) {
           role="radiogroup"
           aria-label="Shape"
         >
+          {[null, ...FRAME_SHAPES].map((id) => {
+            const on = shape === id;
+            return (
+              <button
+                key={id ?? "none"}
+                type="button"
+                role="radio"
+                aria-checked={on}
+                onClick={() => {
+                  setShape(id);
+                  const aspect = id && FRAME_SHAPE_INFO[id].aspect;
+                  if (aspect) setView((v) => ({ ...v, frameAspect: aspect }));
+                }}
+                className={chipClass(on)}
+              >
+                {id ? FRAME_SHAPE_INFO[id].label : "No shape"}
+              </button>
+            );
+          })}
+        </div>
+        <div
+          className="flex items-center gap-2 overflow-x-auto"
+          role="radiogroup"
+          aria-label="Proportions"
+        >
           {presets.map((p) => (
             <button
               key={p.id}
@@ -202,11 +270,7 @@ export function CropSheet({ target, onCancel, onApply }: Props) {
               role="radio"
               aria-checked={activePreset === p.id}
               onClick={() => setView((v) => ({ ...v, frameAspect: p.aspect }))}
-              className={`h-9 shrink-0 rounded-full px-3 text-xs font-medium focus-visible:ring-2 focus-visible:ring-white/40 focus-visible:outline-none ${
-                activePreset === p.id
-                  ? "bg-white text-zinc-900 hover:bg-zinc-200"
-                  : "bg-zinc-800 text-zinc-200 hover:bg-zinc-700"
-              }`}
+              className={chipClass(activePreset === p.id)}
             >
               {p.label}
             </button>
@@ -218,3 +282,10 @@ export function CropSheet({ target, onCancel, onApply }: Props) {
 }
 
 const clampZoom = (z: number) => Math.min(MAX_CROP_ZOOM, Math.max(1, z));
+
+const chipClass = (on: boolean) =>
+  `h-9 shrink-0 rounded-full px-3 text-xs font-medium focus-visible:ring-2 focus-visible:ring-white/40 focus-visible:outline-none ${
+    on
+      ? "bg-white text-zinc-900 hover:bg-zinc-200"
+      : "bg-zinc-800 text-zinc-200 hover:bg-zinc-700"
+  }`;

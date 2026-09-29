@@ -1,5 +1,7 @@
 import type { Canvas as NodeCanvas } from "canvas";
 import type { FabricObject } from "fabric";
+import { installPolaroid } from "@/features/editor/engine/polaroid";
+import { buildFrameClip } from "@/features/editor/engine/frame-shape";
 import { parseAssetRef } from "@/features/editor/assets/asset-ref";
 import { migrateDesignFonts } from "@/features/editor/fonts/migrate";
 import { MM_PER_INCH, PRINT_DPI, printPixelSize } from "@/lib/units";
@@ -185,7 +187,8 @@ export const renderPrintFile: RenderPrintFile = async (doc, opts = {}) => {
   const originals = await loadOriginals(images, opts.resolveAsset);
 
   await registerServerFonts();
-  const { StaticCanvas, FabricImage } = await import("fabric/node");
+  const { StaticCanvas, FabricImage, Path } = await import("fabric/node");
+  installPolaroid(FabricImage);
   const canvas = new StaticCanvas(undefined, {
     width,
     height,
@@ -213,6 +216,15 @@ export const renderPrintFile: RenderPrintFile = async (doc, opts = {}) => {
         height: g.height,
       });
       obj.set(g);
+      // Frame shape: cut from the shape id for the ORIGINAL's pixel box (the
+      // saved clip is in preview pixels); no id = plain rectangle.
+      obj.clipPath =
+        (buildFrameClip(
+          Path as never,
+          (obj as unknown as Json).frameShape,
+          g.width,
+          g.height,
+        ) as FabricObject | null) ?? undefined;
       delete (obj as unknown as Json)[KEY];
     });
 

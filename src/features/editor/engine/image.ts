@@ -1,13 +1,23 @@
-import { FabricImage, Point, type Canvas, type FabricObject } from "fabric";
+import {
+  FabricImage,
+  Path,
+  Shadow,
+  Point,
+  type Canvas,
+  type FabricObject,
+} from "fabric";
 import type { PrintArea } from "@/config/products";
 import { imageDpi } from "@/lib/print-quality";
 import { IMAGE_CUSTOM_PROPS } from "../assets/asset-ref";
 import { applyTouchControls } from "./controls";
-import { FULL_RECT, type NormRect } from "./crop";
+import { FULL_RECT, viewToRect, type NormRect } from "./crop";
+import { buildFrameClip, isFrameShape, type FrameShape } from "./frame-shape";
 import { initialImageWidthMm } from "./image-fit";
+import { POLAROID, installPolaroid } from "./polaroid";
 
 // Serialise our asset metadata with every image (history, drafts, orders).
 FabricImage.customProperties = [...IMAGE_CUSTOM_PROPS];
+installPolaroid(FabricImage);
 
 export interface ImageAssetMeta {
   assetId: string;
@@ -22,7 +32,8 @@ interface PreviewMeta {
   previewHeightPx: number;
 }
 
-export type AssetImage = FabricImage & Partial<ImageAssetMeta & PreviewMeta>;
+export type AssetImage = FabricImage &
+  Partial<ImageAssetMeta & PreviewMeta> & { frameShape?: FrameShape };
 
 export function isAssetImage(obj: FabricObject | undefined): obj is AssetImage {
   return !!obj && obj.type.toLowerCase() === "image";
@@ -85,9 +96,15 @@ export function getCrop(img: AssetImage): NormRect {
  * Applies a normalised crop. The photo keeps its printed width and centre, so
  * the customer sees it change shape in place; DPI updates accordingly.
  */
-export function applyCrop(canvas: Canvas, rect: NormRect = FULL_RECT): void {
+export function applyCrop(
+  canvas: Canvas,
+  rect: NormRect = FULL_RECT,
+  shape?: FrameShape | null,
+  softShadow = false,
+): void {
   const img = canvas.getActiveObject();
   if (!isAssetImage(img)) return;
+  if (shape !== undefined) setFrameShape(img, shape, softShadow);
   const { w, h } = previewSize(img);
   const printedWidthMm = img.getScaledWidth();
   const centre = img.getCenterPoint();
@@ -100,9 +117,53 @@ export function applyCrop(canvas: Canvas, rect: NormRect = FULL_RECT): void {
   const scale = printedWidthMm / img.width;
   img.set({ scaleX: scale, scaleY: scale });
   img.setPositionByOrigin(new Point(centre.x, centre.y), "center", "center");
+  refreshFrameClip(img);
   img.setCoords();
   canvas.requestRenderAll();
   canvas.fire("object:modified", { target: img });
+}
+
+/**
+ * Sets the shape. A polaroid also gets a slight tilt and, where the product
+ * allows soft shadows (mugs), a drop shadow; leaving it undoes both.
+ */
+function setFrameShape(
+  img: AssetImage,
+  shape: FrameShape | null,
+  softShadow: boolean,
+) {
+  const was = img.frameShape;
+  const next = shape ?? undefined;
+  if (was === next) return;
+  img.frameShape = next;
+  if (next === "polaroid") {
+    if (Math.abs(img.angle) < 0.01) img.set({ angle: POLAROID.tiltDeg });
+    if (softShadow)
+      img.set({
+        shadow: new Shadow({
+          color: "rgba(0,0,0,0.3)",
+          blur: 3,
+          offsetX: 0.8,
+          offsetY: 1.2,
+          nonScaling: true, // millimetres, not photo pixels
+        }),
+      });
+  } else if (was === "polaroid") {
+    if (Math.abs(img.angle - POLAROID.tiltDeg) < 0.01) img.set({ angle: 0 });
+    img.set({ shadow: null });
+  }
+}
+
+/** The photo's frame shape (null = plain rectangle). */
+export function getFrameShape(img: AssetImage): FrameShape | null {
+  return isFrameShape(img.frameShape) ? img.frameShape : null;
+}
+
+/** Rebuilds the clip from `frameShape` for the photo's current visible box. */
+export function refreshFrameClip(img: AssetImage): void {
+  img.clipPath =
+    buildFrameClip(Path, img.frameShape, img.width, img.height) ?? undefined;
+  img.dirty = true;
 }
 
 /** Effective print DPI of an image object at its current size and crop, or null for non-images. */
@@ -116,4 +177,46 @@ export function objectDpi(obj: FabricObject | undefined): number | null {
     widthMm: obj.getScaledWidth(),
     heightMm: obj.getScaledHeight(),
   });
+}
+
+/**
+ * Swaps the selected photo for another one, keeping its frame: same shape,
+ * same printed size and centre. The new photo is cover-cropped to the
+ * frame's current proportions, so it fills the shape like the old one did.
+ */
+export async function replaceImage(
+  canvas: Canvas,
+  previewUrl: string,
+  meta: ImageAssetMeta,
+): Promise<void> {
+  const img = canvas.getActiveObject();
+  if (!isAssetImage(img)) return;
+  const next = await FabricImage.fromURL(previewUrl);
+  const frameAspect = img.getScaledWidth() / img.getScaledHeight();
+  const printedWidthMm = img.getScaledWidth();
+  const centre = img.getCenterPoint();
+  const rect = viewToRect(next.width / next.height, {
+    frameAspect,
+    zoom: 1,
+    center: { x: 0.5, y: 0.5 },
+  });
+  img.setElement(next.getElement());
+  const preview: PreviewMeta = {
+    previewWidthPx: next.width,
+    previewHeightPx: next.height,
+  };
+  Object.assign(img, meta, preview);
+  img.set({
+    cropX: rect.x * next.width,
+    cropY: rect.y * next.height,
+    width: rect.w * next.width,
+    height: rect.h * next.height,
+  });
+  const scale = printedWidthMm / img.width;
+  img.set({ scaleX: scale, scaleY: scale });
+  img.setPositionByOrigin(new Point(centre.x, centre.y), "center", "center");
+  refreshFrameClip(img);
+  img.setCoords();
+  canvas.requestRenderAll();
+  canvas.fire("object:modified", { target: img });
 }
