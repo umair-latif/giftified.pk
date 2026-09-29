@@ -3,6 +3,7 @@ import {
   centreY,
   columnAngleDeg,
   designXmm,
+  printBandTop,
   type MockupSide,
   type WrapGeometry,
 } from "./mapping";
@@ -93,8 +94,8 @@ export async function composeMockup(
   const cx = (left + right) / 2;
   const r = (right - left) / 2;
   const pxPerMm = r / (geo.diameterMm / 2);
-  const bandPx = spec.printHeightMm * pxPerMm;
-  const y0 = (b.top + b.bottom) / 2 - bandPx / 2;
+  const bandPx = product.printArea.heightMm * pxPerMm;
+  const y0 = printBandTop(b, bandPx, pxPerMm, spec.topMarginMm);
 
   // "White" of the mug = bright percentile of the body, so shading is relative.
   const lums: number[] = [];

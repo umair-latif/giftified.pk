@@ -6,6 +6,7 @@ import {
   curvedY,
   designXmm,
   printArcDeg,
+  printBandTop,
   type WrapGeometry,
 } from "@/features/editor/mockup/mapping";
 import { MOCKUP_SPECS } from "@/features/editor/mockup/specs";
@@ -62,7 +63,6 @@ describe("mockup mapping", () => {
     expect(s.body.left).toBeGreaterThan(0);
     expect(s.body.right).toBeLessThan(s.widthPx);
     expect(s.body.bottom).toBeLessThan(s.heightPx);
-    expect(s.printHeightMm).toBeLessThanOrEqual(mug.printArea.heightMm);
   });
 });
 
@@ -88,5 +88,25 @@ describe("mockup vertical curve", () => {
         expect(centreY(curvedY(yc, a, c), a, c)).toBeCloseTo(yc, 2);
       }
     }
+  });
+});
+
+describe("print band position", () => {
+  const body = { top: 100, bottom: 600 };
+
+  it("centres the band on the body by default", () => {
+    expect(printBandTop(body, 400, 5)).toBeCloseTo(150);
+  });
+
+  it("measures from the rim when the vendor gives a margin", () => {
+    expect(printBandTop(body, 400, 5, 8)).toBeCloseTo(140);
+  });
+
+  it("fits the mug print height inside the photographed body", () => {
+    const s = MOCKUP_SPECS.mug!;
+    const pxPerMm =
+      (s.body.right - s.body.left) / 2 / (s.geometry.diameterMm / 2);
+    const bandPx = mug.printArea.heightMm * pxPerMm;
+    expect(bandPx).toBeLessThan(s.body.bottom - s.body.top);
   });
 });

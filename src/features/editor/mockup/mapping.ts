@@ -83,3 +83,18 @@ export function centreY(y: number, angleDeg: number, c: VerticalCurve): number {
   for (let i = 0; i < 4; i++) yc = y - sagAt(yc, c) * (cos - 1);
   return yc;
 }
+
+/**
+ * Top y (px, at the photo centre) of the print band. With `topMarginMm` it is
+ * measured down from the rim; without it the band is centred on the body.
+ */
+export function printBandTop(
+  body: { top: number; bottom: number },
+  bandPx: number,
+  pxPerMm: number,
+  topMarginMm?: number,
+): number {
+  return topMarginMm === undefined
+    ? (body.top + body.bottom) / 2 - bandPx / 2
+    : body.top + topMarginMm * pxPerMm;
+}
