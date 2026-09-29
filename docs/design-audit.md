@@ -44,6 +44,14 @@ Header with cart/account/track icons, footer, brand teal and cream, pill buttons
 - The Design and Preview header spans the same 1024 px column as the content on desktop. Preview is two columns
   too: gallery on the left, details on the right.
 
+## Done in the fifth pass (items 1 and 8, product page and checkout on desktop)
+
+- **Product page (from `lg`):** the picture is on the left, and title, price, "Design your own" with Start
+  designing, and Details are stacked on the right. Ready-made designs is full width below. On phones and tablets
+  the page is unchanged (one 672 px column).
+- **Checkout (from `lg`):** the form is on the left; the order summary, totals, consent boxes and Place order are
+  in a sticky column on the right. On phones the summary still comes first, then the form.
+
 ## Suggested optimisations (biggest impact first)
 
 ### 1. One width system (the main desktop inconsistency)

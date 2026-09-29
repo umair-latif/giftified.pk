@@ -12,7 +12,7 @@ export const metadata: Metadata = {
 /** The whole cart → one Cash on Delivery order (guest; email optional). */
 export default function CheckoutPage() {
   return (
-    <Page width="content">
+    <Page width="content" className="lg:max-w-5xl">
       <StepBar current="Order" inPage />
       <Link
         href="/cart"
