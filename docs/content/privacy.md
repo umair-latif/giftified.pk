@@ -82,7 +82,8 @@ The page may only claim these once they are built:
    for everyone (they can be re-rendered from the design).
    **30-day purge** — task 24: a scheduled job that deletes `designs/<id>/**` and
    `orders/<id>/**` from R2 30 days after an order is completed (and after cancellation).
-   Until it ships, files are kept indefinitely.
+   Built in task 24 (`data-retention`, nightly; see `docs/ops/order-pipeline.md`) — the claim is
+   true once that PR is deployed.
 2. **Marketing opt-in box at checkout** — task 13 must add an unticked opt-in checkbox and store the
    answer on the order; without it, no marketing messages may be sent. "Reply STOP" only applies once
    WhatsApp/SMS exists (task 02) — until then the text should say "or contact support".

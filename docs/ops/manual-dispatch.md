@@ -50,3 +50,21 @@ For every new order in WP admin → WooCommerce → Orders (status **On hold**):
    > (they can be set through the WooCommerce REST API).
 
 8. After delivery and cash collected, set the order to **Completed**.
+
+## Refused designs
+
+If you refuse a design because it breaks the law (see `/printing-guidelines`, e.g. PECA), keep the
+evidence: normally the photos and print files are deleted 30 days after the order is completed or
+cancelled ([order-pipeline.md](order-pipeline.md#data-retention-30-day-purge)).
+
+1. Open the order in WP admin → **Custom Fields** box (not visible? **Screen Options** → tick
+   **Custom Fields**).
+2. **Add Custom Field** → **Enter new**: Name `_retain_for_review`, Value `yes`. Click **Update**.
+3. Add an order note saying why (e.g. "Refused: … — kept for review").
+
+Do this **within 30 days** of cancelling: files that are already deleted can't be restored. The
+nightly job then never deletes this order's print files, design or photos. To release them later,
+delete the custom field; the next night's run cleans them up.
+
+> Same known issue as above: if WooCommerce refuses the underscore name (`protected_meta`), ask the
+> lead to set `_retain_for_review` through the REST API.

@@ -210,6 +210,109 @@ describe("WooCommerce client — pipeline writes", () => {
   });
 });
 
+describe("WooCommerce client — retention (task 24)", () => {
+  const order = (over: Record<string, unknown>) => ({
+    ...wooFixture<Record<string, unknown>>("order"),
+    ...over,
+  });
+
+  it("reads every order, oldest id first, with slim fields, and maps the retention view", async () => {
+    woo.seedOrder(
+      order({
+        id: 1,
+        status: "completed",
+        customer_id: 0,
+        date_modified_gmt: "2026-08-02T10:00:00",
+        date_completed_gmt: "2026-08-01T10:00:00",
+        meta_data: [{ id: 1, key: "_retain_for_review", value: "Yes " }],
+      }),
+    );
+    woo.seedOrder(
+      order({
+        id: 2,
+        status: "cancelled",
+        customer_id: 7,
+        date_modified_gmt: "2026-08-03T10:00:00",
+        date_completed_gmt: null,
+        meta_data: [
+          { id: 2, key: "_retention_done", value: "2026-09-01T00:00:00.000Z" },
+        ],
+      }),
+    );
+    woo.seedOrder(order({ id: 3, status: "on-hold" }));
+
+    const page = await client().listOrdersForRetention(1);
+    const call = woo.calls.find((c) => c.path === "/orders")!;
+    expect(call.query.get("orderby")).toBe("id");
+    expect(call.query.get("order")).toBe("asc");
+    expect(call.query.get("per_page")).toBe("100");
+    expect(call.query.get("page")).toBe("1");
+    expect(call.query.get("status")).toBeNull(); // WC default "any"
+    expect(call.query.get("_fields")).toContain("customer_id");
+    expect(call.init!.cache).toBe("no-store");
+
+    expect(page.total).toBe(3);
+    expect(page.totalPages).toBe(1);
+    expect(page.orders).toEqual([
+      {
+        id: 1,
+        status: "completed",
+        closedAt: "2026-08-01T10:00:00.000Z",
+        customerId: 0,
+        designIds: ["d-1"],
+        retainForReview: true,
+        retentionDoneAt: null,
+      },
+      {
+        id: 2,
+        status: "cancelled",
+        closedAt: "2026-08-03T10:00:00.000Z",
+        customerId: 7,
+        designIds: ["d-1"],
+        retainForReview: false,
+        retentionDoneAt: "2026-09-01T00:00:00.000Z",
+      },
+      {
+        id: 3,
+        status: "on-hold",
+        closedAt: null,
+        customerId: 0,
+        designIds: ["d-1"],
+        retainForReview: false,
+        retentionDoneAt: null,
+      },
+    ]);
+  });
+
+  it("refuses a listing without X-WP-Total (the job must know it saw every order)", async () => {
+    const noHeaders = (async () =>
+      Response.json([], { headers: {} })) as unknown as typeof fetch;
+    const c = createWooCommerceClient({
+      url: "https://shop.test",
+      consumerKey: "k",
+      consumerSecret: "s",
+      webhookSecret: "w",
+      fetch: noHeaders,
+    });
+    await expect(c.listOrdersForRetention(1)).rejects.toBeInstanceOf(
+      WooCommerceError,
+    );
+    await expect(c.listOrdersForRetention(0)).rejects.toThrow(/Invalid page/);
+  });
+
+  it("marks an order as purged with _retention_done order meta", async () => {
+    woo.seedOrder(order({ id: 9 }));
+    await client().markRetentionDone(9, "2026-09-29T22:30:00.000Z");
+    const put = woo.calls.find((c) => c.method === "PUT")!;
+    expect(put.path).toBe("/orders/9");
+    expect(put.body).toEqual({
+      meta_data: [
+        { key: "_retention_done", value: "2026-09-29T22:30:00.000Z" },
+      ],
+    });
+  });
+});
+
 describe("wooConfigFromEnv", () => {
   const env = {
     WC_URL: "https://shop.example.pk",

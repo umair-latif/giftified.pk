@@ -35,7 +35,7 @@ own folders.
 | 21  | [Account area](21-account-area.md)                                     | _unassigned_                          | `feat/account`              | after 20                  |
 | 22  | [Saved designs](22-saved-designs.md)                                   | Lead + assistant                      | `feat/saved-designs`        | after 20                  |
 | 23  | [Customer-shared templates](23-shared-templates.md)                    | _unassigned_                          | `feat/shared-templates`     | after 19, 22              |
-| 24  | [Delete customer photos 30 days after delivery](24-data-retention.md)  | Lead                                  | `feat/retention`            | after 12                  |
+| 24  | [Delete customer photos 30 days after delivery](24-data-retention.md)  | Lead                                  | `feat/retention`            | in review                 |
 
 **Right now, assistants can take:** 17 (after 12, merged). The
 plan behind 10–23 is in
