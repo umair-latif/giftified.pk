@@ -405,8 +405,9 @@ export function useFabricCanvas(product: ProductConfig, designKey?: string) {
 
   const applyCrop = useCallback(
     (rect: NormRect, shape: FrameShape | null) =>
-      run((e, dc) => e.applyCrop(dc.canvas, rect, shape)),
-    [run],
+      // Soft shadows are only OK on mugs; apparel prints none (vendors unconfirmed).
+      run((e, dc) => e.applyCrop(dc.canvas, rect, shape, product.id === "mug")),
+    [run, product.id],
   );
 
   /** Clear the selection (e.g. tap on empty space around the canvas). */

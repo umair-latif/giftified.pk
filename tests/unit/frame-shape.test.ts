@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { POLAROID, polaroidFrame } from "@/features/editor/engine/polaroid";
 import {
   FRAME_SHAPES,
   FRAME_SHAPE_INFO,
@@ -23,7 +24,7 @@ class FakePath {
 
 describe("frame shapes", () => {
   it("every shape is a closed path inside the 0–100 square", () => {
-    for (const id of FRAME_SHAPES) {
+    for (const id of FRAME_SHAPES.filter((s) => s !== "polaroid")) {
       const { path } = FRAME_SHAPE_INFO[id];
       expect(path.startsWith("M")).toBe(true);
       expect(path.endsWith("Z")).toBe(true);
@@ -38,7 +39,8 @@ describe("frame shapes", () => {
 
   it("recognises only known ids", () => {
     expect(isFrameShape("heart")).toBe(true);
-    expect(isFrameShape("polaroid")).toBe(false);
+    expect(isFrameShape("polaroid")).toBe(true);
+    expect(isFrameShape("hexagon")).toBe(false);
     expect(isFrameShape(undefined)).toBe(false);
   });
 
@@ -55,9 +57,26 @@ describe("frame shapes", () => {
     });
   });
 
+  it("a polaroid is a border, not a clip", () => {
+    expect(buildFrameClip(FakePath, "polaroid", 600, 600)).toBeNull();
+  });
+
   it("returns null for no shape, unknown shape or an empty box", () => {
     expect(buildFrameClip(FakePath, undefined, 10, 10)).toBeNull();
     expect(buildFrameClip(FakePath, "nope", 10, 10)).toBeNull();
     expect(buildFrameClip(FakePath, "star", 0, 10)).toBeNull();
+  });
+});
+
+describe("polaroid frame", () => {
+  it("adds a thin border and a thicker bottom outside the photo box", () => {
+    const f = polaroidFrame(1000, 800);
+    expect(f.x).toBeCloseTo(-500 - 1000 * POLAROID.side);
+    expect(f.y).toBeCloseTo(-400 - 1000 * POLAROID.top);
+    expect(f.w).toBeCloseTo(1000 * (1 + 2 * POLAROID.side));
+    // bottom band is wider than the top one
+    const bottom = f.y + f.h - 400;
+    const top = -400 - f.y;
+    expect(bottom).toBeGreaterThan(top * 3);
   });
 });

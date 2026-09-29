@@ -15,6 +15,7 @@ import {
   FRAME_SHAPE_INFO,
   type FrameShape,
 } from "../engine/frame-shape";
+import { POLAROID } from "../engine/polaroid";
 import type { CropTarget } from "../hooks/use-fabric-canvas";
 
 interface Props {
@@ -58,9 +59,12 @@ export function CropSheet({ target, onCancel, onApply }: Props) {
   }, []);
 
   // Frame fits the available space with 24 px breathing room.
+  // A polaroid's border sits outside the photo frame: leave it room.
+  const polaroid = shape === "polaroid";
+  const room = polaroid ? 0.8 : 1;
   const frameW = Math.max(
     40,
-    Math.min(area.w - 48, (area.h - 48) * view.frameAspect),
+    Math.min(area.w - 48, (area.h - 48) * view.frameAspect) * room,
   );
   const frameH = frameW / view.frameAspect;
   const rect = viewToRect(imageAspect, view);
@@ -143,7 +147,7 @@ export function CropSheet({ target, onCancel, onApply }: Props) {
           onPointerUp={onPointerUp}
           onPointerCancel={onPointerUp}
         >
-          {shape && (
+          {shape && FRAME_SHAPE_INFO[shape].path && (
             <svg width={0} height={0} aria-hidden className="absolute">
               <clipPath id="crop-shape-clip" clipPathUnits="objectBoundingBox">
                 <path
@@ -155,7 +159,12 @@ export function CropSheet({ target, onCancel, onApply }: Props) {
           )}
           <div
             className="absolute inset-0 overflow-hidden"
-            style={{ clipPath: shape ? "url(#crop-shape-clip)" : undefined }}
+            style={{
+              clipPath:
+                shape && FRAME_SHAPE_INFO[shape].path
+                  ? "url(#crop-shape-clip)"
+                  : undefined,
+            }}
           >
             {/* eslint-disable-next-line @next/next/no-img-element -- local blob preview */}
             <img
@@ -181,6 +190,19 @@ export function CropSheet({ target, onCancel, onApply }: Props) {
             <div className="absolute inset-x-0 top-1/3 border-t border-white/30" />
             <div className="absolute inset-x-0 top-2/3 border-t border-white/30" />
           </div>
+          {polaroid && (
+            <div
+              aria-hidden
+              data-testid="polaroid-border"
+              className="pointer-events-none absolute bg-white"
+              style={{
+                left: -frameW * POLAROID.side,
+                top: -frameW * POLAROID.top,
+                width: frameW * (1 + 2 * POLAROID.side),
+                height: frameH + frameW * (POLAROID.top + POLAROID.bottom),
+              }}
+            />
+          )}
         </div>
       </div>
 

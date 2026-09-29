@@ -1,6 +1,7 @@
 import {
   FabricImage,
   Path,
+  Shadow,
   Point,
   type Canvas,
   type FabricObject,
@@ -12,9 +13,11 @@ import { applyTouchControls } from "./controls";
 import { FULL_RECT, viewToRect, type NormRect } from "./crop";
 import { buildFrameClip, isFrameShape, type FrameShape } from "./frame-shape";
 import { initialImageWidthMm } from "./image-fit";
+import { POLAROID, installPolaroid } from "./polaroid";
 
 // Serialise our asset metadata with every image (history, drafts, orders).
 FabricImage.customProperties = [...IMAGE_CUSTOM_PROPS];
+installPolaroid(FabricImage);
 
 export interface ImageAssetMeta {
   assetId: string;
@@ -97,10 +100,11 @@ export function applyCrop(
   canvas: Canvas,
   rect: NormRect = FULL_RECT,
   shape?: FrameShape | null,
+  softShadow = false,
 ): void {
   const img = canvas.getActiveObject();
   if (!isAssetImage(img)) return;
-  if (shape !== undefined) img.frameShape = shape ?? undefined;
+  if (shape !== undefined) setFrameShape(img, shape, softShadow);
   const { w, h } = previewSize(img);
   const printedWidthMm = img.getScaledWidth();
   const centre = img.getCenterPoint();
@@ -117,6 +121,37 @@ export function applyCrop(
   img.setCoords();
   canvas.requestRenderAll();
   canvas.fire("object:modified", { target: img });
+}
+
+/**
+ * Sets the shape. A polaroid also gets a slight tilt and, where the product
+ * allows soft shadows (mugs), a drop shadow; leaving it undoes both.
+ */
+function setFrameShape(
+  img: AssetImage,
+  shape: FrameShape | null,
+  softShadow: boolean,
+) {
+  const was = img.frameShape;
+  const next = shape ?? undefined;
+  if (was === next) return;
+  img.frameShape = next;
+  if (next === "polaroid") {
+    if (Math.abs(img.angle) < 0.01) img.set({ angle: POLAROID.tiltDeg });
+    if (softShadow)
+      img.set({
+        shadow: new Shadow({
+          color: "rgba(0,0,0,0.3)",
+          blur: 3,
+          offsetX: 0.8,
+          offsetY: 1.2,
+          nonScaling: true, // millimetres, not photo pixels
+        }),
+      });
+  } else if (was === "polaroid") {
+    if (Math.abs(img.angle - POLAROID.tiltDeg) < 0.01) img.set({ angle: 0 });
+    img.set({ shadow: null });
+  }
 }
 
 /** The photo's frame shape (null = plain rectangle). */

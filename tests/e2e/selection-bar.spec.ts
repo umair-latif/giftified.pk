@@ -216,6 +216,21 @@ test("crop & shape: pick a shape, it is remembered, and Replace keeps the frame"
   );
   await dialog.getByRole("button", { name: "Cancel" }).click();
 
+  // Polaroid: square photo with a white border, slightly tilted.
+  await bar(page).getByRole("button", { name: "Crop" }).click();
+  await dialog.getByRole("radio", { name: "Polaroid" }).click();
+  await expect(dialog.getByTestId("polaroid-border")).toBeVisible();
+  await dialog.getByRole("button", { name: "Done" }).click();
+  await expect(status(page)).toHaveText(/357°/);
+  await bar(page).getByRole("button", { name: "Crop" }).click();
+  await expect(dialog.getByRole("radio", { name: "Polaroid" })).toHaveAttribute(
+    "aria-checked",
+    "true",
+  );
+  await dialog.getByRole("radio", { name: "Circle" }).click();
+  await dialog.getByRole("button", { name: "Done" }).click();
+  await expect(status(page)).toHaveText(/ 0°/); // tilt undone
+
   // Replace: a different photo goes into the same square frame.
   const before = await readout(page);
   await bar(page).getByRole("button", { name: "Replace" }).click();

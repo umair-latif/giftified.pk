@@ -13,6 +13,7 @@ export const FRAME_SHAPES = [
   "heart",
   "arch",
   "star",
+  "polaroid",
 ] as const;
 export type FrameShape = (typeof FRAME_SHAPES)[number];
 
@@ -68,6 +69,13 @@ export const FRAME_SHAPE_INFO: Record<FrameShape, FrameShapeInfo> = {
     aspect: 1,
     path: starPath(),
   },
+  // Not a cut-out: the white border is drawn by `polaroid.ts`, so no clip.
+  polaroid: {
+    id: "polaroid",
+    label: "Polaroid",
+    aspect: 1,
+    path: "",
+  },
 };
 
 export function isFrameShape(v: unknown): v is FrameShape {
@@ -99,6 +107,7 @@ export function buildFrameClip<T extends { width: number; height: number }>(
   height: number,
 ): T | null {
   if (!isFrameShape(shape) || !(width > 0) || !(height > 0)) return null;
+  if (!FRAME_SHAPE_INFO[shape].path) return null; // border-only frame
   const clip = new Path(FRAME_SHAPE_INFO[shape].path, {
     originX: "center",
     originY: "center",

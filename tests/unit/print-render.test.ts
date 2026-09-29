@@ -259,6 +259,25 @@ describe("renderPrintFile — images from originals", () => {
     },
   );
 
+  it("draws the polaroid border outside the photo, white and opaque", async () => {
+    const doc = imageDesign();
+    (doc.fabric.objects as Record<string, unknown>[])[0]!.frameShape =
+      "polaroid";
+    const file = await renderPrintFile(doc, { resolveAsset });
+    const { atMm } = await pixels(file.png);
+    // Photo box is 100 × 40 mm centred (108, 44.5); side border = 6 mm, bottom = 22 mm.
+    const white = (x: number, y: number) => {
+      const p = atMm(x, y);
+      expect([p[0], p[1], p[2], p[3]]).toEqual([255, 255, 255, 255]);
+    };
+    white(108 - 53, 44.5); // left border
+    white(108, 44.5 - 20 - 3); // top border
+    white(108, 44.5 + 20 + 15); // deep in the thicker bottom
+    expect(atMm(108, 44.5 + 20 + 23.5)[3]).toBe(0); // just beyond the bottom border (86.5 mm)
+    expect(atMm(108 - 60, 44.5)[3]).toBe(0);
+    expect(atMm(108, 44.5)[3]).toBe(255); // photo still there
+  });
+
   it("throws a clear error naming a missing asset", async () => {
     const doc = imageDesign();
     const obj = (doc.fabric.objects as Record<string, unknown>[])[0]!;
