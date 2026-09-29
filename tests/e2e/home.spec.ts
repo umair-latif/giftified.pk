@@ -50,3 +50,35 @@ test("Start designing goes to /products", async ({ page }) => {
   await page.getByRole("link", { name: "Start designing" }).tap();
   await expect(page).toHaveURL(/\/products$/);
 });
+
+test("how it works: no 3D promise; templates, easy customising and instant preview", async ({
+  page,
+}) => {
+  await page.goto("/");
+  const how = page.getByRole("region", { name: "How it works" });
+  await expect(how).toBeVisible();
+  await expect(how).not.toContainText("3D");
+  await expect(how).toContainText("template");
+  await expect(how).toContainText("See it right away");
+  await expect(page.getByTestId("home-template")).toHaveCount(0); // none yet
+});
+
+test("occasion tiles: no column is a single colour on a phone", async ({
+  page,
+}) => {
+  await page.goto("/");
+  const tiles = page
+    .getByRole("region", { name: "Gifts for every occasion" })
+    .getByRole("link");
+  const colours = await tiles.evaluateAll((els) =>
+    els.map((el) => ({
+      bg: getComputedStyle(el).backgroundColor,
+      x: Math.round(el.getBoundingClientRect().left),
+    })),
+  );
+  expect(colours).toHaveLength(7);
+  const byColumn = new Map<number, Set<string>>();
+  for (const { bg, x } of colours)
+    byColumn.set(x, (byColumn.get(x) ?? new Set()).add(bg));
+  for (const set of byColumn.values()) expect(set.size).toBe(2);
+});

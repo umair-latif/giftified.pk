@@ -91,3 +91,20 @@ test("checkout: form on the left, order summary and Place order on the right", a
   expect(after!.y).toBeGreaterThan(0);
   expect(after!.y).toBeLessThan(800);
 });
+
+test("cart: items on the left, delivery city, totals and Checkout on the right", async ({
+  page,
+}) => {
+  await seedCart(page);
+  await page.goto("/cart");
+  const line = await page.getByLabel("Cart items").boundingBox();
+  const city = await page.getByLabel("Delivery city").boundingBox();
+  const total = await page.getByTestId("cart-total").boundingBox();
+  const checkout = await page
+    .getByRole("link", { name: /Checkout/ })
+    .boundingBox();
+  for (const box of [city, total, checkout])
+    expect(box!.x).toBeGreaterThan(line!.x + line!.width);
+  expect(city!.y).toBeLessThan(total!.y);
+  expect(total!.y).toBeLessThan(checkout!.y);
+});

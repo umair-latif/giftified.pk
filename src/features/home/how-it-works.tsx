@@ -15,22 +15,34 @@ const svg: SVGProps<SVGSVGElement> = {
 
 const STEPS: { title: string; text: string; icon: ReactNode }[] = [
   {
-    title: "Design on your phone",
-    text: "Add your photos and words, move and resize with your fingers.",
+    title: "Pick a design",
+    text: "Start from a ready-made template for Eid, birthdays and more, or from a blank product.",
     icon: (
       <svg {...svg}>
-        <rect x="6" y="2" width="12" height="20" rx="2.5" />
-        <path d="M10 18h4M9 11l2 2 4-4" />
+        <rect x="3" y="3" width="8" height="8" rx="1.5" />
+        <rect x="13" y="3" width="8" height="8" rx="1.5" />
+        <rect x="3" y="13" width="8" height="8" rx="1.5" />
+        <path d="M17 14v6M14 17h6" />
       </svg>
     ),
   },
   {
-    title: "See it in 3D",
-    text: "Turn it around and check every side before you order.",
+    title: "Make it yours",
+    text: "Swap in your photos and words. Easy tools turn a template into a design that is one of a kind.",
     icon: (
       <svg {...svg}>
-        <path d="M12 2l9 5v10l-9 5-9-5V7z" />
-        <path d="M3 7l9 5 9-5M12 12v10" />
+        <path d="M4 20l4-1 11-11a2.1 2.1 0 0 0-3-3L5 16z" />
+        <path d="M14 7l3 3" />
+      </svg>
+    ),
+  },
+  {
+    title: "See it right away",
+    text: "Your product preview shows instantly, so you know how it looks before you order.",
+    icon: (
+      <svg {...svg}>
+        <path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z" />
+        <circle cx="12" cy="12" r="3" />
       </svg>
     ),
   },
@@ -54,7 +66,7 @@ export function HowItWorks() {
         <h2 id="home-how" className="text-brand-900 text-2xl">
           How it works
         </h2>
-        <ol className="mt-4 grid gap-3 sm:grid-cols-3">
+        <ol className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           {STEPS.map((step, i) => (
             <li
               key={step.title}
