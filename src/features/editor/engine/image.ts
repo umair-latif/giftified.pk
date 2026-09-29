@@ -33,7 +33,10 @@ interface PreviewMeta {
 }
 
 export type AssetImage = FabricImage &
-  Partial<ImageAssetMeta & PreviewMeta> & { frameShape?: FrameShape };
+  Partial<ImageAssetMeta & PreviewMeta> & {
+    frameShape?: FrameShape;
+    placeholder?: boolean;
+  };
 
 export function isAssetImage(obj: FabricObject | undefined): obj is AssetImage {
   return !!obj && obj.type.toLowerCase() === "image";
@@ -201,6 +204,7 @@ export async function replaceImage(
     center: { x: 0.5, y: 0.5 },
   });
   img.setElement(next.getElement());
+  img.placeholder = undefined; // a real photo now
   const preview: PreviewMeta = {
     previewWidthPx: next.width,
     previewHeightPx: next.height,

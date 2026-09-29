@@ -25,6 +25,7 @@ describe("print quality report", () => {
     ) as { fabric: Record<string, unknown> };
     expect(printQualityReport(doc.fabric)).toEqual({
       images: [],
+      placeholders: 0,
       worstDpi: null,
       status: "ok",
     });
