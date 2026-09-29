@@ -3,7 +3,6 @@ import path from "node:path";
 import { beforeAll, describe, expect, it, vi } from "vitest";
 import { createCanvas } from "canvas";
 import sharp from "sharp";
-import { mug } from "@/config/products/mug";
 import { printPixelSize } from "@/lib/units";
 import { renderPrintFile } from "@/server/print";
 import { readPngChunks, readPngDpi } from "@/server/print/png";
@@ -87,9 +86,10 @@ describe("renderPrintFile — text fixture", () => {
   });
 
   it("is exactly the mug print area at 300 DPI, with pHYs and sRGB", async () => {
+    // The renderer sizes the file from the design's own saved print area.
     const expected = printPixelSize(
-      mug.printArea.widthMm,
-      mug.printArea.heightMm,
+      fixture.printArea.widthMm,
+      fixture.printArea.heightMm,
       300,
     );
     const { info } = await pixels(png);
