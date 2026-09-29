@@ -24,7 +24,7 @@ export default async function ProductsPage() {
       <p className="mt-1 text-sm text-zinc-600">
         Pick a product, add your photos and words — pay cash when it arrives.
       </p>
-      <ul className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-3">
+      <ul className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-3">
         {cards.map((card, i) => (
           <li key={card.productId}>
             <ProductCard card={card} priority={i === 0} />

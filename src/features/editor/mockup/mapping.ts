@@ -64,6 +64,12 @@ export interface VerticalCurve {
   /** Sag at the rim / at the base (px). */
   rimSag: number;
   baseSag: number;
+  /**
+   * The photo may be tilted or shot off-centre, so one side of every horizontal
+   * line sits higher than the other: px added at the right silhouette (and
+   * subtracted at the left). Default 0.
+   */
+  tilt?: number;
 }
 
 /** Sag (px) of the horizontal line whose centre-of-mug y is `yc`. */
@@ -78,15 +84,19 @@ export function curvedY(
   angleDeg: number,
   c: VerticalCurve,
 ): number {
-  const cos = Math.cos((angleDeg * Math.PI) / 180);
-  return yc + sagAt(yc, c) * (cos - 1);
+  const rad = (angleDeg * Math.PI) / 180;
+  return (
+    yc + sagAt(yc, c) * (Math.cos(rad) - 1) + (c.tilt ?? 0) * Math.sin(rad)
+  );
 }
 
 /** Inverse of `curvedY`: the centre-of-mug y for a screen row `y` at `angleDeg`. */
 export function centreY(y: number, angleDeg: number, c: VerticalCurve): number {
-  const cos = Math.cos((angleDeg * Math.PI) / 180);
+  const rad = (angleDeg * Math.PI) / 180;
+  const cos = Math.cos(rad);
+  const tilt = (c.tilt ?? 0) * Math.sin(rad);
   let yc = y;
-  for (let i = 0; i < 4; i++) yc = y - sagAt(yc, c) * (cos - 1);
+  for (let i = 0; i < 4; i++) yc = y - sagAt(yc, c) * (cos - 1) - tilt;
   return yc;
 }
 
@@ -111,4 +121,49 @@ export function verticalPxPerMm(
   mugHeightMm: number,
 ): number {
   return (body.bottom - body.top) / mugHeightMm;
+}
+
+/** A point on the photo, in the photo's own pixels. */
+export type Point = readonly [x: number, y: number];
+
+/**
+ * The mug's measured top and base edges (left to right). When a photo gives
+ * them, the print band is placed between them column by column, so it follows
+ * whatever shape the mug really has (tilt, rounded corners, an off-centre
+ * camera) instead of a fitted curve.
+ */
+export interface Outline {
+  top: readonly Point[];
+  bottom: readonly Point[];
+}
+
+/** y of a left-to-right polyline at `x` (linear between points, flat beyond the ends). */
+export function lineY(points: readonly Point[], x: number): number {
+  const first = points[0];
+  const last = points[points.length - 1];
+  if (!first || !last) return 0;
+  if (x <= first[0]) return first[1];
+  if (x >= last[0]) return last[1];
+  let i = 1;
+  while (i < points.length - 1 && points[i]![0] < x) i++;
+  const a = points[i - 1]!;
+  const b = points[i]!;
+  const t = (x - a[0]) / (b[0] - a[0] || 1);
+  return a[1] + (b[1] - a[1]) * t;
+}
+
+/**
+ * Screen y of the print band's top and bottom edges in column `x`: the band
+ * occupies the fraction `vTop..vBot` of the mug's height between its measured
+ * top and base edges.
+ */
+export function outlineBand(
+  outline: Outline,
+  x: number,
+  vTop: number,
+  vBot: number,
+): { top: number; bottom: number } {
+  const t = lineY(outline.top, x);
+  const b = lineY(outline.bottom, x);
+  return { top: t + vTop * (b - t), bottom: t + vBot * (b - t) };
 }

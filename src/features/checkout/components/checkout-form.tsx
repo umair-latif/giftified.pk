@@ -324,237 +324,248 @@ export function CheckoutForm() {
   });
 
   return (
-    <form onSubmit={onSubmit} noValidate className="flex flex-col gap-4">
-      <OrderSummary items={items} quote={quote} />
-
-      {problems.length > 0 && (
-        <div
-          className="space-y-1 rounded-lg bg-red-50 p-3 text-sm text-red-800 ring-1 ring-red-200"
-          data-testid="checkout-blocked"
-          role="alert"
-        >
-          {problems.map(({ item, index, state }) => (
-            <p key={item.id}>
-              Item {index + 1} ({productName(item)}):{" "}
-              {state === "block"
-                ? "a photo is too blurry to print — make it smaller."
-                : state === "missing"
-                  ? "this design is no longer on this phone — remove it and design it again."
-                  : "no longer available in this colour or size."}{" "}
-              <Link
-                href={
-                  state === "block"
-                    ? `/design/${item.productId}?item=${encodeURIComponent(item.id)}`
-                    : "/cart"
-                }
-                className="focus-visible:ring-brand-600/20 rounded font-medium underline hover:text-red-900 focus-visible:ring-2 focus-visible:outline-none"
-              >
-                {state === "block" ? "Edit design" : "Go to cart"}
-              </Link>
-            </p>
-          ))}
-        </div>
-      )}
-      {anyWarn && problems.length === 0 && (
-        <p className="rounded-lg bg-amber-50 p-3 text-sm text-amber-900 ring-1 ring-amber-200">
-          A photo may look a little soft when printed. You can still order, or
-          edit the design from your{" "}
-          <Link
-            href="/cart"
-            className="focus-visible:ring-brand-600/20 rounded font-medium underline hover:text-amber-950 focus-visible:ring-2 focus-visible:outline-none"
+    <form
+      onSubmit={onSubmit}
+      noValidate
+      className="flex max-w-2xl flex-col gap-4 lg:grid lg:max-w-none lg:grid-cols-[minmax(0,1fr)_22rem] lg:items-start lg:gap-x-8"
+    >
+      {/* Details column (from lg). On phones both wrappers dissolve and the summary is shown first. */}
+      <div className="contents lg:flex lg:flex-col lg:gap-4">
+        {problems.length > 0 && (
+          <div
+            className="space-y-1 rounded-lg bg-red-50 p-3 text-sm text-red-800 ring-1 ring-red-200"
+            data-testid="checkout-blocked"
+            role="alert"
           >
-            cart
-          </Link>{" "}
-          for a sharper print.
-        </p>
-      )}
+            {problems.map(({ item, index, state }) => (
+              <p key={item.id}>
+                Item {index + 1} ({productName(item)}):{" "}
+                {state === "block"
+                  ? "a photo is too blurry to print — make it smaller."
+                  : state === "missing"
+                    ? "this design is no longer on this phone — remove it and design it again."
+                    : "no longer available in this colour or size."}{" "}
+                <Link
+                  href={
+                    state === "block"
+                      ? `/design/${item.productId}?item=${encodeURIComponent(item.id)}`
+                      : "/cart"
+                  }
+                  className="focus-visible:ring-brand-600/20 rounded font-medium underline hover:text-red-900 focus-visible:ring-2 focus-visible:outline-none"
+                >
+                  {state === "block" ? "Edit design" : "Go to cart"}
+                </Link>
+              </p>
+            ))}
+          </div>
+        )}
+        {anyWarn && problems.length === 0 && (
+          <p className="rounded-lg bg-amber-50 p-3 text-sm text-amber-900 ring-1 ring-amber-200">
+            A photo may look a little soft when printed. You can still order, or
+            edit the design from your{" "}
+            <Link
+              href="/cart"
+              className="focus-visible:ring-brand-600/20 rounded font-medium underline hover:text-amber-950 focus-visible:ring-2 focus-visible:outline-none"
+            >
+              cart
+            </Link>{" "}
+            for a sharper print.
+          </p>
+        )}
 
-      <Field id="fullName" label="Full name" error={errors.fullName}>
-        <input {...input("fullName")} autoComplete="name" />
-      </Field>
-      <Field id="phone" label="Mobile number" error={errors.phone}>
-        <input
-          {...input("phone")}
-          type="tel"
-          inputMode="tel"
-          autoComplete="tel"
-          placeholder="0300 1234567"
-          onBlur={() => {
-            if (values.phone.trim() && !normalizePkMobile(values.phone))
-              setErrors((e) => ({
-                ...e,
-                phone:
-                  "Please write a Pakistani mobile number, like 0300 1234567.",
-              }));
-          }}
-        />
-      </Field>
-      <Field
-        id="email"
-        label="Email"
-        hint="optional — for your receipt and updates"
-        error={errors.email}
-      >
-        <input
-          {...input("email")}
-          type="email"
-          inputMode="email"
-          autoComplete="email"
-          placeholder="you@example.com"
-        />
-      </Field>
-      <Field id="city" label="City" error={errors.city}>
-        <CityPicker
-          value={values.city}
-          onChange={set("city")}
-          onCommit={setQuoteCity}
-          invalid={!!errors.city}
-          describedBy={errors.city ? errorId("city") : undefined}
-        />
-      </Field>
-      <Field id="addressLine" label="Address" error={errors.addressLine}>
-        <input
-          {...input("addressLine")}
-          autoComplete="street-address"
-          placeholder="House, street, area"
-        />
-      </Field>
-      <Field
-        id="landmark"
-        label="Landmark"
-        hint="optional"
-        error={errors.landmark}
-      >
-        <input
-          {...input("landmark")}
-          autoComplete="address-line2"
-          placeholder="Near the mosque, school…"
-        />
-      </Field>
+        <Field id="fullName" label="Full name" error={errors.fullName}>
+          <input {...input("fullName")} autoComplete="name" />
+        </Field>
+        <Field id="phone" label="Mobile number" error={errors.phone}>
+          <input
+            {...input("phone")}
+            type="tel"
+            inputMode="tel"
+            autoComplete="tel"
+            placeholder="0300 1234567"
+            onBlur={() => {
+              if (values.phone.trim() && !normalizePkMobile(values.phone))
+                setErrors((e) => ({
+                  ...e,
+                  phone:
+                    "Please write a Pakistani mobile number, like 0300 1234567.",
+                }));
+            }}
+          />
+        </Field>
+        <Field
+          id="email"
+          label="Email"
+          hint="optional — for your receipt and updates"
+          error={errors.email}
+        >
+          <input
+            {...input("email")}
+            type="email"
+            inputMode="email"
+            autoComplete="email"
+            placeholder="you@example.com"
+          />
+        </Field>
+        <Field id="city" label="City" error={errors.city}>
+          <CityPicker
+            value={values.city}
+            onChange={set("city")}
+            onCommit={setQuoteCity}
+            invalid={!!errors.city}
+            describedBy={errors.city ? errorId("city") : undefined}
+          />
+        </Field>
+        <Field id="addressLine" label="Address" error={errors.addressLine}>
+          <input
+            {...input("addressLine")}
+            autoComplete="street-address"
+            placeholder="House, street, area"
+          />
+        </Field>
+        <Field
+          id="landmark"
+          label="Landmark"
+          hint="optional"
+          error={errors.landmark}
+        >
+          <input
+            {...input("landmark")}
+            autoComplete="address-line2"
+            placeholder="Near the mosque, school…"
+          />
+        </Field>
 
-      {signedIn && (
+        {signedIn && (
+          <CheckboxRow
+            id="saveToAccount"
+            checked={saveToAccount}
+            onChange={setSaveToAccount}
+          >
+            Save these details to my account for next time
+          </CheckboxRow>
+        )}
         <CheckboxRow
-          id="saveToAccount"
-          checked={saveToAccount}
-          onChange={setSaveToAccount}
+          id="deliveryDifferent"
+          checked={deliveryDifferent}
+          onChange={setDeliveryDifferent}
         >
-          Save these details to my account for next time
+          Deliver to a different place (a gift, or my office)
         </CheckboxRow>
-      )}
-      <CheckboxRow
-        id="deliveryDifferent"
-        checked={deliveryDifferent}
-        onChange={setDeliveryDifferent}
-      >
-        Deliver to a different place (a gift, or my office)
-      </CheckboxRow>
-      {deliveryDifferent && (
-        <fieldset
-          className="flex flex-col gap-4 rounded-2xl bg-white p-4 ring-1 ring-zinc-200"
-          data-testid="delivery-block"
-        >
-          <legend className="px-1 text-sm font-semibold text-zinc-900">
-            Delivery details
-          </legend>
-          <Field
-            id="deliveryName"
-            label="Receiver’s name"
-            hint="optional — if not you"
-            error={errors.deliveryName}
+        {deliveryDifferent && (
+          <fieldset
+            className="flex flex-col gap-4 rounded-2xl bg-white p-4 ring-1 ring-zinc-200"
+            data-testid="delivery-block"
           >
-            <input {...input("deliveryName")} autoComplete="off" />
-          </Field>
-          <Field
-            id="deliveryCity"
-            label="Delivery city"
-            error={errors.deliveryCity}
-          >
-            <CityPicker
+            <legend className="px-1 text-sm font-semibold text-zinc-900">
+              Delivery details
+            </legend>
+            <Field
+              id="deliveryName"
+              label="Receiver’s name"
+              hint="optional — if not you"
+              error={errors.deliveryName}
+            >
+              <input {...input("deliveryName")} autoComplete="off" />
+            </Field>
+            <Field
               id="deliveryCity"
-              value={values.deliveryCity}
-              onChange={set("deliveryCity")}
-              onCommit={setDeliveryQuoteCity}
-              invalid={!!errors.deliveryCity}
-              describedBy={
-                errors.deliveryCity ? errorId("deliveryCity") : undefined
-              }
-            />
-          </Field>
-          <Field
-            id="deliveryAddressLine"
-            label="Delivery location"
-            error={errors.deliveryAddressLine}
-          >
-            <input
-              {...input("deliveryAddressLine")}
-              autoComplete="off"
-              placeholder="House, street, area"
-            />
-          </Field>
-          <Field
-            id="deliveryLandmark"
-            label="Delivery landmark"
-            hint="optional"
-            error={errors.deliveryLandmark}
-          >
-            <input
-              {...input("deliveryLandmark")}
-              autoComplete="off"
-              placeholder="Near the mosque, school…"
-            />
-          </Field>
-        </fieldset>
-      )}
+              label="Delivery city"
+              error={errors.deliveryCity}
+            >
+              <CityPicker
+                id="deliveryCity"
+                value={values.deliveryCity}
+                onChange={set("deliveryCity")}
+                onCommit={setDeliveryQuoteCity}
+                invalid={!!errors.deliveryCity}
+                describedBy={
+                  errors.deliveryCity ? errorId("deliveryCity") : undefined
+                }
+              />
+            </Field>
+            <Field
+              id="deliveryAddressLine"
+              label="Delivery location"
+              error={errors.deliveryAddressLine}
+            >
+              <input
+                {...input("deliveryAddressLine")}
+                autoComplete="off"
+                placeholder="House, street, area"
+              />
+            </Field>
+            <Field
+              id="deliveryLandmark"
+              label="Delivery landmark"
+              hint="optional"
+              error={errors.deliveryLandmark}
+            >
+              <input
+                {...input("deliveryLandmark")}
+                autoComplete="off"
+                placeholder="Near the mosque, school…"
+              />
+            </Field>
+          </fieldset>
+        )}
+      </div>
+      <div className="contents lg:sticky lg:top-20 lg:flex lg:flex-col lg:gap-4">
+        <OrderSummary
+          items={items}
+          quote={quote}
+          className="order-first lg:order-none"
+        />
+        <dl className="grid grid-cols-2 gap-y-1 rounded-2xl bg-white p-4 text-sm ring-1 ring-zinc-200">
+          <dt className="text-zinc-500">Items</dt>
+          <dd className="text-right" data-testid="subtotal">
+            {quote ? formatPkr(quote.subtotalPkr) : "…"}
+          </dd>
+          <dt className="text-zinc-500">Delivery</dt>
+          <dd className="text-right" data-testid="shipping">
+            {quote?.shippingPkr != null
+              ? formatPkr(quote.shippingPkr)
+              : deliveryDifferent
+                ? "Choose the delivery city"
+                : "Choose your city"}
+          </dd>
+          <dt className="font-semibold text-zinc-900">Total</dt>
+          <dd className="text-right font-semibold" data-testid="total">
+            {quote?.shippingPkr != null ? formatPkr(quote.totalPkr) : "…"}
+          </dd>
+          <dd className="col-span-2 mt-2 text-xs text-zinc-500">
+            Pay in cash when it arrives. We’ll call or message you to confirm
+            before we print.
+          </dd>
+        </dl>
 
-      <dl className="grid grid-cols-2 gap-y-1 rounded-2xl bg-white p-4 text-sm ring-1 ring-zinc-200">
-        <dt className="text-zinc-500">Items</dt>
-        <dd className="text-right" data-testid="subtotal">
-          {quote ? formatPkr(quote.subtotalPkr) : "…"}
-        </dd>
-        <dt className="text-zinc-500">Delivery</dt>
-        <dd className="text-right" data-testid="shipping">
-          {quote?.shippingPkr != null
-            ? formatPkr(quote.shippingPkr)
-            : deliveryDifferent
-              ? "Choose the delivery city"
-              : "Choose your city"}
-        </dd>
-        <dt className="font-semibold text-zinc-900">Total</dt>
-        <dd className="text-right font-semibold" data-testid="total">
-          {quote?.shippingPkr != null ? formatPkr(quote.totalPkr) : "…"}
-        </dd>
-        <dd className="col-span-2 mt-2 text-xs text-zinc-500">
-          Pay in cash when it arrives. We’ll call or message you to confirm
-          before we print.
-        </dd>
-      </dl>
+        <Consents
+          contentConfirmed={contentConfirmed}
+          onContentConfirmed={(v) => {
+            setContentConfirmed(v);
+            if (v && errors.contentConfirmed)
+              setErrors((e) => ({ ...e, contentConfirmed: undefined }));
+          }}
+          marketingOptIn={marketingOptIn}
+          onMarketingOptIn={setMarketingOptIn}
+          error={errors.contentConfirmed}
+        />
 
-      <Consents
-        contentConfirmed={contentConfirmed}
-        onContentConfirmed={(v) => {
-          setContentConfirmed(v);
-          if (v && errors.contentConfirmed)
-            setErrors((e) => ({ ...e, contentConfirmed: undefined }));
-        }}
-        marketingOptIn={marketingOptIn}
-        onMarketingOptIn={setMarketingOptIn}
-        error={errors.contentConfirmed}
-      />
-
-      {message && (
-        <p className="text-sm text-red-700" role="alert">
-          {message}
-        </p>
-      )}
-      <button
-        type="submit"
-        disabled={submitting || problems.length > 0 || !contentConfirmed}
-        className="bg-brand-600 hover:bg-brand-700 active:bg-brand-700 focus-visible:ring-brand-600/40 disabled:bg-brand-300 disabled:hover:bg-brand-300 h-12 rounded-full text-base font-semibold text-white focus-visible:ring-2 focus-visible:outline-none"
-      >
-        {submitting
-          ? (progress ?? "Placing order…")
-          : "Place order · Cash on Delivery"}
-      </button>
+        {message && (
+          <p className="text-sm text-red-700" role="alert">
+            {message}
+          </p>
+        )}
+        <button
+          type="submit"
+          disabled={submitting || problems.length > 0 || !contentConfirmed}
+          className="bg-brand-600 hover:bg-brand-700 active:bg-brand-700 focus-visible:ring-brand-600/40 disabled:bg-brand-300 disabled:hover:bg-brand-300 h-12 rounded-full text-base font-semibold text-white focus-visible:ring-2 focus-visible:outline-none"
+        >
+          {submitting
+            ? (progress ?? "Placing order…")
+            : "Place order · Cash on Delivery"}
+        </button>
+      </div>
     </form>
   );
 }
@@ -574,9 +585,11 @@ function colourName(item: CartItem): string {
 function OrderSummary({
   items,
   quote,
+  className = "",
 }: {
   items: CartItem[];
   quote: CartQuote | null;
+  className?: string;
 }) {
   const [thumbs, setThumbs] = useState<Record<string, string | null>>({});
   const keys = items.map((i) => i.designKey).join();
@@ -593,7 +606,7 @@ function OrderSummary({
   return (
     <section
       aria-labelledby="summary-heading"
-      className="rounded-2xl bg-white p-4 ring-1 ring-zinc-200"
+      className={`rounded-2xl bg-white p-4 ring-1 ring-zinc-200 ${className}`}
     >
       <div className="flex items-baseline justify-between">
         <h2 id="summary-heading" className="font-semibold text-zinc-900">

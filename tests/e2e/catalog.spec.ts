@@ -69,7 +69,9 @@ test("no page for products that can't be designed yet, or unknown slugs", async 
 }) => {
   for (const path of ["/products/tshirt", "/products/nope"]) {
     await page.goto(path);
-    await expect(page.getByText("could not be found")).toBeVisible();
+    await expect(
+      page.getByRole("heading", { name: "We can’t find that page" }),
+    ).toBeVisible();
     expect(
       await page.locator('meta[name="robots"][content*="noindex"]').count(),
     ).toBeGreaterThan(0);

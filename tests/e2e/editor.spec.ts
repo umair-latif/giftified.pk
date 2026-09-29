@@ -152,7 +152,7 @@ test("back / next navigation keeps the design", async ({ page }) => {
   await page.getByRole("link", { name: "Preview", exact: true }).click();
   await expect(page).toHaveURL(/\/design\/mug\/preview$/);
   await expect(
-    page.getByRole("img", { name: /Custom Mug, left view/ }),
+    page.getByRole("img", { name: /Custom Mug, front view/ }),
   ).toBeVisible();
   await expect(page.getByTestId("preview-layers")).toHaveText("1");
 

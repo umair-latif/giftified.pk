@@ -78,7 +78,10 @@ export default async function ProductPage({
   const url = `${appBaseUrl()}/products/${product?.slug ?? productId}`;
 
   return (
-    <Page width="content">
+    <Page
+      width="content"
+      className="lg:grid lg:max-w-5xl lg:grid-cols-2 lg:grid-rows-[auto_auto_auto_1fr_auto] lg:content-start lg:items-start lg:gap-x-10 lg:gap-y-4"
+    >
       {product && (
         <script
           type="application/ld+json"
@@ -89,12 +92,12 @@ export default async function ProductPage({
       )}
       <Link
         href="/products"
-        className="text-brand-700 hover:text-brand-800 focus-visible:ring-brand-600/20 rounded text-sm font-medium focus-visible:ring-2 focus-visible:outline-none"
+        className="text-brand-700 hover:text-brand-800 focus-visible:ring-brand-600/20 w-fit rounded text-sm font-medium focus-visible:ring-2 focus-visible:outline-none lg:col-span-2"
       >
         ← All products
       </Link>
 
-      <header className="mt-2 flex flex-wrap items-baseline gap-x-3 gap-y-1">
+      <header className="mt-2 flex flex-wrap items-baseline gap-x-3 gap-y-1 lg:col-start-2 lg:row-start-2 lg:mt-0">
         <PageTitle>{name}</PageTitle>
         {product && (
           <p className="text-brand-900">
@@ -112,23 +115,28 @@ export default async function ProductPage({
       {/* First card, always: Design your own. */}
       <section
         aria-labelledby="design-own"
-        className="border-brand-200 mt-4 overflow-hidden rounded-3xl border-2 bg-white shadow-sm"
+        className="border-brand-200 mt-4 overflow-hidden rounded-3xl border-2 bg-white shadow-sm lg:contents"
         data-testid="design-your-own"
       >
-        {hero ? (
-          <Image
-            src={hero.src}
-            alt={hero.alt}
-            width={960}
-            height={720}
-            sizes="(max-width: 768px) 100vw, 720px"
-            className="aspect-[4/3] w-full object-cover"
-            preload
-          />
-        ) : (
-          <ProductArt productId={productId} className="aspect-[4/3]" />
-        )}
-        <div className="space-y-3 p-4">
+        <div className="lg:border-brand-200 lg:col-start-1 lg:row-span-3 lg:row-start-2 lg:overflow-hidden lg:rounded-3xl lg:border-2 lg:shadow-sm">
+          {hero ? (
+            <Image
+              src={hero.src}
+              alt={hero.alt}
+              width={960}
+              height={720}
+              sizes="(max-width: 768px) 100vw, 720px"
+              className="aspect-[4/3] w-full object-cover lg:aspect-square"
+              preload
+            />
+          ) : (
+            <ProductArt
+              productId={productId}
+              className="aspect-[4/3] lg:aspect-square"
+            />
+          )}
+        </div>
+        <div className="lg:border-brand-200 space-y-3 p-4 lg:col-start-2 lg:row-start-3 lg:rounded-3xl lg:border-2 lg:bg-white lg:shadow-sm">
           <h2 id="design-own" className="font-display text-ink text-xl">
             Design your own
           </h2>
@@ -147,7 +155,7 @@ export default async function ProductPage({
 
       <Disclosure
         summary="Details"
-        className="mt-4 rounded-2xl bg-white ring-1 ring-zinc-200"
+        className="mt-4 rounded-2xl bg-white ring-1 ring-zinc-200 lg:col-start-2 lg:row-start-4 lg:mt-0"
         summaryClassName="rounded-2xl text-base font-semibold"
         bodyClassName="space-y-4 pt-1"
       >
@@ -196,7 +204,11 @@ export default async function ProductPage({
         </div>
       </Disclosure>
 
-      <section id="designs" aria-labelledby="designs-heading" className="mt-6">
+      <section
+        id="designs"
+        aria-labelledby="designs-heading"
+        className="mt-6 lg:col-span-2 lg:mt-4"
+      >
         <h2 id="designs-heading" className="font-display text-ink text-lg">
           Ready-made designs — coming soon
         </h2>

@@ -57,19 +57,31 @@ export function PreviewScreen({ product }: { product: ProductConfig }) {
     }
   }
 
+  const action = (
+    <button
+      type="button"
+      onClick={() => void submit()}
+      disabled={!canSubmit}
+      className="bg-brand-600 hover:bg-brand-700 active:bg-brand-700 focus-visible:ring-brand-600/40 disabled:bg-brand-300 disabled:hover:bg-brand-300 mx-auto flex h-12 w-full max-w-md items-center justify-center rounded-full text-base font-semibold text-white focus-visible:ring-2 focus-visible:outline-none lg:max-w-none"
+    >
+      {busy ? "Saving…" : item ? "Save changes" : "Add to cart"}
+    </button>
+  );
+
   return (
-    <div className="bg-cream min-h-dvh pb-28">
+    <div className="bg-cream min-h-dvh pb-28 lg:pb-10">
       <AppHeader
         title={item ? "Preview changes" : "Preview"}
         backHref={editHref}
         backLabel="Back to editor"
       />
       <StepBar current="Preview" />
-      <main className="mx-auto max-w-md px-4">
+      <main className="mx-auto max-w-md px-4 lg:max-w-[60rem]">
         <DesignPreview
           product={product}
           {...(item ? { designKey: item.designKey } : {})}
           onReady={setResult}
+          sideAction={action}
         />
         {blocked && (
           <p className="mt-3 text-sm text-red-700" role="alert">
@@ -82,15 +94,8 @@ export function PreviewScreen({ product }: { product: ProductConfig }) {
           </p>
         )}
       </main>
-      <div className="fixed inset-x-0 bottom-0 z-20 border-t border-zinc-200 bg-white/95 px-4 pt-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] backdrop-blur">
-        <button
-          type="button"
-          onClick={() => void submit()}
-          disabled={!canSubmit}
-          className="bg-brand-600 hover:bg-brand-700 active:bg-brand-700 focus-visible:ring-brand-600/40 disabled:bg-brand-300 disabled:hover:bg-brand-300 mx-auto flex h-12 w-full max-w-md items-center justify-center rounded-full text-base font-semibold text-white focus-visible:ring-2 focus-visible:outline-none"
-        >
-          {busy ? "Saving…" : item ? "Save changes" : "Add to cart"}
-        </button>
+      <div className="fixed inset-x-0 bottom-0 z-20 border-t border-zinc-200 bg-white/95 px-4 pt-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] backdrop-blur lg:hidden">
+        {action}
       </div>
     </div>
   );

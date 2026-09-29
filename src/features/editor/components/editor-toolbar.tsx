@@ -9,9 +9,9 @@ export function EditorToolbar({ ready, onAddText, onAddImage }: Props) {
   return (
     <nav
       aria-label="Editor tools"
-      className="fixed inset-x-0 bottom-0 z-10 border-t border-zinc-200 bg-white/95 pb-[env(safe-area-inset-bottom)] backdrop-blur"
+      className="fixed inset-x-0 bottom-0 z-10 border-t border-zinc-200 bg-white/95 pb-[env(safe-area-inset-bottom)] backdrop-blur lg:static lg:rounded-2xl lg:border lg:pb-0 lg:shadow-sm"
     >
-      <div className="mx-auto flex max-w-md items-stretch justify-around px-2">
+      <div className="mx-auto flex max-w-md items-stretch justify-around px-2 lg:max-w-none lg:gap-1 lg:p-1">
         <ToolButton
           label="Text"
           icon="T"
@@ -49,7 +49,7 @@ function ToolButton({
       type="button"
       onClick={onClick}
       disabled={disabled}
-      className="focus-visible:ring-brand-600/20 flex min-h-14 min-w-14 flex-col items-center justify-center gap-0.5 text-zinc-800 hover:bg-zinc-100 focus-visible:ring-2 focus-visible:outline-none focus-visible:ring-inset disabled:text-zinc-300 disabled:hover:bg-transparent"
+      className="focus-visible:ring-brand-600/20 flex min-h-14 min-w-14 flex-col items-center justify-center gap-0.5 text-zinc-800 hover:bg-zinc-100 focus-visible:ring-2 focus-visible:outline-none focus-visible:ring-inset disabled:text-zinc-300 disabled:hover:bg-transparent lg:flex-1 lg:rounded-xl"
     >
       <span aria-hidden className="text-lg leading-none">
         {icon}

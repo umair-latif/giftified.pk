@@ -15,14 +15,14 @@ export function ProductCard({
 }) {
   const body = (
     <>
-      <div className="relative overflow-hidden rounded-xl">
+      <div className="relative w-28 shrink-0 overflow-hidden rounded-xl sm:w-auto">
         {card.image ? (
           <Image
             src={card.image.src}
             alt={card.image.alt}
             width={480}
             height={480}
-            sizes="(max-width: 640px) 50vw, 240px"
+            sizes="(max-width: 640px) 112px, 320px"
             className="aspect-square w-full object-cover"
             preload={priority}
           />
@@ -35,7 +35,7 @@ export function ProductCard({
           </span>
         )}
       </div>
-      <div className="mt-2 space-y-1 px-0.5">
+      <div className="min-w-0 space-y-1 self-center px-0.5 sm:mt-2 sm:self-auto">
         <h2 className="font-display text-ink text-base leading-tight">
           {card.name}
         </h2>
@@ -48,21 +48,22 @@ export function ProductCard({
             </span>
           </p>
         )}
-        <Swatches swatches={card.swatches} />
+        {/* One colour = nothing to choose, so no dot (it looked like an empty radio button). */}
+        {card.swatches.length > 1 && <Swatches swatches={card.swatches} />}
       </div>
     </>
   );
   return card.href ? (
     <Link
       href={card.href}
-      className="block rounded-2xl bg-white p-2 shadow-sm ring-1 ring-zinc-200 hover:bg-zinc-50 active:bg-zinc-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-600/40"
+      className="focus-visible:ring-brand-600/40 flex gap-3 rounded-2xl bg-white p-2 shadow-sm ring-1 ring-zinc-200 hover:bg-zinc-50 focus-visible:ring-2 focus-visible:outline-none active:bg-zinc-50 sm:block"
       data-testid={`product-card-${card.productId}`}
     >
       {body}
     </Link>
   ) : (
     <div
-      className="rounded-2xl bg-white p-2 opacity-80 ring-1 ring-zinc-200"
+      className="flex gap-3 rounded-2xl bg-white p-2 opacity-80 ring-1 ring-zinc-200 sm:block"
       aria-disabled="true"
       data-testid={`product-card-${card.productId}`}
     >

@@ -1,12 +1,23 @@
-const STEPS = ["Design", "Preview", "Cart"] as const;
+const STEPS = ["Design", "Preview", "Order"] as const;
 export type FlowStep = (typeof STEPS)[number];
 
-/** "Design → Preview → Cart" progress indicator shown under the header. */
-export function StepBar({ current }: { current: FlowStep }) {
+/** "Design → Preview → Order" progress (Order = cart and checkout) indicator shown under the header. */
+export function StepBar({
+  current,
+  inPage = false,
+}: {
+  current: FlowStep;
+  /** On shop pages: sit in the page column, left-aligned, without its own gutters. */
+  inPage?: boolean;
+}) {
   const currentIndex = STEPS.indexOf(current);
   return (
     <ol
-      className="mx-auto flex w-full max-w-md items-center justify-center gap-2 px-4 py-2 text-[11px]"
+      className={`flex items-center gap-2 text-[11px] ${
+        inPage
+          ? "mb-3"
+          : "mx-auto w-full max-w-md justify-center px-4 py-2 lg:py-3 lg:text-sm"
+      }`}
       aria-label="Order steps"
     >
       {STEPS.map((step, i) => (

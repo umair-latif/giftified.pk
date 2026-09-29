@@ -3,6 +3,7 @@ import {
   centreY,
   columnAngleDeg,
   designXmm,
+  outlineBand,
   printBandTop,
   verticalPxPerMm,
   type MockupSide,
@@ -45,8 +46,9 @@ function sample(
 /**
  * Wraps a rendered design (transparent PNG data URL of the whole print area)
  * around the mug photo. The photo's own brightness shades the print
- * (multiply), so gloss and the round falloff carry through. `side: "left"`
- * mirrors the photo (handle on the left) and shows the other half of the wrap.
+ * (multiply), so gloss and the round falloff carry through. `spec.side` says
+ * which half of the wrap the photo shows (handle side); `spec.mirror` flips the
+ * photo when it was measured the other way round.
  * Returns a WebP/JPEG data URL at the photo's size.
  */
 export async function composeMockup(
@@ -70,7 +72,8 @@ export async function composeMockup(
   canvas.height = H;
   const ctx = canvas.getContext("2d", { willReadFrequently: true });
   if (!ctx) throw new Error("Canvas not available");
-  if (side === "left") {
+  const mirror = !!spec.mirror;
+  if (mirror) {
     ctx.translate(W, 0);
     ctx.scale(-1, 1);
   }
@@ -90,8 +93,8 @@ export async function composeMockup(
   const dd = dctx.getImageData(0, 0, dw, dh).data;
 
   const b = spec.body;
-  const left = side === "left" ? W - b.right : b.left;
-  const right = side === "left" ? W - b.left : b.right;
+  const left = mirror ? W - b.right : b.left;
+  const right = mirror ? W - b.left : b.right;
   const cx = (left + right) / 2;
   const r = (right - left) / 2;
   const pxPerMm = verticalPxPerMm(b, spec.mugHeightMm);
@@ -114,12 +117,22 @@ export async function composeMockup(
     bottom: b.bottom,
     rimSag: spec.sag.rim,
     baseSag: spec.sag.base,
+    // A mirrored photo flips left/right, so the tilt flips too.
+    tilt: (mirror ? -1 : 1) * (spec.tilt ?? 0),
   };
-  const sagMax = Math.max(Math.abs(spec.sag.rim), Math.abs(spec.sag.base));
+  const outline = spec.outline;
+  // Fractions of the mug height where the print starts and ends.
+  const vTop = (y0 - b.top) / (b.bottom - b.top);
+  const vBot = vTop + bandPx / (b.bottom - b.top);
+  const sagMax =
+    Math.max(Math.abs(spec.sag.rim), Math.abs(spec.sag.base)) +
+    Math.abs(spec.tilt ?? 0);
+  const yFrom = outline ? 0 : Math.max(0, Math.floor(y0 - sagMax - 2));
+  const yTo = outline
+    ? H - 1
+    : Math.min(H - 1, Math.ceil(y0 + bandPx + sagMax + 2));
   const s = [0, 0, 0, 0];
   const SUB = [-1 / 3, 0, 1 / 3];
-  const yFrom = Math.max(0, Math.floor(y0 - sagMax - 2));
-  const yTo = Math.min(H - 1, Math.ceil(y0 + bandPx + sagMax + 2));
   for (let y = yFrom; y <= yTo; y++) {
     for (let x = Math.ceil(left) + 1; x < right - 1; x++) {
       // Average a few sub-columns: the edge of the mug compresses the design.
@@ -131,13 +144,24 @@ export async function composeMockup(
         const angle = columnAngleDeg(x + 0.5 + o, cx, r);
         const mm = designXmm(angle, geo, side);
         if (mm === null) continue;
-        // Row on a flat (centre-of-mug) scale: the print band follows the
-        // mug's curved horizontal lines.
-        const inBand = centreY(y + 0.5, angle, curve) - y0;
+        let inBand: number;
+        let height: number;
+        if (outline) {
+          // Band edges follow the mug's measured top/base edges in this column.
+          const sx = mirror ? W - (x + 0.5 + o) : x + 0.5 + o;
+          const e = outlineBand(outline, sx, vTop, vBot);
+          height = e.bottom - e.top;
+          inBand = y + 0.5 - e.top;
+        } else {
+          // Row on a flat (centre-of-mug) scale: the band follows the mug's
+          // curved horizontal lines.
+          inBand = centreY(y + 0.5, angle, curve) - y0;
+          height = bandPx;
+        }
         // Soft top/bottom edge (1 px) so the curved edges are not jagged.
-        const cover = Math.min(1, inBand + 0.5, bandPx - inBand + 0.5);
+        const cover = Math.min(1, inBand + 0.5, height - inBand + 0.5);
         if (cover <= 0) continue;
-        const fy = Math.min(dh, Math.max(0, (inBand / bandPx) * dh));
+        const fy = Math.min(dh, Math.max(0, (inBand / height) * dh));
         sample(dd, dw, dh, (mm / geo.wrapMm) * dw, fy, s);
         const a = (s[3]! / 255) * cover;
         ar += s[0]! * a;

@@ -3,9 +3,12 @@ import { mug } from "@/config/products/mug";
 import {
   centreY,
   columnAngleDeg,
+  lineY,
+  outlineBand,
   curvedY,
   designXmm,
   printArcDeg,
+  sagAt,
   printBandTop,
   verticalPxPerMm,
   type WrapGeometry,
@@ -126,5 +129,65 @@ describe("print band position", () => {
     const bodyPx = s.body.bottom - s.body.top;
     expect(bandPx).toBeLessThan(bodyPx);
     expect(bandPx / bodyPx).toBeCloseTo(mug.printArea.heightMm / s.mugHeightMm);
+  });
+});
+
+describe("mockup tilt", () => {
+  const c = { top: 80, bottom: 570, rimSag: -6, baseSag: 20, tilt: -4 };
+
+  it("shifts the right side up/down and the left the other way", () => {
+    expect(curvedY(300, 90, c)).toBeCloseTo(300 - 4 + sagAt(300, c) * -1);
+    expect(curvedY(300, -90, c)).toBeCloseTo(300 + 4 + sagAt(300, c) * -1);
+  });
+
+  it("centreY still inverts curvedY with a tilt", () => {
+    for (const yc of [100, 300, 540]) {
+      for (const a of [-80, -30, 0, 45, 85]) {
+        expect(centreY(curvedY(yc, a, c), a, c)).toBeCloseTo(yc, 2);
+      }
+    }
+  });
+});
+
+describe("mockup outline", () => {
+  const outline = {
+    top: [
+      [100, 50],
+      [200, 40],
+      [300, 40],
+    ] as const,
+    bottom: [
+      [100, 250],
+      [300, 230],
+    ] as const,
+  };
+
+  it("interpolates a polyline and clamps beyond its ends", () => {
+    expect(lineY(outline.top, 150)).toBeCloseTo(45);
+    expect(lineY(outline.top, 250)).toBeCloseTo(40);
+    expect(lineY(outline.top, 0)).toBeCloseTo(50);
+    expect(lineY(outline.top, 999)).toBeCloseTo(40);
+  });
+
+  it("places the print band between the measured top and base edges", () => {
+    // Whole mug height at x=200: 40..240 (base interpolates to 240 there).
+    const band = outlineBand(outline, 200, 0.1, 0.9);
+    expect(band.top).toBeCloseTo(40 + 0.1 * 200);
+    expect(band.bottom).toBeCloseTo(40 + 0.9 * 200);
+  });
+
+  it("the flat-lay mockup has ordered outlines inside its photo", () => {
+    const flat = MOCKUP_SPECS.mug!.find((s) => s.id === "flatlay")!;
+    for (const line of [flat.outline!.top, flat.outline!.bottom]) {
+      for (let i = 1; i < line.length; i++) {
+        expect(line[i]![0]).toBeGreaterThan(line[i - 1]![0]);
+      }
+      for (const [x, y] of line) {
+        expect(x).toBeGreaterThan(0);
+        expect(x).toBeLessThan(flat.widthPx);
+        expect(y).toBeGreaterThan(0);
+        expect(y).toBeLessThan(flat.heightPx);
+      }
+    }
   });
 });

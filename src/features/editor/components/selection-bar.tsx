@@ -10,6 +10,7 @@ interface Props {
   text: TextStyle | null;
   onTextStyle: (style: Partial<TextStyle>) => void;
   onCrop: () => void;
+  onReplace: () => void;
   onCopy: () => void;
   onDelete: () => void;
   onMore: () => void;
@@ -17,13 +18,14 @@ interface Props {
 
 /**
  * Context bar shown above the main toolbar while something is selected.
- * Text: font, colour, bold / italic / underline. Photo: crop. Both: copy, delete.
+ * Text: font, colour, bold / italic / underline. Photo: crop & shape, replace. Both: copy, delete.
  */
 export function SelectionBar({
   kind,
   text,
   onTextStyle,
   onCrop,
+  onReplace,
   onCopy,
   onDelete,
   onMore,
@@ -58,10 +60,10 @@ export function SelectionBar({
             : "Selection tools"
       }
       data-testid="selection-bar"
-      className="fixed inset-x-0 bottom-[calc(3.5rem+1px+env(safe-area-inset-bottom))] z-10 border-t border-zinc-200 bg-white"
+      className="fixed inset-x-0 bottom-[calc(3.5rem+1px+env(safe-area-inset-bottom))] z-10 border-t border-zinc-200 bg-white lg:relative lg:inset-x-auto lg:bottom-auto lg:rounded-2xl lg:border lg:shadow-sm"
     >
       <div
-        className="mx-auto flex h-12 max-w-md items-center gap-0.5 overflow-x-auto px-1.5"
+        className="mx-auto flex h-12 max-w-md items-center gap-0.5 overflow-x-auto px-1.5 lg:h-auto lg:max-w-none lg:flex-wrap lg:overflow-visible lg:py-1.5"
         data-testid="selection-bar-row"
       >
         {kind === "text" && text && (
@@ -89,7 +91,7 @@ export function SelectionBar({
                 void loadPickerFonts(text.fontWeight, text.fontStyle)
               }
               onChange={(e) => onTextStyle({ fontFamily: e.target.value })}
-              className="h-9 w-14 shrink-0 rounded-md border border-zinc-300 bg-white px-1 text-sm text-zinc-800"
+              className="h-9 w-14 shrink-0 rounded-md border border-zinc-300 bg-white px-1 text-sm text-zinc-800 lg:w-28"
               style={{ fontFamily: text.fontFamily }}
             >
               {!FONTS.some((f) => f.family === text.fontFamily) && (
@@ -146,6 +148,9 @@ export function SelectionBar({
           <>
             <Action label="Crop" onClick={onCrop}>
               <CropIcon width={20} height={20} />
+            </Action>
+            <Action label="Replace" onClick={onReplace}>
+              <ReplaceIcon />
             </Action>
             <Divider />
           </>
@@ -218,6 +223,24 @@ function Action({
       {children}
       <span>{label}</span>
     </button>
+  );
+}
+
+function ReplaceIcon() {
+  return (
+    <svg
+      width={20}
+      height={20}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={2}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden
+    >
+      <path d="M4 8h13l-3-3M20 16H7l3 3" />
+    </svg>
   );
 }
 
