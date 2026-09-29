@@ -15,6 +15,9 @@ this ships.
   `designs/<designId>/**` (design + original photos) and `orders/<id>/**` (print PNG, vendor PDF)
   from storage, then add an order note "Print files deleted (30-day retention)". Idempotent.
 - Storage: add `list(prefix)` and `deletePrefix(prefix)` to the storage adapter (+ memory mock).
+- **Skip refused content:** orders with meta `_retain_for_review` = `yes` (the founder sets it in WP
+  admin when a design is refused for breaking the law) are never purged — the privacy notice says
+  refused uploads may be kept. Document this in `docs/ops/manual-dispatch.md`.
 - Designs never attached to an order (abandoned uploads) are deleted after 30 days too.
 - `/api/files/<token>` must answer 404 once the file is gone (it already will — check the message).
 - Order records stay in WooCommerce (3-year retention, per the privacy notice).

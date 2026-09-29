@@ -8,7 +8,7 @@ Last updated: September 2026
 
 ## What we collect
 
-TODO(founder): short intro — name, mobile number, delivery address and city, the designs and
+Done on the page ("What we collect"). Was: short intro — name, mobile number, delivery address and city, the designs and
 photos you upload, and basic order details.
 
 ## Who sees what
@@ -38,6 +38,23 @@ messaging is live, add "or by replying 'STOP' to any message".
   are kept for up to 3 years to fulfill legal, accounting, and tax compliance requirements under
   Pakistani business regulations.
 
+## Uploaded content and legal compliance
+
+(Founder's text of 29 Sep 2026, adjusted to match the system: phones are confirmed by call, not
+"verified"; approved designs follow the 30-day deletion; the IP address is stored from task 13 on.)
+
+- **Design review:** every design is checked by our team before it is printed. Approved designs are
+  kept only for as long as described above, for production and customer support.
+- **Refused content:** if a design is refused because it breaks the law, including PECA, we may keep
+  the uploaded file and the related order details (including phone number and IP address) instead of
+  deleting them after 30 days.
+- **Law enforcement:** we cooperate with the NCCIA and the FIA. If an upload constitutes a criminal
+  offence under PECA — such as blasphemy, incitement of inter-faith or sectarian hatred, state
+  defamation, or child exploitation — we will hand over the related order details, contact numbers,
+  and IP addresses to the relevant authorities on official request.
+
+Full refused-content list: `/printing-guidelines`.
+
 ## Cookies and browser storage
 
 We use essential browser storage (`localStorage`) solely to keep track of your active cart and draft
@@ -46,7 +63,7 @@ pixels without your explicit consent.
 
 ## Your choices
 
-TODO(founder): how to ask for a copy or deletion of your data, and the contact address for it.
+Contact page; reply within 7 working days (on the page).
 
 ---
 
@@ -61,8 +78,10 @@ The page may only claim these once they are built:
    answer on the order; without it, no marketing messages may be sent. "Reply STOP" only applies once
    WhatsApp/SMS exists (task 02) — until then the text should say "or contact support".
 3. **Signed file links** last 90 days; the purge job must also make older links 404 by then.
-4. **Where the opt-in lives:** the checkbox at checkout is the one that must exist (most customers
+4. **IP address** is stored on orders once task 13 passes `customerIp` (contract added 29 Sep).
+5. **Refused designs** are kept only if the order has `_retain_for_review` = `yes` (task 24).
+6. **Where the opt-in lives:** the checkbox at checkout is the one that must exist (most customers
    order as guests and have no profile). Signed-in customers can change the same setting in
    `/account/profile` (task 21); it then pre-fills the checkout box.
-5. **localStorage** claim is accurate today (cart, drafts, city, recent orders) — keep it true if
+7. **localStorage** claim is accurate today (cart, drafts, city, recent orders) — keep it true if
    analytics are ever added.
