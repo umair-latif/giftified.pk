@@ -1,7 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Sheet } from "@/components/ui/sheet";
+import { getProduct, type ProductId } from "@/config/products";
+import { quoteCart } from "@/features/cart/actions";
+import { formatPkr } from "@/features/checkout/format";
 import { OCCASIONS } from "@/features/home/occasions";
 import type { OccasionSlug } from "@/server/templates/types";
 import type { DesignDocument } from "@/types/design";
@@ -16,10 +19,18 @@ interface Props {
   onClose: () => void;
   /** Publish as a shop product: also asks for a description and a price. */
   asProduct?: boolean;
+  /** The base product, so the price field can show what a plain one costs. */
+  productId?: ProductId;
 }
 
 /** Template editors only: name it, tag occasions, publish (or keep as a draft). */
-export function SaveTemplateSheet({ getDesign, onClose, asProduct }: Props) {
+export function SaveTemplateSheet({
+  getDesign,
+  onClose,
+  asProduct,
+  productId,
+}: Props) {
+  const basePrice = useBasePrice(asProduct ? productId : undefined);
   const [name, setName] = useState("");
   const [occasions, setOccasions] = useState<OccasionSlug[]>([]);
   const [published, setPublished] = useState(!!asProduct);
@@ -156,11 +167,23 @@ export function SaveTemplateSheet({ getDesign, onClose, asProduct }: Props) {
                 <span className="text-ink font-medium">Price (Rs)</span>
                 <input
                   value={price}
+                  placeholder={basePrice ? String(basePrice) : undefined}
+                  aria-describedby="base-price-hint"
                   onChange={(e) => setPrice(e.target.value.replace(/\D/g, ""))}
                   inputMode="numeric"
                   required
                   className="focus:border-brand-600 h-11 w-full rounded-lg border border-zinc-300 bg-white px-3 text-base"
                 />
+                {basePrice && (
+                  <span
+                    id="base-price-hint"
+                    className="block text-xs text-zinc-500"
+                    data-testid="base-price-hint"
+                  >
+                    A plain {getProduct(productId!)?.name ?? "product"} costs{" "}
+                    {formatPkr(basePrice)}.
+                  </span>
+                )}
               </label>
             </>
           )}
@@ -219,4 +242,21 @@ export function SaveTemplateSheet({ getDesign, onClose, asProduct }: Props) {
       )}
     </Sheet>
   );
+}
+
+/** The price of a plain (customer-designed) product, from the store, as a reference for the designer. */
+function useBasePrice(productId: ProductId | undefined): number | null {
+  const [price, setPrice] = useState<number | null>(null);
+  useEffect(() => {
+    const colourId = productId && getProduct(productId)?.baseColors[0]?.id;
+    if (!productId || !colourId) return;
+    let stale = false;
+    quoteCart({ lines: [{ productId, colourId, quantity: 1 }], city: "" })
+      .then((q) => !stale && setPrice(q?.unitPricePkr[0] ?? null))
+      .catch(() => undefined); // a reference only: the field works without it
+    return () => {
+      stale = true;
+    };
+  }, [productId]);
+  return price;
 }
