@@ -116,7 +116,9 @@ export async function forgotPasswordAction(
       commerce: getCommerce(),
       ipLimiter: limiters.reset,
       emailLimiter: limiters.resetEmail,
-      email: getEmail(),
+      // Resolved when sending, inside the service's try/catch: a missing
+      // RESEND_API_KEY must be logged, not crash the request with a 500.
+      email: { send: (message) => getEmail().send(message) },
       secret: authSecret(),
       baseUrl: appBaseUrl(),
       ...(await requestContext()),

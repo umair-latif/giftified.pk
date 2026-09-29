@@ -343,3 +343,23 @@ describe("when the account service is down", () => {
     err.mockRestore();
   });
 });
+
+describe("password reset when email is not configured", () => {
+  it("answers ok (no account hints) and logs, instead of throwing", async () => {
+    const err = vi.spyOn(console, "error").mockImplementation(() => {});
+    await signUp(ayesha, deps());
+    const noEmail = {
+      send: () => {
+        throw new Error("RESEND_API_KEY is not set in production.");
+      },
+    };
+    expect(
+      await requestPasswordReset(
+        { email: "ayesha@example.pk" },
+        resetDeps({ email: noEmail }),
+      ),
+    ).toEqual({ ok: true });
+    expect(err).toHaveBeenCalled();
+    err.mockRestore();
+  });
+});
