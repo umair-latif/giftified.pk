@@ -16,6 +16,7 @@ const itemSchema = z.object({
   size: z.string().max(10).optional(),
   quantity: z.number().int().min(1).max(MAX_LINE_QUANTITY),
   designKey: z.string().min(1).max(64),
+  templateId: z.string().max(64).optional(),
   addedAt: z.string(),
 });
 

@@ -18,6 +18,11 @@ export interface CartItem {
    * (same design, different sizes) — it is uploaded once at checkout.
    */
   designKey: string;
+  /**
+   * Set when the line is a design product (task 26): priced from that
+   * design's WooCommerce product instead of the base product's variant.
+   */
+  templateId?: string;
   /** ISO 8601. */
   addedAt: string;
 }

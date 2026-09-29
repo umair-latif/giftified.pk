@@ -69,6 +69,7 @@ const lineKey = (items: CartItem[]) =>
       colourId: i.colourId,
       ...(i.size ? { size: i.size } : {}),
       quantity: i.quantity,
+      ...(i.templateId ? { templateId: i.templateId } : {}),
     })),
   );
 
@@ -255,6 +256,7 @@ export function CheckoutForm() {
           ...(i.size ? { size: i.size } : {}),
           quantity: i.quantity,
           designId: uploaded.current.get(i.designKey),
+          ...(i.templateId ? { templateId: i.templateId } : {}),
         })),
       });
       if (r.ok) {

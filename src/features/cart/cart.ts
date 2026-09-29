@@ -5,14 +5,17 @@ import type { ProductId } from "@/config/products";
 import {
   clearDraft,
   deleteSavedDesign,
+  getDraftTemplate,
   loadDraft,
   saveDraft,
   savedDesignKeys,
   saveThumbnail,
 } from "@/features/editor/draft";
+import { lockLayersForCustomer } from "@/features/templates/lock-layers";
 import { newId } from "@/lib/id";
 import type { CartItem } from "@/types/cart";
-import type { DesignDocument } from "@/types/design";
+import { printQualityReport } from "@/lib/print-quality";
+import { isDesignDocument, type DesignDocument } from "@/types/design";
 import {
   addLine,
   addSizeLine,
@@ -46,6 +49,7 @@ export function addDraftToCart(input: {
 }): CartItem {
   const doc = loadDraft(input.productId);
   if (!doc) throw new Error("There's no design to add yet.");
+  const templateId = getDraftTemplate(input.productId);
   const designKey = newId();
   if (!saveDraft(doc, designKey))
     throw new Error(
@@ -59,6 +63,7 @@ export function addDraftToCart(input: {
     ...(input.size ? { size: input.size } : {}),
     quantity: input.quantity ?? 1,
     designKey,
+    ...(templateId ? { templateId } : {}),
     addedAt: new Date().toISOString(),
   };
   try {
@@ -69,6 +74,76 @@ export function addDraftToCart(input: {
   }
   clearDraft(input.productId);
   return line;
+}
+
+export class TemplateNeedsPhotoError extends Error {}
+
+/**
+ * "Add to cart" on a design product page: the template's design goes into the
+ * cart as it is (a saved design), as a line priced from that product. Designs
+ * that still have sample photos must be customised first.
+ */
+export async function addTemplateToCart(input: {
+  templateId: string;
+  productId: ProductId;
+  colourId: string;
+  size?: string;
+}): Promise<CartItem> {
+  const res = await fetch(
+    `/api/templates/${encodeURIComponent(input.templateId)}`,
+  );
+  if (!res.ok) throw new Error("This design isn't available any more.");
+  const data = (await res.json()) as { design: unknown };
+  const doc = data.design;
+  if (!isDesignDocument(doc, input.productId))
+    throw new Error("This design isn't available any more.");
+  if (printQualityReport(doc.fabric).placeholders > 0)
+    throw new TemplateNeedsPhotoError("Add your photo first.");
+  const designKey = newId();
+  // Locked layers stay locked if the customer later edits this line from the cart.
+  const locked = { ...doc, fabric: lockLayersForCustomer(doc.fabric) };
+  if (!saveDraft(locked, designKey))
+    throw new Error(
+      "Your phone's storage is full, so the design couldn't be saved.",
+    );
+  const thumb = await thumbnailDataUrl(input.templateId);
+  if (thumb) saveThumbnail(designKey, thumb);
+  const line: CartItem = {
+    id: newId(),
+    productId: input.productId,
+    colourId: input.colourId,
+    ...(input.size ? { size: input.size } : {}),
+    quantity: 1,
+    designKey,
+    templateId: input.templateId,
+    addedAt: new Date().toISOString(),
+  };
+  try {
+    writeCart(addLine(readCart(), line));
+  } catch (err) {
+    deleteSavedDesign(designKey);
+    throw err;
+  }
+  return line;
+}
+
+/** The design's gallery thumbnail as a small data URL for the cart (null if unavailable). */
+async function thumbnailDataUrl(templateId: string): Promise<string | null> {
+  try {
+    const r = await fetch(
+      `/api/templates/${encodeURIComponent(templateId)}/thumbnail`,
+    );
+    if (!r.ok) return null;
+    const blob = await r.blob();
+    return await new Promise((resolve) => {
+      const fr = new FileReader();
+      fr.onload = () => resolve(String(fr.result));
+      fr.onerror = () => resolve(null);
+      fr.readAsDataURL(blob);
+    });
+  } catch {
+    return null;
+  }
 }
 
 export function getCartItem(id: string): CartItem | null {

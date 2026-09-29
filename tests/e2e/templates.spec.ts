@@ -157,5 +157,26 @@ test("a template editor publishes a design as a product from the preview; others
   await sheet.getByLabel("Price (Rs)").fill("1899");
   await submit.click();
   await expect(ep.getByTestId("template-saved")).toContainText("Product saved");
+
+  // The product page: title, price, Add to cart / Customize.
+  await ep.getByRole("link", { name: "View the product page" }).click();
+  await expect(ep).toHaveURL(/\/designs\/happy-birthday-/);
+  await expect(ep.getByRole("heading", { level: 1 })).toHaveText(
+    "Happy Birthday",
+  );
+  await expect(ep.getByTestId("design-price")).toContainText("1,899");
+  await expect(ep.getByRole("link", { name: "Customize" })).toHaveAttribute(
+    "href",
+    /\/design\/mug\?template=/,
+  );
+  await ep.getByRole("button", { name: "Add to cart" }).click();
+  const added = ep.getByTestId("added-to-cart");
+  await expect(added).toContainText("Added to your cart");
+  await expect(added.getByRole("link", { name: "Customize it" })).toBeVisible();
+
+  // The cart prices the line from the design product, not the plain mug.
+  await added.getByRole("link", { name: "Go to cart" }).click();
+  await expect(ep).toHaveURL(/\/cart$/);
+  await expect(ep.getByText("1,899").first()).toBeVisible();
   await editorCtx.close();
 });

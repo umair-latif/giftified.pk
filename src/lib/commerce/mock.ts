@@ -1,4 +1,5 @@
 import type { ProductId } from "@/config/products";
+import { descriptionHtml } from "./woo-map";
 import type {
   CreateOrderInput,
   Order,
@@ -121,6 +122,19 @@ export function createMockCommerce(
       designProducts.set(input.templateId, made);
       return { wooProductId: made.wooProductId, slug: made.slug };
     },
+    async getDesignProduct(templateId) {
+      const p = designProducts.get(templateId);
+      if (!p || p.status !== "publish") return null;
+      return {
+        wooProductId: p.wooProductId,
+        templateId,
+        slug: p.slug,
+        baseProductId: p.input.baseProductId,
+        name: p.input.name,
+        descriptionHtml: descriptionHtml(p.input.description),
+        pricePkr: p.input.pricePkr,
+      };
+    },
     async publishDesignProduct(wooProductId) {
       for (const p of designProducts.values())
         if (p.wooProductId === wooProductId) p.status = "publish";
@@ -134,6 +148,12 @@ export function createMockCommerce(
       const existing = byCheckout.get(input.checkoutId);
       if (existing !== undefined) return structuredClone(must(existing));
       const lines = input.lines.map((line) => {
+        if (line.templateId) {
+          const d = designProducts.get(line.templateId);
+          if (!d || d.status !== "publish")
+            throw new Error(`Design ${line.templateId} is unavailable`);
+          return { ...line, unitPricePkr: d.input.pricePkr };
+        }
         const variant = find(line.productId)?.variants.find(
           (v) => v.colourId === line.colourId,
         );

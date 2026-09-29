@@ -45,6 +45,9 @@ export const META = {
   baseProduct: "_base_product",
 } as const;
 
+/** Visible line notes on design-product order lines (read back by `mapOrder`). */
+export const LINE_NOTE = { colour: "Colour", size: "Size" } as const;
+
 export function isProductId(sku: string): sku is ProductId {
   return (PRODUCT_SKUS as readonly string[]).includes(sku);
 }
@@ -300,6 +303,16 @@ export interface ResolvedLine {
   wooVariationId: number;
   quantity: number;
   designId: string;
+  /**
+   * Design product line (task 26): a SIMPLE product with no variation, so the
+   * chosen base product / colour / size are written as line notes instead.
+   */
+  design?: {
+    templateId: string;
+    productId: string;
+    colourId: string;
+    size?: string;
+  };
 }
 
 /**
@@ -345,7 +358,20 @@ export function buildOrderBody(
       product_id: l.wooProductId,
       ...(l.wooVariationId ? { variation_id: l.wooVariationId } : {}),
       quantity: l.quantity,
-      meta_data: [{ key: META.designId, value: l.designId }],
+      meta_data: [
+        { key: META.designId, value: l.designId },
+        ...(l.design
+          ? [
+              { key: META.templateId, value: l.design.templateId },
+              { key: META.baseProduct, value: l.design.productId },
+              // No leading underscore: WP admin shows these on the order line.
+              { key: LINE_NOTE.colour, value: l.design.colourId },
+              ...(l.design.size
+                ? [{ key: LINE_NOTE.size, value: l.design.size }]
+                : []),
+            ]
+          : []),
+      ],
     })),
     ...(input.customerId ? { customer_id: input.customerId } : {}),
     ...(input.customerIp && isIp(input.customerIp)
@@ -398,13 +424,27 @@ export function mapOrder(o: WooOrder, catalog: CatalogProduct[]): Order {
   };
 
   const lines = o.line_items.map((li) => {
+    const templateId = metaValue(li.meta_data, META.templateId);
+    const noteProduct = metaValue(li.meta_data, META.baseProduct);
     const product = catalog.find((p) => p.wooProductId === li.product_id);
-    if (!product)
+    // Design-product lines (task 26) are not in the base catalog: their base
+    // product, colour and size come from the line notes we wrote at checkout.
+    const design =
+      !product && templateId && noteProduct && isProductId(noteProduct)
+        ? {
+            productId: noteProduct,
+            colourId: metaValue(li.meta_data, LINE_NOTE.colour) ?? "",
+            size: metaValue(li.meta_data, LINE_NOTE.size),
+          }
+        : null;
+    if (!product && !design)
       throw new Error(`Order ${o.id}: unknown product ${li.product_id}`);
-    const variant = li.variation_id
-      ? product.variants.find((v) => v.wooVariationId === li.variation_id)
-      : product.variants[0];
-    if (!variant)
+    const variant =
+      product &&
+      (li.variation_id
+        ? product.variants.find((v) => v.wooVariationId === li.variation_id)
+        : product.variants[0]);
+    if (product && !variant)
       throw new Error(`Order ${o.id}: unknown variation ${li.variation_id}`);
     const unit =
       li.price !== undefined
@@ -412,10 +452,12 @@ export function mapOrder(o: WooOrder, catalog: CatalogProduct[]): Order {
         : parsePkr(String(Number(li.subtotal) / li.quantity));
     const printPngUrl = metaValue(li.meta_data, META.printPngUrl);
     const proofPdfUrl = metaValue(li.meta_data, META.proofPdfUrl);
+    const size = variant?.size ?? design?.size;
     return {
-      productId: product.productId,
-      colourId: variant.colourId,
-      ...(variant.size ? { size: variant.size } : {}),
+      productId: (product?.productId ?? design!.productId) as ProductId,
+      colourId: variant?.colourId ?? design!.colourId,
+      ...(size ? { size } : {}),
+      ...(templateId ? { templateId } : {}),
       quantity: li.quantity,
       designId: metaValue(li.meta_data, META.designId) ?? "",
       unitPricePkr: unit ?? 0,

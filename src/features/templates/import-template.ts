@@ -1,6 +1,6 @@
 import type { ProductId } from "@/config/products";
 import { putAsset } from "@/features/editor/assets/asset-store";
-import { saveDraft } from "@/features/editor/draft";
+import { saveDraft, setDraftTemplate } from "@/features/editor/draft";
 import { isDesignDocument, type DesignDocument } from "@/types/design";
 import { lockLayersForCustomer } from "./lock-layers";
 
@@ -63,5 +63,6 @@ export async function importTemplate(
     fabric: lockLayersForCustomer(data.design.fabric),
   };
   if (!saveDraft(design)) throw new TemplateImportError("Couldn't start");
+  setDraftTemplate(productId, templateId);
   return design;
 }

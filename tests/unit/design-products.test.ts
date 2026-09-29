@@ -253,3 +253,152 @@ describe("WooCommerce design products", () => {
     expect(calls[0]!.query).not.toContain("design-");
   });
 });
+
+describe("design product lines", () => {
+  it("order body: colour/size/base product go on the line as notes", async () => {
+    const { buildOrderBody } = await import("@/lib/commerce/woo-map");
+    const body = buildOrderBody(
+      {
+        checkoutId: "c1",
+        customer: {
+          fullName: "A B",
+          phone: "+923001234567",
+          city: "Gujrat",
+          addressLine: "House 1, Street 2",
+        },
+        lines: [],
+      },
+      [
+        {
+          wooProductId: 777,
+          wooVariationId: 0,
+          quantity: 2,
+          designId: "d1",
+          design: {
+            templateId: "t1",
+            productId: "mug",
+            colourId: "white",
+            size: "M",
+          },
+        },
+      ],
+      200,
+    );
+    expect(body.line_items[0]).toEqual({
+      product_id: 777,
+      quantity: 2,
+      meta_data: [
+        { key: "_design_id", value: "d1" },
+        { key: "_template_id", value: "t1" },
+        { key: "_base_product", value: "mug" },
+        { key: "Colour", value: "white" },
+        { key: "Size", value: "M" },
+      ],
+    });
+  });
+
+  it("mapOrder reads a design line from its notes (the product is not in the base catalog)", async () => {
+    const { mapOrder } = await import("@/lib/commerce/woo-map");
+    const { wooOrderSchema } = await import("@/lib/commerce/woo-schemas");
+    const { wooFixture } = await import("./commerce-woo-helpers");
+    const raw = wooFixture<Record<string, unknown>>("order");
+    const li = (raw.line_items as Record<string, unknown>[])[0]!;
+    raw.line_items = [
+      {
+        ...li,
+        product_id: 777,
+        variation_id: 0,
+        price: 1899,
+        meta_data: [
+          { key: "_design_id", value: "d1" },
+          { key: "_template_id", value: "t1" },
+          { key: "_base_product", value: "mug" },
+          { key: "Colour", value: "white" },
+        ],
+      },
+    ];
+    const order = mapOrder(wooOrderSchema.parse(raw), []);
+    expect(order.lines[0]).toMatchObject({
+      productId: "mug",
+      colourId: "white",
+      templateId: "t1",
+      designId: "d1",
+      unitPricePkr: 1899,
+    });
+  });
+
+  it("the Woo adapter prices a design line from its own product and refuses an unpublished one", async () => {
+    const { fakeWoo, wooFixture } = await import("./commerce-woo-helpers");
+    const woo = fakeWoo();
+    const published = {
+      id: 777,
+      name: "Happy Birthday",
+      slug: "hb",
+      sku: "design-t1",
+      type: "simple",
+      status: "publish",
+      price: "1899",
+      stock_status: "instock",
+      description: "<p>Hi</p><script>x</script>",
+      meta_data: [{ key: "_base_product", value: "mug" }],
+    };
+    let designs: unknown[] = [published];
+    const fetch: typeof globalThis.fetch = async (u, init) => {
+      const url = new URL(String(u));
+      if (
+        url.pathname.endsWith("/products") &&
+        url.searchParams.get("sku") === "design-t1"
+      )
+        return Response.json(designs, { headers: { "x-wp-totalpages": "1" } });
+      return woo.fetch(u, init);
+    };
+    const client = createWooCommerceClient({
+      url: "https://shop.test",
+      consumerKey: "k",
+      consumerSecret: "s",
+      webhookSecret: "w",
+      fetch,
+    });
+    const info = await client.getDesignProduct("t1");
+    expect(info).toMatchObject({
+      wooProductId: 777,
+      pricePkr: 1899,
+      baseProductId: "mug",
+      descriptionHtml: "<p>Hi</p>",
+    });
+
+    const order = {
+      checkoutId: "chk-design",
+      customer: {
+        fullName: "A B",
+        phone: "+923001234567" as const,
+        city: "Gujrat",
+        addressLine: "House 1, Street 2",
+      },
+      lines: [
+        {
+          productId: "mug" as const,
+          colourId: "white",
+          quantity: 1,
+          designId: "d1",
+          templateId: "t1",
+        },
+      ],
+    };
+    await client.createOrder(order).catch(() => undefined);
+    const post = woo.calls.find(
+      (c) => c.method === "POST" && c.path === "/orders",
+    )!;
+    const line = (post.body as { line_items: Record<string, unknown>[] })
+      .line_items[0]!;
+    expect(line.product_id).toBe(777);
+    expect(line).not.toHaveProperty("variation_id");
+    expect(line).not.toHaveProperty("price"); // never a client/our price: WooCommerce prices it
+
+    designs = []; // unpublished
+    await expect(
+      client.createOrder({ ...order, checkoutId: "chk-2" }),
+    ).rejects.toThrow(/unavailable/);
+    expect(wooFixture).toBeDefined();
+  });
+});

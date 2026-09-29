@@ -35,7 +35,7 @@ export function SaveTemplateSheet({ getDesign, onClose, asProduct }: Props) {
     | { kind: "idle" }
     | { kind: "saving" }
     | { kind: "error"; message: string }
-    | { kind: "done"; id: string; warning?: string }
+    | { kind: "done"; id: string; warning?: string; slug?: string }
   >({ kind: "idle" });
 
   const toggle = (slug: OccasionSlug) =>
@@ -68,9 +68,15 @@ export function SaveTemplateSheet({ getDesign, onClose, asProduct }: Props) {
         id?: string;
         error?: string;
         warning?: string;
+        product?: { slug: string };
       };
       if (!res.ok || !body.id) throw new Error(body.error ?? "Couldn't save");
-      setState({ kind: "done", id: body.id, warning: body.warning });
+      setState({
+        kind: "done",
+        id: body.id,
+        warning: body.warning,
+        slug: body.product?.slug,
+      });
     } catch (err) {
       setState({
         kind: "error",
@@ -102,6 +108,17 @@ export function SaveTemplateSheet({ getDesign, onClose, asProduct }: Props) {
               ? "It is published."
               : "It is a draft: only editors can see it until you publish it."}{" "}
             Template id: <code>{state.id}</code>
+            {state.slug && published && (
+              <>
+                {" "}
+                <a
+                  href={`/designs/${state.slug}`}
+                  className="text-brand-700 underline"
+                >
+                  View the product page
+                </a>
+              </>
+            )}
           </p>
         </div>
       ) : (

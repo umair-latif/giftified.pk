@@ -35,6 +35,7 @@ export const wooProductSchema = z.object({
   /** HTML from the WP editor; sanitised before it reaches a page. */
   description: z.string().optional(),
   short_description: z.string().optional(),
+  meta_data: z.array(wooMetaSchema).optional(),
 });
 export type WooProduct = z.infer<typeof wooProductSchema>;
 

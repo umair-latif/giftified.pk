@@ -147,6 +147,20 @@ export interface DesignProduct {
   slug: string;
 }
 
+/** What the shop knows about a PUBLISHED design product (source of truth: WooCommerce). */
+export interface DesignProductInfo {
+  wooProductId: number;
+  templateId: string;
+  slug: string;
+  baseProductId: ProductId;
+  name: string;
+  /** HTML from the WP editor; sanitised before it reaches a page. */
+  descriptionHtml: string;
+  /** Current price in whole rupees (sale price applied). */
+  pricePkr: number;
+  imageUrl?: string;
+}
+
 export interface CommerceClient {
   listProducts(): Promise<CatalogProduct[]>;
   getProduct(productId: ProductId): Promise<CatalogProduct | null>;
@@ -157,6 +171,8 @@ export interface CommerceClient {
    * catalog: its SKU is `design-<templateId>`). Idempotent on `templateId`.
    */
   createDesignProduct(input: NewDesignProduct): Promise<DesignProduct>;
+  /** The published design product, or null when unknown, draft or unpublished. */
+  getDesignProduct(templateId: string): Promise<DesignProductInfo | null>;
   /** Publishes it, with an image WooCommerce downloads from `imageUrl` (skipped if that download fails). */
   publishDesignProduct(
     wooProductId: number,

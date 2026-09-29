@@ -30,7 +30,7 @@ The customer can **Add to cart** as it is, or **Customize** it in the editor. On
 2. **Publish as product (built).** Preview step: editors see **Publish as product** instead of Add to cart → title,
    description, price, occasions → saves the template and creates the WooCommerce simple product
    (`CommerceClient.createProduct`: contract change, lead approval). Idempotent/retryable.
-3. **Design page + cart.** `/designs/<slug>`: title, description, preview, the base product's Details,
+3. **Design page + cart (built).** `/designs/<slug>`: title, description, preview, the base product's Details,
    colour/size, **Add to cart** and **Customize**; after adding: "Customize it" / "Go to cart". Products with
    sample photos say "Add your photo" instead. Cart line carries the template id; the server re-prices from
    the WooCommerce product; order line notes: colour, size, `_template_id`.
@@ -55,3 +55,32 @@ The customer can **Add to cart** as it is, or **Customize** it in the editor. On
 - Contract change for lead review: `CommerceClient` gained `createDesignProduct` / `publishDesignProduct`
   (+ `NewDesignProduct`, `DesignProduct`); `TemplateMeta` gained `product`.
 - Needs the WooCommerce API key to have **write** access to products (it already writes orders).
+
+## Slice 3 notes
+
+- `/designs/<slug>` (ISR, 5 min): title, description and price come from the **WooCommerce product**
+  (`CommerceClient.getDesignProduct`, cached under the catalog tag so WP-admin edits show after the product
+  webhook); the thumbnail, colours/sizes (base product config + catalog) and Details come from the base product.
+  **Add to cart** (the design as it is) / **Customize** (`/design/<product>?template=<id>`); after adding: Go to
+  cart / Customize it. A design that still has sample photos shows **Add your photo** instead.
+- Cart: `CartItem.templateId`. "As is" adds the template's design as a saved design (layers stay locked if it is
+  edited from the cart). **Customize → Preview → Add to cart** keeps the link too (`draft.ts`
+  `setDraftTemplate`, cleared with the draft), so a customised design is still priced as that product.
+- Pricing: `quoteCart` and `createOrder` price a `templateId` line from its own WooCommerce simple product (never
+  the client, never the base variant); the base product only validates colour/size. The order line gets notes
+  `Colour`, `Size` (visible in WP admin) plus `_template_id`, `_base_product`; `mapOrder` reads a design line back
+  from those notes (its product is not in the base catalog), so the print pipeline works unchanged.
+- The gallery/occasion cards now open `/designs/<slug>` for design products; sitemap lists them.
+
+### Contract changes (need the lead's OK; all additive)
+
+- `src/types/cart.ts` `CartItem.templateId?`; `src/types/order.ts` `OrderLineInput.templateId?`
+  (so `OrderLine` too).
+- `src/lib/commerce/types.ts`: `CommerceClient.createDesignProduct`, `getDesignProduct`,
+  `publishDesignProduct`; `NewDesignProduct`, `DesignProduct`, `DesignProductInfo`.
+- `src/server/templates/types.ts`: `TemplateMeta.product`, `SaveTemplateInput.id/product`.
+
+### Not done yet
+
+Cart/checkout show the base product name for design lines (not the design's title); the vendor proof does not
+print the design title; coupons; locked photos; text boxes that start as wide as their text.
