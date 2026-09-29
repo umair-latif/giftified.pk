@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import { CopyIcon, CropIcon, TrashIcon } from "@/components/ui/icons";
 import { FONTS } from "@/config/fonts";
+import { loadTextSheetFonts } from "../fonts/load-fonts";
 import type { TextStyle } from "../engine/text-style";
 import { TextColourPicker } from "./text-colour-picker";
 
@@ -11,6 +12,7 @@ interface Props {
   onCrop: () => void;
   onCopy: () => void;
   onDelete: () => void;
+  onMore: () => void;
 }
 
 /**
@@ -24,6 +26,7 @@ export function SelectionBar({
   onCrop,
   onCopy,
   onDelete,
+  onMore,
 }: Props) {
   return (
     <div
@@ -39,11 +42,20 @@ export function SelectionBar({
       className="fixed inset-x-0 bottom-[calc(3.5rem+1px+env(safe-area-inset-bottom))] z-10 border-t border-zinc-200 bg-white"
     >
       <div
-        className="mx-auto flex h-12 max-w-md items-center gap-1 overflow-x-auto px-2"
+        className="mx-auto flex h-12 max-w-md items-center gap-0.5 overflow-x-auto px-1.5"
         data-testid="selection-bar-row"
       >
         {kind === "text" && text && (
           <>
+            <button
+              type="button"
+              aria-label="More"
+              aria-haspopup="dialog"
+              onClick={onMore}
+              className="grid size-9 shrink-0 place-items-center rounded-md text-base font-semibold text-zinc-700 italic active:bg-zinc-100"
+            >
+              Aa
+            </button>
             <label className="sr-only" htmlFor="font-select">
               Font
             </label>
@@ -54,8 +66,9 @@ export function SelectionBar({
                   ? text.fontFamily
                   : ""
               }
+              onFocus={() => void loadTextSheetFonts()}
               onChange={(e) => onTextStyle({ fontFamily: e.target.value })}
-              className="h-9 w-20 shrink-0 rounded-md border border-zinc-300 bg-white px-2 text-sm text-zinc-800"
+              className="h-9 w-14 shrink-0 rounded-md border border-zinc-300 bg-white px-1 text-sm text-zinc-800"
               style={{ fontFamily: text.fontFamily }}
             >
               {!FONTS.some((f) => f.family === text.fontFamily) && (

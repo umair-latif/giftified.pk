@@ -13,6 +13,7 @@ import {
 } from "../hooks/use-fabric-canvas";
 import { CropSheet } from "./crop-sheet";
 import { SelectionBar } from "./selection-bar";
+import { TextSheet } from "./text-sheet";
 import { ACCEPTED_IMAGE_TYPES } from "../assets/prepare-image";
 import { EditorStage } from "./editor-stage";
 import { PrintQualityBadge } from "./print-quality-badge";
@@ -36,6 +37,7 @@ export function DesignEditor({
   const ready = ed.status === "ready" && !ed.busy;
   const fileInput = useRef<HTMLInputElement>(null);
   const [cropTarget, setCropTarget] = useState<CropTarget | null>(null);
+  const [textSheetOpen, setTextSheetOpen] = useState(false);
   const selectionKind = !ed.selection
     ? null
     : ed.selection.text
@@ -43,6 +45,15 @@ export function DesignEditor({
       : ed.selection.dpi !== null
         ? "image"
         : "other";
+  // Closing the sheet when the selection stops being text (deselect, or a
+  // different layer picked) belongs to render, not an effect — it adjusts
+  // state in response to a prop-like change rather than syncing an external
+  // system. See https://react.dev/learn/you-might-not-need-an-effect
+  const [prevSelectionKind, setPrevSelectionKind] = useState(selectionKind);
+  if (selectionKind !== prevSelectionKind) {
+    setPrevSelectionKind(selectionKind);
+    if (selectionKind !== "text") setTextSheetOpen(false);
+  }
 
   return (
     <div
@@ -176,6 +187,14 @@ export function DesignEditor({
           onCrop={() => setCropTarget(ed.getCropTarget())}
           onCopy={ed.copySelected}
           onDelete={ed.deleteSelected}
+          onMore={() => setTextSheetOpen(true)}
+        />
+      )}
+      {textSheetOpen && ed.selection?.text && (
+        <TextSheet
+          text={ed.selection.text}
+          onTextStyle={ed.applyTextStyle}
+          onClose={() => setTextSheetOpen(false)}
         />
       )}
       <EditorToolbar

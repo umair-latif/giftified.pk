@@ -59,6 +59,34 @@ export const SERVER_FONTS = {
     dir: "liberation",
     faces: faces("LiberationMono"),
   },
+  // Task 06 (text styling sheet) adds these four as self-hosted webfonts —
+  // same files in the browser (`public/fonts/text-sheet/`) and here, so the
+  // print render matches the editor exactly (no metric-compatible-substitute
+  // guessing needed, unlike sans/serif/mono above — see task 16).
+  playful: {
+    family: "Giftified Print Poppins",
+    dir: "poppins",
+    faces: faces("Poppins"),
+  },
+  elegant: {
+    family: "Giftified Print Playfair",
+    dir: "playfair-display",
+    faces: faces("PlayfairDisplay"),
+  },
+  // Caveat and Noto Nastaliq Urdu ship no italic design; the Bold/BoldItalic
+  // and Italic files are copies of the upright face registered under those
+  // weight/style slots (see docs/tasks/06-text-styling-sheet.md) so a bold or
+  // italic toggle never falls back to an unstyled system font server-side.
+  handwritten: {
+    family: "Giftified Print Caveat",
+    dir: "caveat",
+    faces: faces("Caveat"),
+  },
+  urdu: {
+    family: "Giftified Print Nastaliq Urdu",
+    dir: "noto-nastaliq-urdu",
+    faces: faces("NotoNastaliqUrdu"),
+  },
 } as const satisfies Record<string, ServerFont>;
 
 export type ServerFontKey = keyof typeof SERVER_FONTS;
@@ -80,6 +108,10 @@ export const FAMILY_ALIASES: Readonly<Record<string, ServerFontKey>> = {
   cousine: "mono",
   "liberation mono": "mono",
   monospace: "mono",
+  poppins: "playful",
+  "playfair display": "elegant",
+  caveat: "handwritten",
+  "noto nastaliq urdu": "urdu",
 };
 
 /** `"Georgia, 'Times New Roman', serif"` → `["georgia", "times new roman", "serif"]`. */
