@@ -3,9 +3,6 @@ import design from "../fixtures/design-mug.json";
 
 // Orders are numbered by the (shared) mock store: keep this file's tests in order.
 test.describe.configure({ mode: "serial" });
-// The single-design order page now redirects to the cart (task 12). Task 13
-// (checkout from the cart) rewrites these tests for /checkout.
-test.skip(true, "Checkout v1 replaced by the cart; re-enabled in task 13");
 
 /** A photo whose ORIGINAL is `px` wide, printed 100 mm wide (px / 3.937 in = DPI). */
 const photo = (px: number) => ({
@@ -20,17 +17,42 @@ const photo = (px: number) => ({
   scaleY: 1,
 });
 
-async function seedDraft(page: Page, extraObjects: unknown[] = []) {
-  const doc = {
-    ...design,
-    fabric: {
-      ...design.fabric,
-      objects: [...design.fabric.objects, ...extraObjects],
-    },
-  };
-  await page.addInitScript((json) => {
-    localStorage.setItem("giftified:draft:mug", json);
-  }, JSON.stringify(doc));
+interface SeedLine {
+  quantity: number;
+  extraObjects?: unknown[];
+}
+
+/**
+ * Puts cart lines (each with its own saved design) in localStorage once per
+ * test — init scripts run on every navigation, and checkout must be able to
+ * empty the cart.
+ */
+async function seedCart(page: Page, lines: SeedLine[]) {
+  const store: Record<string, string> = {};
+  const items = lines.map((l, i) => {
+    const designKey = `seed-design-${i}`;
+    store[`giftified:design:${designKey}`] = JSON.stringify({
+      ...design,
+      fabric: {
+        ...design.fabric,
+        objects: [...design.fabric.objects, ...(l.extraObjects ?? [])],
+      },
+    });
+    return {
+      id: `seed-line-${i}`,
+      productId: "mug",
+      colourId: "white",
+      quantity: l.quantity,
+      designKey,
+      addedAt: "2026-09-28T10:00:00.000Z",
+    };
+  });
+  store["giftified:cart"] = JSON.stringify(items);
+  await page.addInitScript((s) => {
+    if (sessionStorage.getItem("seeded")) return;
+    sessionStorage.setItem("seeded", "1");
+    for (const [k, v] of Object.entries(s)) localStorage.setItem(k, v);
+  }, store);
 }
 
 async function fillForm(page: Page) {
@@ -54,54 +76,67 @@ test.beforeEach(({ page }) => {
 });
 test.afterEach(() => expect(pageErrors).toEqual([]));
 
-test("COD checkout on a 360px phone: preview → order → confirmation", async ({
+test("two cart items → checkout → one order with both lines", async ({
   page,
 }) => {
-  await seedDraft(page);
-  await page.goto("/design/mug/preview");
-  await page.getByRole("link", { name: "Order", exact: true }).tap();
-  await expect(page).toHaveURL(/\/design\/mug\/order$/);
-  await expect(page.locator('[aria-current="step"]')).toHaveText(/Order/);
+  await seedCart(page, [{ quantity: 2 }, { quantity: 1 }]);
+  await page.goto("/cart");
+  await page.getByRole("link", { name: /Checkout/ }).tap();
+  await expect(page).toHaveURL(/\/checkout$/);
+
+  const lines = page.getByTestId("checkout-line");
+  await expect(lines).toHaveCount(2);
+  await expect(lines.nth(0)).toContainText("Qty 2");
+  await expect(lines.nth(0).getByTestId("line-price")).toHaveText("Rs 2,998");
+  await expect(lines.nth(1).getByTestId("line-price")).toHaveText("Rs 1,499");
 
   const phone = page.getByLabel("Mobile number");
   await expect(phone).toHaveAttribute("inputmode", "tel");
   expect((await phone.boundingBox())!.height).toBeGreaterThanOrEqual(44);
-
-  await expect(page.getByTestId("shipping")).toHaveText("Choose your city");
   await fillForm(page);
+  await page.getByLabel(/Email/).fill("Ayesha@Example.pk");
   await expect(page.getByTestId("shipping")).toHaveText("Rs 200");
-  await expect(page.getByTestId("total")).toHaveText("Rs 1,699");
-  await page.getByRole("button", { name: "One more" }).tap();
-  await expect(page.getByTestId("total")).toHaveText("Rs 3,198");
+  await expect(page.getByTestId("total")).toHaveText("Rs 4,697");
 
   const scrollWidth = await page.evaluate(
     () => document.documentElement.scrollWidth,
   );
   expect(scrollWidth).toBeLessThanOrEqual(360);
 
-  const upload = page.waitForResponse(
-    (r) => r.url().endsWith("/api/designs") && r.request().method() === "POST",
-  );
+  const uploads: string[] = [];
+  page.on("response", async (r) => {
+    if (r.url().endsWith("/api/designs") && r.request().method() === "POST")
+      uploads.push(((await r.json()) as { designId: string }).designId);
+  });
   await page.getByRole("button", { name: /Place order/ }).tap();
-  const { designId } = (await (await upload).json()) as { designId: string };
-  await expect(page).toHaveURL(/\/order\/\d+\?t=[\w-]+$/);
-  // The design the print job needs is really in storage.
-  const saved = await page.request.get(
-    `/api/dev-storage/designs/${designId}/design.json`,
-  );
-  expect(saved.status()).toBe(200);
-  await expect(page.getByText("Thank you!")).toBeVisible();
+  await expect(page).toHaveURL(/\/order\/\d+\?t=[\w-]{22}$/);
+
+  // Each design was uploaded once and is really in storage for the print job.
+  expect(uploads).toHaveLength(2);
+  for (const id of uploads) {
+    const saved = await page.request.get(
+      `/api/dev-storage/designs/${id}/design.json`,
+    );
+    expect(saved.status()).toBe(200);
+  }
+
+  await expect(
+    page.getByRole("heading", { name: "Thank you!" }),
+  ).toBeVisible();
+  await expect(page.getByTestId("order-line")).toHaveCount(2);
+  await expect(page.getByTestId("order-total")).toHaveText("Rs 4,697");
   await expect(page.getByTestId("confirm-message")).toContainText(
     "0300 •••• 567",
   );
-  await expect(page.getByTestId("order-total")).toHaveText("Rs 3,198");
   expect(await orderNumber(page)).toBeGreaterThan(0);
+  // The cart is empty now.
+  await expect(page.getByTestId("cart-count")).toHaveCount(0);
 });
 
-test("double submit creates one order", async ({ page }) => {
-  await seedDraft(page);
+test("double tap creates one order", async ({ page }) => {
   const place = async () => {
-    await page.goto("/design/mug/order");
+    await page.evaluate(() => sessionStorage.removeItem("seeded"));
+    await page.goto("/checkout");
     await fillForm(page);
     await expect(page.getByTestId("total")).toHaveText("Rs 1,699");
     // Two submits before React re-renders the disabled button.
@@ -113,44 +148,66 @@ test("double submit creates one order", async ({ page }) => {
     await expect(page).toHaveURL(/\/order\/\d+\?t=[\w-]+$/);
     return orderNumber(page);
   };
+  await seedCart(page, [{ quantity: 1 }]);
+  await page.goto("/");
   const first = await place();
   const second = await place();
   // A duplicate from the first attempt would have taken `first + 1`.
   expect(second).toBe(first + 1);
 });
 
+test("an empty cart shows a way back to the products", async ({ page }) => {
+  await page.goto("/checkout");
+  const empty = page.getByTestId("checkout-empty");
+  await expect(empty).toContainText("Your cart is empty.");
+  await empty.getByRole("link", { name: "Browse products" }).tap();
+  await expect(page).toHaveURL(/\/products$/);
+});
+
 test("shows plain-language errors inline and keeps the customer on the form", async ({
   page,
 }) => {
-  await seedDraft(page);
-  await page.goto("/design/mug/order");
+  await seedCart(page, [{ quantity: 1 }]);
+  await page.goto("/checkout");
   await page.getByLabel("Mobile number").fill("042 35761234");
   await page.getByLabel("Full name").tap(); // blur → client-side phone check
   await expect(page.getByText(/Pakistani mobile number/)).toBeVisible();
+  await page.getByLabel(/Email/).fill("ayesha@");
   await page.getByRole("button", { name: /Place order/ }).tap();
   await expect(page.getByText("Please write your full name.")).toBeVisible();
   await expect(page.getByText("Please choose your city.")).toBeVisible();
-  await expect(page.getByLabel("Full name")).toBeFocused();
-  await expect(page).toHaveURL(/\/design\/mug\/order$/);
-});
-
-test("blocks ordering when a photo is too blurry", async ({ page }) => {
-  await seedDraft(page, [photo(400)]); // ~102 DPI
-  await page.goto("/design/mug/order");
-  await expect(page.getByTestId("checkout-blocked")).toContainText(
-    "A photo is too blurry to print — go back and make it smaller",
-  );
-  await expect(page.getByRole("button", { name: /Place order/ })).toHaveCount(
-    0,
-  );
   await expect(
-    page.getByRole("link", { name: "Back to the editor" }),
-  ).toHaveAttribute("href", "/design/mug");
+    page.getByText("Please check your email address, or leave it empty."),
+  ).toBeVisible();
+  await expect(page.getByLabel("Full name")).toBeFocused();
+  await expect(page).toHaveURL(/\/checkout$/);
 });
 
-test("allows a slightly soft photo with a gentle note", async ({ page }) => {
-  await seedDraft(page, [photo(700)]); // ~178 DPI
-  await page.goto("/design/mug/order");
+test("blocks the order when one item's photo is too blurry, and says which", async ({
+  page,
+}) => {
+  await seedCart(page, [
+    { quantity: 1 },
+    { quantity: 1, extraObjects: [photo(400)] }, // ~102 DPI → block
+  ]);
+  await page.goto("/checkout");
+  const blocked = page.getByTestId("checkout-blocked");
+  await expect(blocked).toContainText("Item 2 (Custom Mug)");
+  await expect(blocked).toContainText("too blurry");
+  await expect(
+    blocked.getByRole("link", { name: "Edit design" }),
+  ).toHaveAttribute("href", "/design/mug?item=seed-line-1");
+  await expect(
+    page.getByRole("button", { name: /Place order/ }),
+  ).toBeDisabled();
+});
+
+test("a slightly soft photo gets a gentle note but can be ordered", async ({
+  page,
+}) => {
+  await seedCart(page, [{ quantity: 1, extraObjects: [photo(700)] }]); // ~178 DPI → warn
+  await page.goto("/checkout");
   await expect(page.getByText(/may look a little soft/)).toBeVisible();
+  await expect(page.getByTestId("checkout-blocked")).toHaveCount(0);
   await expect(page.getByRole("button", { name: /Place order/ })).toBeEnabled();
 });

@@ -207,7 +207,7 @@ function CartLine({
             formatPkr(unitPricePkr * item.quantity)
           )}
         </p>
-        <div className="mt-2 flex items-center justify-between gap-2">
+        <div className="mt-2 flex flex-wrap items-center justify-between gap-x-2 gap-y-1">
           <div className="flex items-center" role="group" aria-label="Quantity">
             <button
               type="button"
@@ -234,7 +234,7 @@ function CartLine({
               +
             </button>
           </div>
-          <div className="flex gap-3 text-xs font-medium whitespace-nowrap">
+          <div className="flex gap-3 text-xs font-medium">
             <Link
               href={`/design/${item.productId}?item=${encodeURIComponent(item.id)}`}
               className="text-brand-700 underline"

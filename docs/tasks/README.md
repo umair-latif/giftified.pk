@@ -20,12 +20,12 @@ own folders.
 | 08  | [Order pipeline, manual dispatch](08-order-pipeline.md)                | Lead                           | `feat/order-pipeline`       | done (live)              |
 | 09  | [Photo background removal](09-background-removal.md)                   | —                              | `feat/bg-removal`           | **postponed**            |
 | A0  | Contracts + site shell (header/cart badge, footer, `config/site.ts`)   | Lead                           | `feat/storefront-contracts` | done                     |
-| 10  | [Home page](10-home-page.md)                                           | _unassigned_                   | `feat/home`                 | after A0                 |
-| 11  | [Catalog + product pages](11-catalog-product-pages.md)                 | _unassigned_                   | `feat/catalog`              | after A0                 |
-| 12  | [Cart](12-cart.md)                                                     | Lead                           | `feat/cart`                 | in review                |
-| 13  | [Checkout v2 (from the cart)](13-checkout-v2.md)                       | _unassigned_ (did 05?)         | `feat/checkout-v2`          | after 12                 |
-| 14  | [Order status + guest tracking](14-order-status-tracking.md)           | _unassigned_                   | `feat/order-tracking`       | after A0                 |
-| 15  | [Help and info pages](15-info-pages.md)                                | _unassigned_ + founder text    | `feat/info-pages`           | after A0                 |
+| 10  | [Home page](10-home-page.md)                                           | Claude (cloud session)         | `feat/home`                 | done                     |
+| 11  | [Catalog + product pages](11-catalog-product-pages.md)                 | Claude (2nd session)           | `feat/catalog`              | done                     |
+| 12  | [Cart](12-cart.md)                                                     | Lead                           | `feat/cart`                 | done                     |
+| 13  | [Checkout v2 (from the cart)](13-checkout-v2.md)                       | Claude (2nd session)           | `feat/checkout-v2`          | in review                |
+| 14  | [Order status + guest tracking](14-order-status-tracking.md)           | Claude (cloud session)         | `feat/order-tracking`       | done                     |
+| 15  | [Help and info pages](15-info-pages.md)                                | Claude (cloud session) + founder text | `feat/info-pages`    | done (founder TODOs open) |
 | 16  | [Editor ↔ print font parity](16-font-parity.md)                        | Lead                           | `fix/font-parity`           | ready                    |
 | 17  | [Photo frames (Crop & shape)](17-photo-frames.md)                      | Lead                           | `feat/photo-frames`         | after 12                 |
 | 18  | [Templates: placeholders, Save as template](18-templates-authoring.md) | Lead                           | `feat/templates`            | after 17                 |

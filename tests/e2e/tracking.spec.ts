@@ -52,19 +52,31 @@ test("/track: an unknown order gets the generic message and keeps the typed valu
   expect(scrollWidth).toBeLessThanOrEqual(360);
 });
 
-// One order is placed first, then looked up in several ways. Placing an order
-// needs checkout from the cart (task 13): the single-design order page now
-// redirects to the cart (task 12), exactly like tests/e2e/checkout.spec.ts.
-// Task 13: re-enable and make placeOrder() go through /cart → /checkout.
+// One order is placed first (one mug in the cart → /checkout), then looked
+// up in several ways.
 test.describe("with a placed order", () => {
   test.describe.configure({ mode: "serial" });
-  test.skip(true, "Checkout v1 replaced by the cart; re-enabled in task 13");
 
   async function placeOrder(page: Page) {
     await page.addInitScript((json) => {
-      localStorage.setItem("giftified:draft:mug", json);
+      if (sessionStorage.getItem("seeded")) return;
+      sessionStorage.setItem("seeded", "1");
+      localStorage.setItem("giftified:design:track-design", json);
+      localStorage.setItem(
+        "giftified:cart",
+        JSON.stringify([
+          {
+            id: "track-line",
+            productId: "mug",
+            colourId: "white",
+            quantity: 1,
+            designKey: "track-design",
+            addedAt: "2026-09-28T10:00:00.000Z",
+          },
+        ]),
+      );
     }, JSON.stringify(design));
-    await page.goto("/design/mug/order");
+    await page.goto("/checkout");
     await page.getByLabel("Full name").fill("Ayesha Khan");
     await page.getByLabel("Mobile number").fill("0300 1234567");
     await page.getByLabel("City").fill("lah");
