@@ -55,7 +55,7 @@ export function TextColourPicker({ value, onChange }: Props) {
         aria-expanded={open}
         aria-haspopup="true"
         onClick={() => setOpen((o) => !o)}
-        className="grid size-9 place-items-center rounded-md active:bg-zinc-100"
+        className="grid size-9 place-items-center rounded-md hover:bg-zinc-100 active:bg-zinc-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-600/20"
       >
         <span
           aria-hidden
@@ -78,7 +78,7 @@ export function TextColourPicker({ value, onChange }: Props) {
                 aria-label={s.name}
                 aria-pressed={s.hex.toLowerCase() === current}
                 onClick={() => pick(s.hex)}
-                className={`size-9 rounded-full ring-1 ring-zinc-300 ${
+                className={`size-9 rounded-full ring-1 ring-zinc-300 hover:ring-2 hover:ring-brand-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-600/40 ${
                   s.hex.toLowerCase() === current
                     ? "outline-brand-600 outline-2 outline-offset-2"
                     : ""
@@ -168,7 +168,7 @@ function HexField({
       </div>
       <button
         type="submit"
-        className="bg-brand-600 active:bg-brand-700 h-10 shrink-0 rounded-md px-3 text-sm font-medium text-white"
+        className="bg-brand-600 hover:bg-brand-700 active:bg-brand-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-600/40 h-10 shrink-0 rounded-md px-3 text-sm font-medium text-white"
       >
         Apply
       </button>

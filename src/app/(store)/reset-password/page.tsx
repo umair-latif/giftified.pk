@@ -40,7 +40,10 @@ export default async function ResetPasswordPage(
         </>
       )}
       <p className="text-center text-sm text-zinc-600">
-        <Link href="/sign-in" className="text-brand-700 font-medium">
+        <Link
+          href="/sign-in"
+          className="text-brand-700 hover:text-brand-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-600/20 rounded font-medium"
+        >
           Back to sign in
         </Link>
       </p>

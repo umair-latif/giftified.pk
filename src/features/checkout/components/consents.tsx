@@ -2,7 +2,8 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 import { CONTENT_NOT_CONFIRMED } from "../messages";
 
-const link = "text-brand-700 font-medium underline";
+const link =
+  "text-brand-700 hover:text-brand-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-600/20 rounded font-medium underline";
 
 /**
  * Marketing opt-in (optional), the required content confirmation, and the legal

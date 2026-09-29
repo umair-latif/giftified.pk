@@ -44,7 +44,7 @@ export function SignInForm({ next }: { next?: string | undefined }) {
       </SubmitButton>
       <Link
         href="/reset-password"
-        className="text-brand-700 text-center text-sm font-medium"
+        className="text-brand-700 hover:text-brand-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-600/20 rounded text-center text-sm font-medium"
       >
         Forgot your password?
       </Link>

@@ -5,7 +5,7 @@ export function GoogleButton({ next }: { next?: string | undefined }) {
     // A full-page navigation to an API route that redirects to Google.
     <a
       href={href}
-      className="text-ink flex h-12 items-center justify-center gap-3 rounded-full border border-zinc-300 bg-white font-semibold active:bg-zinc-50"
+      className="text-ink flex h-12 items-center justify-center gap-3 rounded-full border border-zinc-300 bg-white font-semibold hover:bg-zinc-50 active:bg-zinc-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-600/20"
       data-testid="google-button"
     >
       <svg width="18" height="18" viewBox="0 0 48 48" aria-hidden="true">

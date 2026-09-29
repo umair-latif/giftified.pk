@@ -110,7 +110,7 @@ export function CropSheet({ target, onCancel, onApply }: Props) {
         <button
           type="button"
           onClick={onCancel}
-          className="h-10 rounded-md px-3 text-sm text-zinc-300"
+          className="h-10 rounded-md px-3 text-sm text-zinc-300 hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40"
         >
           Cancel
         </button>
@@ -118,7 +118,7 @@ export function CropSheet({ target, onCancel, onApply }: Props) {
         <button
           type="button"
           onClick={() => onApply(viewToRect(imageAspect, view))}
-          className="bg-brand-500 h-9 rounded-full px-4 text-sm font-medium"
+          className="bg-brand-500 hover:bg-brand-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40 h-9 rounded-full px-4 text-sm font-medium"
         >
           Done
         </button>
@@ -185,7 +185,7 @@ export function CropSheet({ target, onCancel, onApply }: Props) {
           <button
             type="button"
             onClick={() => setView(rectToView(imageAspect, FULL_RECT))}
-            className="h-9 shrink-0 rounded-full px-2 text-xs text-zinc-300 underline"
+            className="h-9 shrink-0 rounded-full px-2 text-xs text-zinc-300 underline hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40"
           >
             Reset
           </button>
@@ -202,10 +202,10 @@ export function CropSheet({ target, onCancel, onApply }: Props) {
               role="radio"
               aria-checked={activePreset === p.id}
               onClick={() => setView((v) => ({ ...v, frameAspect: p.aspect }))}
-              className={`h-9 shrink-0 rounded-full px-3 text-xs font-medium ${
+              className={`h-9 shrink-0 rounded-full px-3 text-xs font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40 ${
                 activePreset === p.id
-                  ? "bg-white text-zinc-900"
-                  : "bg-zinc-800 text-zinc-200"
+                  ? "bg-white text-zinc-900 hover:bg-zinc-200"
+                  : "bg-zinc-800 text-zinc-200 hover:bg-zinc-700"
               }`}
             >
               {p.label}

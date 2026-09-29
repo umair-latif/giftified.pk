@@ -77,7 +77,7 @@ export function CityPicker({
               key={city}
               role="option"
               aria-selected={city === typed}
-              className="active:bg-brand-50 flex min-h-11 items-center px-4 text-base text-zinc-900"
+              className="hover:bg-brand-50 active:bg-brand-50 flex min-h-11 items-center px-4 text-base text-zinc-900"
               onClick={() => pick(city)}
             >
               {city}
@@ -87,7 +87,7 @@ export function CityPicker({
             <li
               role="option"
               aria-selected={false}
-              className="text-brand-700 active:bg-brand-50 flex min-h-11 items-center px-4 text-base"
+              className="text-brand-700 hover:bg-brand-50 active:bg-brand-50 flex min-h-11 items-center px-4 text-base"
               onClick={() => pick(typed)}
             >
               Other: use “{typed}”

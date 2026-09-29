@@ -30,7 +30,7 @@ export default async function AccountPage() {
       <form action={signOutAction}>
         <button
           type="submit"
-          className="text-ink h-12 w-full rounded-full border border-zinc-300 bg-white font-semibold active:bg-zinc-50"
+          className="text-ink h-12 w-full rounded-full border border-zinc-300 bg-white font-semibold hover:bg-zinc-50 active:bg-zinc-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-600/20"
           data-testid="sign-out"
         >
           Sign out

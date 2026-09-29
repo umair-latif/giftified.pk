@@ -31,7 +31,7 @@ export function Occasions() {
             >
               <Link
                 href="/products"
-                className={`${TILE_STYLES[i % TILE_STYLES.length]} flex min-h-16 items-center justify-center rounded-2xl px-3 text-center font-medium shadow-sm active:opacity-80`}
+                className={`${TILE_STYLES[i % TILE_STYLES.length]} flex min-h-16 items-center justify-center rounded-2xl px-3 text-center font-medium shadow-sm hover:opacity-90 active:opacity-80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-600/40`}
               >
                 {o.label}
               </Link>

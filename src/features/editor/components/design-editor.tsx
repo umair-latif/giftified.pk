@@ -131,7 +131,7 @@ export function DesignEditor({
             <button
               type="button"
               onClick={ed.dismissNotice}
-              className="font-medium underline"
+              className="hover:text-red-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-600/20 rounded font-medium underline"
             >
               OK
             </button>
@@ -242,7 +242,7 @@ function IconButton({
       aria-label={label}
       onClick={onClick}
       disabled={disabled}
-      className="grid size-10 shrink-0 place-items-center rounded-full text-zinc-700 active:bg-zinc-100 disabled:text-zinc-300"
+      className="grid size-10 shrink-0 place-items-center rounded-full text-zinc-700 hover:bg-zinc-100 active:bg-zinc-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-600/20 disabled:text-zinc-300 disabled:hover:bg-transparent"
     >
       {children}
     </button>
@@ -263,7 +263,7 @@ function Chip({
       type="button"
       onClick={onClick}
       disabled={disabled}
-      className="h-8 rounded-full border border-zinc-300 bg-white px-3 text-xs font-medium text-zinc-700 active:bg-zinc-100 disabled:border-zinc-200 disabled:text-zinc-300"
+      className="h-8 rounded-full border border-zinc-300 bg-white px-3 text-xs font-medium text-zinc-700 hover:bg-zinc-100 active:bg-zinc-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-600/20 disabled:border-zinc-200 disabled:text-zinc-300 disabled:hover:bg-white"
     >
       {children}
     </button>

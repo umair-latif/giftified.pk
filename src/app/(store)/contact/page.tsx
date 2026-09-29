@@ -28,7 +28,7 @@ export default function ContactPage() {
         {wa ? (
           <a
             href={wa}
-            className="bg-brand-600 active:bg-brand-700 inline-flex h-12 items-center rounded-full px-6 font-medium text-white no-underline!"
+            className="bg-brand-600 hover:bg-brand-700 active:bg-brand-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-600/40 inline-flex h-12 items-center rounded-full px-6 font-medium text-white no-underline!"
           >
             Chat on WhatsApp
           </a>
