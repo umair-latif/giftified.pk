@@ -154,6 +154,12 @@ test("a template editor publishes a design as a product from the preview; others
   await sheet
     .getByLabel("Description")
     .fill("A cheerful mug for any birthday.");
+  // A plain mug's price is shown as a reference (and as the placeholder).
+  await expect(sheet.getByTestId("base-price-hint")).toContainText("Rs 1,499");
+  await expect(sheet.getByLabel("Price (Rs)")).toHaveAttribute(
+    "placeholder",
+    "1499",
+  );
   await sheet.getByLabel("Price (Rs)").fill("1899");
   await submit.click();
   await expect(ep.getByTestId("template-saved")).toContainText("Product saved");
