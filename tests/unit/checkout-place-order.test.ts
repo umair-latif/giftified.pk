@@ -142,3 +142,104 @@ describe("placeOrder while signed in (task 20)", () => {
     expect(create.mock.calls.at(-1)![0].customerId).toBeUndefined();
   });
 });
+
+describe("checkout for signed-in customers (prefill, delivery, save)", () => {
+  const fresh = (id: string, extra: Record<string, unknown> = {}) => ({
+    ...input(id, ["designPre1"]),
+    ...extra,
+  });
+
+  it("prefills from the account and offers to save when no address is stored", async () => {
+    const cookies = await import("@/server/auth/cookies");
+    const { getCheckoutPrefill } = await import("@/features/checkout/actions");
+    const commerce = getCommerce();
+    const c = await commerce.createCustomer({
+      email: "prefill@example.pk",
+      firstName: "Sara",
+      lastName: "Ali",
+      password: "pw-pw-pw-pw",
+    });
+    const spy = vi.spyOn(cookies, "getSessionCustomer");
+
+    spy.mockResolvedValueOnce(null);
+    expect(await getCheckoutPrefill()).toBeNull();
+
+    spy.mockResolvedValueOnce(c);
+    expect(await getCheckoutPrefill()).toEqual({
+      fullName: "Sara Ali",
+      email: "prefill@example.pk",
+      offerSave: true,
+    });
+
+    await commerce.updateCustomerProfile(c!.id, {
+      phone: "+923001234567",
+      city: "Lahore",
+      addressLine: "House 12, Street 4, Model Town",
+      landmark: "Near GT Road",
+    });
+    spy.mockResolvedValueOnce(await commerce.getCustomer(c!.id));
+    expect(await getCheckoutPrefill()).toEqual({
+      fullName: "Sara Ali",
+      email: "prefill@example.pk",
+      phone: "+923001234567",
+      city: "Lahore",
+      addressLine: "House 12, Street 4, Model Town",
+      landmark: "Near GT Road",
+      offerSave: false,
+    });
+  });
+
+  it("saves phone and address to the account when asked, not for guests or when unticked", async () => {
+    const cookies = await import("@/server/auth/cookies");
+    const commerce = getCommerce();
+    const c = (await commerce.createCustomer({
+      email: "save@example.pk",
+      firstName: "Save",
+      lastName: "Me",
+      password: "pw-pw-pw-pw",
+    }))!;
+    await saveDesigns("designPre1");
+    const spy = vi.spyOn(cookies, "getSessionCustomerId");
+    const update = vi.spyOn(commerce, "updateCustomerProfile");
+
+    spy.mockResolvedValueOnce(c.id);
+    await placeOrder(fresh("chk-save-000001", { saveToAccount: false }));
+    expect(update).not.toHaveBeenCalled();
+
+    spy.mockResolvedValueOnce(null);
+    await placeOrder(fresh("chk-save-000002", { saveToAccount: true }));
+    expect(update).not.toHaveBeenCalled();
+
+    spy.mockResolvedValueOnce(c.id);
+    const r = await placeOrder(
+      fresh("chk-save-000003", { saveToAccount: true }),
+    );
+    expect(r.ok).toBe(true);
+    expect((await commerce.getCustomer(c.id))?.address).toEqual({
+      city: "Lahore",
+      addressLine: "House 12, Street 4, Model Town",
+    });
+    expect((await commerce.getCustomer(c.id))?.phone).toBe("+923001234567");
+  });
+
+  it("ships to the delivery address and prices delivery for its city", async () => {
+    await saveDesigns("designPre1");
+    const r = await placeOrder(
+      fresh("chk-gift-000001", {
+        deliveryDifferent: true,
+        deliveryName: "Sana Malik",
+        deliveryCity: "Karachi",
+        deliveryAddressLine: "Flat 4, Block B, Clifton",
+      }),
+    );
+    if (!r.ok) throw new Error(JSON.stringify(r));
+    const order = await getCommerce().getOrder(r.orderId);
+    expect(order?.customer).toMatchObject({
+      fullName: "Sana Malik",
+      city: "Karachi",
+      addressLine: "Flat 4, Block B, Clifton",
+      phone: "+923001234567",
+    });
+    expect(order?.shippingPkr).toBe(250); // Karachi, not Lahore's 200
+  });
+});

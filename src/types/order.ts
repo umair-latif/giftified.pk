@@ -29,6 +29,19 @@ export interface CustomerDetails {
   landmark?: string;
 }
 
+/**
+ * Where the parcel goes when that is not the customer's own (billing) address,
+ * e.g. a gift. `CreateOrderInput.customer` stays the billing address and the
+ * contact phone; WooCommerce's shipping address becomes this one.
+ */
+export interface DeliveryAddress {
+  /** Who receives it; the customer's name when omitted. */
+  fullName?: string;
+  city: string;
+  addressLine: string;
+  landmark?: string;
+}
+
 export interface OrderLineInput {
   productId: ProductId;
   /** Links to WC product/variation; resolved by the commerce adapter. */
@@ -40,7 +53,10 @@ export interface OrderLineInput {
 }
 
 export interface CreateOrderInput {
+  /** Billing address and contact phone (the delivery address too, unless `delivery` is set). */
   customer: CustomerDetails;
+  /** Deliver somewhere else than `customer`. Shipping is quoted for this city. */
+  delivery?: DeliveryAddress;
   /** Optional, for the receipt and WooCommerce's order emails. Lower-cased. */
   email?: string;
   /** WooCommerce customer ID when signed in (task 20). */

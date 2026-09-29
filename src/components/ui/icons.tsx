@@ -75,6 +75,20 @@ export const TruckIcon = (p: IconProps) => (
   </svg>
 );
 
+export const EyeIcon = (p: IconProps) => (
+  <svg {...base} {...p}>
+    <path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z" />
+    <circle cx="12" cy="12" r="3" />
+  </svg>
+);
+
+export const EyeOffIcon = (p: IconProps) => (
+  <svg {...base} {...p}>
+    <path d="M17.9 17.9A10.4 10.4 0 0 1 12 19c-6.4 0-10-7-10-7a17.6 17.6 0 0 1 4.1-5.1M9.9 5.2A9.7 9.7 0 0 1 12 5c6.4 0 10 7 10 7a17.7 17.7 0 0 1-2.2 3.2" />
+    <path d="M9.9 9.9a3 3 0 0 0 4.2 4.2M3 3l18 18" />
+  </svg>
+);
+
 export const UserIcon = (p: IconProps) => (
   <svg {...base} {...p}>
     <circle cx="12" cy="8" r="4" />

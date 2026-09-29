@@ -21,11 +21,11 @@ test("sign up, sign out, wrong password, sign in, forgot password", async ({
   await page.goto("/sign-up");
   await page.getByLabel("Your name").fill("Ayesha Khan");
   await page.getByLabel("Email").fill(email);
-  await page.getByLabel(/^Password/).fill("short");
+  await page.locator("#su-password").fill("short");
   await page.getByRole("button", { name: "Create account" }).tap();
   await expect(page.locator("#su-password-error")).toContainText("at least 8");
 
-  await page.getByLabel(/^Password/).fill("correct horse");
+  await page.locator("#su-password").fill("correct horse");
   await page.getByRole("button", { name: "Create account" }).tap();
   await expect(page).toHaveURL(/\/account$/);
   await expect(page.getByTestId("account-email")).toHaveText(email);
@@ -47,14 +47,14 @@ test("sign up, sign out, wrong password, sign in, forgot password", async ({
   await expect(page).toHaveURL(/\/sign-in\?next=(%2F|\/)account$/);
 
   await page.getByLabel("Email").fill(email);
-  await page.getByLabel("Password").fill("wrong password");
+  await page.locator("#si-password").fill("wrong password");
   await page.getByRole("button", { name: "Sign in" }).tap();
   await expect(page.getByTestId("auth-error")).toHaveText(
     "Wrong email or password.",
   );
   await expect(page.getByLabel("Email")).toHaveValue(email);
 
-  await page.getByLabel("Password").fill("correct horse");
+  await page.locator("#si-password").fill("correct horse");
   await page.getByRole("button", { name: "Sign in" }).tap();
   await expect(page).toHaveURL(/\/account$/);
 });
@@ -65,7 +65,7 @@ test("an existing email is refused on sign-up, and the reset page never reveals 
   await page.goto("/sign-up");
   await page.getByLabel("Your name").fill("Someone Else");
   await page.getByLabel("Email").fill(email);
-  await page.getByLabel(/^Password/).fill("another password");
+  await page.locator("#su-password").fill("another password");
   await page.getByRole("button", { name: "Create account" }).tap();
   await expect(page.locator("#su-email-error")).toContainText(
     "already an account",
@@ -90,7 +90,7 @@ test("a bad reset link asks for a new one; a crafted next= stays on the site", a
 
   await page.goto("/sign-in?next=https://evil.example");
   await page.getByLabel("Email").fill("nobody@example.pk");
-  await page.getByLabel("Password").fill("whatever!");
+  await page.locator("#si-password").fill("whatever!");
   await page.getByRole("button", { name: "Sign in" }).tap();
   await expect(page.getByTestId("auth-error")).toBeVisible();
   // Google isn't configured in the e2e build: no button.

@@ -240,3 +240,55 @@ describe("Google sign-in helpers", () => {
     ).toBeNull();
   });
 });
+
+describe("WooCommerce customer address", () => {
+  it("reads a saved billing phone and address, and none when empty", async () => {
+    const withAddr = client(() =>
+      Response.json({
+        ...wooCustomer,
+        billing: {
+          phone: "03001234567",
+          address_1: "House 12",
+          address_2: "Near GT Road",
+          city: "Gujrat",
+        },
+      }),
+    );
+    expect(await withAddr.woo.getCustomer(12)).toMatchObject({
+      phone: "03001234567",
+      address: {
+        city: "Gujrat",
+        addressLine: "House 12",
+        landmark: "Near GT Road",
+      },
+    });
+    const empty = client(() =>
+      Response.json({
+        ...wooCustomer,
+        billing: { phone: "", address_1: "", address_2: "", city: "" },
+      }),
+    );
+    const c = await empty.woo.getCustomer(12);
+    expect(c?.address).toBeUndefined();
+    expect(c?.phone).toBeUndefined();
+  });
+
+  it("saves phone and address as WooCommerce billing", async () => {
+    const put = client(() => Response.json(wooCustomer));
+    await put.woo.updateCustomerProfile(12, {
+      phone: "+923001234567",
+      city: "Lahore",
+      addressLine: "House 12",
+    });
+    expect(put.calls[0]!.init.method).toBe("PUT");
+    expect(JSON.parse(String(put.calls[0]!.init.body))).toEqual({
+      billing: {
+        phone: "+923001234567",
+        address_1: "House 12",
+        address_2: "",
+        city: "Lahore",
+        country: "PK",
+      },
+    });
+  });
+});

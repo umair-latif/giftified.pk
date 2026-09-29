@@ -121,7 +121,19 @@ interface RequestOpts {
 }
 
 function mapCustomer(c: WooCustomer): Customer {
+  const b = c.billing;
+  const landmark = b?.address_2.trim();
   return {
+    ...(b?.phone.trim() ? { phone: b.phone.trim() } : {}),
+    ...(b?.address_1.trim()
+      ? {
+          address: {
+            city: b.city.trim(),
+            addressLine: b.address_1.trim(),
+            ...(landmark ? { landmark } : {}),
+          },
+        }
+      : {}),
     id: c.id,
     email: c.email.toLowerCase(),
     firstName: c.first_name,
@@ -391,7 +403,9 @@ export function createWooCommerceClient(config: WooConfig): CommerceClient {
       };
     });
 
-    const { shippingPkr } = await quoteShipping(input.customer.city);
+    const { shippingPkr } = await quoteShipping(
+      input.delivery?.city ?? input.customer.city,
+    );
     const { json } = await request("POST", "/orders", {
       body: buildOrderBody(input, lines, shippingPkr),
     });
@@ -476,6 +490,20 @@ export function createWooCommerceClient(config: WooConfig): CommerceClient {
 
     async setCustomerPassword(id, password) {
       await request("PUT", `/customers/${id}`, { body: { password } });
+    },
+
+    async updateCustomerProfile(id, profile) {
+      await request("PUT", `/customers/${id}`, {
+        body: {
+          billing: {
+            phone: profile.phone,
+            address_1: profile.addressLine,
+            address_2: profile.landmark ?? "",
+            city: profile.city,
+            country: "PK",
+          },
+        },
+      });
     },
 
     createOrder(input) {

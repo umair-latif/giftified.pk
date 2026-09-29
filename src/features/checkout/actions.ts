@@ -4,7 +4,10 @@ import { headers } from "next/headers";
 import { getCommerce } from "@/lib/commerce";
 import { getStorage } from "@/lib/storage";
 import { designKey } from "@/lib/storage/keys";
-import { getSessionCustomerId } from "@/server/auth/cookies";
+import {
+  getSessionCustomer,
+  getSessionCustomerId,
+} from "@/server/auth/cookies";
 import { orderStatusUrl } from "@/server/orders/order-link";
 import type { OrderId } from "@/types/order";
 import { clientIpFromHeaders } from "./client-ip";
@@ -46,7 +49,20 @@ export async function placeOrder(input: unknown): Promise<PlaceOrderResult> {
         errors: { lines: DESIGN_NOT_SAVED },
         message: DESIGN_NOT_SAVED,
       };
-    const order = await getCommerce().createOrder(parsed.order);
+    const commerce = getCommerce();
+    const order = await commerce.createOrder(parsed.order);
+    if (customerId && parsed.saveToAccount)
+      // Best effort: never fail an order that is already placed.
+      await commerce
+        .updateCustomerProfile(customerId, {
+          phone: parsed.order.customer.phone,
+          city: parsed.order.customer.city,
+          addressLine: parsed.order.customer.addressLine,
+          ...(parsed.order.customer.landmark
+            ? { landmark: parsed.order.customer.landmark }
+            : {}),
+        })
+        .catch((err) => console.error("[checkout] saving profile failed", err));
     return { ok: true, orderId: order.id, statusUrl: orderStatusUrl(order) };
   } catch (err) {
     console.error("[checkout] createOrder failed", err);
@@ -57,4 +73,39 @@ export async function placeOrder(input: unknown): Promise<PlaceOrderResult> {
         "We couldn’t place your order just now. Please check your connection and try again.",
     };
   }
+}
+
+/** What checkout can fill in for a signed-in customer. Every field is optional. */
+export interface CheckoutPrefill {
+  fullName?: string;
+  email?: string;
+  phone?: string;
+  city?: string;
+  addressLine?: string;
+  landmark?: string;
+  /** True when the account has no address yet, so "save it" is offered ticked. */
+  offerSave: boolean;
+}
+
+/**
+ * Called by the checkout form on the client when the "signed in" cookie is
+ * present (the page itself stays static). Null for guests.
+ */
+export async function getCheckoutPrefill(): Promise<CheckoutPrefill | null> {
+  const c = await getSessionCustomer();
+  if (!c) return null;
+  const fullName = `${c.firstName} ${c.lastName}`.trim();
+  return {
+    ...(fullName ? { fullName } : {}),
+    email: c.email,
+    ...(c.phone ? { phone: c.phone } : {}),
+    ...(c.address
+      ? {
+          city: c.address.city,
+          addressLine: c.address.addressLine,
+          ...(c.address.landmark ? { landmark: c.address.landmark } : {}),
+        }
+      : {}),
+    offerSave: !c.address,
+  };
 }

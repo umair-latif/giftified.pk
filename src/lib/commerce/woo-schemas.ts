@@ -128,5 +128,13 @@ export const wooCustomerSchema = z.object({
   first_name: z.string().default(""),
   last_name: z.string().default(""),
   date_modified_gmt: z.string().nullish(),
+  billing: z
+    .object({
+      phone: z.string().default(""),
+      address_1: z.string().default(""),
+      address_2: z.string().default(""),
+      city: z.string().default(""),
+    })
+    .optional(),
 });
 export type WooCustomer = z.infer<typeof wooCustomerSchema>;
