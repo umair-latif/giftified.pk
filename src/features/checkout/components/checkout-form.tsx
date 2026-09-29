@@ -306,7 +306,7 @@ export function CheckoutForm() {
         <p className="text-zinc-700">Your cart is empty.</p>
         <Link
           href="/products"
-          className="bg-brand-600 hover:bg-brand-700 active:bg-brand-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-600/40 mt-4 inline-flex h-11 items-center rounded-full px-5 font-semibold text-white"
+          className="bg-brand-600 hover:bg-brand-700 active:bg-brand-700 focus-visible:ring-brand-600/40 mt-4 inline-flex h-12 items-center rounded-full px-5 font-semibold text-white focus-visible:ring-2 focus-visible:outline-none"
         >
           Browse products
         </Link>
@@ -347,7 +347,7 @@ export function CheckoutForm() {
                     ? `/design/${item.productId}?item=${encodeURIComponent(item.id)}`
                     : "/cart"
                 }
-                className="hover:text-red-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-600/20 rounded font-medium underline"
+                className="focus-visible:ring-brand-600/20 rounded font-medium underline hover:text-red-900 focus-visible:ring-2 focus-visible:outline-none"
               >
                 {state === "block" ? "Edit design" : "Go to cart"}
               </Link>
@@ -356,12 +356,12 @@ export function CheckoutForm() {
         </div>
       )}
       {anyWarn && problems.length === 0 && (
-        <p className="rounded-lg bg-amber-50 p-3 text-sm text-amber-800 ring-1 ring-amber-200">
+        <p className="rounded-lg bg-amber-50 p-3 text-sm text-amber-900 ring-1 ring-amber-200">
           A photo may look a little soft when printed. You can still order, or
           edit the design from your{" "}
           <Link
             href="/cart"
-            className="hover:text-amber-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-600/20 rounded font-medium underline"
+            className="focus-visible:ring-brand-600/20 rounded font-medium underline hover:text-amber-950 focus-visible:ring-2 focus-visible:outline-none"
           >
             cart
           </Link>{" "}
@@ -450,7 +450,7 @@ export function CheckoutForm() {
       </CheckboxRow>
       {deliveryDifferent && (
         <fieldset
-          className="flex flex-col gap-4 rounded-lg bg-white p-4 ring-1 ring-zinc-200"
+          className="flex flex-col gap-4 rounded-2xl bg-white p-4 ring-1 ring-zinc-200"
           data-testid="delivery-block"
         >
           <legend className="px-1 text-sm font-semibold text-zinc-900">
@@ -506,7 +506,7 @@ export function CheckoutForm() {
         </fieldset>
       )}
 
-      <dl className="grid grid-cols-2 gap-y-1 rounded-lg bg-white p-4 text-sm ring-1 ring-zinc-200">
+      <dl className="grid grid-cols-2 gap-y-1 rounded-2xl bg-white p-4 text-sm ring-1 ring-zinc-200">
         <dt className="text-zinc-500">Items</dt>
         <dd className="text-right" data-testid="subtotal">
           {quote ? formatPkr(quote.subtotalPkr) : "…"}
@@ -549,7 +549,7 @@ export function CheckoutForm() {
       <button
         type="submit"
         disabled={submitting || problems.length > 0 || !contentConfirmed}
-        className="bg-brand-600 hover:bg-brand-700 active:bg-brand-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-600/40 disabled:bg-brand-300 disabled:hover:bg-brand-300 h-12 rounded-full text-base font-semibold text-white"
+        className="bg-brand-600 hover:bg-brand-700 active:bg-brand-700 focus-visible:ring-brand-600/40 disabled:bg-brand-300 disabled:hover:bg-brand-300 h-12 rounded-full text-base font-semibold text-white focus-visible:ring-2 focus-visible:outline-none"
       >
         {submitting
           ? (progress ?? "Placing order…")
@@ -593,7 +593,7 @@ function OrderSummary({
   return (
     <section
       aria-labelledby="summary-heading"
-      className="rounded-lg bg-white p-4 ring-1 ring-zinc-200"
+      className="rounded-2xl bg-white p-4 ring-1 ring-zinc-200"
     >
       <div className="flex items-baseline justify-between">
         <h2 id="summary-heading" className="font-semibold text-zinc-900">
@@ -601,7 +601,7 @@ function OrderSummary({
         </h2>
         <Link
           href="/cart"
-          className="text-brand-700 hover:text-brand-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-600/20 rounded text-sm underline"
+          className="text-brand-700 hover:text-brand-800 focus-visible:ring-brand-600/20 rounded text-sm underline focus-visible:ring-2 focus-visible:outline-none"
         >
           Edit cart
         </Link>

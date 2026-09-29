@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
+import { Disclosure } from "@/components/ui/disclosure";
 import { editableProductIds, getProduct } from "@/config/products";
 import {
   fromPrice,
@@ -96,7 +97,7 @@ export default async function ProductPage({
       <header className="mt-2 flex flex-wrap items-baseline gap-x-3 gap-y-1">
         <PageTitle>{name}</PageTitle>
         {product && (
-          <p className="text-zinc-900">
+          <p className="text-brand-900">
             from{" "}
             <span className="font-semibold">
               {formatPkr(fromPrice(product))}
@@ -131,7 +132,7 @@ export default async function ProductPage({
           <h2 id="design-own" className="font-display text-ink text-xl">
             Design your own
           </h2>
-          <p className="text-zinc-700">
+          <p className="text-ink">
             Your photos, your words. Start from a blank {name.toLowerCase()} and
             make it yours.
           </p>
@@ -144,19 +145,21 @@ export default async function ProductPage({
         </div>
       </section>
 
-      <details className="mt-4 rounded-2xl bg-white p-4 ring-1 ring-zinc-200">
-        <summary className="text-ink cursor-pointer text-base font-semibold">
-          Details
-        </summary>
-        <div className="mt-3 space-y-4">
+      <Disclosure
+        summary="Details"
+        className="mt-4 rounded-2xl bg-white ring-1 ring-zinc-200"
+        summaryClassName="rounded-2xl text-base font-semibold"
+        bodyClassName="space-y-4 pt-1"
+      >
+        <div className="space-y-4">
           {product && <ProductGallery images={product.images} />}
           {product?.descriptionHtml ? (
             <div
-              className="space-y-2 text-sm text-zinc-700 [&_li]:ml-5 [&_li]:list-disc"
+              className="text-ink space-y-2 text-sm [&_li]:ml-5 [&_li]:list-disc"
               dangerouslySetInnerHTML={{ __html: product.descriptionHtml }}
             />
           ) : (
-            <p className="text-sm text-zinc-700">{cfg.subtitle}.</p>
+            <p className="text-ink text-sm">{cfg.subtitle}.</p>
           )}
           <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-2 text-sm">
             <dt className="text-zinc-500">Print area</dt>
@@ -191,7 +194,7 @@ export default async function ProductPage({
           </dl>
           <DeliveryEstimate />
         </div>
-      </details>
+      </Disclosure>
 
       <section id="designs" aria-labelledby="designs-heading" className="mt-6">
         <h2 id="designs-heading" className="font-display text-ink text-lg">

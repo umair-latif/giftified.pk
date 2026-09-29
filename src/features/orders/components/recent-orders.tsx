@@ -41,12 +41,12 @@ export function RecentOrders() {
       <h2 id="recent-orders" className="font-display text-ink text-lg">
         Your recent orders on this phone
       </h2>
-      <ul className="mt-2 divide-y divide-zinc-200 rounded-lg bg-white ring-1 ring-zinc-200">
+      <ul className="mt-2 divide-y divide-zinc-200 overflow-hidden rounded-2xl bg-white ring-1 ring-zinc-200">
         {orders.map((o) => (
           <li key={o.id}>
             <Link
               href={recentOrderUrl(o)}
-              className="flex min-h-12 items-center justify-between gap-2 px-4 py-2 hover:bg-zinc-50 active:bg-zinc-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-600/20 focus-visible:ring-inset"
+              className="focus-visible:ring-brand-600/20 flex min-h-12 items-center justify-between gap-2 px-4 py-2 hover:bg-zinc-50 focus-visible:ring-2 focus-visible:outline-none focus-visible:ring-inset active:bg-zinc-50"
             >
               <span className="font-medium text-zinc-900">Order #{o.id}</span>
               <span className="text-sm text-zinc-500">

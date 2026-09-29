@@ -58,7 +58,7 @@ export function CartView() {
   if (cart.length === 0)
     return (
       <div
-        className="mt-6 rounded-lg bg-white p-5 text-sm ring-1 ring-zinc-200"
+        className="mt-6 rounded-2xl bg-white p-5 text-sm ring-1 ring-zinc-200"
         data-testid="cart-empty"
       >
         <p className="text-zinc-700">Your cart is empty.</p>
@@ -67,7 +67,7 @@ export function CartView() {
         </p>
         <Link
           href="/design/mug"
-          className="bg-brand-600 hover:bg-brand-700 active:bg-brand-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-600/40 mt-4 inline-flex h-11 items-center rounded-full px-5 font-medium text-white"
+          className="bg-brand-600 hover:bg-brand-700 active:bg-brand-700 focus-visible:ring-brand-600/40 mt-4 inline-flex h-12 items-center rounded-full px-5 font-medium text-white focus-visible:ring-2 focus-visible:outline-none"
         >
           Start designing
         </Link>
@@ -90,7 +90,7 @@ export function CartView() {
 
       <section
         aria-label="Order summary"
-        className="rounded-lg bg-white p-4 text-sm ring-1 ring-zinc-200"
+        className="rounded-2xl bg-white p-4 text-sm ring-1 ring-zinc-200"
       >
         <label htmlFor="city" className="mb-1 block font-medium text-zinc-900">
           Delivery city
@@ -138,7 +138,7 @@ export function CartView() {
       <Link
         href="/checkout"
         aria-disabled={unavailable || undefined}
-        className={`flex h-12 items-center justify-center rounded-full text-base font-semibold text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-600/40 ${
+        className={`focus-visible:ring-brand-600/40 flex h-12 items-center justify-center rounded-full text-base font-semibold text-white focus-visible:ring-2 focus-visible:outline-none ${
           unavailable
             ? "pointer-events-none bg-zinc-300"
             : "bg-brand-600 hover:bg-brand-700 active:bg-brand-700"
@@ -148,7 +148,7 @@ export function CartView() {
       </Link>
       <Link
         href="/design/mug"
-        className="text-brand-700 hover:text-brand-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-600/20 rounded text-center text-sm font-medium underline"
+        className="text-brand-700 hover:text-brand-800 focus-visible:ring-brand-600/20 rounded text-center text-sm font-medium underline focus-visible:ring-2 focus-visible:outline-none"
       >
         Design another one
       </Link>
@@ -175,7 +175,7 @@ function CartLine({
 
   return (
     <li
-      className="flex gap-3 rounded-lg bg-white p-3 ring-1 ring-zinc-200"
+      className="flex gap-3 rounded-2xl bg-white p-3 ring-1 ring-zinc-200"
       data-testid="cart-line"
     >
       <div className="grid h-16 w-24 shrink-0 place-items-center overflow-hidden rounded bg-zinc-50 ring-1 ring-zinc-200">
@@ -214,7 +214,7 @@ function CartLine({
               aria-label="One less"
               disabled={item.quantity <= 1}
               onClick={() => updateQuantity(item.id, item.quantity - 1)}
-              className="size-9 rounded-full text-lg text-zinc-700 hover:bg-zinc-100 active:bg-zinc-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-600/20 disabled:text-zinc-300 disabled:hover:bg-transparent"
+              className="focus-visible:ring-brand-600/20 size-9 rounded-full text-lg text-zinc-700 hover:bg-zinc-100 focus-visible:ring-2 focus-visible:outline-none active:bg-zinc-100 disabled:text-zinc-300 disabled:hover:bg-transparent"
             >
               −
             </button>
@@ -229,7 +229,7 @@ function CartLine({
               aria-label="One more"
               disabled={item.quantity >= MAX_LINE_QUANTITY}
               onClick={() => updateQuantity(item.id, item.quantity + 1)}
-              className="size-9 rounded-full text-lg text-zinc-700 hover:bg-zinc-100 active:bg-zinc-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-600/20 disabled:text-zinc-300 disabled:hover:bg-transparent"
+              className="focus-visible:ring-brand-600/20 size-9 rounded-full text-lg text-zinc-700 hover:bg-zinc-100 focus-visible:ring-2 focus-visible:outline-none active:bg-zinc-100 disabled:text-zinc-300 disabled:hover:bg-transparent"
             >
               +
             </button>
@@ -237,14 +237,14 @@ function CartLine({
           <div className="flex gap-3 text-xs font-medium">
             <Link
               href={`/design/${item.productId}?item=${encodeURIComponent(item.id)}`}
-              className="text-brand-700 hover:text-brand-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-600/20 rounded underline"
+              className="text-brand-700 hover:text-brand-800 focus-visible:ring-brand-600/20 rounded underline focus-visible:ring-2 focus-visible:outline-none"
             >
               Edit design
             </Link>
             <button
               type="button"
               onClick={() => removeFromCart(item.id)}
-              className="text-zinc-500 hover:text-zinc-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-600/20 rounded underline"
+              className="focus-visible:ring-brand-600/20 rounded text-zinc-500 underline hover:text-zinc-700 focus-visible:ring-2 focus-visible:outline-none"
             >
               Remove
             </button>

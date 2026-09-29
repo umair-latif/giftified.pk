@@ -38,7 +38,7 @@ export function AppHeader({
           <Link
             href={backHref}
             aria-label={backLabel}
-            className="grid size-11 shrink-0 place-items-center rounded-full text-zinc-700 hover:bg-zinc-100 active:bg-zinc-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-600/20"
+            className="focus-visible:ring-brand-600/20 grid size-11 shrink-0 place-items-center rounded-full text-zinc-700 hover:bg-zinc-100 focus-visible:ring-2 focus-visible:outline-none active:bg-zinc-100"
           >
             <ArrowLeftIcon />
           </Link>
@@ -53,7 +53,7 @@ export function AppHeader({
           (next.href ? (
             <Link
               href={next.href}
-              className="bg-brand-600 hover:bg-brand-700 active:bg-brand-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-600/40 ml-1 flex h-9 shrink-0 items-center gap-0.5 rounded-full pr-2 pl-3.5 text-sm font-medium text-white"
+              className="bg-brand-600 hover:bg-brand-700 active:bg-brand-700 focus-visible:ring-brand-600/40 ml-1 flex h-9 shrink-0 items-center gap-0.5 rounded-full pr-2 pl-3.5 text-sm font-medium text-white focus-visible:ring-2 focus-visible:outline-none"
             >
               {next.label}
               <ArrowRightIcon width={18} height={18} />
@@ -61,7 +61,7 @@ export function AppHeader({
           ) : (
             <span
               aria-disabled
-              className="ml-1 flex h-9 shrink-0 items-center gap-0.5 rounded-full bg-zinc-100 pr-2 pl-3.5 text-sm font-medium text-zinc-400"
+              className="bg-brand-300 ml-1 flex h-9 shrink-0 items-center gap-0.5 rounded-full pr-2 pl-3.5 text-sm font-medium text-white"
             >
               {next.label}
               <ArrowRightIcon width={18} height={18} />
