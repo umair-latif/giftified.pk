@@ -16,6 +16,8 @@ export interface MockupSpec {
   /** Mug body on the photo: left/right silhouette x, rim y and base y. */
   body: { left: number; right: number; top: number; bottom: number };
   geometry: Omit<WrapGeometry, "wrapMm">;
+  /** How much horizontal lines curve on the photo: px lower at the centre than at the edges. */
+  sag: { rim: number; base: number };
   /** Printed height as mm, centred vertically on the body. */
   printHeightMm: number;
   /** Photo credit (Unsplash licence: attribution optional, kept for records). */
@@ -29,6 +31,9 @@ export const MOCKUP_SPECS: Partial<Record<ProductId, MockupSpec>> = {
     heightPx: 642,
     body: { left: 217.2, right: 604.2, top: 82.8, bottom: 573 },
     geometry: { diameterMm: 82 },
+    // Measured on the photo: the base edge is ~20 px lower at the centre; the
+    // camera is at rim height, so the rim is nearly straight (slightly up).
+    sag: { rim: -6, base: 20 },
     printHeightMm: 89,
     credit: "Unsplash",
   },

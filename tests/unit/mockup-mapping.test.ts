@@ -1,7 +1,9 @@
 import { describe, expect, it } from "vitest";
 import { mug } from "@/config/products/mug";
 import {
+  centreY,
   columnAngleDeg,
+  curvedY,
   designXmm,
   printArcDeg,
   type WrapGeometry,
@@ -61,5 +63,30 @@ describe("mockup mapping", () => {
     expect(s.body.right).toBeLessThan(s.widthPx);
     expect(s.body.bottom).toBeLessThan(s.heightPx);
     expect(s.printHeightMm).toBeLessThanOrEqual(mug.printArea.heightMm);
+  });
+});
+
+describe("mockup vertical curve", () => {
+  const c = { top: 80, bottom: 570, rimSag: -6, baseSag: 20 };
+
+  it("leaves the centre of the mug unchanged", () => {
+    expect(curvedY(300, 0, c)).toBeCloseTo(300);
+  });
+
+  it("raises the base line at the edges by the base sag", () => {
+    expect(curvedY(570, 90, c)).toBeCloseTo(550);
+    expect(curvedY(570, 60, c)).toBeCloseTo(560);
+  });
+
+  it("curves the rim the opposite way", () => {
+    expect(curvedY(80, 90, c)).toBeCloseTo(86);
+  });
+
+  it("centreY inverts curvedY", () => {
+    for (const yc of [100, 250, 400, 540]) {
+      for (const a of [-80, -30, 0, 45, 85]) {
+        expect(centreY(curvedY(yc, a, c), a, c)).toBeCloseTo(yc, 2);
+      }
+    }
   });
 });

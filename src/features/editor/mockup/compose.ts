@@ -1,5 +1,6 @@
 import type { ProductConfig } from "@/config/products";
 import {
+  centreY,
   columnAngleDeg,
   designXmm,
   type MockupSide,
@@ -106,31 +107,44 @@ export async function composeMockup(
   lums.sort((a, c) => a - c);
   const white = lums[Math.floor(lums.length * 0.97)] ?? 255;
 
+  const curve = {
+    top: b.top,
+    bottom: b.bottom,
+    rimSag: spec.sag.rim,
+    baseSag: spec.sag.base,
+  };
+  const sagMax = Math.max(Math.abs(spec.sag.rim), Math.abs(spec.sag.base));
   const s = [0, 0, 0, 0];
   const SUB = [-1 / 3, 0, 1 / 3];
-  for (let y = Math.ceil(y0); y < y0 + bandPx && y < H; y++) {
-    const fy = ((y + 0.5 - y0) / bandPx) * dh;
+  const yFrom = Math.max(0, Math.floor(y0 - sagMax - 2));
+  const yTo = Math.min(H - 1, Math.ceil(y0 + bandPx + sagMax + 2));
+  for (let y = yFrom; y <= yTo; y++) {
     for (let x = Math.ceil(left) + 1; x < right - 1; x++) {
       // Average a few sub-columns: the edge of the mug compresses the design.
       let ar = 0,
         ag = 0,
         ab = 0,
-        aa = 0,
-        n = 0;
+        aa = 0;
       for (const o of SUB) {
-        const mm = designXmm(columnAngleDeg(x + 0.5 + o, cx, r), geo, side);
+        const angle = columnAngleDeg(x + 0.5 + o, cx, r);
+        const mm = designXmm(angle, geo, side);
         if (mm === null) continue;
-        n++;
+        // Row on a flat (centre-of-mug) scale: the print band follows the
+        // mug's curved horizontal lines.
+        const inBand = centreY(y + 0.5, angle, curve) - y0;
+        // Soft top/bottom edge (1 px) so the curved edges are not jagged.
+        const cover = Math.min(1, inBand + 0.5, bandPx - inBand + 0.5);
+        if (cover <= 0) continue;
+        const fy = Math.min(dh, Math.max(0, (inBand / bandPx) * dh));
         sample(dd, dw, dh, (mm / geo.wrapMm) * dw, fy, s);
-        const a = s[3]! / 255;
+        const a = (s[3]! / 255) * cover;
         ar += s[0]! * a;
         ag += s[1]! * a;
         ab += s[2]! * a;
         aa += a;
       }
-      if (n === 0) continue;
+      if (aa <= 0) continue;
       const a = aa / SUB.length;
-      if (a <= 0) continue;
       const i = (y * W + x) * 4;
       const shade = Math.min(
         1,
