@@ -36,6 +36,8 @@ export const META = {
   designId: "_design_id",
   printPngUrl: "_print_png_url",
   proofPdfUrl: "_proof_pdf_url",
+  contentConfirmed: "_content_confirmed",
+  marketingOptIn: "_marketing_optin",
 } as const;
 
 export function isProductId(sku: string): sku is ProductId {
@@ -316,7 +318,20 @@ export function buildOrderBody(
         total: String(shippingPkr),
       },
     ],
-    meta_data: [{ key: META.checkoutId, value: input.checkoutId }],
+    meta_data: [
+      { key: META.checkoutId, value: input.checkoutId },
+      ...(input.consents
+        ? [
+            {
+              key: META.contentConfirmed,
+              value: input.consents.contentConfirmedAt,
+            },
+          ]
+        : []),
+      ...(input.consents?.marketingOptIn
+        ? [{ key: META.marketingOptIn, value: "yes" }]
+        : []),
+    ],
   };
 }
 

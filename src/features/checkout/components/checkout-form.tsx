@@ -21,6 +21,7 @@ import { placeOrder } from "../actions";
 import { formatPkr } from "../format";
 import type { FieldErrors } from "../schema";
 import { CityPicker } from "./city-picker";
+import { Consents } from "./consents";
 import { Field, errorId, inputClass } from "./field";
 
 const CITY_KEY = "giftified:city";
@@ -80,6 +81,9 @@ export function CheckoutForm() {
   const [submitting, setSubmitting] = useState(false);
   const [progress, setProgress] = useState<string>();
   const [placed, setPlaced] = useState(false);
+  // Both unticked by default; the confirmation is required, the opt-in never is.
+  const [contentConfirmed, setContentConfirmed] = useState(false);
+  const [marketingOptIn, setMarketingOptIn] = useState(false);
   const inFlight = useRef(false);
   // designKey → uploaded designId, kept for the visit so a retry never re-uploads.
   const uploaded = useRef(new Map<string, string>());
@@ -146,7 +150,11 @@ export function CheckoutForm() {
   async function onSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     if (inFlight.current || !items?.length || problems.length > 0) return;
-    const key = JSON.stringify({ values, items });
+    if (!contentConfirmed) {
+      document.getElementById("contentConfirmed")?.focus();
+      return;
+    }
+    const key = JSON.stringify({ values, items, marketingOptIn });
     if (attempt.current?.key !== key) attempt.current = { key, id: newId() };
     inFlight.current = true;
     setSubmitting(true);
@@ -168,6 +176,8 @@ export function CheckoutForm() {
       setProgress("Placing order…");
       const r = await placeOrder({
         ...values,
+        contentConfirmed,
+        marketingOptIn,
         checkoutId: attempt.current.id,
         lines: items.map((i) => ({
           productId: i.productId,
@@ -195,7 +205,9 @@ export function CheckoutForm() {
       setMessage(
         r.message ?? (r.errors.lines || "Please check the highlighted fields."),
       );
-      const first = FIELDS.find((f) => r.errors[f]);
+      const first =
+        FIELDS.find((f) => r.errors[f]) ??
+        (r.errors.contentConfirmed ? "contentConfirmed" : undefined);
       if (first) document.getElementById(first)?.focus();
     } catch (err) {
       console.error("[checkout]", err);
@@ -370,6 +382,18 @@ export function CheckoutForm() {
         </dd>
       </dl>
 
+      <Consents
+        contentConfirmed={contentConfirmed}
+        onContentConfirmed={(v) => {
+          setContentConfirmed(v);
+          if (v && errors.contentConfirmed)
+            setErrors((e) => ({ ...e, contentConfirmed: undefined }));
+        }}
+        marketingOptIn={marketingOptIn}
+        onMarketingOptIn={setMarketingOptIn}
+        error={errors.contentConfirmed}
+      />
+
       {message && (
         <p className="text-sm text-red-700" role="alert">
           {message}
@@ -377,7 +401,7 @@ export function CheckoutForm() {
       )}
       <button
         type="submit"
-        disabled={submitting || problems.length > 0}
+        disabled={submitting || problems.length > 0 || !contentConfirmed}
         className="bg-brand-600 active:bg-brand-700 disabled:bg-brand-300 h-12 rounded-full text-base font-semibold text-white"
       >
         {submitting

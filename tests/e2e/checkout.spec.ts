@@ -62,6 +62,13 @@ async function fillForm(page: Page) {
   await page.getByRole("option", { name: "Lahore" }).tap();
   await expect(page.getByLabel("City")).toHaveValue("Lahore");
   await page.getByLabel("Address").fill("House 12, Street 4, Model Town");
+  await confirmContent(page);
+}
+
+const confirmBox = (page: Page) => page.getByLabel(/I confirm my design/);
+async function confirmContent(page: Page) {
+  await confirmBox(page).tap();
+  await expect(confirmBox(page)).toBeChecked();
 }
 
 const orderNumber = async (page: Page) =>
@@ -120,9 +127,7 @@ test("two cart items → checkout → one order with both lines", async ({
     expect(saved.status()).toBe(200);
   }
 
-  await expect(
-    page.getByRole("heading", { name: "Thank you!" }),
-  ).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Thank you!" })).toBeVisible();
   await expect(page.getByTestId("order-line")).toHaveCount(2);
   await expect(page.getByTestId("order-total")).toHaveText("Rs 4,697");
   await expect(page.getByTestId("confirm-message")).toContainText(
@@ -173,6 +178,7 @@ test("shows plain-language errors inline and keeps the customer on the form", as
   await page.getByLabel("Full name").tap(); // blur → client-side phone check
   await expect(page.getByText(/Pakistani mobile number/)).toBeVisible();
   await page.getByLabel(/Email/).fill("ayesha@");
+  await confirmContent(page);
   await page.getByRole("button", { name: /Place order/ }).tap();
   await expect(page.getByText("Please write your full name.")).toBeVisible();
   await expect(page.getByText("Please choose your city.")).toBeVisible();
@@ -209,5 +215,85 @@ test("a slightly soft photo gets a gentle note but can be ordered", async ({
   await page.goto("/checkout");
   await expect(page.getByText(/may look a little soft/)).toBeVisible();
   await expect(page.getByTestId("checkout-blocked")).toHaveCount(0);
+  await confirmContent(page);
   await expect(page.getByRole("button", { name: /Place order/ })).toBeEnabled();
+});
+
+test("Place order waits for the content confirmation; legal links and opt-in", async ({
+  page,
+}) => {
+  await seedCart(page, [{ quantity: 1 }]);
+  await page.goto("/checkout");
+  await page.getByLabel("Full name").fill("Ayesha Khan");
+  await page.getByLabel("Mobile number").fill("0300 1234567");
+  await page.getByLabel("City").fill("lah");
+  await page.getByRole("option", { name: "Lahore" }).tap();
+  await page.getByLabel("Address").fill("House 12, Street 4, Model Town");
+  await expect(page.getByTestId("total")).toHaveText("Rs 1,699");
+
+  // Both boxes start unticked; the button waits for the confirmation only.
+  const place = page.getByRole("button", { name: /Place order/ });
+  const optIn = page.getByLabel(/Send me offers and discounts/);
+  await expect(confirmBox(page)).not.toBeChecked();
+  await expect(optIn).not.toBeChecked();
+  await expect(place).toBeDisabled();
+  await expect(page.getByTestId("confirm-hint")).toHaveText(
+    "Please tick the box to confirm your design follows our Printing guidelines.",
+  );
+
+  // Legal links (same tab) and the guidelines link inside the confirmation.
+  const consents = page.getByTestId("checkout-consents");
+  for (const [name, href] of [
+    ["Terms", "/terms"],
+    ["Privacy notice", "/privacy"],
+  ] as const)
+    await expect(
+      consents.getByRole("link", { name, exact: true }),
+    ).toHaveAttribute("href", href);
+  const guidelines = consents.getByRole("link", {
+    name: "Printing guidelines",
+  });
+  await expect(guidelines).toHaveCount(2);
+  for (const l of await guidelines.all()) {
+    await expect(l).toHaveAttribute("href", "/printing-guidelines");
+    await expect(l).not.toHaveAttribute("target", /.+/);
+  }
+
+  // Whole rows are finger-sized tap targets.
+  for (const row of await consents.locator("label").all())
+    expect((await row.boundingBox())!.height).toBeGreaterThanOrEqual(44);
+  const scrollWidth = await page.evaluate(
+    () => document.documentElement.scrollWidth,
+  );
+  expect(scrollWidth).toBeLessThanOrEqual(360);
+
+  // Tapping the row's text (not a link) ticks the box.
+  await consents.getByText("I have the right to print everything in it").tap();
+  await expect(confirmBox(page)).toBeChecked();
+  await expect(page.getByTestId("confirm-hint")).toHaveCount(0);
+  await expect(place).toBeEnabled();
+  await consents.getByText("I have the right to print everything in it").tap();
+  await expect(place).toBeDisabled();
+  await confirmContent(page);
+  await optIn.tap();
+  await expect(optIn).toBeChecked();
+
+  await place.tap();
+  await expect(page).toHaveURL(/\/order\/\d+\?t=[\w-]+$/);
+  await expect(page.getByRole("heading", { name: "Thank you!" })).toBeVisible();
+});
+
+test("the cart survives reading the Terms and coming back", async ({
+  page,
+}) => {
+  await seedCart(page, [{ quantity: 1 }]);
+  await page.goto("/checkout");
+  await page
+    .getByTestId("checkout-consents")
+    .getByRole("link", { name: "Terms", exact: true })
+    .tap();
+  await expect(page).toHaveURL(/\/terms$/);
+  await page.goBack();
+  await expect(page).toHaveURL(/\/checkout$/);
+  await expect(page.getByTestId("checkout-line")).toHaveCount(1);
 });

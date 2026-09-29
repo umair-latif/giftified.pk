@@ -1,7 +1,12 @@
 import { describe, expect, it, vi } from "vitest";
 
 vi.mock("server-only", () => ({}));
+const requestHeaders = vi.hoisted(() => ({ current: new Headers() }));
+vi.mock("next/headers", () => ({
+  headers: async () => requestHeaders.current,
+}));
 const { placeOrder } = await import("@/features/checkout/actions");
+const { getCommerce } = await import("@/lib/commerce");
 const { getStorage } = await import("@/lib/storage");
 const { designKey } = await import("@/lib/storage/keys");
 const { verifyOrderToken } = await import("@/server/orders/order-link");
@@ -19,6 +24,7 @@ const input = (checkoutId: string, designIds: string[]) => ({
   email: "Ayesha@Example.pk",
   city: "Lahore",
   addressLine: "House 12, Street 4, Model Town",
+  contentConfirmed: true,
 });
 
 async function saveDesigns(...ids: string[]) {
@@ -65,5 +71,52 @@ describe("placeOrder (checkout v2 server action)", () => {
       phone: "123",
     });
     expect(!r.ok && r.errors.phone).toMatch(/Pakistani mobile/);
+  });
+
+  it("refuses an order without the content confirmation (never trusts the client)", async () => {
+    await saveDesigns("designA5");
+    const spy = vi.spyOn(getCommerce(), "createOrder");
+    for (const contentConfirmed of [undefined, false, "true", "on"]) {
+      const r = await placeOrder({
+        ...input("chk-v2-000005", ["designA5"]),
+        contentConfirmed,
+      });
+      expect(!r.ok && r.errors.contentConfirmed).toMatch(/tick the box/);
+    }
+    expect(spy).not.toHaveBeenCalled();
+    spy.mockRestore();
+  });
+
+  it("stores the consents with server time and the customer's IP", async () => {
+    await saveDesigns("designA6");
+    const spy = vi.spyOn(getCommerce(), "createOrder");
+    requestHeaders.current = new Headers({
+      "x-forwarded-for": "203.0.113.7, 10.0.0.1",
+      "x-real-ip": "10.0.0.1",
+    });
+    const before = Date.now();
+    const r = await placeOrder({
+      ...input("chk-v2-000006", ["designA6"]),
+      marketingOptIn: true,
+    });
+    requestHeaders.current = new Headers();
+    expect(r.ok).toBe(true);
+    const order = spy.mock.calls[0]![0];
+    expect(order.customerIp).toBe("203.0.113.7");
+    expect(order.consents?.marketingOptIn).toBe(true);
+    const at = Date.parse(order.consents!.contentConfirmedAt);
+    expect(at).toBeGreaterThanOrEqual(before);
+    expect(at).toBeLessThanOrEqual(Date.now());
+    spy.mockRestore();
+  });
+
+  it("places the order without an IP when the headers carry none", async () => {
+    await saveDesigns("designA7");
+    const spy = vi.spyOn(getCommerce(), "createOrder");
+    const r = await placeOrder(input("chk-v2-000007", ["designA7"]));
+    expect(r.ok).toBe(true);
+    expect(spy.mock.calls[0]![0]).not.toHaveProperty("customerIp");
+    expect(spy.mock.calls[0]![0].consents?.marketingOptIn).toBe(false);
+    spy.mockRestore();
   });
 });

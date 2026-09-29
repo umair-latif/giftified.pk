@@ -1,5 +1,7 @@
 import { describe, expect, it } from "vitest";
+import type { CreateOrderInput } from "@/types/order";
 import {
+  buildOrderBody,
   colourIdFor,
   mapOrder,
   mapProduct,
@@ -144,6 +146,56 @@ describe("order mapping", () => {
       catalog,
     );
     expect(order.customer.phone).toBe("+924235761234");
+  });
+});
+
+describe("order body consents (checkout legal)", () => {
+  const base: CreateOrderInput = {
+    checkoutId: "chk-1",
+    customer: {
+      fullName: "Ayesha Khan",
+      phone: "+923001234567",
+      city: "Lahore",
+      addressLine: "House 12",
+    },
+    lines: [],
+  };
+  const meta = (input: CreateOrderInput) =>
+    buildOrderBody(input, [], 200).meta_data;
+
+  it("writes _content_confirmed and _marketing_optin when opted in", () => {
+    expect(
+      meta({
+        ...base,
+        consents: {
+          contentConfirmedAt: "2026-09-29T08:30:00.000Z",
+          marketingOptIn: true,
+        },
+      }),
+    ).toEqual([
+      { key: "_checkout_id", value: "chk-1" },
+      { key: "_content_confirmed", value: "2026-09-29T08:30:00.000Z" },
+      { key: "_marketing_optin", value: "yes" },
+    ]);
+  });
+
+  it("omits _marketing_optin when not opted in", () => {
+    expect(
+      meta({
+        ...base,
+        consents: {
+          contentConfirmedAt: "2026-09-29T08:30:00.000Z",
+          marketingOptIn: false,
+        },
+      }),
+    ).toEqual([
+      { key: "_checkout_id", value: "chk-1" },
+      { key: "_content_confirmed", value: "2026-09-29T08:30:00.000Z" },
+    ]);
+  });
+
+  it("writes only the checkout ID without consents", () => {
+    expect(meta(base)).toEqual([{ key: "_checkout_id", value: "chk-1" }]);
   });
 });
 
