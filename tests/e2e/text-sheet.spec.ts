@@ -59,9 +59,9 @@ test("edit the words: applies on blur, one undo step, Enter keeps a line break",
 
   await input.fill("Happy Anniversary");
   await input.blur();
-  await expect.poll(async () => (await textObject(page)).text).toBe(
-    "Happy Anniversary",
-  );
+  await expect
+    .poll(async () => (await textObject(page)).text)
+    .toBe("Happy Anniversary");
 
   await page.getByRole("button", { name: "Close" }).click();
   await expect(sheet(page)).toHaveCount(0);
@@ -69,9 +69,9 @@ test("edit the words: applies on blur, one undo step, Enter keeps a line break",
   // One undo step for the whole edit, not per keystroke.
   const { cx, cy } = await canvasBox(page);
   await page.getByRole("button", { name: "Undo" }).click();
-  await expect.poll(async () => (await textObject(page)).text).toBe(
-    "Your text",
-  );
+  await expect
+    .poll(async () => (await textObject(page)).text)
+    .toBe("Your text");
   await page.mouse.click(cx, cy);
   await expect(status(page)).toContainText("textbox");
 });
@@ -87,20 +87,20 @@ test("alignment: each tap is one undo step", async ({ page }) => {
 
   await right.click();
   await expect(right).toHaveAttribute("aria-checked", "true");
-  await expect.poll(async () => (await textObject(page)).textAlign).toBe(
-    "right",
-  );
+  await expect
+    .poll(async () => (await textObject(page)).textAlign)
+    .toBe("right");
 
   await left.click();
   await expect(left).toHaveAttribute("aria-checked", "true");
-  await expect.poll(async () => (await textObject(page)).textAlign).toBe(
-    "left",
-  );
+  await expect
+    .poll(async () => (await textObject(page)).textAlign)
+    .toBe("left");
 
   await page.getByRole("button", { name: "Undo" }).click();
-  await expect.poll(async () => (await textObject(page)).textAlign).toBe(
-    "right",
-  );
+  await expect
+    .poll(async () => (await textObject(page)).textAlign)
+    .toBe("right");
 });
 
 test("outline: thickness and colour, each change is one undo step", async ({
@@ -120,17 +120,17 @@ test("outline: thickness and colour, each change is one undo step", async ({
   await expect
     .poll(async () => (await textObject(page)).strokeWidth)
     .toBeCloseTo(0.4, 5);
-  await expect.poll(async () => (await textObject(page)).stroke).toBe(
-    "#111827",
-  );
+  await expect
+    .poll(async () => (await textObject(page)).stroke)
+    .toBe("#111827");
 
   await sheet(page)
     .getByRole("group", { name: "Outline colour" })
     .getByRole("button", { name: "White" })
     .click();
-  await expect.poll(async () => (await textObject(page)).stroke).toBe(
-    "#ffffff",
-  );
+  await expect
+    .poll(async () => (await textObject(page)).stroke)
+    .toBe("#ffffff");
 
   await sheet(page).getByRole("radio", { name: "Off" }).click();
   await expect.poll(async () => (await textObject(page)).strokeWidth).toBe(0);
@@ -140,9 +140,9 @@ test("outline: thickness and colour, each change is one undo step", async ({
   await expect
     .poll(async () => (await textObject(page)).strokeWidth)
     .toBeCloseTo(0.4, 5);
-  await expect.poll(async () => (await textObject(page)).stroke).toBe(
-    "#ffffff",
-  );
+  await expect
+    .poll(async () => (await textObject(page)).stroke)
+    .toBe("#ffffff");
 });
 
 test("fonts: the editor fetches only the new-text face; the sheet loads the rest", async ({
