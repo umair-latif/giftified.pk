@@ -1,7 +1,11 @@
 import { describe, expect, it } from "vitest";
 import { CITIES, canonicalCity, searchCities } from "@/config/cities";
 import { formatPkr } from "@/features/checkout/format";
-import { DESIGN_NOT_SAVED, parseCheckout } from "@/features/checkout/schema";
+import {
+  CONTENT_NOT_CONFIRMED,
+  DESIGN_NOT_SAVED,
+  parseCheckout,
+} from "@/features/checkout/schema";
 import { createMockCommerce } from "@/lib/commerce/mock";
 import { MAX_CART_LINES } from "@/types/cart";
 
@@ -22,15 +26,21 @@ const valid = {
   city: "lahore",
   addressLine: "House 12, Street 4, Model Town",
   landmark: "",
+  contentConfirmed: true,
 };
 
 describe("parseCheckout (whole cart → one order)", () => {
   it("maps valid input to CreateOrderInput with one line per cart item", () => {
-    const r = parseCheckout(valid);
+    const now = new Date("2026-09-29T08:30:00.000Z");
+    const r = parseCheckout(valid, now);
     expect(r).toEqual({
       ok: true,
       order: {
         checkoutId: valid.checkoutId,
+        consents: {
+          contentConfirmedAt: "2026-09-29T08:30:00.000Z",
+          marketingOptIn: false,
+        },
         customer: {
           fullName: "Ayesha Khan",
           phone: "+923001234567",
@@ -87,6 +97,43 @@ describe("parseCheckout (whole cart → one order)", () => {
       expect(!r.ok && r.errors.email).toBe(
         "Please check your email address, or leave it empty.",
       );
+    });
+  });
+
+  describe("content confirmation and marketing opt-in", () => {
+    it.each([undefined, false, "true", "on", 1, null])(
+      "rejects contentConfirmed = %s in plain language",
+      (contentConfirmed) => {
+        const r = parseCheckout({ ...valid, contentConfirmed });
+        expect(!r.ok && r.errors.contentConfirmed).toBe(CONTENT_NOT_CONFIRMED);
+      },
+    );
+    it("records the server's time, not anything the client sends", () => {
+      const now = new Date("2026-09-29T10:00:00.000Z");
+      const r = parseCheckout(
+        { ...valid, contentConfirmedAt: "2020-01-01T00:00:00.000Z" },
+        now,
+      );
+      expect(r.ok && r.order.consents?.contentConfirmedAt).toBe(
+        now.toISOString(),
+      );
+    });
+    it("treats the marketing opt-in as optional and off by default", () => {
+      expect(parseCheckout(valid)).toMatchObject({
+        ok: true,
+        order: { consents: { marketingOptIn: false } },
+      });
+      expect(parseCheckout({ ...valid, marketingOptIn: false })).toMatchObject({
+        ok: true,
+        order: { consents: { marketingOptIn: false } },
+      });
+      expect(parseCheckout({ ...valid, marketingOptIn: true })).toMatchObject({
+        ok: true,
+        order: { consents: { marketingOptIn: true } },
+      });
+    });
+    it("rejects an opt-in that isn't a real yes/no", () => {
+      expect(parseCheckout({ ...valid, marketingOptIn: "yes" }).ok).toBe(false);
     });
   });
 

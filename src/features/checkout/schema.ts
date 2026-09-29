@@ -4,6 +4,7 @@ import { getProduct } from "@/config/products";
 import { normalizePkMobile } from "@/lib/phone";
 import { MAX_CART_LINES, MAX_LINE_QUANTITY } from "@/types/cart";
 import type { CreateOrderInput } from "@/types/order";
+import { CONTENT_NOT_CONFIRMED } from "./messages";
 
 /**
  * Server-side validation of checkout (the whole cart → one order). Never trusted from the client:
@@ -12,6 +13,7 @@ import type { CreateOrderInput } from "@/types/order";
  */
 export const MAX_QUANTITY = MAX_LINE_QUANTITY;
 export const DESIGN_NOT_SAVED = "Your design wasn’t saved. Please try again.";
+export { CONTENT_NOT_CONFIRMED };
 
 const text = (min: number, max: number, tooShort: string, tooLong: string) =>
   z
@@ -101,6 +103,10 @@ export const checkoutSchema = z
       .optional()
       .transform((s) => s?.trim().replace(/\s+/g, " ") || undefined)
       .pipe(z.string().max(120, "Please keep the landmark short.").optional()),
+    /** Required: the design follows Pakistani law and our Printing guidelines. */
+    contentConfirmed: z.literal(true, CONTENT_NOT_CONFIRMED),
+    /** Optional, unticked by default: offers and discounts. */
+    marketingOptIn: z.boolean().optional().default(false),
   })
   .superRefine((v, ctx) => {
     v.lines.forEach((line, i) => {
@@ -121,8 +127,14 @@ export type FieldErrors = Partial<Record<CheckoutFieldName, string>>;
 export type ParsedCheckout =
   { ok: true; order: CreateOrderInput } | { ok: false; errors: FieldErrors };
 
-/** Validates raw form input and maps it to the commerce contract. */
-export function parseCheckout(input: unknown): ParsedCheckout {
+/**
+ * Validates raw form input and maps it to the commerce contract. `now` is the
+ * server time recorded as the content confirmation (never the client's clock).
+ */
+export function parseCheckout(
+  input: unknown,
+  now: Date = new Date(),
+): ParsedCheckout {
   const r = checkoutSchema.safeParse(input);
   if (!r.success) {
     const errors: FieldErrors = {};
@@ -145,6 +157,10 @@ export function parseCheckout(input: unknown): ParsedCheckout {
         ...(v.landmark ? { landmark: v.landmark } : {}),
       },
       ...(v.email ? { email: v.email } : {}),
+      consents: {
+        contentConfirmedAt: now.toISOString(),
+        marketingOptIn: v.marketingOptIn,
+      },
       lines: v.lines.map((l) => ({
         productId:
           l.productId as CreateOrderInput["lines"][number]["productId"],

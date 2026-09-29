@@ -50,6 +50,12 @@ export interface CreateOrderInput {
    * WooCommerce order for fraud checks and legal requests (privacy notice).
    */
   customerIp?: string;
+  /**
+   * What the customer agreed to at checkout. Stored as order meta:
+   * `_content_confirmed` = `contentConfirmedAt` (ISO 8601, server time) and
+   * `_marketing_optin` = "yes" only when `marketingOptIn` is true.
+   */
+  consents?: { contentConfirmedAt: string; marketingOptIn: boolean };
   lines: OrderLineInput[];
   /** Idempotency key generated on the client per checkout attempt. */
   checkoutId: string;

@@ -24,6 +24,7 @@ own folders.
 | 11  | [Catalog + product pages](11-catalog-product-pages.md)                 | Claude (2nd session)                  | `feat/catalog`              | done                      |
 | 12  | [Cart](12-cart.md)                                                     | Lead                                  | `feat/cart`                 | done                      |
 | 13  | [Checkout v2 (from the cart)](13-checkout-v2.md)                       | Claude (2nd session)                  | `feat/checkout-v2`          | in review                 |
+| 13b | Checkout legal: content confirmation, small print, opt-in, IP          | Claude (subagent)                     | `feat/checkout-legal`       | in review                 |
 | 14  | [Order status + guest tracking](14-order-status-tracking.md)           | Claude (cloud session)                | `feat/order-tracking`       | done                      |
 | 15  | [Help and info pages](15-info-pages.md)                                | Claude (cloud session) + founder text | `feat/info-pages`           | done (founder TODOs open) |
 | 16  | [Editor ↔ print font parity](16-font-parity.md)                        | Lead                                  | `fix/font-parity`           | ready                     |

@@ -1,10 +1,12 @@
 "use server";
 
+import { headers } from "next/headers";
 import { getCommerce } from "@/lib/commerce";
 import { getStorage } from "@/lib/storage";
 import { designKey } from "@/lib/storage/keys";
 import { orderStatusUrl } from "@/server/orders/order-link";
 import type { OrderId } from "@/types/order";
+import { clientIpFromHeaders } from "./client-ip";
 import { DESIGN_NOT_SAVED, parseCheckout, type FieldErrors } from "./schema";
 
 /**
@@ -26,6 +28,8 @@ export type PlaceOrderResult =
 export async function placeOrder(input: unknown): Promise<PlaceOrderResult> {
   const parsed = parseCheckout(input);
   if (!parsed.ok) return { ok: false, errors: parsed.errors };
+  const customerIp = clientIpFromHeaders(await headers());
+  if (customerIp) parsed.order.customerIp = customerIp;
   try {
     // The print job needs every uploaded design; never create an order without them.
     const designIds = [...new Set(parsed.order.lines.map((l) => l.designId))];

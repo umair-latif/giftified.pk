@@ -83,6 +83,7 @@ test.describe("with a placed order", () => {
     await page.getByRole("option", { name: "Lahore" }).tap();
     await page.getByLabel("Address").fill("House 12, Street 4, Model Town");
     await expect(page.getByTestId("total")).toHaveText("Rs 1,699");
+    await page.getByLabel(/I confirm my design/).tap();
     await page.getByRole("button", { name: /Place order/ }).tap();
     await expect(page).toHaveURL(/\/order\/\d+\?t=[\w-]{22}$/);
   }
