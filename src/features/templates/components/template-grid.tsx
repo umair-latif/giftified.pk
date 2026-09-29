@@ -26,7 +26,11 @@ export function TemplateGrid({
       {templates.map((t) => (
         <li key={t.id}>
           <Link
-            href={`/design/${t.productId}?template=${encodeURIComponent(t.id)}`}
+            href={
+              t.product
+                ? `/designs/${t.product.slug}`
+                : `/design/${t.productId}?template=${encodeURIComponent(t.id)}`
+            }
             className="hover:bg-mint-100 active:bg-mint-100 focus-visible:ring-brand-600/40 block rounded-2xl bg-white p-2 shadow-sm ring-1 ring-zinc-200 focus-visible:ring-2 focus-visible:outline-none"
           >
             <div className="bg-cream relative aspect-[3/2] overflow-hidden rounded-xl">

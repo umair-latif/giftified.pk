@@ -46,7 +46,7 @@ test("delivery estimate: Lahore costs Rs 200 and the city is remembered", async 
 }) => {
   await page.goto("/products/mug");
   await page.getByText("Details", { exact: true }).tap();
-  await expect(page.getByText("228 × 89 mm")).toBeVisible();
+  await expect(page.getByText(/228 × 89 mm · printed at/)).toBeVisible();
 
   const city = page.getByLabel("Delivery estimate — your city");
   await city.fill("lah");

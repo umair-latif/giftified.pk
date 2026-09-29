@@ -173,6 +173,15 @@ export function DesignEditor({
               }}
               onCopy={ed.copySelected}
               onDelete={ed.deleteSelected}
+              layerRole={
+                canSaveTemplate && ed.selection
+                  ? {
+                      customizable: ed.selection.customizable,
+                      onToggle: () =>
+                        ed.setCustomizable(!ed.selection?.customizable),
+                    }
+                  : undefined
+              }
               onMore={() => setTextSheetOpen(true)}
             />
           )}
@@ -278,7 +287,7 @@ export function DesignEditor({
 
 function describe(s: SelectionInfo): string {
   const angle = Math.round(s.angle) % 360;
-  return `${s.kind} · centre ${fmt(s.centerXMm)}, ${fmt(s.centerYMm)} mm · ${fmt(s.widthMm)} × ${fmt(s.heightMm)} mm · ${angle}°`;
+  return `${s.kind}${s.customizable ? " (customers can edit)" : ""} · centre ${fmt(s.centerXMm)}, ${fmt(s.centerYMm)} mm · ${fmt(s.widthMm)} × ${fmt(s.heightMm)} mm · ${angle}°`;
 }
 
 function isStraight(s: SelectionInfo): boolean {

@@ -29,6 +29,24 @@ const valid = {
   contentConfirmed: true,
 };
 
+describe("parseCheckout — design products (task 26)", () => {
+  it("keeps templateId on the order line and rejects an unsafe one", () => {
+    const ok = parseCheckout({
+      ...valid,
+      lines: [{ ...mugA, templateId: "Abc123xyz" }, mugB],
+    });
+    expect(ok.ok && ok.order.lines.map((l) => l.templateId)).toEqual([
+      "Abc123xyz",
+      undefined,
+    ]);
+    const bad = parseCheckout({
+      ...valid,
+      lines: [{ ...mugA, templateId: "../etc" }],
+    });
+    expect(bad.ok).toBe(false);
+  });
+});
+
 describe("parseCheckout (whole cart → one order)", () => {
   it("maps valid input to CreateOrderInput with one line per cart item", () => {
     const now = new Date("2026-09-29T08:30:00.000Z");

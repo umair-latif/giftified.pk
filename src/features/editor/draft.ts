@@ -16,6 +16,7 @@ import { collectAssetIds } from "./assets/asset-ref";
 const DRAFT_PREFIX = "giftified:draft:";
 const DESIGN_PREFIX = "giftified:design:";
 const THUMB_PREFIX = "giftified:thumb:";
+const DRAFT_TEMPLATE_PREFIX = "giftified:draft-template:";
 
 const storageKey = (productId: ProductId, designKey?: string) =>
   designKey ? `${DESIGN_PREFIX}${designKey}` : `${DRAFT_PREFIX}${productId}`;
@@ -48,9 +49,33 @@ export function loadDraft(
   }
 }
 
+/**
+ * The design product (template) a draft was started from (task 26): the cart
+ * line keeps it so the design is priced as that product.
+ */
+export function setDraftTemplate(productId: ProductId, templateId: string) {
+  try {
+    localStorage.setItem(`${DRAFT_TEMPLATE_PREFIX}${productId}`, templateId);
+  } catch {
+    /* storage blocked: the line is then priced as a plain product */
+  }
+}
+
+export function getDraftTemplate(productId: ProductId): string | undefined {
+  try {
+    return (
+      localStorage.getItem(`${DRAFT_TEMPLATE_PREFIX}${productId}`) ?? undefined
+    );
+  } catch {
+    return undefined;
+  }
+}
+
 export function clearDraft(productId: ProductId, designKey?: string): void {
   try {
     localStorage.removeItem(storageKey(productId, designKey));
+    if (!designKey)
+      localStorage.removeItem(`${DRAFT_TEMPLATE_PREFIX}${productId}`);
     if (designKey) localStorage.removeItem(`${THUMB_PREFIX}${designKey}`);
   } catch {
     /* ignore */

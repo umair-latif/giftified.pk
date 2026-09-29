@@ -37,6 +37,7 @@ own folders.
 | 23  | [Customer-shared templates](23-shared-templates.md)                    | _unassigned_                          | `feat/shared-templates`     | after 19, 22              |
 | 24  | [Delete customer photos 30 days after delivery](24-data-retention.md)  | Lead                                  | `feat/retention`            | done (PR #34) |
 | 25  | [Design-system cleanup: buttons, cards, tokens](25-design-consistency.md) | Claude (cloud)                     | `feat/design-tokens`        | done                        |
+| 26  | [Design products: buy a template as is, or customise](26-design-products.md) | Claude (cloud session) | `feat/design-products` | in progress (slices 1–3 built) |
 
 **Right now, assistants can take:** 21 (account area) and 22 (saved designs), both unblocked by 20;
 18 slice 3 (placeholder photo library) waits for founder-approved images. The

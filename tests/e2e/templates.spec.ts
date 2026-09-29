@@ -1,4 +1,5 @@
 import { expect, test, type Page } from "@playwright/test";
+import { openEditorWithText, signInEditor } from "./helpers";
 
 async function makePng(page: Page, width: number, height: number) {
   const dataUrl = await page.evaluate(
@@ -16,9 +17,6 @@ async function makePng(page: Page, width: number, height: number) {
   return Buffer.from(dataUrl.split(",")[1]!, "base64");
 }
 
-// Playwright starts the server with TEMPLATE_EDITOR_EMAILS=template-editor@example.pk.
-const EDITOR = "template-editor@example.pk";
-
 test("a template editor saves a template; a customer starts from it and must replace the sample photo", async ({
   page,
 }) => {
@@ -31,13 +29,7 @@ test("a template editor saves a template; a customer starts from it and must rep
     page.getByRole("button", { name: "Save as template" }),
   ).toHaveCount(0);
 
-  // Sign up as the listed editor.
-  await page.goto("/sign-up");
-  await page.getByLabel("Your name").fill("Template Editor");
-  await page.getByLabel("Email").fill(EDITOR);
-  await page.locator("#su-password").fill("correct horse");
-  await page.getByRole("button", { name: "Create account" }).tap();
-  await expect(page).toHaveURL(/\/account$/);
+  await signInEditor(page);
 
   await page.goto("/design/mug");
   await expect(
@@ -121,4 +113,70 @@ test("an unknown template opens a friendly message", async ({ page }) => {
   await expect(page.getByTestId("template-start")).toContainText(
     "couldn't open",
   );
+});
+
+test("a template editor publishes a design as a product from the preview; others only see Add to cart", async ({
+  page,
+  browser,
+  baseURL,
+}) => {
+  // Guests: the preview offers only "Add to cart".
+  await openEditorWithText(page);
+  await page.getByRole("link", { name: /Preview/ }).click();
+  await expect(page).toHaveURL(/\/design\/mug\/preview/);
+  await expect(
+    page.getByRole("button", { name: "Add to cart" }).first(),
+  ).toBeEnabled();
+  await expect(
+    page.getByRole("button", { name: "Publish as product" }),
+  ).toHaveCount(0);
+
+  // The listed editor publishes.
+  const editorCtx = await browser.newContext({
+    baseURL: baseURL!,
+    viewport: { width: 360, height: 740 },
+    hasTouch: true,
+    isMobile: true,
+  });
+  const ep = await editorCtx.newPage();
+  await signInEditor(ep);
+  await openEditorWithText(ep);
+  await ep.getByRole("link", { name: /Preview/ }).click();
+  const publish = ep
+    .getByRole("button", { name: "Publish as product" })
+    .first();
+  await expect(publish).toBeEnabled();
+  await publish.click();
+  const sheet = ep.getByRole("dialog", { name: "Publish as product" });
+  const submit = sheet.getByRole("button", { name: "Publish product" });
+  await sheet.getByLabel("Name").fill("Happy Birthday");
+  await expect(submit).toBeDisabled(); // description and price are required
+  await sheet
+    .getByLabel("Description")
+    .fill("A cheerful mug for any birthday.");
+  await sheet.getByLabel("Price (Rs)").fill("1899");
+  await submit.click();
+  await expect(ep.getByTestId("template-saved")).toContainText("Product saved");
+
+  // The product page: title, price, Add to cart / Customize.
+  await ep.getByRole("link", { name: "View the product page" }).click();
+  await expect(ep).toHaveURL(/\/designs\/happy-birthday-/);
+  await expect(ep.getByRole("heading", { level: 1 })).toHaveText(
+    "Happy Birthday",
+  );
+  await expect(ep.getByTestId("design-price")).toContainText("1,899");
+  await expect(ep.getByRole("link", { name: "Customize" })).toHaveAttribute(
+    "href",
+    /\/design\/mug\?template=/,
+  );
+  await ep.getByRole("button", { name: "Add to cart" }).click();
+  const added = ep.getByTestId("added-to-cart");
+  await expect(added).toContainText("Added to your cart");
+  await expect(added.getByRole("link", { name: "Customize it" })).toBeVisible();
+
+  // The cart prices the line from the design product, not the plain mug.
+  await added.getByRole("link", { name: "Go to cart" }).click();
+  await expect(ep).toHaveURL(/\/cart$/);
+  await expect(ep.getByText("1,899").first()).toBeVisible();
+  await editorCtx.close();
 });

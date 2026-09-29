@@ -50,6 +50,8 @@ export interface OrderLineInput {
   quantity: number;
   /** ID of the saved DesignDocument in storage. */
   designId: string;
+  /** Design product (task 26): priced from its own WooCommerce product; colour/size become line notes. */
+  templateId?: string;
 }
 
 export interface CreateOrderInput {

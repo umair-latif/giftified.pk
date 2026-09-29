@@ -125,10 +125,59 @@ export interface RetentionOrderPage {
   totalPages: number;
 }
 
+/**
+ * A published design sold as its own WooCommerce SIMPLE product (task 26):
+ * WooCommerce holds title, description, price, status and image; the design
+ * itself stays in our storage, linked by `_template_id`.
+ */
+export interface NewDesignProduct {
+  /** Our template id (unique): becomes SKU `design-<id>` and product meta. */
+  templateId: string;
+  /** The base product the design is printed on (mug…). */
+  baseProductId: ProductId;
+  name: string;
+  /** Plain text; paragraphs split on blank lines. */
+  description: string;
+  /** Whole rupees. */
+  pricePkr: number;
+}
+
+export interface DesignProduct {
+  wooProductId: number;
+  slug: string;
+}
+
+/** What the shop knows about a PUBLISHED design product (source of truth: WooCommerce). */
+export interface DesignProductInfo {
+  wooProductId: number;
+  templateId: string;
+  slug: string;
+  baseProductId: ProductId;
+  name: string;
+  /** HTML from the WP editor; sanitised before it reaches a page. */
+  descriptionHtml: string;
+  /** Current price in whole rupees (sale price applied). */
+  pricePkr: number;
+  imageUrl?: string;
+}
+
 export interface CommerceClient {
   listProducts(): Promise<CatalogProduct[]>;
   getProduct(productId: ProductId): Promise<CatalogProduct | null>;
   quoteShipping(city: string): Promise<ShippingQuote>;
+
+  /**
+   * Creates the design's simple product as a DRAFT (never on the base-product
+   * catalog: its SKU is `design-<templateId>`). Idempotent on `templateId`.
+   */
+  createDesignProduct(input: NewDesignProduct): Promise<DesignProduct>;
+  /** The published design product, or null when unknown, draft or unpublished. */
+  getDesignProduct(templateId: string): Promise<DesignProductInfo | null>;
+  /** Publishes it, with an image WooCommerce downloads from `imageUrl` (skipped if that download fails). */
+  publishDesignProduct(
+    wooProductId: number,
+    opts: { imageUrl?: string },
+  ): Promise<void>;
 
   /**
    * Re-prices every line from the store (never trust client prices) and creates

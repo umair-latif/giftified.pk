@@ -15,6 +15,9 @@ export const IMAGE_CUSTOM_PROPS = [
   "frameShape",
   /** Template sample photo the customer must replace (task 18). */
   "placeholder",
+  // Template layer roles (task 26): also on FabricObject in engine/layer-lock.ts.
+  "customizable",
+  "templateLocked",
 ] as const;
 
 export function toAssetRef(id: string): string {

@@ -43,6 +43,11 @@ const lineSchema = z.object({
   quantity,
   /** From `uploadCartDesign` (same safe-id rule as storage keys). */
   designId,
+  /** Design product (task 26). */
+  templateId: z
+    .string()
+    .regex(/^[A-Za-z0-9][A-Za-z0-9_-]{0,63}$/)
+    .optional(),
 });
 
 /** The delivery block, validated only when "different delivery address" is ticked. */
@@ -250,6 +255,7 @@ export function parseCheckout(
         ...(l.size ? { size: l.size } : {}),
         quantity: l.quantity,
         designId: l.designId,
+        ...(l.templateId ? { templateId: l.templateId } : {}),
       })),
     },
   };

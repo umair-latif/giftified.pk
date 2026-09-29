@@ -6,6 +6,9 @@ import type {
   CatalogProduct,
   CommerceClient,
   Customer,
+  DesignProduct,
+  DesignProductInfo,
+  NewDesignProduct,
   ShippingQuote,
 } from "./types";
 import {
@@ -13,13 +16,17 @@ import {
   PRODUCT_SKUS,
   buildOrderBody,
   colourHexesFromTerms,
+  descriptionHtml,
   isColourAttribute,
+  isProductId,
   findVariant,
   mapOrder,
   mapProduct,
   mapRetentionOrder,
   metaValue,
+  parsePkr,
   quoteFromZones,
+  sanitizeHtml,
   type ResolvedLine,
   type ZoneWithRates,
 } from "./woo-map";
@@ -283,6 +290,97 @@ export function createWooCommerceClient(config: WooConfig): CommerceClient {
     return mapped.filter((p): p is CatalogProduct => p !== null);
   }
 
+  // -------------------------------------------------------------------------
+  // Design products (task 26): one SIMPLE product per published design.
+  // SKU `design-<templateId>` keeps them off the base-product catalog.
+  // -------------------------------------------------------------------------
+
+  const designSku = (templateId: string) => `design-${templateId}`;
+
+  async function createDesignProduct(
+    input: NewDesignProduct,
+  ): Promise<DesignProduct> {
+    const sku = designSku(input.templateId);
+    const found = await get("/products", z.array(wooProductSchema), {
+      query: { sku, status: "any" },
+    });
+    const existing = found.find((p) => p.sku === sku);
+    if (existing)
+      return { wooProductId: existing.id, slug: existing.slug || sku };
+    const { json } = await request("POST", "/products", {
+      body: {
+        name: input.name,
+        type: "simple",
+        status: "draft",
+        sku,
+        regular_price: String(input.pricePkr),
+        description: descriptionHtml(input.description),
+        manage_stock: false,
+        stock_status: "instock",
+        // Sold through our storefront, never through WordPress pages.
+        catalog_visibility: "hidden",
+        meta_data: [
+          { key: META.templateId, value: input.templateId },
+          { key: META.baseProduct, value: input.baseProductId },
+        ],
+      },
+    });
+    const created = wooProductSchema.parse(json);
+    return { wooProductId: created.id, slug: created.slug || sku };
+  }
+
+  async function getDesignProduct(
+    templateId: string,
+  ): Promise<DesignProductInfo | null> {
+    const sku = designSku(templateId);
+    const found = await get("/products", z.array(wooProductSchema), {
+      query: { sku, status: "publish" },
+      ...CATALOG_CACHE,
+    });
+    const p = found.find((x) => x.sku === sku && x.status === "publish");
+    const pricePkr = p ? parsePkr(p.price) : null;
+    const base = p ? metaValue(p.meta_data ?? [], META.baseProduct) : undefined;
+    if (!p || pricePkr === null || !base || !isProductId(base)) return null;
+    return {
+      wooProductId: p.id,
+      templateId,
+      slug: p.slug || sku,
+      baseProductId: base,
+      name: p.name,
+      descriptionHtml: sanitizeHtml(p.description ?? ""),
+      pricePkr,
+      ...(p.images[0] ? { imageUrl: p.images[0].src } : {}),
+    };
+  }
+
+  async function publishDesignProduct(
+    wooProductId: number,
+    opts: { imageUrl?: string },
+  ): Promise<void> {
+    const publish = (withImage: boolean) =>
+      request("PUT", `/products/${wooProductId}`, {
+        body: {
+          status: "publish",
+          ...(withImage && opts.imageUrl
+            ? { images: [{ src: opts.imageUrl }] }
+            : {}),
+        },
+      });
+    try {
+      await publish(true);
+    } catch (err) {
+      // WooCommerce fetches the image itself; when it can't (unreachable host,
+      // local dev), publish without one — the founder adds it in WP admin.
+      if (
+        opts.imageUrl &&
+        err instanceof WooCommerceError &&
+        err.status === 400
+      )
+        await publish(false);
+      else throw err;
+    }
+  }
+
   async function getProduct(productId: ProductId) {
     const products = await get("/products", z.array(wooProductSchema), {
       query: { sku: productId, status: "publish" },
@@ -384,26 +482,50 @@ export function createWooCommerceClient(config: WooConfig): CommerceClient {
       return mapOrder(existing, catalog);
     }
 
-    const lines: ResolvedLine[] = input.lines.map((l) => {
-      const product = catalog.find((p) => p.productId === l.productId);
-      const variant = product && findVariant(product, l.colourId, l.size);
-      if (!product || !variant)
-        throw new WooCommerceError(
-          `Unknown product/colour/size ${l.productId}/${l.colourId}/${l.size ?? "-"}`,
-          422,
-        );
-      if (!variant.inStock)
-        throw new WooCommerceError(
-          `${product.name} (${l.colourId}${l.size ? `, ${l.size}` : ""}) is unavailable`,
-          409,
-        );
-      return {
-        wooProductId: product.wooProductId,
-        wooVariationId: variant.wooVariationId,
-        quantity: l.quantity,
-        designId: l.designId,
-      };
-    });
+    const lines: ResolvedLine[] = await Promise.all(
+      input.lines.map(async (l) => {
+        const product = catalog.find((p) => p.productId === l.productId);
+        const variant = product && findVariant(product, l.colourId, l.size);
+        if (!product || !variant)
+          throw new WooCommerceError(
+            `Unknown product/colour/size ${l.productId}/${l.colourId}/${l.size ?? "-"}`,
+            422,
+          );
+        if (!variant.inStock)
+          throw new WooCommerceError(
+            `${product.name} (${l.colourId}${l.size ? `, ${l.size}` : ""}) is unavailable`,
+            409,
+          );
+        if (l.templateId) {
+          // Design product: priced by its own simple WooCommerce product (never
+          // the client); the base product only validates colour and size.
+          const design = await getDesignProduct(l.templateId);
+          if (!design || design.baseProductId !== l.productId)
+            throw new WooCommerceError(
+              `Design ${l.templateId} is unavailable`,
+              409,
+            );
+          return {
+            wooProductId: design.wooProductId,
+            wooVariationId: 0,
+            quantity: l.quantity,
+            designId: l.designId,
+            design: {
+              templateId: l.templateId,
+              productId: l.productId,
+              colourId: l.colourId,
+              ...(l.size ? { size: l.size } : {}),
+            },
+          };
+        }
+        return {
+          wooProductId: product.wooProductId,
+          wooVariationId: variant.wooVariationId,
+          quantity: l.quantity,
+          designId: l.designId,
+        };
+      }),
+    );
 
     const { shippingPkr } = await quoteShipping(
       input.delivery?.city ?? input.customer.city,
@@ -432,6 +554,9 @@ export function createWooCommerceClient(config: WooConfig): CommerceClient {
   return {
     listProducts,
     getProduct,
+    createDesignProduct,
+    getDesignProduct,
+    publishDesignProduct,
     quoteShipping,
 
     findCustomerByEmail,

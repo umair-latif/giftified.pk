@@ -18,6 +18,11 @@ const input = z.object({
         colourId: z.string().max(40),
         size: z.string().max(10).optional(),
         quantity: z.number().int().min(1).max(MAX_LINE_QUANTITY),
+        /** Design product (task 26): priced from its own WooCommerce product. */
+        templateId: z
+          .string()
+          .regex(/^[A-Za-z0-9][A-Za-z0-9_-]{0,63}$/)
+          .optional(),
       }),
     )
     .max(MAX_CART_LINES),
@@ -45,7 +50,21 @@ export async function quoteCart(raw: unknown): Promise<CartQuote | null> {
       ? commerce.quoteShipping(city)
       : null,
   ]);
+  const designs = new Map(
+    await Promise.all(
+      [
+        ...new Set(
+          r.data.lines.flatMap((l) => (l.templateId ? [l.templateId] : [])),
+        ),
+      ].map(async (id) => [id, await commerce.getDesignProduct(id)] as const),
+    ),
+  );
   const unitPricePkr = r.data.lines.map((l) => {
+    if (l.templateId) {
+      const d = designs.get(l.templateId);
+      // Same base product only: a design can't be repriced onto another product.
+      return d && d.baseProductId === l.productId ? d.pricePkr : null;
+    }
     const product = products[ids.indexOf(l.productId)];
     const variant = product?.variants.find(
       (v) =>

@@ -35,11 +35,12 @@ export function CartView() {
   }, []);
 
   const linesKey = JSON.stringify(
-    cart?.map(({ productId, colourId, size, quantity }) => ({
+    cart?.map(({ productId, colourId, size, quantity, templateId }) => ({
       productId,
       colourId,
       size,
       quantity,
+      templateId,
     })) ?? [],
   );
   useEffect(() => {

@@ -31,6 +31,16 @@ export interface TemplateMeta {
   createdAt: string;
   /** Email of the template editor who saved it (absent on older templates). */
   createdBy?: string;
+  /** Design products (task 26): shown/sold as a product page. */
+  product?: {
+    /** URL slug: `/designs/<slug>`. */
+    slug: string;
+    /** WooCommerce simple product holding the price, description and status. */
+    wooProductId: number;
+    /** Whole rupees at publish time (WooCommerce is the source of truth afterwards). */
+    pricePkr: number;
+    description: string;
+  };
 }
 
 export interface TemplateDetail {
@@ -54,6 +64,9 @@ export interface SaveTemplateInput {
   occasions: OccasionSlug[];
   published: boolean;
   createdBy?: string;
+  /** Set when saving as a design product (see `publishTemplateProduct`). */
+  id?: string;
+  product?: TemplateMeta["product"];
   design: DesignDocument;
   /** Sample photos: one per asset id referenced by the design. */
   assets: { assetId: string; bytes: Uint8Array; contentType: string }[];

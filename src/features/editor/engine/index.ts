@@ -4,6 +4,7 @@
  */
 export { createDesignCanvas, type DesignCanvas } from "./create-canvas";
 export { applyTouchControls } from "./controls";
+export { isCustomizable, setCustomizable } from "./layer-lock";
 export { addText, type AddTextOptions } from "./text";
 export { attachTwoFingerGestures } from "./gestures";
 export { attachHistory, type CanvasHistory } from "./history";

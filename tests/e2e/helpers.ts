@@ -93,3 +93,25 @@ export async function pinch(
   await send("touchEnd", []);
   await cdp.detach();
 }
+
+// Playwright starts the server with TEMPLATE_EDITOR_EMAILS=template-editor@example.pk.
+const EDITOR = "template-editor@example.pk";
+const PASSWORD = "correct horse";
+
+/** Sign up as the listed editor, or sign in when another test already did. */
+export async function signInEditor(page: Page) {
+  await page.goto("/sign-up");
+  await page.getByLabel("Your name").fill("Template Editor");
+  await page.getByLabel("Email").fill(EDITOR);
+  await page.locator("#su-password").fill(PASSWORD);
+  await page.getByRole("button", { name: "Create account" }).tap();
+  try {
+    await expect(page).toHaveURL(/\/account$/, { timeout: 4000 });
+  } catch {
+    await page.goto("/sign-in");
+    await page.getByLabel("Email").fill(EDITOR);
+    await page.locator("#si-password").fill(PASSWORD);
+    await page.getByRole("button", { name: "Sign in" }).tap();
+    await expect(page).toHaveURL(/\/account$/);
+  }
+}
