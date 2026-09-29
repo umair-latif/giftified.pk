@@ -33,20 +33,31 @@ For every new order in WP admin → WooCommerce → Orders (status **On hold**):
    box (if you can't see it: **Screen Options** at the top right → tick **Custom Fields**), then
    **Add Custom Field** → **Enter new**:
 
-   | Name               | Value                                       | Needed?  |
-   | ------------------ | ------------------------------------------- | -------- |
-   | `_courier`         | Courier name, e.g. `TCS`, `Leopards`, `M&P` | Yes      |
-   | `_tracking_number` | The consignment / tracking number           | Yes      |
-   | `_tracking_url`    | Full `https://` link to the courier's page  | Optional |
+   | Name              | Value                                       | Needed?  |
+   | ----------------- | ------------------------------------------- | -------- |
+   | `courier`         | Courier name, e.g. `TCS`, `Leopards`, `M&P` | Yes      |
+   | `tracking_number` | The consignment / tracking number           | Yes      |
+   | `tracking_url`    | Full `https://` link to the courier's page  | Optional |
 
-   Type the names exactly as shown, including the leading underscore. The page shows "Shipped"
-   only when **both** `_courier` and `_tracking_number` are filled in and the order is
-   **Processing**; the "Track parcel" button appears only for an `https://` link. Click
-   **Update** to save.
-
-   > **Known issue (waiting for the lead):** WordPress treats field names that start with `_` as
-   > hidden, and WooCommerce's Custom Fields box refuses to add them (`protected_meta` error).
-   > Until the site reads names without the underscore, ask the lead to set these fields for you
-   > (they can be set through the WooCommerce REST API).
+   Type the names exactly as shown (no leading underscore — WordPress refuses those in this box).
+   The page shows "Shipped" only when **both** `courier` and `tracking_number` are filled in and
+   the order is **Processing**; the "Track parcel" button appears only for an `https://` link.
+   Click **Update** to save. (The site also reads `_courier` etc. if they were set through the
+   REST API.)
 
 8. After delivery and cash collected, set the order to **Completed**.
+
+## Refused designs
+
+If you refuse a design because it breaks the law (see `/printing-guidelines`, e.g. PECA), keep the
+evidence: normally the photos and print files are deleted 30 days after the order is completed or
+cancelled ([order-pipeline.md](order-pipeline.md#data-retention-30-day-purge)).
+
+1. Open the order in WP admin → **Custom Fields** box (not visible? **Screen Options** → tick
+   **Custom Fields**).
+2. **Add Custom Field** → **Enter new**: Name `retain_for_review`, Value `yes`. Click **Update**.
+3. Add an order note saying why (e.g. "Refused: … — kept for review").
+
+Do this **within 30 days** of cancelling: files that are already deleted can't be restored. The
+nightly job then never deletes this order's print files, design or photos. To release them later,
+delete the custom field; the next night's run cleans them up.

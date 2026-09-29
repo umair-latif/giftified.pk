@@ -78,8 +78,17 @@ export function fakeWoo() {
       (m = path.match(/^\/shipping\/zones\/(\d+)\/methods$/))
     )
       return ok(zoneMethods[m[1]!] ?? []);
-    if (method === "GET" && path === "/orders")
-      return ok([...orders.values()].reverse());
+    if (method === "GET" && path === "/orders") {
+      const list = [...orders.values()];
+      if (url.searchParams.get("orderby") === "id")
+        return Response.json(list, {
+          headers: {
+            "x-wp-totalpages": "1",
+            "x-wp-total": String(list.length),
+          },
+        });
+      return ok(list.reverse());
+    }
     if (method === "POST" && path === "/orders") {
       const b = body as Json;
       const template = wooFixture<Json>("order");
@@ -100,6 +109,12 @@ export function fakeWoo() {
       if (method === "PUT") {
         const b = body as Json;
         if (typeof b.status === "string") o.status = b.status;
+        for (const nm of (b.meta_data as Json[] | undefined) ?? []) {
+          const meta = o.meta_data as Json[];
+          const hit = meta.find((x) => x.key === nm.key);
+          if (hit) hit.value = nm.value;
+          else meta.push(nm);
+        }
         for (const li of (b.line_items as Json[] | undefined) ?? []) {
           const item = (o.line_items as Json[]).find((x) => x.id === li.id);
           const meta = item!.meta_data as Json[];
