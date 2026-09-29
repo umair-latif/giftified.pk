@@ -39,12 +39,15 @@ export function DesignPreview({
   product,
   designKey,
   onReady,
+  sideAction,
 }: {
   product: ProductConfig;
   /** Preview a saved cart design instead of the product's draft. */
   designKey?: string;
   /** Called once the design has rendered, or with null when there is nothing to order. */
   onReady?: (result: PreviewResult | null) => void;
+  /** Shown under the details on desktop (the add-to-cart button lives here from lg). */
+  sideAction?: React.ReactNode;
 }) {
   const [state, setState] = useState<State>({ kind: "loading" });
   const [selected, setSelected] = useState<string>();
@@ -156,13 +159,13 @@ export function DesignPreview({
       <div className="flex min-w-0 flex-col gap-3">
         {useGallery && state.kind === "ready" && first && (
           <div
-            className="flex flex-col gap-2"
+            className="flex flex-col gap-2 lg:max-w-[38rem] lg:flex-row-reverse lg:items-start lg:gap-3"
             role="group"
             aria-label="Preview gallery"
             data-testid="preview-gallery"
           >
             <div
-              className="relative w-full overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-zinc-200"
+              className="relative w-full overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-zinc-200 lg:min-w-0 lg:flex-1"
               style={{
                 aspectRatio: `${(shown?.spec ?? first).widthPx} / ${(shown?.spec ?? first).heightPx}`,
               }}
@@ -183,18 +186,18 @@ export function DesignPreview({
             </div>
             {gallery.length > 1 && (
               <ul
-                className="flex gap-2 overflow-x-auto pb-1"
+                className="flex gap-2 overflow-x-auto pb-1 lg:w-20 lg:shrink-0 lg:flex-col lg:overflow-visible lg:pb-0"
                 aria-label="Views"
               >
                 {gallery.map((g) => (
-                  <li key={g.spec.id} className="shrink-0">
+                  <li key={g.spec.id} className="shrink-0 lg:w-full">
                     <button
                       type="button"
                       onClick={() => setSelected(g.spec.id)}
                       aria-label={g.spec.label}
                       aria-current={g.spec.id === shown?.spec.id}
                       data-testid={`preview-thumb-${g.spec.id}`}
-                      className={`focus-visible:ring-brand-600/60 block h-16 overflow-hidden rounded-lg bg-white ring-2 focus-visible:outline-none ${
+                      className={`focus-visible:ring-brand-600/60 block h-16 overflow-hidden rounded-lg bg-white ring-2 focus-visible:outline-none lg:h-auto lg:w-full ${
                         g.spec.id === shown?.spec.id
                           ? "ring-brand-600"
                           : "ring-zinc-200 hover:ring-zinc-300"
@@ -257,30 +260,33 @@ export function DesignPreview({
           </div>
         )}
       </div>
-      <dl className="grid grid-cols-2 gap-y-1 rounded-2xl bg-white p-3 text-xs ring-1 ring-zinc-200 lg:sticky lg:top-24">
-        <dt className="text-zinc-500">Product</dt>
-        <dd className="text-right text-zinc-900">{product.subtitle}</dd>
-        <dt className="text-zinc-500">Print size</dt>
-        <dd className="text-right text-zinc-900">
-          {widthMm} × {heightMm} mm · {product.printDpi} DPI
-        </dd>
-        <dt className="text-zinc-500">Layers</dt>
-        <dd className="text-right text-zinc-900" data-testid="preview-layers">
-          {state.kind === "ready" ? state.layers : 0}
-        </dd>
-        {state.kind === "ready" && state.quality.worstDpi !== null && (
-          <>
-            <dt className="text-zinc-500">Photo quality</dt>
-            <dd
-              className={`text-right ${QUALITY[state.quality.status].className}`}
-              data-testid="preview-quality"
-            >
-              {QUALITY[state.quality.status].label} ·{" "}
-              {Math.round(state.quality.worstDpi)} DPI
-            </dd>
-          </>
-        )}
-      </dl>
+      <div className="flex flex-col gap-3 lg:sticky lg:top-24">
+        <dl className="grid grid-cols-2 gap-y-1 rounded-2xl bg-white p-3 text-xs ring-1 ring-zinc-200">
+          <dt className="text-zinc-500">Product</dt>
+          <dd className="text-right text-zinc-900">{product.subtitle}</dd>
+          <dt className="text-zinc-500">Print size</dt>
+          <dd className="text-right text-zinc-900">
+            {widthMm} × {heightMm} mm · {product.printDpi} DPI
+          </dd>
+          <dt className="text-zinc-500">Layers</dt>
+          <dd className="text-right text-zinc-900" data-testid="preview-layers">
+            {state.kind === "ready" ? state.layers : 0}
+          </dd>
+          {state.kind === "ready" && state.quality.worstDpi !== null && (
+            <>
+              <dt className="text-zinc-500">Photo quality</dt>
+              <dd
+                className={`text-right ${QUALITY[state.quality.status].className}`}
+                data-testid="preview-quality"
+              >
+                {QUALITY[state.quality.status].label} ·{" "}
+                {Math.round(state.quality.worstDpi)} DPI
+              </dd>
+            </>
+          )}
+        </dl>
+        {sideAction && <div className="hidden lg:block">{sideAction}</div>}
+      </div>
     </div>
   );
 }

@@ -60,7 +60,7 @@ export function SelectionBar({
             : "Selection tools"
       }
       data-testid="selection-bar"
-      className="fixed inset-x-0 bottom-[calc(3.5rem+1px+env(safe-area-inset-bottom))] z-10 border-t border-zinc-200 bg-white lg:static lg:rounded-2xl lg:border lg:shadow-sm"
+      className="fixed inset-x-0 bottom-[calc(3.5rem+1px+env(safe-area-inset-bottom))] z-10 border-t border-zinc-200 bg-white lg:relative lg:inset-x-auto lg:bottom-auto lg:rounded-2xl lg:border lg:shadow-sm"
     >
       <div
         className="mx-auto flex h-12 max-w-md items-center gap-0.5 overflow-x-auto px-1.5 lg:h-auto lg:max-w-none lg:flex-wrap lg:overflow-visible lg:py-1.5"
@@ -91,7 +91,7 @@ export function SelectionBar({
                 void loadPickerFonts(text.fontWeight, text.fontStyle)
               }
               onChange={(e) => onTextStyle({ fontFamily: e.target.value })}
-              className="h-9 w-14 shrink-0 rounded-md border border-zinc-300 bg-white px-1 text-sm text-zinc-800"
+              className="h-9 w-14 shrink-0 rounded-md border border-zinc-300 bg-white px-1 text-sm text-zinc-800 lg:w-28"
               style={{ fontFamily: text.fontFamily }}
             >
               {!FONTS.some((f) => f.family === text.fontFamily) && (

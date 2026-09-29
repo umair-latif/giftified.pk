@@ -91,14 +91,14 @@ export function DesignEditor({
       <StepBar current="Design" />
 
       <main
-        className="mx-auto flex w-full max-w-md flex-1 flex-col gap-3 px-4 lg:grid lg:max-w-5xl lg:flex-none lg:grid-cols-[minmax(0,1fr)_20rem] lg:items-start lg:gap-x-6"
+        className="mx-auto flex w-full max-w-md flex-1 flex-col gap-3 px-4 lg:grid lg:min-h-[calc(100dvh-10.5rem)] lg:max-w-[60rem] lg:flex-none lg:grid-cols-[minmax(0,1fr)_20rem] lg:items-start lg:gap-x-6"
         data-testid="editor-main"
         onPointerDown={(e) => {
           // Tapping empty space (not the canvas or a control) deselects.
           if (e.target === e.currentTarget) ed.deselect();
         }}
       >
-        <div className="flex min-w-0 flex-col gap-3">
+        <div className="flex min-w-0 flex-col gap-3 lg:min-h-[calc(100dvh-10.5rem)] lg:justify-center lg:pb-8">
           <p className="text-xs text-zinc-500">
             <span className="font-medium text-zinc-700">{product.name}</span> ·{" "}
             {product.subtitle} · print area {widthMm} × {heightMm} mm
@@ -147,7 +147,7 @@ export function DesignEditor({
 
         <aside
           aria-label="Editing tools"
-          className="contents lg:sticky lg:top-28 lg:flex lg:flex-col lg:gap-3"
+          className="contents lg:sticky lg:top-32 lg:flex lg:flex-col lg:gap-3"
         >
           <EditorToolbar
             ready={ready}
@@ -264,7 +264,7 @@ function IconButton({
       aria-label={label}
       onClick={onClick}
       disabled={disabled}
-      className="focus-visible:ring-brand-600/20 grid size-10 shrink-0 place-items-center rounded-full text-zinc-700 hover:bg-zinc-100 focus-visible:ring-2 focus-visible:outline-none active:bg-zinc-100 disabled:text-zinc-300 disabled:hover:bg-transparent"
+      className="focus-visible:ring-brand-600/20 grid size-10 shrink-0 place-items-center rounded-full text-zinc-700 lg:size-12 hover:bg-zinc-100 focus-visible:ring-2 focus-visible:outline-none active:bg-zinc-100 disabled:text-zinc-300 disabled:hover:bg-transparent"
     >
       {children}
     </button>
