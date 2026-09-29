@@ -98,3 +98,11 @@ export function printBandTop(
     ? (body.top + body.bottom) / 2 - bandPx / 2
     : body.top + topMarginMm * pxPerMm;
 }
+
+/** Screen px per mm on the mug's vertical axis, from the photographed body height. */
+export function verticalPxPerMm(
+  body: { top: number; bottom: number },
+  mugHeightMm: number,
+): number {
+  return (body.bottom - body.top) / mugHeightMm;
+}
