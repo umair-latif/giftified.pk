@@ -1,5 +1,7 @@
 import "server-only";
 import type { CommerceClient } from "@/lib/commerce";
+import { getProduct } from "@/config/products";
+import { OCCASIONS } from "@/features/home/occasions";
 import { newId } from "@/lib/id";
 import { getStorage, type ObjectStorage } from "@/lib/storage";
 import { saveTemplate, TemplateError } from "./store";
@@ -18,6 +20,24 @@ export interface PublishProductResult {
   meta: TemplateMeta;
   /** Set when the template is saved but the shop product still needs attention. */
   warning?: string;
+}
+
+/**
+ * WooCommerce categories for a design product: one for the base product's
+ * ready-made designs plus one per occasion, so coupons can target "all
+ * ready-made mugs" or "Eid designs" in WP admin.
+ */
+function productCategories(input: {
+  productId: SaveTemplateInput["productId"];
+  occasions: SaveTemplateInput["occasions"];
+}): string[] {
+  const base = getProduct(input.productId)?.name;
+  return [
+    ...(base ? [`Ready-made ${base}`] : []),
+    ...input.occasions.map(
+      (slug) => OCCASIONS.find((o) => o.slug === slug)?.label ?? slug,
+    ),
+  ];
 }
 
 /** `birthday-card` from "Birthday Card!": lower-case ASCII words joined by "-". */
@@ -67,6 +87,7 @@ export async function publishTemplateProduct(
     name,
     description,
     pricePkr: input.pricePkr,
+    categories: productCategories(input),
   });
   const meta = await saveTemplate(
     {

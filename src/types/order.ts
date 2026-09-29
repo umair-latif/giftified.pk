@@ -75,6 +75,11 @@ export interface CreateOrderInput {
    */
   consents?: { contentConfirmedAt: string; marketingOptIn: boolean };
   lines: OrderLineInput[];
+  /**
+   * Coupon code (task 26). The server has already checked it (`evaluateCoupon`);
+   * WooCommerce computes the discount from its own coupon.
+   */
+  couponCode?: string;
   /** Idempotency key generated on the client per checkout attempt. */
   checkoutId: string;
 }
@@ -106,6 +111,8 @@ export interface Order {
   tracking?: OrderTracking;
   lines: OrderLine[];
   shippingPkr: number;
+  /** Whole rupees taken off by a coupon (absent = none). */
+  discountPkr?: number;
   totalPkr: number;
   paymentMethod: "cod";
 }

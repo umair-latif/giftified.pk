@@ -1,3 +1,4 @@
+import type { Coupon } from "@/lib/coupons";
 import type { ProductId } from "@/config/products";
 import type {
   CreateOrderInput,
@@ -43,6 +44,8 @@ export interface CatalogProduct {
   images: CatalogImage[];
   basePricePkr: number;
   variants: CatalogVariant[];
+  /** WooCommerce category ids (coupon restrictions). */
+  categoryIds?: number[];
 }
 
 export interface ShippingQuote {
@@ -140,6 +143,8 @@ export interface NewDesignProduct {
   description: string;
   /** Whole rupees. */
   pricePkr: number;
+  /** WooCommerce category names to file it under (created when missing), e.g. "Eid". */
+  categories?: string[];
 }
 
 export interface DesignProduct {
@@ -159,12 +164,15 @@ export interface DesignProductInfo {
   /** Current price in whole rupees (sale price applied). */
   pricePkr: number;
   imageUrl?: string;
+  categoryIds?: number[];
 }
 
 export interface CommerceClient {
   listProducts(): Promise<CatalogProduct[]>;
   getProduct(productId: ProductId): Promise<CatalogProduct | null>;
   quoteShipping(city: string): Promise<ShippingQuote>;
+  /** The WooCommerce coupon with this code (case-insensitive), or null. Never cached: usage counts change. */
+  findCoupon(code: string): Promise<Coupon | null>;
 
   /**
    * Creates the design's simple product as a DRAFT (never on the base-product

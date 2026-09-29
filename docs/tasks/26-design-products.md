@@ -36,7 +36,11 @@ The customer can **Add to cart** as it is, or **Customize** it in the editor. On
    the WooCommerce product; order line notes: colour, size, `_template_id`.
 4. **Catalog + gallery.** `listProducts` skips design products on `/products`; gallery/occasion cards open
    `/designs/<slug>`. Sitemap, JSON-LD.
-5. **Coupons** (code field, validation against WooCommerce coupons, discount in the quote and on the order).
+5. **Coupons (built).** Coupon code box in the cart and checkout; `priceCart` (`src/server/checkout/pricing.ts`) prices the
+   lines from the store then checks the coupon (`src/lib/coupons.ts`, pure) against WooCommerce coupons
+   (`CommerceClient.findCoupon`); `placeOrder` re-checks and sends `coupon_lines` so WooCommerce computes the order
+   discount. Design products are filed under "Ready-made <product>" + one category per occasion so coupons can
+   target them in WP admin. Guide: [`docs/ops/coupons.md`](../ops/coupons.md).
 6. **Locked photos** (original stored with the template, copied into the order's files).
 
 ## Slice 2 notes
@@ -84,3 +88,11 @@ The customer can **Add to cart** as it is, or **Customize** it in the editor. On
 
 Cart/checkout show the base product name for design lines (not the design's title); the vendor proof does not
 print the design title; coupons; locked photos; text boxes that start as wide as their text.
+
+## Slice 5 notes (coupons)
+
+- Contract (additive, lead OK needed): `CommerceClient.findCoupon`, `CatalogProduct.categoryIds?`,
+  `DesignProductInfo.categoryIds?`, `NewDesignProduct.categories?`, `CreateOrderInput.couponCode?`,
+  `Order.discountPkr?`.
+- Not supported: email-restricted coupons (refused), per-customer limits, "exclude sale items".
+- The mock store ships a demo coupon `WELCOME10` (10 % off everything) for local development and the e2e tests.

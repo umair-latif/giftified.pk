@@ -8,6 +8,8 @@ import { CityPicker } from "@/features/checkout/components/city-picker";
 import { formatPkr } from "@/features/checkout/format";
 import { MAX_LINE_QUANTITY, type CartItem } from "@/types/cart";
 import { quoteCart, type CartQuote } from "../actions";
+import { readCoupon, writeCoupon } from "../coupon-storage";
+import { CouponBox } from "./coupon-box";
 import { removeFromCart, updateQuantity, useCart } from "../cart";
 
 const CITY_KEY = "giftified:city";
@@ -26,12 +28,14 @@ export function CartView() {
   const [city, setCity] = useState("");
   const [quoteCity, setQuoteCity] = useState("");
   const [quote, setQuote] = useState<CartQuote | null>(null);
+  const [coupon, setCoupon] = useState("");
 
   useEffect(() => {
     const saved = readCity();
     // eslint-disable-next-line react-hooks/set-state-in-effect -- localStorage is only readable after mount
     setCity(saved);
     setQuoteCity(saved);
+    setCoupon(readCoupon());
   }, []);
 
   const linesKey = JSON.stringify(
@@ -45,13 +49,22 @@ export function CartView() {
   );
   useEffect(() => {
     let stale = false;
-    quoteCart({ lines: JSON.parse(linesKey) as unknown, city: quoteCity })
-      .then((q) => !stale && setQuote(q))
+    quoteCart({
+      lines: JSON.parse(linesKey) as unknown,
+      city: quoteCity,
+      ...(coupon ? { couponCode: coupon } : {}),
+    })
+      .then((q) => {
+        if (stale) return;
+        setQuote(q);
+        // Only an accepted code is remembered for checkout.
+        if (coupon) writeCoupon(q?.couponCode ? coupon : "");
+      })
       .catch(() => !stale && setQuote(null));
     return () => {
       stale = true;
     };
-  }, [linesKey, quoteCity]);
+  }, [linesKey, quoteCity, coupon]);
 
   if (cart === null)
     return <p className="mt-6 text-sm text-zinc-500">Loading your cart…</p>;
@@ -114,11 +127,33 @@ export function CartView() {
             }}
             invalid={false}
           />
+          <div className="mt-3 border-t border-zinc-100 pt-3">
+            <CouponBox
+              {...(quote?.couponCode ? { appliedCode: quote.couponCode } : {})}
+              discountPkr={quote?.discountPkr ?? 0}
+              {...(coupon && quote?.couponError
+                ? { error: quote.couponError }
+                : {})}
+              onApply={setCoupon}
+              onRemove={() => {
+                setCoupon("");
+                writeCoupon("");
+              }}
+            />
+          </div>
           <dl className="mt-3 grid grid-cols-2 gap-y-1 border-t border-zinc-100 pt-3">
             <dt className="text-zinc-500">Subtotal</dt>
             <dd className="text-right" data-testid="cart-subtotal">
               {quote ? formatPkr(quote.subtotalPkr) : "…"}
             </dd>
+            {quote && quote.discountPkr > 0 && (
+              <>
+                <dt className="text-zinc-500">Coupon</dt>
+                <dd className="text-right" data-testid="cart-discount">
+                  −{formatPkr(quote.discountPkr)}
+                </dd>
+              </>
+            )}
             <dt className="text-zinc-500">Delivery</dt>
             <dd className="text-right" data-testid="cart-shipping">
               {quote?.shippingPkr != null
