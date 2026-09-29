@@ -257,7 +257,7 @@ export function DesignPreview({
           </div>
         )}
       </div>
-      <dl className="grid grid-cols-2 gap-y-1 rounded-2xl bg-white p-3 text-xs ring-1 ring-zinc-200 lg:sticky lg:top-28">
+      <dl className="grid grid-cols-2 gap-y-1 rounded-2xl bg-white p-3 text-xs ring-1 ring-zinc-200 lg:sticky lg:top-24">
         <dt className="text-zinc-500">Product</dt>
         <dd className="text-right text-zinc-900">{product.subtitle}</dd>
         <dt className="text-zinc-500">Print size</dt>
