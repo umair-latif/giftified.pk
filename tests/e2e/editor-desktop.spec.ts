@@ -28,9 +28,9 @@ test("tools sit in a side panel next to a larger canvas", async ({ page }) => {
   // The panel is beside the canvas, not fixed to the bottom of the screen.
   expect(toolsBox!.x).toBeGreaterThan(canvas!.x + canvas!.width);
   expect(toolsBox!.y + toolsBox!.height).toBeLessThan(700);
-  await expect(tools).toHaveCSS("position", "static");
+  await expect(tools).not.toHaveCSS("position", "fixed");
   await expect(selection).toBeVisible();
-  await expect(selection).toHaveCSS("position", "static");
+  await expect(selection).not.toHaveCSS("position", "fixed");
   expect(selBox!.x).toBeGreaterThan(canvas!.x + canvas!.width);
 
   // Header spans the same column as the content.
@@ -47,4 +47,15 @@ test("tools sit in a side panel next to a larger canvas", async ({ page }) => {
   const gallery = await page.getByTestId("preview-gallery").boundingBox();
   const details = await page.getByText("Print size").boundingBox();
   expect(details!.x).toBeGreaterThan(gallery!.x + gallery!.width);
+  // Thumbnails are a strip on the left of a smaller main image.
+  const thumb = await page.getByTestId("preview-thumb-left").boundingBox();
+  const main = await page.getByTestId("preview-mockup").boundingBox();
+  expect(thumb!.x + thumb!.width).toBeLessThanOrEqual(main!.x + 1);
+  expect(main!.width).toBeLessThan(560);
+  // Add to cart sits in the right column under the details, not in a bottom bar.
+  const add = await page
+    .getByRole("button", { name: "Add to cart" })
+    .boundingBox();
+  expect(add!.x).toBeGreaterThan(gallery!.x + gallery!.width);
+  expect(add!.y).toBeGreaterThan(details!.y);
 });

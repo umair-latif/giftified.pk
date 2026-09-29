@@ -68,9 +68,9 @@ export function TextColourPicker({ value, onChange }: Props) {
           role="group"
           aria-label="Choose text colour"
           data-testid="colour-panel"
-          className="absolute inset-x-0 bottom-full border-t border-zinc-200 bg-white px-3 py-3 shadow-[0_-4px_12px_rgba(0,0,0,0.06)]"
+          className="absolute inset-x-0 bottom-full z-20 border-t border-zinc-200 bg-white px-3 py-3 shadow-[0_-4px_12px_rgba(0,0,0,0.06)] lg:top-full lg:bottom-auto lg:mt-2 lg:rounded-2xl lg:border lg:shadow-lg"
         >
-          <div className="mx-auto grid max-w-md grid-cols-8 gap-2">
+          <div className="mx-auto grid max-w-md grid-cols-8 gap-2 lg:grid-cols-6 lg:justify-items-center">
             {TEXT_SWATCHES.map((s) => (
               <button
                 key={s.hex}

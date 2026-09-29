@@ -14,7 +14,9 @@ export function StepBar({
   return (
     <ol
       className={`flex items-center gap-2 text-[11px] ${
-        inPage ? "mb-3" : "mx-auto w-full max-w-md justify-center px-4 py-2"
+        inPage
+          ? "mb-3"
+          : "mx-auto w-full max-w-md justify-center px-4 py-2 lg:py-3 lg:text-sm"
       }`}
       aria-label="Order steps"
     >
