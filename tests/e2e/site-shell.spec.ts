@@ -38,3 +38,33 @@ test("an empty cart shows no badge", async ({ page }) => {
   await expect(page.getByTestId("cart-link")).toBeVisible();
   await expect(page.getByTestId("cart-count")).toHaveCount(0);
 });
+
+test("an unknown address shows the shop shell with ways forward", async ({
+  page,
+}) => {
+  const res = await page.goto("/no-such-page");
+  expect(res?.status()).toBe(404);
+  await expect(
+    page.getByRole("heading", { name: "We can’t find that page" }),
+  ).toBeVisible();
+  await expect(page.getByTestId("cart-link")).toBeVisible();
+  await expect(page.getByRole("navigation", { name: "Footer" })).toBeVisible();
+  await page.getByRole("link", { name: "See products" }).tap();
+  await expect(page).toHaveURL(/\/products$/);
+});
+
+test("cart and checkout show the flow steps with Order as the current step", async ({
+  page,
+}) => {
+  for (const path of ["/cart", "/checkout"]) {
+    await page.goto(path);
+    const steps = page.getByRole("list", { name: "Order steps" });
+    await expect(steps).toBeVisible();
+    await expect(steps.getByRole("listitem")).toHaveText([
+      /Design/,
+      /Preview/,
+      /Order/,
+    ]);
+    await expect(steps.locator('[aria-current="step"]')).toHaveText(/Order/);
+  }
+});

@@ -28,6 +28,14 @@ Header with cart/account/track icons, footer, brand teal and cream, pill buttons
 - **One page heading**, `PageTitle` (display font, teal): used on every page instead of per-page classes.
   Any new page should use `<Page width=…>` and `<PageTitle>`.
 
+## Done in the third pass (items 3, 5, 6, 7)
+
+- **Flow steps:** step 3 is now **Order** and the bar is shown on `/cart` and `/checkout` (left-aligned in the page).
+- **Products:** one column of compact row cards on mobile (same as home), 3 columns from `sm`; the colour dot is
+  hidden when a product has only one colour; the fallback picture is the same placeholder photo the home page uses.
+- **Footer:** brand block plus Shop / Help / Legal columns (4 columns from `md`), one `Footer` navigation landmark.
+- **404:** a root `not-found.tsx` with the shop header and footer and links to Products and Track.
+
 ## Suggested optimisations (biggest impact first)
 
 ### 1. One width system (the main desktop inconsistency)
