@@ -41,6 +41,8 @@ export const META = {
   marketingOptIn: "_marketing_optin",
   retainForReview: "_retain_for_review",
   retentionDone: "_retention_done",
+  templateId: "_template_id",
+  baseProduct: "_base_product",
 } as const;
 
 export function isProductId(sku: string): sku is ProductId {
@@ -673,4 +675,17 @@ export function mapRetentionOrder(o: WooRetentionOrder): RetentionOrder {
     ),
     retentionDoneAt: metaValue(o.meta_data, META.retentionDone) ?? null,
   };
+}
+
+const escapeHtml = (t: string) =>
+  t.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+
+/** Designer's plain text → WooCommerce description HTML (paragraphs on blank lines). */
+export function descriptionHtml(text: string): string {
+  return text
+    .split(/\n\s*\n/)
+    .map((p) => p.trim())
+    .filter(Boolean)
+    .map((p) => `<p>${escapeHtml(p).replace(/\n/g, "<br>")}</p>`)
+    .join("");
 }

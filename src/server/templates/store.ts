@@ -38,6 +38,14 @@ const metaSchema = z.object({
   hasThumbnail: z.boolean(),
   createdAt: z.string(),
   createdBy: z.string().optional(),
+  product: z
+    .object({
+      slug: z.string(),
+      wooProductId: z.number(),
+      pricePkr: z.number(),
+      description: z.string(),
+    })
+    .optional(),
 });
 const indexSchema = z.array(metaSchema);
 
@@ -124,7 +132,7 @@ export async function saveTemplate(
       "Sample photos don't match the photos in the design",
     );
 
-  const id = makeId();
+  const id = input.id ?? makeId();
   const design: DesignDocument = {
     ...input.design,
     printArea: { ...product.printArea },
@@ -154,6 +162,7 @@ export async function saveTemplate(
     hasThumbnail: !!input.thumbnail,
     createdAt: now().toISOString(),
     ...(input.createdBy ? { createdBy: input.createdBy } : {}),
+    ...(input.product ? { product: input.product } : {}),
   };
   const index = await readIndex(storage);
   await storage.put(templateIndexKey(), JSON.stringify([...index, meta]), {

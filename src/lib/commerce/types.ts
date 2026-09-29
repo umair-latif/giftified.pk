@@ -125,10 +125,43 @@ export interface RetentionOrderPage {
   totalPages: number;
 }
 
+/**
+ * A published design sold as its own WooCommerce SIMPLE product (task 26):
+ * WooCommerce holds title, description, price, status and image; the design
+ * itself stays in our storage, linked by `_template_id`.
+ */
+export interface NewDesignProduct {
+  /** Our template id (unique): becomes SKU `design-<id>` and product meta. */
+  templateId: string;
+  /** The base product the design is printed on (mug…). */
+  baseProductId: ProductId;
+  name: string;
+  /** Plain text; paragraphs split on blank lines. */
+  description: string;
+  /** Whole rupees. */
+  pricePkr: number;
+}
+
+export interface DesignProduct {
+  wooProductId: number;
+  slug: string;
+}
+
 export interface CommerceClient {
   listProducts(): Promise<CatalogProduct[]>;
   getProduct(productId: ProductId): Promise<CatalogProduct | null>;
   quoteShipping(city: string): Promise<ShippingQuote>;
+
+  /**
+   * Creates the design's simple product as a DRAFT (never on the base-product
+   * catalog: its SKU is `design-<templateId>`). Idempotent on `templateId`.
+   */
+  createDesignProduct(input: NewDesignProduct): Promise<DesignProduct>;
+  /** Publishes it, with an image WooCommerce downloads from `imageUrl` (skipped if that download fails). */
+  publishDesignProduct(
+    wooProductId: number,
+    opts: { imageUrl?: string },
+  ): Promise<void>;
 
   /**
    * Re-prices every line from the store (never trust client prices) and creates

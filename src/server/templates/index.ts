@@ -1,3 +1,4 @@
+export { publishTemplateProduct, slugify } from "./publish";
 export {
   TemplateError,
   getTemplate,

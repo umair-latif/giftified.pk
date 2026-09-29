@@ -6,6 +6,8 @@ import type {
   CatalogProduct,
   CommerceClient,
   Customer,
+  DesignProduct,
+  NewDesignProduct,
   ShippingQuote,
 } from "./types";
 import {
@@ -13,6 +15,7 @@ import {
   PRODUCT_SKUS,
   buildOrderBody,
   colourHexesFromTerms,
+  descriptionHtml,
   isColourAttribute,
   findVariant,
   mapOrder,
@@ -283,6 +286,73 @@ export function createWooCommerceClient(config: WooConfig): CommerceClient {
     return mapped.filter((p): p is CatalogProduct => p !== null);
   }
 
+  // -------------------------------------------------------------------------
+  // Design products (task 26): one SIMPLE product per published design.
+  // SKU `design-<templateId>` keeps them off the base-product catalog.
+  // -------------------------------------------------------------------------
+
+  const designSku = (templateId: string) => `design-${templateId}`;
+
+  async function createDesignProduct(
+    input: NewDesignProduct,
+  ): Promise<DesignProduct> {
+    const sku = designSku(input.templateId);
+    const found = await get("/products", z.array(wooProductSchema), {
+      query: { sku, status: "any" },
+    });
+    const existing = found.find((p) => p.sku === sku);
+    if (existing)
+      return { wooProductId: existing.id, slug: existing.slug || sku };
+    const { json } = await request("POST", "/products", {
+      body: {
+        name: input.name,
+        type: "simple",
+        status: "draft",
+        sku,
+        regular_price: String(input.pricePkr),
+        description: descriptionHtml(input.description),
+        manage_stock: false,
+        stock_status: "instock",
+        // Sold through our storefront, never through WordPress pages.
+        catalog_visibility: "hidden",
+        meta_data: [
+          { key: META.templateId, value: input.templateId },
+          { key: META.baseProduct, value: input.baseProductId },
+        ],
+      },
+    });
+    const created = wooProductSchema.parse(json);
+    return { wooProductId: created.id, slug: created.slug || sku };
+  }
+
+  async function publishDesignProduct(
+    wooProductId: number,
+    opts: { imageUrl?: string },
+  ): Promise<void> {
+    const publish = (withImage: boolean) =>
+      request("PUT", `/products/${wooProductId}`, {
+        body: {
+          status: "publish",
+          ...(withImage && opts.imageUrl
+            ? { images: [{ src: opts.imageUrl }] }
+            : {}),
+        },
+      });
+    try {
+      await publish(true);
+    } catch (err) {
+      // WooCommerce fetches the image itself; when it can't (unreachable host,
+      // local dev), publish without one — the founder adds it in WP admin.
+      if (
+        opts.imageUrl &&
+        err instanceof WooCommerceError &&
+        err.status === 400
+      )
+        await publish(false);
+      else throw err;
+    }
+  }
+
   async function getProduct(productId: ProductId) {
     const products = await get("/products", z.array(wooProductSchema), {
       query: { sku: productId, status: "publish" },
@@ -432,6 +502,8 @@ export function createWooCommerceClient(config: WooConfig): CommerceClient {
   return {
     listProducts,
     getProduct,
+    createDesignProduct,
+    publishDesignProduct,
     quoteShipping,
 
     findCustomerByEmail,

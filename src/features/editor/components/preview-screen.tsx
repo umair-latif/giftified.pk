@@ -6,7 +6,9 @@ import { AppHeader } from "@/components/ui/app-header";
 import { StepBar } from "@/components/ui/step-bar";
 import type { ProductConfig } from "@/config/products";
 import { addDraftToCart, useCart } from "@/features/cart/cart";
-import { saveThumbnail } from "../draft";
+import { SaveTemplateSheet } from "@/features/templates/save-template-sheet";
+import { useTemplateEditor } from "@/features/templates/use-template-editor";
+import { loadDraft, saveThumbnail } from "../draft";
 import { DesignPreview, type PreviewResult } from "./design-preview";
 import { MissingItem } from "./editor-entry";
 
@@ -22,6 +24,8 @@ export function PreviewScreen({ product }: { product: ProductConfig }) {
   const [result, setResult] = useState<PreviewResult | null | undefined>();
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string>();
+  const canPublish = useTemplateEditor();
+  const [publishOpen, setPublishOpen] = useState(false);
 
   const item = itemId
     ? (cart?.find((i) => i.id === itemId && i.productId === product.id) ?? null)
@@ -57,12 +61,35 @@ export function PreviewScreen({ product }: { product: ProductConfig }) {
     }
   }
 
-  const action = (
+  const primaryClass =
+    "bg-brand-600 hover:bg-brand-700 active:bg-brand-700 focus-visible:ring-brand-600/40 disabled:bg-brand-300 disabled:hover:bg-brand-300 mx-auto flex h-12 w-full max-w-md items-center justify-center rounded-full text-base font-semibold text-white focus-visible:ring-2 focus-visible:outline-none lg:max-w-none";
+  // Template editors publish a new design as a product instead of buying it.
+  const publishing = canPublish && !item;
+  const action = publishing ? (
+    <div className="mx-auto w-full max-w-md space-y-1 lg:max-w-none">
+      <button
+        type="button"
+        onClick={() => setPublishOpen(true)}
+        disabled={!canSubmit}
+        className={primaryClass}
+      >
+        Publish as product
+      </button>
+      <button
+        type="button"
+        onClick={() => void submit()}
+        disabled={!canSubmit}
+        className="focus-visible:ring-brand-600/20 h-9 w-full rounded-full text-sm text-zinc-600 underline hover:bg-zinc-100 focus-visible:ring-2 focus-visible:outline-none disabled:text-zinc-300"
+      >
+        {busy ? "Saving…" : "Add to cart instead"}
+      </button>
+    </div>
+  ) : (
     <button
       type="button"
       onClick={() => void submit()}
       disabled={!canSubmit}
-      className="bg-brand-600 hover:bg-brand-700 active:bg-brand-700 focus-visible:ring-brand-600/40 disabled:bg-brand-300 disabled:hover:bg-brand-300 mx-auto flex h-12 w-full max-w-md items-center justify-center rounded-full text-base font-semibold text-white focus-visible:ring-2 focus-visible:outline-none lg:max-w-none"
+      className={primaryClass}
     >
       {busy ? "Saving…" : item ? "Save changes" : "Add to cart"}
     </button>
@@ -94,6 +121,18 @@ export function PreviewScreen({ product }: { product: ProductConfig }) {
           </p>
         )}
       </main>
+      {publishOpen && result && (
+        <SaveTemplateSheet
+          asProduct
+          getDesign={async () => {
+            const design = loadDraft(product.id);
+            return design
+              ? { design, thumbnail: await makeThumbnail(result.src, 800) }
+              : null;
+          }}
+          onClose={() => setPublishOpen(false)}
+        />
+      )}
       <div className="fixed inset-x-0 bottom-0 z-20 border-t border-zinc-200 bg-white/95 px-4 pt-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] backdrop-blur lg:hidden">
         {action}
       </div>
@@ -101,13 +140,16 @@ export function PreviewScreen({ product }: { product: ProductConfig }) {
   );
 }
 
-/** ~320 px wide WebP of the rendered design for the cart (a few KB). */
-async function makeThumbnail(src: string): Promise<string | null> {
+/** WebP (≈320 px for the cart: a few KB; wider for a product image) of the rendered design. */
+async function makeThumbnail(
+  src: string,
+  maxWidth = 320,
+): Promise<string | null> {
   try {
     const img = new Image();
     img.src = src;
     await img.decode();
-    const w = Math.min(320, img.naturalWidth);
+    const w = Math.min(maxWidth, img.naturalWidth);
     const h = Math.round((img.naturalHeight / img.naturalWidth) * w);
     const c = document.createElement("canvas");
     c.width = w;

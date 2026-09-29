@@ -7,6 +7,8 @@ export interface TemplateFormMeta {
   name: string;
   occasions: OccasionSlug[];
   published: boolean;
+  /** Publishing as a product (task 26). */
+  product?: { description: string; pricePkr: number };
 }
 
 /** PNG data URL → WebP blob (the gallery thumbnail). */

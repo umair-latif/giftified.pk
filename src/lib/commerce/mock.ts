@@ -12,6 +12,8 @@ import type {
   RetentionOrder,
   VerifiedWebhook,
   WebhookVerification,
+  DesignProduct,
+  NewDesignProduct,
 } from "./types";
 
 /**
@@ -89,6 +91,11 @@ export function createMockCommerce(
   const byEmail = (email: string) =>
     [...customers.values()].find((c) => c.email === email.trim().toLowerCase());
   const RETENTION_PAGE = 100;
+  const designProducts = new Map<
+    string,
+    DesignProduct & { status: "draft" | "publish"; input: NewDesignProduct }
+  >();
+  let nextDesignProductId = 9000;
 
   const find = (productId: ProductId) =>
     CATALOG.find((p) => p.productId === productId) ?? null;
@@ -101,6 +108,23 @@ export function createMockCommerce(
   return {
     listProducts: async () => structuredClone(CATALOG),
     getProduct: async (productId) => structuredClone(find(productId)),
+    async createDesignProduct(input) {
+      const existing = designProducts.get(input.templateId);
+      if (existing)
+        return { wooProductId: existing.wooProductId, slug: existing.slug };
+      const made = {
+        wooProductId: nextDesignProductId++,
+        slug: `design-${input.templateId}`,
+        status: "draft" as const,
+        input: structuredClone(input),
+      };
+      designProducts.set(input.templateId, made);
+      return { wooProductId: made.wooProductId, slug: made.slug };
+    },
+    async publishDesignProduct(wooProductId) {
+      for (const p of designProducts.values())
+        if (p.wooProductId === wooProductId) p.status = "publish";
+    },
     quoteShipping: async (city) => ({
       city,
       shippingPkr: SHIPPING_PKR[city] ?? DEFAULT_SHIPPING_PKR,
