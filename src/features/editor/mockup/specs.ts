@@ -110,9 +110,9 @@ export const MOCKUP_SPECS: Partial<Record<ProductId, readonly MockupSpec[]>> = {
       src: "/mockups/mug-lifestyle.webp",
       widthPx: 1080,
       heightPx: 1080,
-      // Eye-level photo, mug turned a little (handle ~77 deg from the camera).
+      // Eye-level photo; the handle joins the body at the silhouette (~90 deg).
       body: { left: 322, right: 806, top: 286, bottom: 893 },
-      geometry: { diameterMm: 83, handleAngleDeg: 77 },
+      geometry: { diameterMm: 83, handleAngleDeg: 90 },
       mugHeightMm: 96,
       // Measured: base edge 22 px lower at the centre, rim front edge 13 px higher.
       sag: { rim: -13, base: 22 },
@@ -125,9 +125,9 @@ export const MOCKUP_SPECS: Partial<Record<ProductId, readonly MockupSpec[]>> = {
       src: "/mockups/mug-flatlay.webp",
       widthPx: 1080,
       heightPx: 1080,
-      // Shot from above on a desk; handle turned ~60 deg from the camera.
+      // Shot from above on a desk; the handle joins the body at the silhouette (~90 deg).
       body: { left: 320, right: 782, top: 244, bottom: 835 },
-      geometry: { diameterMm: 83, handleAngleDeg: 60 },
+      geometry: { diameterMm: 83, handleAngleDeg: 90 },
       mugHeightMm: 96,
       sag: { rim: -30, base: 22 },
       // Measured on the photo (contrast-stretched): the mug is slightly tilted,
