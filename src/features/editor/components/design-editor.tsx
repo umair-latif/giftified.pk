@@ -60,11 +60,11 @@ export function DesignEditor({
       className={`bg-cream flex min-h-dvh flex-col ${selectionKind ? "pb-36" : "pb-24"}`}
     >
       <AppHeader
-        title={item ? "Edit design" : product.name}
-        backHref={item ? "/cart" : "/"}
-        backLabel={item ? "Back to cart" : "Back to products"}
+        title={item ? "Edit design" : "Design"}
+        backHref={item ? "/cart" : `/products/${product.id}`}
+        backLabel={item ? "Back to cart" : "Back to product"}
         next={{
-          label: "Next",
+          label: "Preview",
           href: `/design/${product.id}/preview${item ? `?item=${encodeURIComponent(item.id)}` : ""}`,
         }}
         actions={
@@ -97,6 +97,7 @@ export function DesignEditor({
         }}
       >
         <p className="text-xs text-zinc-500">
+          <span className="font-medium text-zinc-700">{product.name}</span> ·{" "}
           {product.subtitle} · print area {widthMm} × {heightMm} mm
         </p>
         <EditorStage
@@ -131,7 +132,7 @@ export function DesignEditor({
             <button
               type="button"
               onClick={ed.dismissNotice}
-              className="hover:text-red-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-600/20 rounded font-medium underline"
+              className="focus-visible:ring-brand-600/20 rounded font-medium underline hover:text-red-900 focus-visible:ring-2 focus-visible:outline-none"
             >
               OK
             </button>
@@ -242,7 +243,7 @@ function IconButton({
       aria-label={label}
       onClick={onClick}
       disabled={disabled}
-      className="grid size-10 shrink-0 place-items-center rounded-full text-zinc-700 hover:bg-zinc-100 active:bg-zinc-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-600/20 disabled:text-zinc-300 disabled:hover:bg-transparent"
+      className="focus-visible:ring-brand-600/20 grid size-10 shrink-0 place-items-center rounded-full text-zinc-700 hover:bg-zinc-100 focus-visible:ring-2 focus-visible:outline-none active:bg-zinc-100 disabled:text-zinc-300 disabled:hover:bg-transparent"
     >
       {children}
     </button>
@@ -263,7 +264,7 @@ function Chip({
       type="button"
       onClick={onClick}
       disabled={disabled}
-      className="h-8 rounded-full border border-zinc-300 bg-white px-3 text-xs font-medium text-zinc-700 hover:bg-zinc-100 active:bg-zinc-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-600/20 disabled:border-zinc-200 disabled:text-zinc-300 disabled:hover:bg-white"
+      className="focus-visible:ring-brand-600/20 h-8 rounded-full border border-zinc-300 bg-white px-3 text-xs font-medium text-zinc-700 hover:bg-zinc-100 focus-visible:ring-2 focus-visible:outline-none active:bg-zinc-100 disabled:border-zinc-200 disabled:text-zinc-300 disabled:hover:bg-white"
     >
       {children}
     </button>

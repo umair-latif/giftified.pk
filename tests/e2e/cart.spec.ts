@@ -10,7 +10,7 @@ test.afterEach(() => expect(pageErrors).toEqual([]));
 
 /** Editor → Next → Preview → Add to cart. */
 async function addToCart(page: Page) {
-  await page.getByRole("link", { name: "Next" }).tap();
+  await page.getByRole("link", { name: "Preview", exact: true }).tap();
   await expect(page).toHaveURL(/\/design\/mug\/preview$/);
   const add = page.getByRole("button", { name: "Add to cart" });
   await expect(add).toBeEnabled();
@@ -49,7 +49,7 @@ test("two designs → cart → edit one → quantities → reload keeps it", asy
   await expect(status(page)).toHaveText(/1 layer/);
   await page.getByRole("button", { name: "Text", exact: true }).click();
   await expect(status(page)).toContainText("textbox");
-  await page.getByRole("link", { name: "Next" }).tap();
+  await page.getByRole("link", { name: "Preview", exact: true }).tap();
   await expect(page).toHaveURL(/\/design\/mug\/preview\?item=/);
   await expect(page.getByTestId("preview-layers")).toHaveText("2");
   await page.getByRole("button", { name: "Save changes" }).tap();

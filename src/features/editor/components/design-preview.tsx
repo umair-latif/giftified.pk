@@ -13,12 +13,16 @@ import { MOCKUP_SPECS } from "../mockup/specs";
 import { loadFaces, whenFacesLoaded } from "../fonts/load-fonts";
 import { designFontFaces, migrateDesignFonts } from "../fonts/migrate";
 
-type View = "flat" | "left" | "right";
-const VIEW_LABELS: Record<View, string> = {
-  flat: "Flat design",
-  left: "Left side",
-  right: "Right side",
-};
+/**
+ * The gallery: one entry per photographed mockup, so more angles or products
+ * can be added later by extending this list (and the mockup specs). The flat
+ * design is not part of it — it is on the Design screen.
+ */
+type MockupView = "left" | "right";
+const MOCKUP_VIEWS: { id: MockupView; label: string }[] = [
+  { id: "left", label: "Left side" },
+  { id: "right", label: "Right side" },
+];
 
 type State =
   | { kind: "loading" }
@@ -48,7 +52,8 @@ export function DesignPreview({
   onReady?: (result: PreviewResult | null) => void;
 }) {
   const [state, setState] = useState<State>({ kind: "loading" });
-  const [view, setView] = useState<View>("flat");
+  const [selected, setSelected] = useState<MockupView>("left");
+  const [mockupFailed, setMockupFailed] = useState(false);
   // Mockups belong to the design image they were made from (`of`); a stale
   // set is ignored until the new one arrives.
   const [mockups, setMockups] = useState<{
@@ -128,6 +133,7 @@ export function DesignPreview({
       })
       .catch((err: unknown) => {
         console.error("[preview] mockup failed", err);
+        if (!cancelled) setMockupFailed(true);
       });
     return () => {
       cancelled = true;
@@ -135,51 +141,73 @@ export function DesignPreview({
   }, [designSrc, product, spec]);
 
   const current = mockups && mockups.of === designSrc ? mockups : null;
-  const mockupSrc = view === "flat" || !current ? undefined : current[view];
-  const showMockup = !!spec && !!mockupSrc;
-  const views: View[] = spec && designSrc ? ["flat", "left", "right"] : [];
+  // Mockups are the preview. Without a photo for this product (or if composing
+  // failed) the flat render is shown instead, so there is always something.
+  const useGallery = !!spec && !mockupFailed && state.kind !== "empty";
+  const gallery = current
+    ? MOCKUP_VIEWS.map((v) => ({ ...v, src: current[v.id] }))
+    : [];
+  const shown = gallery.find((g) => g.id === selected) ?? gallery[0];
+  const showFlat = !useGallery || state.kind !== "ready";
 
   return (
     <div className="flex flex-col gap-3">
-      {views.length > 0 && (
+      {useGallery && state.kind === "ready" && (
         <div
-          role="tablist"
-          aria-label="Preview view"
-          className="flex gap-1 rounded-full bg-white p-1 ring-1 ring-zinc-200"
+          className="flex flex-col gap-2"
+          role="group"
+          aria-label="Preview gallery"
+          data-testid="preview-gallery"
         >
-          {views.map((v) => (
-            <button
-              key={v}
-              type="button"
-              role="tab"
-              aria-selected={view === v}
-              onClick={() => setView(v)}
-              className={`h-9 flex-1 rounded-full text-xs font-medium ${
-                view === v ? "bg-brand-600 text-white" : "text-zinc-600"
-              }`}
-            >
-              {VIEW_LABELS[v]}
-            </button>
-          ))}
-        </div>
-      )}
-      {spec && showMockup && (
-        <div
-          className="relative w-full overflow-hidden rounded-md shadow-sm ring-1 ring-zinc-300"
-          style={{ aspectRatio: `${spec.widthPx} / ${spec.heightPx}` }}
-          data-testid="preview-mockup"
-        >
-          {/* eslint-disable-next-line @next/next/no-img-element -- local data URL */}
-          <img
-            src={mockupSrc}
-            alt={`Your ${product.name}, ${VIEW_LABELS[view].toLowerCase()}`}
-            className="absolute inset-0 size-full"
-          />
+          <div
+            className="relative w-full overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-zinc-200"
+            style={{ aspectRatio: `${spec.widthPx} / ${spec.heightPx}` }}
+            data-testid="preview-mockup"
+          >
+            {shown ? (
+              // eslint-disable-next-line @next/next/no-img-element -- local data URL
+              <img
+                src={shown.src}
+                alt={`Your ${product.name}, ${shown.label.toLowerCase()}`}
+                className="absolute inset-0 size-full"
+              />
+            ) : (
+              <span className="absolute inset-0 grid place-items-center text-xs text-zinc-400">
+                Rendering preview…
+              </span>
+            )}
+          </div>
+          {gallery.length > 1 && (
+            <ul className="flex gap-2 overflow-x-auto pb-1" aria-label="Views">
+              {gallery.map((g) => (
+                <li key={g.id} className="shrink-0">
+                  <button
+                    type="button"
+                    onClick={() => setSelected(g.id)}
+                    aria-label={g.label}
+                    aria-current={g.id === shown?.id}
+                    data-testid={`preview-thumb-${g.id}`}
+                    className={`focus-visible:ring-brand-600/60 block h-16 overflow-hidden rounded-lg bg-white ring-2 focus-visible:outline-none ${
+                      g.id === shown?.id
+                        ? "ring-brand-600"
+                        : "ring-zinc-200 hover:ring-zinc-300"
+                    }`}
+                    style={{
+                      aspectRatio: `${spec.widthPx} / ${spec.heightPx}`,
+                    }}
+                  >
+                    {/* eslint-disable-next-line @next/next/no-img-element -- local data URL */}
+                    <img src={g.src} alt="" className="size-full" />
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
       )}
       <div
-        hidden={showMockup}
-        className="relative grid w-full place-items-center overflow-hidden rounded-md shadow-sm ring-1 ring-zinc-300"
+        hidden={!showFlat}
+        className="relative grid w-full place-items-center overflow-hidden rounded-2xl shadow-sm ring-1 ring-zinc-300"
         style={{
           aspectRatio: `${widthMm} / ${heightMm}`,
           backgroundColor: base,
@@ -214,7 +242,7 @@ export function DesignPreview({
           </span>
         )}
       </div>
-      {product.edgeLabels && (
+      {product.edgeLabels && showFlat && (
         <div className="-mt-2 flex justify-between text-[10px] tracking-wide text-zinc-400 uppercase">
           <span>← {product.edgeLabels.left}</span>
           <span>Front</span>
