@@ -6,6 +6,10 @@
  *   designs/<designId>/assets/<assetId>      ORIGINAL uploaded photo
  *   orders/<orderId>/line-<n>/print.png      300 DPI print file
  *   orders/<orderId>/line-<n>/proof.pdf      VendorProof.pdf
+ *   templates/index.json                     template list (task 18)
+ *   templates/<id>/design.json               template DesignDocument
+ *   templates/<id>/assets/<assetId>          sample (placeholder) photo
+ *   templates/<id>/thumbnail.webp            gallery thumbnail
  *
  * Folder prefixes (`designFolder`, `orderFolder`) are what the retention job
  * (task 24) deletes; `assertFolderPrefix` guards every prefix delete.
@@ -68,3 +72,14 @@ export function assertFolderPrefix(prefix: string): string {
     throw new Error(`Refusing to delete prefix ${JSON.stringify(prefix)}`);
   return prefix;
 }
+
+export const templateIndexKey = () => "templates/index.json";
+
+export const templateDesignKey = (templateId: string) =>
+  `templates/${assertSafeId(templateId, "templateId")}/design.json`;
+
+export const templateAssetKey = (templateId: string, assetId: string) =>
+  `templates/${assertSafeId(templateId, "templateId")}/assets/${assertSafeId(assetId, "assetId")}`;
+
+export const templateThumbKey = (templateId: string) =>
+  `templates/${assertSafeId(templateId, "templateId")}/thumbnail.webp`;

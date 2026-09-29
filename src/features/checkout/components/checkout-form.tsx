@@ -41,12 +41,17 @@ const FIELDS = [
 const SIGNED_IN_COOKIE = "giftified_signed_in=1";
 type Values = Record<(typeof FIELDS)[number], string>;
 /** Print quality per design, or "missing" when the design isn't on this phone any more. */
-type DesignState = "ok" | "warn" | "block" | "missing";
+type DesignState = "ok" | "warn" | "block" | "missing" | "placeholder";
 /** A cart line that can't be ordered as it is. */
 interface Problem {
   item: CartItem;
   index: number;
-  state: "block" | "missing" | "unavailable";
+  state: "block" | "missing" | "unavailable" | "placeholder";
+}
+
+function designState(fabric: Record<string, unknown>): DesignState {
+  const report = printQualityReport(fabric);
+  return report.placeholders > 0 ? "placeholder" : report.status;
 }
 
 function readCity(): string {
@@ -150,10 +155,7 @@ export function CheckoutForm() {
     const next = new Map<string, DesignState>();
     for (const d of distinctDesigns(items)) {
       const doc = loadDraft(d.productId, d.designKey);
-      next.set(
-        d.designKey,
-        doc ? printQualityReport(doc.fabric).status : "missing",
-      );
+      next.set(d.designKey, doc ? designState(doc.fabric) : "missing");
     }
     // eslint-disable-next-line react-hooks/set-state-in-effect -- saved designs live in localStorage
     setDesigns(next);
@@ -180,7 +182,7 @@ export function CheckoutForm() {
       if (quote?.unitPricePkr[index] === null)
         return [{ item, index, state: "unavailable" }];
       const state = designs.get(item.designKey);
-      return state === "block" || state === "missing"
+      return state === "block" || state === "missing" || state === "placeholder"
         ? [{ item, index, state }]
         : [];
     });
@@ -342,18 +344,22 @@ export function CheckoutForm() {
                 Item {index + 1} ({productName(item)}):{" "}
                 {state === "block"
                   ? "a photo is too blurry to print — make it smaller."
-                  : state === "missing"
-                    ? "this design is no longer on this phone — remove it and design it again."
-                    : "no longer available in this colour or size."}{" "}
+                  : state === "placeholder"
+                    ? "there is still a sample photo — tap it and choose Replace to add yours."
+                    : state === "missing"
+                      ? "this design is no longer on this phone — remove it and design it again."
+                      : "no longer available in this colour or size."}{" "}
                 <Link
                   href={
-                    state === "block"
+                    state === "block" || state === "placeholder"
                       ? `/design/${item.productId}?item=${encodeURIComponent(item.id)}`
                       : "/cart"
                   }
                   className="focus-visible:ring-brand-600/20 rounded font-medium underline hover:text-red-900 focus-visible:ring-2 focus-visible:outline-none"
                 >
-                  {state === "block" ? "Edit design" : "Go to cart"}
+                  {state === "block" || state === "placeholder"
+                    ? "Edit design"
+                    : "Go to cart"}
                 </Link>
               </p>
             ))}

@@ -18,6 +18,8 @@ export interface ImageQuality {
 
 export interface PrintQualityReport {
   images: ImageQuality[];
+  /** Template sample photos still in the design; they must be replaced before ordering. */
+  placeholders: number;
   /** Lowest effective DPI across images, or null when the design has no images. */
   worstDpi: number | null;
   status: DpiStatus;
@@ -71,8 +73,15 @@ export function printQualityReport(
       };
     });
   const worstDpi = images.length ? Math.min(...images.map((i) => i.dpi)) : null;
+  const placeholders = objects.filter(
+    (o) =>
+      typeof o.type === "string" &&
+      o.type.toLowerCase() === "image" &&
+      o.placeholder === true,
+  ).length;
   return {
     images,
+    placeholders,
     worstDpi,
     status: worstDpi === null ? "ok" : dpiStatus(worstDpi, thresholds),
   };

@@ -13,6 +13,8 @@ export const IMAGE_CUSTOM_PROPS = [
   "previewWidthPx",
   "previewHeightPx",
   "frameShape",
+  /** Template sample photo the customer must replace (task 18). */
+  "placeholder",
 ] as const;
 
 export function toAssetRef(id: string): string {

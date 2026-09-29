@@ -72,6 +72,12 @@ export async function createDesignUpload(
     );
   }
 
+  if (printQualityReport(design.fabric).placeholders > 0) {
+    throw new DesignUploadError(
+      "This design still has a sample photo. Tap it and choose Replace to add your own.",
+      422,
+    );
+  }
   if (printQualityReport(design.fabric).status === "block") {
     throw new DesignUploadError(
       "A photo is too blurry to print at its size. Go back and make it smaller.",
