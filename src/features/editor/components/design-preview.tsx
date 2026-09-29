@@ -14,15 +14,10 @@ import { loadFaces, whenFacesLoaded } from "../fonts/load-fonts";
 import { designFontFaces, migrateDesignFonts } from "../fonts/migrate";
 
 /**
- * The gallery: one entry per photographed mockup, so more angles or products
- * can be added later by extending this list (and the mockup specs). The flat
- * design is not part of it — it is on the Design screen.
+ * The preview is a gallery of photographed mockups: one entry per spec in
+ * `MOCKUP_SPECS` (mockup/specs.ts), so more angles or products only need a new
+ * spec. The flat design is not part of it — it is on the Design screen.
  */
-type MockupView = "left" | "right";
-const MOCKUP_VIEWS: { id: MockupView; label: string }[] = [
-  { id: "left", label: "Left side" },
-  { id: "right", label: "Right side" },
-];
 
 type State =
   | { kind: "loading" }
@@ -52,16 +47,15 @@ export function DesignPreview({
   onReady?: (result: PreviewResult | null) => void;
 }) {
   const [state, setState] = useState<State>({ kind: "loading" });
-  const [selected, setSelected] = useState<MockupView>("left");
+  const [selected, setSelected] = useState<string>();
   const [mockupFailed, setMockupFailed] = useState(false);
   // Mockups belong to the design image they were made from (`of`); a stale
   // set is ignored until the new one arrives.
   const [mockups, setMockups] = useState<{
     of: string;
-    left: string;
-    right: string;
+    byId: Record<string, string>;
   } | null>(null);
-  const spec = MOCKUP_SPECS[product.id];
+  const specs = MOCKUP_SPECS[product.id];
   const { widthMm, heightMm } = product.printArea;
   const base = product.baseColors[0]?.hex ?? "#ffffff";
 
@@ -121,15 +115,18 @@ export function DesignPreview({
   // Wrap the rendered design around the product photo (lazy, client-only).
   const designSrc = state.kind === "ready" ? state.src : null;
   useEffect(() => {
-    if (!spec || !designSrc) return;
+    if (!specs || !designSrc) return;
     let cancelled = false;
     void import("../mockup/compose")
       .then(async ({ composeMockup }) => {
-        const [left, right] = await Promise.all([
-          composeMockup(designSrc, product, spec, "left"),
-          composeMockup(designSrc, product, spec, "right"),
-        ]);
-        if (!cancelled) setMockups({ of: designSrc, left, right });
+        const urls = await Promise.all(
+          specs.map((s) => composeMockup(designSrc, product, s)),
+        );
+        if (cancelled) return;
+        setMockups({
+          of: designSrc,
+          byId: Object.fromEntries(specs.map((s, i) => [s.id, urls[i]!])),
+        });
       })
       .catch((err: unknown) => {
         console.error("[preview] mockup failed", err);
@@ -138,21 +135,25 @@ export function DesignPreview({
     return () => {
       cancelled = true;
     };
-  }, [designSrc, product, spec]);
+  }, [designSrc, product, specs]);
 
   const current = mockups && mockups.of === designSrc ? mockups : null;
   // Mockups are the preview. Without a photo for this product (or if composing
   // failed) the flat render is shown instead, so there is always something.
-  const useGallery = !!spec && !mockupFailed && state.kind !== "empty";
+  const useGallery = !!specs?.length && !mockupFailed && state.kind !== "empty";
   const gallery = current
-    ? MOCKUP_VIEWS.map((v) => ({ ...v, src: current[v.id] }))
+    ? (specs ?? []).flatMap((s) => {
+        const src = current.byId[s.id];
+        return src ? [{ spec: s, src }] : [];
+      })
     : [];
-  const shown = gallery.find((g) => g.id === selected) ?? gallery[0];
+  const shown = gallery.find((g) => g.spec.id === selected) ?? gallery[0];
   const showFlat = !useGallery || state.kind !== "ready";
+  const first = specs?.[0];
 
   return (
     <div className="flex flex-col gap-3">
-      {useGallery && state.kind === "ready" && (
+      {useGallery && state.kind === "ready" && first && (
         <div
           className="flex flex-col gap-2"
           role="group"
@@ -161,14 +162,16 @@ export function DesignPreview({
         >
           <div
             className="relative w-full overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-zinc-200"
-            style={{ aspectRatio: `${spec.widthPx} / ${spec.heightPx}` }}
+            style={{
+              aspectRatio: `${(shown?.spec ?? first).widthPx} / ${(shown?.spec ?? first).heightPx}`,
+            }}
             data-testid="preview-mockup"
           >
             {shown ? (
               // eslint-disable-next-line @next/next/no-img-element -- local data URL
               <img
                 src={shown.src}
-                alt={`Your ${product.name}, ${shown.label.toLowerCase()}`}
+                alt={`Your ${product.name}, ${shown.spec.label.toLowerCase()} view`}
                 className="absolute inset-0 size-full"
               />
             ) : (
@@ -180,20 +183,20 @@ export function DesignPreview({
           {gallery.length > 1 && (
             <ul className="flex gap-2 overflow-x-auto pb-1" aria-label="Views">
               {gallery.map((g) => (
-                <li key={g.id} className="shrink-0">
+                <li key={g.spec.id} className="shrink-0">
                   <button
                     type="button"
-                    onClick={() => setSelected(g.id)}
-                    aria-label={g.label}
-                    aria-current={g.id === shown?.id}
-                    data-testid={`preview-thumb-${g.id}`}
+                    onClick={() => setSelected(g.spec.id)}
+                    aria-label={g.spec.label}
+                    aria-current={g.spec.id === shown?.spec.id}
+                    data-testid={`preview-thumb-${g.spec.id}`}
                     className={`focus-visible:ring-brand-600/60 block h-16 overflow-hidden rounded-lg bg-white ring-2 focus-visible:outline-none ${
-                      g.id === shown?.id
+                      g.spec.id === shown?.spec.id
                         ? "ring-brand-600"
                         : "ring-zinc-200 hover:ring-zinc-300"
                     }`}
                     style={{
-                      aspectRatio: `${spec.widthPx} / ${spec.heightPx}`,
+                      aspectRatio: `${g.spec.widthPx} / ${g.spec.heightPx}`,
                     }}
                   >
                     {/* eslint-disable-next-line @next/next/no-img-element -- local data URL */}

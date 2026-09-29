@@ -24,8 +24,14 @@ stops short of the handle (the gap).
 ## Adding or changing a photo
 
 1. Save a WebP (≈ 800–1000 px wide, < 100 KB) in `public/mockups/`.
-2. Add an entry to `MOCKUP_SPECS` in `mockup/specs.ts`: image size, the mug
-   body's left/right silhouette x and rim/base y in that image's pixels.
+2. Add an entry to `MOCKUP_SPECS` in `mockup/specs.ts` (each entry is one
+   preview tab): image size, `side` ("right" = handle on the right), the mug
+   body's left/right silhouette x and the y of the rim's _front_ edge and base's
+   _front_ edge at the centre, all in that image's pixels.
+   - `sag`: how many px lower the rim/base lines are at the centre than at the
+     silhouette edges (0 for an eye-level shot; ~50-65 for a 20 degree overhead shot).
+   - `geometry.handleAngleDeg`: where the handle is, in degrees from the camera
+     (90 = pure side view, smaller = the handle turned toward the camera).
 3. `pnpm exec playwright test mockup` writes screenshots to `test-results/`.
 
 ## When the vendor sends real measurements

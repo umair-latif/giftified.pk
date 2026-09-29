@@ -142,7 +142,7 @@ test("the Preview step waits for the design's fonts before rendering", async ({
   await seedDraft(page, doc);
   const requested = fontRequests(page);
   await page.goto("/design/mug/preview");
-  await expect(page.getByAltText(/Your Custom Mug, left side/)).toBeVisible();
+  await expect(page.getByAltText(/Your Custom Mug, left view/)).toBeVisible();
   expect(requested).toContain(
     "noto-nastaliq-urdu/NotoNastaliqUrdu-Regular.woff2",
   );
