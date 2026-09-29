@@ -59,11 +59,27 @@ describe("mockup mapping", () => {
     expect(d).toBeGreaterThan(c);
   });
 
-  it("has a mug mockup whose body sits inside the photo", () => {
-    const s = MOCKUP_SPECS.mug!;
-    expect(s.body.left).toBeGreaterThan(0);
-    expect(s.body.right).toBeLessThan(s.widthPx);
-    expect(s.body.bottom).toBeLessThan(s.heightPx);
+  it("has mug mockups whose body sits inside their photo, with unique ids", () => {
+    const specs = MOCKUP_SPECS.mug!;
+    expect(new Set(specs.map((s) => s.id)).size).toBe(specs.length);
+    for (const s of specs) {
+      expect(s.body.left).toBeGreaterThan(0);
+      expect(s.body.right).toBeLessThan(s.widthPx);
+      expect(s.body.top).toBeLessThan(s.body.bottom);
+      expect(s.body.bottom).toBeLessThan(s.heightPx);
+    }
+  });
+
+  it("turning the mug (handle nearer the camera) shows more of the wrap", () => {
+    const turned = { ...geo, handleAngleDeg: 64 };
+    // Same photo column, the design position moves by the rotation.
+    const side = designXmm(0, geo, "right")!;
+    const rot = designXmm(0, turned, "right")!;
+    expect(rot).toBeGreaterThan(side);
+    expect(designXmm(64, turned, "right")).toBeNull(); // handle gap
+    expect(designXmm(-90, turned, "right")!).toBeGreaterThan(
+      geo.wrapMm / 2 - 1e-6,
+    );
   });
 });
 
@@ -104,7 +120,7 @@ describe("print band position", () => {
   });
 
   it("sizes the band against the mug height, not the diameter", () => {
-    const s = MOCKUP_SPECS.mug!;
+    const s = MOCKUP_SPECS.mug![0]!;
     const pxPerMm = verticalPxPerMm(s.body, s.mugHeightMm);
     const bandPx = mug.printArea.heightMm * pxPerMm;
     const bodyPx = s.body.bottom - s.body.top;

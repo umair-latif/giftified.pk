@@ -2,7 +2,7 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { expect, test } from "@playwright/test";
 
-test("preview shows the design wrapped on the mug, left and right", async ({
+test("preview shows the design wrapped on the mug, left, right and lifestyle", async ({
   page,
 }) => {
   const doc: unknown = JSON.parse(
@@ -17,7 +17,7 @@ test("preview shows the design wrapped on the mug, left and right", async ({
   await expect(tabs).toBeVisible();
   await expect(page.getByTestId("preview-frame")).toBeVisible();
 
-  for (const name of ["Left side", "Right side"]) {
+  for (const name of ["Left", "Right", "Lifestyle"]) {
     await tabs.getByRole("tab", { name }).click();
     const mockup = page.getByTestId("preview-mockup");
     await expect(mockup).toBeVisible();
@@ -27,10 +27,10 @@ test("preview shows the design wrapped on the mug, left and right", async ({
       /^data:image\//,
     );
     await mockup.screenshot({
-      path: `test-results/mockup-${name.split(" ")[0]!.toLowerCase()}.png`,
+      path: `test-results/mockup-${name.toLowerCase()}.png`,
     });
   }
 
-  await tabs.getByRole("tab", { name: "Flat design" }).click();
+  await tabs.getByRole("tab", { name: "Flat" }).click();
   await expect(page.getByTestId("preview-frame")).toBeVisible();
 });

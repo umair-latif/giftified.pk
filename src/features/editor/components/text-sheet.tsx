@@ -90,7 +90,7 @@ export function TextSheet({ text, onTextStyle, onClose }: Props) {
                 aria-checked={text.textAlign === a.value}
                 aria-label={a.label}
                 onClick={() => onTextStyle({ textAlign: a.value })}
-                className={`grid h-11 w-11 place-items-center rounded-md text-base focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-600/20 ${
+                className={`focus-visible:ring-brand-600/20 grid h-11 w-11 place-items-center rounded-md text-base focus-visible:ring-2 focus-visible:outline-none ${
                   text.textAlign === a.value
                     ? "bg-brand-100 text-brand-700 hover:bg-brand-200"
                     : "text-zinc-700 hover:bg-zinc-100 active:bg-zinc-100"
@@ -121,7 +121,7 @@ export function TextSheet({ text, onTextStyle, onClose }: Props) {
                     stroke: o.mm > 0 ? outlineColour : text.stroke,
                   })
                 }
-                className={`h-11 shrink-0 rounded-full border px-4 text-sm font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-600/20 ${
+                className={`focus-visible:ring-brand-600/20 h-11 shrink-0 rounded-full border px-4 text-sm font-medium focus-visible:ring-2 focus-visible:outline-none ${
                   outlineWidth === o.id
                     ? "border-brand-600 bg-brand-100 text-brand-700 hover:bg-brand-200"
                     : "border-zinc-300 text-zinc-700 hover:bg-zinc-100 active:bg-zinc-100"

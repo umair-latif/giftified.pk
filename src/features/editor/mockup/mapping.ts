@@ -2,9 +2,9 @@
  * Pure maths for wrapping a flat mug design around a photographed mug.
  *
  * Angles are degrees seen from the camera: 0 = facing the camera, ±90 = the
- * silhouette edges. The handle is at +90 (right of the photo). The design
- * (`wrapMm` wide, seam at the handle) is centred opposite the handle, so its
- * centre sits at -90 and it ends `gap / 2` short of the handle at +90.
+ * silhouette edges. The handle is at `handleAngleDeg` (default +90, the right
+ * of the photo). The design (`wrapMm` wide, seam at the handle) is centred
+ * opposite the handle, and ends `gap / 2` short of the handle.
  */
 
 export interface WrapGeometry {
@@ -12,6 +12,11 @@ export interface WrapGeometry {
   wrapMm: number;
   /** Outer diameter of the mug body in mm. */
   diameterMm: number;
+  /**
+   * Where the handle is, in degrees from the camera (90 = pure side view, the
+   * default; smaller = the mug is turned so the handle faces the camera more).
+   */
+  handleAngleDeg?: number;
 }
 
 export type MockupSide = "right" | "left";
@@ -40,7 +45,8 @@ export function designXmm(
   const arc = printArcDeg(geo);
   // Right view: handle at +90. Left view is the mirror image (handle at -90).
   const t = side === "right" ? angleDeg : -angleDeg;
-  const x = geo.wrapMm / 2 + ((t + 90) / arc) * geo.wrapMm;
+  const handle = geo.handleAngleDeg ?? 90;
+  const x = geo.wrapMm / 2 + ((t - (handle - 180)) / arc) * geo.wrapMm;
   if (x > geo.wrapMm) return null;
   return side === "right" ? x : geo.wrapMm - x;
 }
@@ -52,7 +58,7 @@ export function designXmm(
  * `sag` varies linearly from the rim to the base of the body.
  */
 export interface VerticalCurve {
-  /** Body top/bottom y at the photo centre (px). */
+  /** Front rim / base y at the photo centre (px). */
   top: number;
   bottom: number;
   /** Sag at the rim / at the base (px). */
