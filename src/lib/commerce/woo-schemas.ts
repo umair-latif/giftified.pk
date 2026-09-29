@@ -36,6 +36,7 @@ export const wooProductSchema = z.object({
   description: z.string().optional(),
   short_description: z.string().optional(),
   meta_data: z.array(wooMetaSchema).optional(),
+  categories: z.array(z.object({ id: z.number() })).optional(),
 });
 export type WooProduct = z.infer<typeof wooProductSchema>;
 
@@ -77,6 +78,7 @@ export const wooOrderSchema = z.object({
   payment_method: z.string(),
   total: z.string(),
   shipping_total: z.string(),
+  discount_total: z.string().optional(),
   billing: wooAddressSchema,
   shipping: wooAddressSchema,
   line_items: z.array(wooLineItemSchema),
@@ -157,3 +159,28 @@ export const wooRetentionOrderSchema = z.object({
     .default([]),
 });
 export type WooRetentionOrder = z.infer<typeof wooRetentionOrderSchema>;
+
+export const wooCouponSchema = z.object({
+  id: z.number(),
+  code: z.string(),
+  status: z.string().default("publish"),
+  discount_type: z.string(),
+  amount: z.string(),
+  date_expires_gmt: z.string().nullish(),
+  usage_count: z.number().default(0),
+  usage_limit: z.number().nullish(),
+  free_shipping: z.boolean().default(false),
+  product_ids: z.array(z.number()).default([]),
+  excluded_product_ids: z.array(z.number()).default([]),
+  product_categories: z.array(z.number()).default([]),
+  excluded_product_categories: z.array(z.number()).default([]),
+  minimum_amount: z.string().default(""),
+  maximum_amount: z.string().default(""),
+  email_restrictions: z.array(z.string()).default([]),
+});
+export type WooCoupon = z.infer<typeof wooCouponSchema>;
+
+export const wooCategorySchema = z.object({
+  id: z.number(),
+  slug: z.string().default(""),
+});

@@ -1,6 +1,7 @@
 import "server-only";
 import { z } from "zod";
 import type { ProductId } from "@/config/products";
+import type { Coupon } from "@/lib/coupons";
 import type { CreateOrderInput, Order, OrderId } from "@/types/order";
 import type {
   CatalogProduct,
@@ -20,6 +21,7 @@ import {
   isColourAttribute,
   isProductId,
   findVariant,
+  mapCoupon,
   mapOrder,
   mapProduct,
   mapRetentionOrder,
@@ -32,6 +34,8 @@ import {
 } from "./woo-map";
 import {
   wooAttributeTermSchema,
+  wooCategorySchema,
+  wooCouponSchema,
   wooCustomerSchema,
   wooOrderSchema,
   wooProductSchema,
@@ -297,6 +301,45 @@ export function createWooCommerceClient(config: WooConfig): CommerceClient {
 
   const designSku = (templateId: string) => `design-${templateId}`;
 
+  /** Category ids for these names, creating the ones WooCommerce doesn't have yet. */
+  async function ensureCategories(names: string[]): Promise<number[]> {
+    const ids: number[] = [];
+    for (const name of new Set(names.map((n) => n.trim()).filter(Boolean))) {
+      const slug = name
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/^-+|-+$/g, "");
+      if (!slug) continue;
+      const found = await get(
+        "/products/categories",
+        z.array(wooCategorySchema),
+        {
+          query: { slug },
+        },
+      );
+      const hit = found.find((c) => c.slug === slug);
+      if (hit) {
+        ids.push(hit.id);
+        continue;
+      }
+      const { json } = await request("POST", "/products/categories", {
+        body: { name },
+      });
+      ids.push(wooCategorySchema.parse(json).id);
+    }
+    return ids;
+  }
+
+  async function findCoupon(code: string): Promise<Coupon | null> {
+    const wanted = code.trim().toLowerCase();
+    if (!wanted || wanted.length > 60) return null;
+    const found = await get("/coupons", z.array(wooCouponSchema), {
+      query: { code: wanted },
+    });
+    const c = found.find((x) => x.code.trim().toLowerCase() === wanted);
+    return c ? mapCoupon(c) : null;
+  }
+
   async function createDesignProduct(
     input: NewDesignProduct,
   ): Promise<DesignProduct> {
@@ -317,6 +360,13 @@ export function createWooCommerceClient(config: WooConfig): CommerceClient {
         description: descriptionHtml(input.description),
         manage_stock: false,
         stock_status: "instock",
+        ...(input.categories?.length
+          ? {
+              categories: (await ensureCategories(input.categories)).map(
+                (id) => ({ id }),
+              ),
+            }
+          : {}),
         // Sold through our storefront, never through WordPress pages.
         catalog_visibility: "hidden",
         meta_data: [
@@ -350,6 +400,9 @@ export function createWooCommerceClient(config: WooConfig): CommerceClient {
       descriptionHtml: sanitizeHtml(p.description ?? ""),
       pricePkr,
       ...(p.images[0] ? { imageUrl: p.images[0].src } : {}),
+      ...(p.categories?.length
+        ? { categoryIds: p.categories.map((c) => c.id) }
+        : {}),
     };
   }
 
@@ -554,6 +607,7 @@ export function createWooCommerceClient(config: WooConfig): CommerceClient {
   return {
     listProducts,
     getProduct,
+    findCoupon,
     createDesignProduct,
     getDesignProduct,
     publishDesignProduct,

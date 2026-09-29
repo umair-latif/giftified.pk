@@ -402,3 +402,179 @@ describe("design product lines", () => {
     expect(wooFixture).toBeDefined();
   });
 });
+
+describe("WooCommerce coupons and categories", () => {
+  it("findCoupon maps a WooCommerce coupon (case-insensitive code, restrictions, expiry)", async () => {
+    const seen: string[] = [];
+    const fetch: typeof globalThis.fetch = async (u) => {
+      const url = new URL(String(u));
+      seen.push(url.pathname + url.search);
+      return Response.json(
+        [
+          {
+            id: 1,
+            code: "eid15",
+            status: "publish",
+            discount_type: "percent",
+            amount: "15.00",
+            date_expires_gmt: "2026-10-31T00:00:00",
+            usage_count: 3,
+            usage_limit: 100,
+            free_shipping: false,
+            product_ids: [77],
+            excluded_product_ids: [],
+            product_categories: [5],
+            excluded_product_categories: [],
+            minimum_amount: "2000.00",
+            maximum_amount: "",
+            email_restrictions: [],
+          },
+        ],
+        { headers: { "x-wp-totalpages": "1" } },
+      );
+    };
+    const client = createWooCommerceClient({
+      url: "https://shop.test",
+      consumerKey: "k",
+      consumerSecret: "s",
+      webhookSecret: "w",
+      fetch,
+    });
+    expect(await client.findCoupon("  EID15 ")).toEqual({
+      code: "eid15",
+      kind: "percent",
+      amount: 15,
+      freeShipping: false,
+      expiresAt: "2026-10-31T00:00:00.000Z",
+      usageLimit: 100,
+      usageCount: 3,
+      minSubtotalPkr: 2000,
+      productIds: [77],
+      excludedProductIds: [],
+      categoryIds: [5],
+      excludedCategoryIds: [],
+      emailRestricted: false,
+      published: true,
+    });
+    expect(seen[0]).toContain("code=eid15");
+    expect(await client.findCoupon("other")).toBeNull();
+  });
+
+  it("an unknown discount type is treated as no coupon (never guessed)", async () => {
+    const { mapCoupon } = await import("@/lib/commerce/woo-map");
+    const { wooCouponSchema } = await import("@/lib/commerce/woo-schemas");
+    expect(
+      mapCoupon(
+        wooCouponSchema.parse({
+          id: 1,
+          code: "x",
+          discount_type: "bogo",
+          amount: "1",
+        }),
+      ),
+    ).toBeNull();
+  });
+
+  it("the order body carries the code, and mapOrder reads the discount back", async () => {
+    const { buildOrderBody, mapOrder } = await import("@/lib/commerce/woo-map");
+    const { wooOrderSchema } = await import("@/lib/commerce/woo-schemas");
+    const { wooFixture } = await import("./commerce-woo-helpers");
+    const { mapProduct } = await import("@/lib/commerce/woo-map");
+    const { wooProductSchema, wooVariationSchema } =
+      await import("@/lib/commerce/woo-schemas");
+    const products = wooProductSchema.array().parse(wooFixture("products"));
+    const variations = wooVariationSchema
+      .array()
+      .parse(wooFixture("variations-mug"));
+    const body = buildOrderBody(
+      {
+        checkoutId: "c1",
+        couponCode: "eid15",
+        customer: {
+          fullName: "A B",
+          phone: "+923001234567",
+          city: "Gujrat",
+          addressLine: "House 1, Street 2",
+        },
+        lines: [],
+      },
+      [],
+      200,
+    );
+    expect(body.coupon_lines).toEqual([{ code: "eid15" }]);
+    const raw = wooFixture<Record<string, unknown>>("order");
+    const order = mapOrder(
+      wooOrderSchema.parse({ ...raw, discount_total: "285" }),
+      [
+        mapProduct(
+          products.find((p) => p.sku === "mug")!,
+          variations,
+        )!,
+      ],
+    );
+    expect(order.discountPkr).toBe(285);
+  });
+
+  it("design products are filed under found-or-created categories", async () => {
+    const calls: { method: string; path: string; body: unknown }[] = [];
+    const fetch: typeof globalThis.fetch = async (u, init) => {
+      const url = new URL(String(u));
+      const method = init?.method ?? "GET";
+      const body = init?.body ? JSON.parse(String(init.body)) : undefined;
+      calls.push({
+        method,
+        path: url.pathname.replace("/wp-json/wc/v3", ""),
+        body,
+      });
+      if (url.pathname.endsWith("/products/categories")) {
+        if (method === "GET")
+          return Response.json(
+            url.searchParams.get("slug") === "eid"
+              ? [{ id: 5, slug: "eid" }]
+              : [],
+            { headers: { "x-wp-totalpages": "1" } },
+          );
+        return Response.json({ id: 9, slug: "ready-made-custom-mug" });
+      }
+      if (method === "GET")
+        return Response.json([], { headers: { "x-wp-totalpages": "1" } });
+      return Response.json({
+        id: 777,
+        name: "n",
+        slug: "s",
+        sku: "design-t1",
+        type: "simple",
+        status: "draft",
+        price: "1",
+        stock_status: "instock",
+      });
+    };
+    const client = createWooCommerceClient({
+      url: "https://shop.test",
+      consumerKey: "k",
+      consumerSecret: "s",
+      webhookSecret: "w",
+      fetch,
+    });
+    await client.createDesignProduct({
+      templateId: "t1",
+      baseProductId: "mug",
+      name: "n",
+      description: "d",
+      pricePkr: 100,
+      categories: ["Ready-made Custom Mug", "Eid"],
+    });
+    expect(
+      calls.filter(
+        (c) => c.method === "POST" && c.path === "/products/categories",
+      ),
+    ).toHaveLength(1);
+    const product = calls.find(
+      (c) => c.method === "POST" && c.path === "/products",
+    )!;
+    expect((product.body as { categories: unknown }).categories).toEqual([
+      { id: 9 },
+      { id: 5 },
+    ]);
+  });
+});

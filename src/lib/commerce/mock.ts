@@ -1,4 +1,9 @@
 import type { ProductId } from "@/config/products";
+import {
+  evaluateCoupon,
+  normalizeCouponCode,
+  type Coupon,
+} from "@/lib/coupons";
 import { descriptionHtml } from "./woo-map";
 import type {
   CreateOrderInput,
@@ -57,6 +62,9 @@ const DEFAULT_SHIPPING_PKR = 300;
 
 /** Test helpers on top of the contract (not part of CommerceClient). */
 export interface MockCommerce extends CommerceClient {
+  /** Test/demo helper: the way the founder creates a coupon in WP admin. */
+  addCoupon(coupon: Partial<Coupon> & Pick<Coupon, "code">): void;
+  categoryIdFor(name: string): number;
   /** Sets order meta, e.g. `_retain_for_review` the way the founder does in WP admin. */
   setOrderMeta(id: OrderId, key: string, value: string): void;
 }
@@ -97,6 +105,28 @@ export function createMockCommerce(
     DesignProduct & { status: "draft" | "publish"; input: NewDesignProduct }
   >();
   let nextDesignProductId = 9000;
+  const coupons = new Map<string, Coupon>();
+  const categoryIds = new Map<string, number>();
+  function addDemoCoupons() {
+    coupons.set("welcome10", {
+      code: "welcome10",
+      kind: "percent",
+      amount: 10,
+      freeShipping: false,
+      usageCount: 0,
+      productIds: [],
+      excludedProductIds: [],
+      categoryIds: [],
+      excludedCategoryIds: [],
+      emailRestricted: false,
+      published: true,
+    });
+  }
+  const categoryId = (name: string) => {
+    const key = name.trim().toLowerCase();
+    if (!categoryIds.has(key)) categoryIds.set(key, 100 + categoryIds.size);
+    return categoryIds.get(key)!;
+  };
 
   const find = (productId: ProductId) =>
     CATALOG.find((p) => p.productId === productId) ?? null;
@@ -106,9 +136,35 @@ export function createMockCommerce(
     return o;
   };
 
+  // Demo coupon for local development and the e2e tests: 10 % off everything.
+  addDemoCoupons();
+
   return {
     listProducts: async () => structuredClone(CATALOG),
     getProduct: async (productId) => structuredClone(find(productId)),
+    addCoupon(c) {
+      const full: Coupon = {
+        kind: "percent",
+        amount: 10,
+        freeShipping: false,
+        usageCount: 0,
+        productIds: [],
+        excludedProductIds: [],
+        categoryIds: [],
+        excludedCategoryIds: [],
+        emailRestricted: false,
+        published: true,
+        ...c,
+        code: c.code.trim().toLowerCase(),
+      };
+      coupons.set(full.code, full);
+    },
+    async findCoupon(code) {
+      const c = coupons.get(code.trim().toLowerCase());
+      return c ? structuredClone(c) : null;
+    },
+    /** Category id the mock gave a name (so tests can build restricted coupons). */
+    categoryIdFor: categoryId,
     async createDesignProduct(input) {
       const existing = designProducts.get(input.templateId);
       if (existing)
@@ -133,6 +189,7 @@ export function createMockCommerce(
         name: p.input.name,
         descriptionHtml: descriptionHtml(p.input.description),
         pricePkr: p.input.pricePkr,
+        categoryIds: (p.input.categories ?? []).map(categoryId),
       };
     },
     async publishDesignProduct(wooProductId) {
@@ -164,11 +221,36 @@ export function createMockCommerce(
         return { ...line, unitPricePkr: variant.pricePkr };
       });
       const shipCity = input.delivery?.city ?? input.customer.city;
-      const shippingPkr = SHIPPING_PKR[shipCity] ?? DEFAULT_SHIPPING_PKR;
+      let shippingPkr = SHIPPING_PKR[shipCity] ?? DEFAULT_SHIPPING_PKR;
       const subtotal = lines.reduce(
         (s, l) => s + l.unitPricePkr * l.quantity,
         0,
       );
+      let discountPkr = 0;
+      if (input.couponCode) {
+        const coupon = coupons.get(normalizeCouponCode(input.couponCode));
+        const result = evaluateCoupon(
+          coupon ?? null,
+          lines.map((l) => {
+            const design = l.templateId
+              ? designProducts.get(l.templateId)
+              : undefined;
+            return {
+              wooProductId:
+                design?.wooProductId ?? find(l.productId)?.wooProductId ?? 0,
+              categoryIds: (design?.input.categories ?? []).map(categoryId),
+              unitPricePkr: l.unitPricePkr,
+              quantity: l.quantity,
+            };
+          }),
+          new Date(now()),
+        );
+        if (!result.ok || !coupon)
+          throw new Error(`Coupon ${input.couponCode} can't be used`);
+        discountPkr = result.discountPkr;
+        if (result.freeShipping) shippingPkr = 0;
+        coupon.usageCount += 1;
+      }
       const order: Order = {
         id: nextId++,
         status: "on-hold",
@@ -188,7 +270,8 @@ export function createMockCommerce(
         ...(input.email ? { email: input.email } : {}),
         lines,
         shippingPkr,
-        totalPkr: subtotal + shippingPkr,
+        ...(discountPkr > 0 ? { discountPkr } : {}),
+        totalPkr: subtotal - discountPkr + shippingPkr,
         paymentMethod: "cod",
       };
       orders.set(order.id, order);

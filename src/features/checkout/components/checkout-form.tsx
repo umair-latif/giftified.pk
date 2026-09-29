@@ -7,6 +7,8 @@ import { getProduct } from "@/config/products";
 import { quoteCart, type CartQuote } from "@/features/cart/actions";
 import { clearCart, useCart } from "@/features/cart/cart";
 import { distinctDesigns } from "@/features/cart/cart-lines";
+import { CouponBox } from "@/features/cart/components/coupon-box";
+import { readCoupon, writeCoupon } from "@/features/cart/coupon-storage";
 import { loadDraft, loadThumbnail } from "@/features/editor/draft";
 import {
   DesignUploadFailed,
@@ -97,6 +99,7 @@ export function CheckoutForm() {
   const [signedIn, setSignedIn] = useState(false);
   const [saveToAccount, setSaveToAccount] = useState(false);
   const [quote, setQuote] = useState<CartQuote | null>(null);
+  const [coupon, setCoupon] = useState("");
   const [designs, setDesigns] = useState<Map<string, DesignState> | null>(null);
   const [errors, setErrors] = useState<FieldErrors>({});
   const [message, setMessage] = useState<string>();
@@ -112,6 +115,12 @@ export function CheckoutForm() {
   // One checkoutId per attempt: re-sending the same cart + details reuses it,
   // so a retry after a lost response can never create a second order.
   const attempt = useRef<{ key: string; id: string } | null>(null);
+
+  // The coupon applied in the cart.
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- localStorage is only readable after mount
+    setCoupon(readCoupon());
+  }, []);
 
   // City remembered from the product page or the cart.
   useEffect(() => {
@@ -169,13 +178,21 @@ export function CheckoutForm() {
     let stale = false;
     // Delivery is priced for the city the parcel goes to.
     const city = deliveryDifferent ? deliveryQuoteCity : quoteCity;
-    quoteCart({ lines: JSON.parse(linesKey) as unknown, city })
-      .then((q) => !stale && setQuote(q))
+    quoteCart({
+      lines: JSON.parse(linesKey) as unknown,
+      city,
+      ...(coupon ? { couponCode: coupon } : {}),
+    })
+      .then((q) => {
+        if (stale) return;
+        setQuote(q);
+        if (coupon) writeCoupon(q?.couponCode ? coupon : "");
+      })
       .catch(() => !stale && setQuote(null));
     return () => {
       stale = true;
     };
-  }, [linesKey, quoteCity, deliveryQuoteCity, deliveryDifferent]);
+  }, [linesKey, quoteCity, deliveryQuoteCity, deliveryDifferent, coupon]);
 
   const problems = useMemo((): Problem[] => {
     if (!items || !designs) return [];
@@ -258,6 +275,7 @@ export function CheckoutForm() {
           designId: uploaded.current.get(i.designKey),
           ...(i.templateId ? { templateId: i.templateId } : {}),
         })),
+        ...(quote?.couponCode ? { couponCode: quote.couponCode } : {}),
       });
       if (r.ok) {
         const t = new URL(r.statusUrl, location.origin).searchParams.get("t");
@@ -269,6 +287,7 @@ export function CheckoutForm() {
           });
         setPlaced(true);
         clearCart();
+        writeCoupon("");
         router.push(r.statusUrl);
         return; // stay disabled while the order page loads
       }
@@ -524,11 +543,33 @@ export function CheckoutForm() {
           quote={quote}
           className="order-first lg:order-none"
         />
+        <div className="rounded-2xl bg-white p-4 text-sm ring-1 ring-zinc-200">
+          <CouponBox
+            {...(quote?.couponCode ? { appliedCode: quote.couponCode } : {})}
+            discountPkr={quote?.discountPkr ?? 0}
+            {...(coupon && quote?.couponError
+              ? { error: quote.couponError }
+              : {})}
+            onApply={setCoupon}
+            onRemove={() => {
+              setCoupon("");
+              writeCoupon("");
+            }}
+          />
+        </div>
         <dl className="grid grid-cols-2 gap-y-1 rounded-2xl bg-white p-4 text-sm ring-1 ring-zinc-200">
           <dt className="text-zinc-500">Items</dt>
           <dd className="text-right" data-testid="subtotal">
             {quote ? formatPkr(quote.subtotalPkr) : "…"}
           </dd>
+          {quote && quote.discountPkr > 0 && (
+            <>
+              <dt className="text-zinc-500">Coupon</dt>
+              <dd className="text-right" data-testid="discount">
+                −{formatPkr(quote.discountPkr)}
+              </dd>
+            </>
+          )}
           <dt className="text-zinc-500">Delivery</dt>
           <dd className="text-right" data-testid="shipping">
             {quote?.shippingPkr != null

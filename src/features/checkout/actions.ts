@@ -8,6 +8,7 @@ import {
   getSessionCustomer,
   getSessionCustomerId,
 } from "@/server/auth/cookies";
+import { priceCart } from "@/server/checkout/pricing";
 import { orderStatusUrl } from "@/server/orders/order-link";
 import type { OrderId } from "@/types/order";
 import { clientIpFromHeaders } from "./client-ip";
@@ -50,6 +51,19 @@ export async function placeOrder(input: unknown): Promise<PlaceOrderResult> {
         message: DESIGN_NOT_SAVED,
       };
     const commerce = getCommerce();
+    if (parsed.order.couponCode) {
+      // Re-check at order time: prices and coupon rules come from the store.
+      const priced = await priceCart(commerce, {
+        lines: parsed.order.lines,
+        city: parsed.order.delivery?.city ?? parsed.order.customer.city,
+        couponCode: parsed.order.couponCode,
+      });
+      if (!priced.couponCode) {
+        const message = `${priced.couponError ?? "This coupon can't be used."} Remove it and try again.`;
+        return { ok: false, errors: {}, message };
+      }
+      parsed.order.couponCode = priced.couponCode;
+    }
     const order = await commerce.createOrder(parsed.order);
     if (customerId && parsed.saveToAccount)
       // Best effort: never fail an order that is already placed.

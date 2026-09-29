@@ -9,9 +9,11 @@ import type {
   OrderStatus,
   PkMobile,
 } from "@/types/order";
+import type { Coupon } from "@/lib/coupons";
 import type { CatalogProduct, CatalogVariant, RetentionOrder } from "./types";
 import type {
   WooAttributeTerm,
+  WooCoupon,
   WooMeta,
   WooOrder,
   WooProduct,
@@ -201,6 +203,9 @@ export function mapProduct(
     images: p.images.map((i) => ({ src: i.src, alt: i.alt || p.name })),
     ...describe(p),
     basePricePkr: Math.min(...variants.map((v) => v.pricePkr)),
+    ...(p.categories?.length
+      ? { categoryIds: p.categories.map((c) => c.id) }
+      : {}),
     variants,
   };
 }
@@ -373,6 +378,7 @@ export function buildOrderBody(
           : []),
       ],
     })),
+    ...(input.couponCode ? { coupon_lines: [{ code: input.couponCode }] } : {}),
     ...(input.customerId ? { customer_id: input.customerId } : {}),
     ...(input.customerIp && isIp(input.customerIp)
       ? { customer_ip_address: input.customerIp }
@@ -495,6 +501,9 @@ export function mapOrder(o: WooOrder, catalog: CatalogProduct[]): Order {
       : {}),
     lines,
     shippingPkr: parsePkr(o.shipping_total) ?? 0,
+    ...((parsePkr(o.discount_total ?? "") ?? 0) > 0
+      ? { discountPkr: parsePkr(o.discount_total ?? "") ?? 0 }
+      : {}),
     totalPkr: parsePkr(o.total) ?? 0,
     paymentMethod: "cod",
   };
@@ -730,4 +739,45 @@ export function descriptionHtml(text: string): string {
     .filter(Boolean)
     .map((p) => `<p>${escapeHtml(p).replace(/\n/g, "<br>")}</p>`)
     .join("");
+}
+
+/** A WooCommerce coupon → our pure `Coupon` (see `src/lib/coupons.ts` for what is supported). */
+export function mapCoupon(c: WooCoupon): Coupon | null {
+  const kind =
+    c.discount_type === "percent"
+      ? "percent"
+      : c.discount_type === "fixed_cart"
+        ? "fixed_cart"
+        : c.discount_type === "fixed_product"
+          ? "fixed_product"
+          : null;
+  const amount = Number(c.amount);
+  if (!kind || !Number.isFinite(amount) || amount < 0) return null;
+  const min = parsePkr(c.minimum_amount);
+  const max = parsePkr(c.maximum_amount);
+  return {
+    code: c.code.trim().toLowerCase(),
+    kind,
+    amount,
+    freeShipping: c.free_shipping,
+    ...(c.date_expires_gmt
+      ? {
+          expiresAt: new Date(
+            /[zZ]|[+-]\d\d:?\d\d$/.test(c.date_expires_gmt)
+              ? c.date_expires_gmt
+              : `${c.date_expires_gmt}Z`,
+          ).toISOString(),
+        }
+      : {}),
+    ...(c.usage_limit ? { usageLimit: c.usage_limit } : {}),
+    usageCount: c.usage_count,
+    ...(min !== null && min > 0 ? { minSubtotalPkr: min } : {}),
+    ...(max !== null && max > 0 ? { maxSubtotalPkr: max } : {}),
+    productIds: c.product_ids,
+    excludedProductIds: c.excluded_product_ids,
+    categoryIds: c.product_categories,
+    excludedCategoryIds: c.excluded_product_categories,
+    emailRestricted: c.email_restrictions.length > 0,
+    published: c.status === "publish",
+  };
 }

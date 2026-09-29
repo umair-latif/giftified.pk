@@ -159,6 +159,8 @@ export const checkoutSchema = z
     contentConfirmed: z.literal(true, CONTENT_NOT_CONFIRMED),
     /** Optional, unticked by default: offers and discounts. */
     marketingOptIn: z.boolean().optional().default(false),
+    /** Coupon the customer applied (re-checked by `placeOrder`). */
+    couponCode: z.string().max(60).optional(),
   })
   .superRefine((v, ctx) => {
     if (v.deliveryDifferent) {
@@ -248,6 +250,9 @@ export function parseCheckout(
         contentConfirmedAt: now.toISOString(),
         marketingOptIn: v.marketingOptIn,
       },
+      ...(v.couponCode?.trim()
+        ? { couponCode: v.couponCode.trim().toLowerCase() }
+        : {}),
       lines: v.lines.map((l) => ({
         productId:
           l.productId as CreateOrderInput["lines"][number]["productId"],
