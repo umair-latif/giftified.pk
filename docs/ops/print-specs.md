@@ -14,14 +14,15 @@ the preview, and the 300 DPI print files.
 
 | Ask the vendor                                                    | Field in the file        | Example                               |
 | ----------------------------------------------------------------- | ------------------------ | ------------------------------------- |
-| Printable width in mm (for mugs: the full wrap, handle to handle) | `printArea.widthMm`      | `216`                                 |
+| Printable width in mm (for mugs: the full wrap, handle to handle) | `printArea.widthMm`      | `228`                                 |
 | Printable height in mm                                            | `printArea.heightMm`     | `89`                                  |
 | How far from the edges to keep important content                  | `printArea.safeMarginMm` | `5`                                   |
 | Resolution they want (usually 300 DPI)                            | `printDpi`               | `PRINT_DPI` (= 300)                   |
 | Where the handle is / what's the "front"                          | `edgeLabels`             | `{ left: "Handle", right: "Handle" }` |
 
 Always use **millimetres**. If the vendor gives inches, multiply by 25.4
-(8.5" = 215.9 → use `216`).
+(9" = 228.6 → 228 mm, from Printful's 22.8 cm). The mug's size is a placeholder
+until the Gujrat vendor confirms.
 
 ## How to change them
 
@@ -34,7 +35,7 @@ Always use **millimetres**. If the vendor gives inches, multiply by 25.4
 
 - **Designs already saved in a browser** keep their objects' positions in mm; after a size
   change they may sit slightly off-centre. Before launch this doesn't matter.
-- The print file size is `width ÷ 25.4 × DPI` pixels. At 216 × 89 mm and 300 DPI that is
-  2551 × 1051 px.
+- The print file size is `width ÷ 25.4 × DPI` pixels. At 228 × 89 mm and 300 DPI that is
+  2693 × 1051 px.
 - If the vendor needs **bleed** (printing a little past the edge), tell the lead developer —
   that is a new setting, not just a number change.

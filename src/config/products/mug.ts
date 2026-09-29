@@ -13,9 +13,9 @@ export const mug = {
   name: "Custom Mug",
   subtitle: "11oz gloss white ceramic · full wrap",
   printArea: {
-    /** Printable width in mm — the unrolled wrap, handle edge to handle edge. (8.5") */
-    widthMm: 216,
-    /** Printable height in mm. (3.5") */
+    /** Printable width in mm — the unrolled wrap, handle edge to handle edge. (Printful: 22.8 cm, 9") */
+    widthMm: 228,
+    /** Printable height in mm. (Printful: 8.9 cm, 3.5") */
     heightMm: 89,
     /** Keep text/photos at least this far from every edge (dashed blue line in the editor). */
     safeMarginMm: 5,

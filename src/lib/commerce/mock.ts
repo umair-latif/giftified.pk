@@ -9,6 +9,7 @@ import type {
   CatalogProduct,
   CommerceClient,
   Customer,
+  RetentionOrder,
   VerifiedWebhook,
   WebhookVerification,
 } from "./types";
@@ -28,7 +29,7 @@ const CATALOG: CatalogProduct[] = [
     shortDescription:
       "11oz gloss white ceramic mug, printed all the way round with your photos and words.",
     descriptionHtml:
-      "<p>Classic 11oz ceramic mug with a glossy finish.</p><ul><li>Full-wrap print, 216 × 89 mm</li><li>Dishwasher and microwave safe</li><li>Printed in Gujrat and checked before it ships</li></ul>",
+      "<p>Classic 11oz ceramic mug with a glossy finish.</p><ul><li>Full-wrap print, 228 × 89 mm</li><li>Dishwasher and microwave safe</li><li>Printed in Gujrat and checked before it ships</li></ul>",
     basePricePkr: 1499,
     variants: [
       {
@@ -51,8 +52,25 @@ const SHIPPING_PKR: Record<string, number> = {
 };
 const DEFAULT_SHIPPING_PKR = 300;
 
-export function createMockCommerce(): CommerceClient {
+/** Test helpers on top of the contract (not part of CommerceClient). */
+export interface MockCommerce extends CommerceClient {
+  /** Sets order meta, e.g. `_retain_for_review` the way the founder does in WP admin. */
+  setOrderMeta(id: OrderId, key: string, value: string): void;
+}
+
+/** What WooCommerce keeps beside the Order shape (retention job fields). */
+interface OrderExtras {
+  customerId: number;
+  closedAt: string | null;
+  meta: Map<string, string>;
+}
+
+export function createMockCommerce(
+  opts: { now?: () => number } = {},
+): MockCommerce {
+  const now = opts.now ?? Date.now;
   const orders = new Map<OrderId, Order>();
+  const extras = new Map<OrderId, OrderExtras>();
   const byCheckout = new Map<string, OrderId>();
   let nextId = 1000;
   // Accounts: plain-text passwords are fine here — dev/test only.
@@ -70,6 +88,7 @@ export function createMockCommerce(): CommerceClient {
   });
   const byEmail = (email: string) =>
     [...customers.values()].find((c) => c.email === email.trim().toLowerCase());
+  const RETENTION_PAGE = 100;
 
   const find = (productId: ProductId) =>
     CATALOG.find((p) => p.productId === productId) ?? null;
@@ -109,7 +128,7 @@ export function createMockCommerce(): CommerceClient {
       const order: Order = {
         id: nextId++,
         status: "on-hold",
-        createdAt: new Date().toISOString(),
+        createdAt: new Date(now()).toISOString(),
         // Like WooCommerce mapping: the delivery address wins over billing.
         customer: input.delivery
           ? {
@@ -129,6 +148,11 @@ export function createMockCommerce(): CommerceClient {
         paymentMethod: "cod",
       };
       orders.set(order.id, order);
+      extras.set(order.id, {
+        customerId: input.customerId ?? 0,
+        closedAt: null,
+        meta: new Map(),
+      });
       byCheckout.set(input.checkoutId, order.id);
       return structuredClone(order);
     },
@@ -182,7 +206,14 @@ export function createMockCommerce(): CommerceClient {
       return o && o.customer.phone === phone ? structuredClone(o) : null;
     },
     async setOrderStatus(id: OrderId, status: OrderStatus) {
-      must(id).status = status;
+      const o = must(id);
+      if (o.status === status) return;
+      o.status = status;
+      // Like WC: date_completed / date_modified move when the status changes.
+      extras.get(id)!.closedAt =
+        status === "completed" || status === "cancelled"
+          ? new Date(now()).toISOString()
+          : null;
     },
     async setLineFiles(id, lineIndex, files) {
       const line = must(id).lines[lineIndex];
@@ -191,6 +222,41 @@ export function createMockCommerce(): CommerceClient {
     },
     async addOrderNote() {
       /* notes are not kept in the mock */
+    },
+    async listOrdersForRetention(page) {
+      const all = [...orders.values()].sort((a, b) => a.id - b.id);
+      const slice = all.slice(
+        (page - 1) * RETENTION_PAGE,
+        page * RETENTION_PAGE,
+      );
+      return {
+        orders: slice.map((o): RetentionOrder => {
+          const x = extras.get(o.id)!;
+          return {
+            id: o.id,
+            status: o.status,
+            closedAt: x.closedAt,
+            customerId: x.customerId,
+            designIds: [
+              ...new Set(o.lines.map((l) => l.designId).filter(Boolean)),
+            ],
+            retainForReview:
+              (x.meta.get("_retain_for_review") ??
+                x.meta.get("retain_for_review")) === "yes",
+            retentionDoneAt: x.meta.get("_retention_done") ?? null,
+          };
+        }),
+        total: all.length,
+        totalPages: Math.max(1, Math.ceil(all.length / RETENTION_PAGE)),
+      };
+    },
+    async markRetentionDone(id, doneAt) {
+      must(id);
+      extras.get(id)!.meta.set("_retention_done", doneAt);
+    },
+    setOrderMeta(id, key, value) {
+      must(id);
+      extras.get(id)!.meta.set(key, value);
     },
     async verifyWebhook(rawBody: string): Promise<WebhookVerification> {
       // DEV ONLY: accepts any JSON body shaped like a WC order, no signature

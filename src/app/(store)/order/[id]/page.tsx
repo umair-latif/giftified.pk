@@ -30,7 +30,7 @@ export default async function OrderStatusPage(props: PageProps<"/order/[id]">) {
   const justPlaced = view.status === "on-hold";
 
   return (
-    <main className="mx-auto flex max-w-md flex-col gap-4 px-4 py-6">
+    <main className="mx-auto flex max-w-md flex-col gap-4 px-4 py-6 sm:max-w-2xl">
       <RememberOrder id={view.id} t={t} createdAt={view.createdAt} />
       <section className="rounded-lg bg-white p-4 ring-1 ring-zinc-200">
         <h1 className="font-display text-ink text-2xl">
@@ -90,14 +90,17 @@ export default async function OrderStatusPage(props: PageProps<"/order/[id]">) {
 
       <p className="text-center text-sm text-zinc-600">
         Keep this page’s link to check your order later, or find it any time on{" "}
-        <Link href="/track" className="text-brand-700 font-medium underline">
+        <Link
+          href="/track"
+          className="text-brand-700 hover:text-brand-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-600/20 rounded font-medium underline"
+        >
           Track your order
         </Link>
         .
       </p>
       <Link
         href="/"
-        className="bg-brand-600 active:bg-brand-700 grid h-12 place-items-center rounded-full font-semibold text-white"
+        className="bg-brand-600 hover:bg-brand-700 active:bg-brand-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-600/40 grid h-12 place-items-center rounded-full font-semibold text-white"
       >
         Back to the shop
       </Link>

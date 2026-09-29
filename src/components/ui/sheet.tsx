@@ -77,7 +77,10 @@ export function Sheet({ title, onClose, children }: Props) {
           onPointerUp={endDrag}
           onPointerCancel={endDrag}
         >
-          <span aria-hidden className="block h-1 w-10 rounded-full bg-zinc-300" />
+          <span
+            aria-hidden
+            className="block h-1 w-10 rounded-full bg-zinc-300"
+          />
         </div>
         <div className="flex w-full items-center justify-between px-4 pb-2">
           <h2 className="text-sm font-semibold text-zinc-900">{title}</h2>
@@ -85,7 +88,7 @@ export function Sheet({ title, onClose, children }: Props) {
             type="button"
             onClick={onClose}
             aria-label="Close"
-            className="grid size-9 -mr-2 place-items-center rounded-full text-lg text-zinc-500 active:bg-zinc-100"
+            className="-mr-2 grid size-9 place-items-center rounded-full text-lg text-zinc-500 hover:bg-zinc-100 focus-visible:ring-2 focus-visible:ring-brand-600/20 focus-visible:outline-none active:bg-zinc-100"
           >
             ×
           </button>

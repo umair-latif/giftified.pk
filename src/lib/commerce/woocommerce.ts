@@ -17,6 +17,7 @@ import {
   findVariant,
   mapOrder,
   mapProduct,
+  mapRetentionOrder,
   metaValue,
   quoteFromZones,
   type ResolvedLine,
@@ -27,6 +28,7 @@ import {
   wooCustomerSchema,
   wooOrderSchema,
   wooProductSchema,
+  wooRetentionOrderSchema,
   wooShippingZoneSchema,
   wooVariationSchema,
   wooZoneMethodSchema,
@@ -557,6 +559,47 @@ export function createWooCommerceClient(config: WooConfig): CommerceClient {
     async addOrderNote(id, note) {
       await request("POST", `/orders/${id}/notes`, {
         body: { note, customer_note: false },
+      });
+    },
+
+    async listOrdersForRetention(page) {
+      if (!Number.isInteger(page) || page < 1)
+        throw new WooCommerceError(`Invalid page ${page}`, 400);
+      // No status filter = WC's default "any" (every status except trash).
+      // Oldest ID first: new orders are appended at the end, so the pages
+      // already read don't shift while the scan runs.
+      const { json, headers } = await request("GET", "/orders", {
+        query: {
+          page,
+          per_page: PAGE_SIZE,
+          orderby: "id",
+          order: "asc",
+          _fields:
+            "id,status,customer_id,date_modified_gmt,date_completed_gmt,meta_data,line_items",
+        },
+      });
+      const orders = z.array(wooRetentionOrderSchema).parse(json);
+      const rawTotal = headers.get("x-wp-total");
+      const rawPages = headers.get("x-wp-totalpages");
+      const total = Number(rawTotal);
+      const totalPages = Number(rawPages);
+      // The job needs these to know it saw every order; never guess.
+      if (
+        rawTotal === null ||
+        rawPages === null ||
+        !Number.isInteger(total) ||
+        !Number.isInteger(totalPages)
+      )
+        throw new WooCommerceError(
+          "WooCommerce GET /orders sent no X-WP-Total headers",
+          502,
+        );
+      return { orders: orders.map(mapRetentionOrder), total, totalPages };
+    },
+
+    async markRetentionDone(id, doneAt) {
+      await request("PUT", `/orders/${id}`, {
+        body: { meta_data: [{ key: META.retentionDone, value: doneAt }] },
       });
     },
 

@@ -27,7 +27,7 @@ export function SiteFooter() {
               <li key={l.href}>
                 <Link
                   href={l.href}
-                  className="inline-flex min-h-11 items-center"
+                  className="hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-mint-300/60 rounded inline-flex min-h-11 items-center"
                 >
                   {l.label}
                 </Link>
@@ -38,7 +38,7 @@ export function SiteFooter() {
         {wa && (
           <a
             href={wa}
-            className="bg-mint-300 text-brand-900 mt-4 inline-flex h-11 items-center rounded-full px-5 font-medium"
+            className="bg-mint-300 text-brand-900 hover:bg-mint-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-mint-300/60 mt-4 inline-flex h-11 items-center rounded-full px-5 font-medium"
           >
             Chat on WhatsApp
           </a>

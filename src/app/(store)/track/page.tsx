@@ -11,7 +11,7 @@ export const metadata: Metadata = {
 /** Guest order lookup: recent orders on this phone, then number + mobile. */
 export default function TrackPage() {
   return (
-    <main className="mx-auto flex max-w-md flex-col gap-6 px-4 py-6">
+    <main className="mx-auto flex max-w-md flex-col gap-6 px-4 py-6 sm:max-w-2xl">
       <h1 className="font-display text-ink text-2xl">Track your order</h1>
       <RecentOrders />
       <section aria-labelledby="find-order" className="flex flex-col gap-2">

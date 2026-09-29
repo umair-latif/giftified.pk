@@ -17,7 +17,8 @@
     "woo:seed": "tsx scripts/woo-seed.ts",
     "woo:smoke": "tsx scripts/woo-smoke.ts",
     "storage:check": "tsx scripts/storage-check.ts",
-    "order:files": "tsx --conditions=react-server scripts/order-files.ts"
+    "order:files": "tsx --conditions=react-server scripts/order-files.ts",
+    "retention:dry-run": "tsx --conditions=react-server scripts/retention-dry-run.ts"
   },
   "dependencies": {
     "aws4fetch": "1.0.20",

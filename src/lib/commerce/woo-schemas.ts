@@ -138,3 +138,21 @@ export const wooCustomerSchema = z.object({
     .optional(),
 });
 export type WooCustomer = z.infer<typeof wooCustomerSchema>;
+
+/**
+ * Slim order for the retention job (task 24), fetched with `_fields` so a
+ * daily scan of every order stays small. GMT dates arrive without a zone
+ * ("2026-09-27T12:04:11").
+ */
+export const wooRetentionOrderSchema = z.object({
+  id: z.number(),
+  status: z.string(),
+  customer_id: z.number().default(0),
+  date_modified_gmt: z.string().nullish(),
+  date_completed_gmt: z.string().nullish(),
+  meta_data: z.array(wooMetaSchema).default([]),
+  line_items: z
+    .array(z.object({ meta_data: z.array(wooMetaSchema).default([]) }))
+    .default([]),
+});
+export type WooRetentionOrder = z.infer<typeof wooRetentionOrderSchema>;

@@ -13,6 +13,13 @@ export async function GET(
     return new Response("This link is invalid or has expired.", {
       status: 404,
     });
+  // Print files are deleted 30 days after delivery (task 24); say so plainly
+  // instead of redirecting to the storage provider's XML error.
+  if (!(await getStorage().head(claims.k)))
+    return new Response(
+      "This file is no longer available: print files are deleted 30 days after the order is delivered or cancelled.",
+      { status: 404, headers: { "cache-control": "no-store" } },
+    );
   const url = await getStorage().presignGet(claims.k, {
     expiresInS: 300,
     downloadName: claims.n,

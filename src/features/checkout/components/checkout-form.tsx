@@ -306,7 +306,7 @@ export function CheckoutForm() {
         <p className="text-zinc-700">Your cart is empty.</p>
         <Link
           href="/products"
-          className="bg-brand-600 active:bg-brand-700 mt-4 inline-flex h-11 items-center rounded-full px-5 font-semibold text-white"
+          className="bg-brand-600 hover:bg-brand-700 active:bg-brand-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-600/40 mt-4 inline-flex h-11 items-center rounded-full px-5 font-semibold text-white"
         >
           Browse products
         </Link>
@@ -347,7 +347,7 @@ export function CheckoutForm() {
                     ? `/design/${item.productId}?item=${encodeURIComponent(item.id)}`
                     : "/cart"
                 }
-                className="font-medium underline"
+                className="hover:text-red-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-600/20 rounded font-medium underline"
               >
                 {state === "block" ? "Edit design" : "Go to cart"}
               </Link>
@@ -359,7 +359,10 @@ export function CheckoutForm() {
         <p className="rounded-lg bg-amber-50 p-3 text-sm text-amber-800 ring-1 ring-amber-200">
           A photo may look a little soft when printed. You can still order, or
           edit the design from your{" "}
-          <Link href="/cart" className="font-medium underline">
+          <Link
+            href="/cart"
+            className="hover:text-amber-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-600/20 rounded font-medium underline"
+          >
             cart
           </Link>{" "}
           for a sharper print.
@@ -546,7 +549,7 @@ export function CheckoutForm() {
       <button
         type="submit"
         disabled={submitting || problems.length > 0 || !contentConfirmed}
-        className="bg-brand-600 active:bg-brand-700 disabled:bg-brand-300 h-12 rounded-full text-base font-semibold text-white"
+        className="bg-brand-600 hover:bg-brand-700 active:bg-brand-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-600/40 disabled:bg-brand-300 disabled:hover:bg-brand-300 h-12 rounded-full text-base font-semibold text-white"
       >
         {submitting
           ? (progress ?? "Placing order…")
@@ -596,7 +599,10 @@ function OrderSummary({
         <h2 id="summary-heading" className="font-semibold text-zinc-900">
           Your order
         </h2>
-        <Link href="/cart" className="text-brand-700 text-sm underline">
+        <Link
+          href="/cart"
+          className="text-brand-700 hover:text-brand-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-600/20 rounded text-sm underline"
+        >
           Edit cart
         </Link>
       </div>

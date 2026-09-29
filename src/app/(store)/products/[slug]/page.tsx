@@ -85,7 +85,10 @@ export default async function ProductPage({
           }}
         />
       )}
-      <Link href="/products" className="text-brand-700 text-sm font-medium">
+      <Link
+        href="/products"
+        className="text-brand-700 hover:text-brand-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-600/20 rounded text-sm font-medium"
+      >
         ← All products
       </Link>
 
@@ -133,7 +136,7 @@ export default async function ProductPage({
           </p>
           <Link
             href={`/design/${productId}`}
-            className="bg-brand-600 active:bg-brand-700 flex h-12 items-center justify-center rounded-full text-base font-semibold text-white"
+            className="bg-brand-600 hover:bg-brand-700 active:bg-brand-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-600/40 flex h-12 items-center justify-center rounded-full text-base font-semibold text-white"
           >
             Start designing
           </Link>
@@ -176,7 +179,10 @@ export default async function ProductPage({
             <dt className="text-zinc-500">Reprints</dt>
             <dd>
               Arrives damaged or misprinted? We&apos;ll put it right —{" "}
-              <Link href="/help" className="text-brand-700 underline">
+              <Link
+                href="/help"
+                className="text-brand-700 hover:text-brand-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-600/20 rounded underline"
+              >
                 see Help
               </Link>
               .

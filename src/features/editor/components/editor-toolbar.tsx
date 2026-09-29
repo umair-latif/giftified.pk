@@ -49,7 +49,7 @@ function ToolButton({
       type="button"
       onClick={onClick}
       disabled={disabled}
-      className="flex min-h-14 min-w-14 flex-col items-center justify-center gap-0.5 text-zinc-800 disabled:text-zinc-300"
+      className="flex min-h-14 min-w-14 flex-col items-center justify-center gap-0.5 text-zinc-800 hover:bg-zinc-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-600/20 focus-visible:ring-inset disabled:text-zinc-300 disabled:hover:bg-transparent"
     >
       <span aria-hidden className="text-lg leading-none">
         {icon}

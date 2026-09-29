@@ -38,7 +38,10 @@ export default async function SignUpPage(props: PageProps<"/sign-up">) {
       <SignUpForm next={nextPath} />
       <p className="text-center text-sm text-zinc-600">
         Already have an account?{" "}
-        <Link href={signInHref} className="text-brand-700 font-medium">
+        <Link
+          href={signInHref}
+          className="text-brand-700 hover:text-brand-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-600/20 rounded font-medium"
+        >
           Sign in
         </Link>
       </p>

@@ -71,7 +71,7 @@ export function SelectionBar({
               aria-label="More"
               aria-haspopup="dialog"
               onClick={onMore}
-              className="grid size-9 shrink-0 place-items-center rounded-md text-base font-semibold text-zinc-700 italic active:bg-zinc-100"
+              className="grid size-9 shrink-0 place-items-center rounded-md text-base font-semibold text-zinc-700 italic hover:bg-zinc-100 active:bg-zinc-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-600/20"
             >
               Aa
             </button>
@@ -184,10 +184,10 @@ function Toggle({
         disabled ? `This font has no ${label.toLowerCase()} style` : undefined
       }
       onClick={onClick}
-      className={`grid size-9 shrink-0 place-items-center rounded-md text-base disabled:opacity-35 ${
+      className={`grid size-9 shrink-0 place-items-center rounded-md text-base focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-600/20 disabled:opacity-35 ${
         pressed
-          ? "bg-brand-100 text-brand-700"
-          : "text-zinc-700 active:bg-zinc-100"
+          ? "bg-brand-100 text-brand-700 hover:bg-brand-200"
+          : "text-zinc-700 hover:bg-zinc-100 active:bg-zinc-100"
       }`}
     >
       {children}
@@ -211,7 +211,7 @@ function Action({
       type="button"
       aria-label={label}
       onClick={onClick}
-      className={`flex h-11 w-11 shrink-0 flex-col items-center justify-center gap-0.5 rounded-md text-[10px] leading-none font-medium active:bg-zinc-100 ${
+      className={`flex h-11 w-11 shrink-0 flex-col items-center justify-center gap-0.5 rounded-md text-[10px] leading-none font-medium hover:bg-zinc-100 active:bg-zinc-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-600/20 ${
         danger ? "text-red-600" : "text-zinc-700"
       }`}
     >

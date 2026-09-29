@@ -10,8 +10,11 @@ export const metadata: Metadata = {
 /** The whole cart → one Cash on Delivery order (guest; email optional). */
 export default function CheckoutPage() {
   return (
-    <main className="mx-auto max-w-md px-4 py-5">
-      <Link href="/cart" className="text-brand-700 text-sm font-medium">
+    <main className="mx-auto max-w-md px-4 py-5 sm:max-w-2xl">
+      <Link
+        href="/cart"
+        className="text-brand-700 hover:text-brand-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-600/20 rounded text-sm font-medium"
+      >
         ← Back to cart
       </Link>
       <h1 className="font-display text-ink mt-2 mb-4 text-2xl">Checkout</h1>
