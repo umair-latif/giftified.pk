@@ -38,6 +38,16 @@ on the left the left half, and a front view (handle hidden, `handleAngleDeg:
    _front_ edge at the centre, all in that image's pixels.
    - `sag`: how many px lower the rim/base lines are at the centre than at the
      silhouette edges (0 for an eye-level shot; ~50-65 for a 20 degree overhead shot).
+   - `tilt`: px the lines are higher on the right silhouette than the left (a
+     slightly tilted photo).
+   - `outline` (optional): the mug's measured top and base edges as points
+     `[x, y]`, left to right. When set, the print band follows them exactly and
+     `sag`/`tilt` are ignored. Use it when the mug is tilted or not a clean
+     cylinder (the flat lay uses it). Measure the edges on the photo, e.g. with a
+     contrast-stretched crop, and follow the smooth rim, not the tight corners.
+   - Measure `sag` on the base line: `sag = (y at centre - y at column with
+cos = c) / (1 - c)`. Check the result with `pnpm exec playwright test
+mockup` and look at the strip under the print: it should be an even width.
    - `geometry.handleAngleDeg`: where the handle is, in degrees from the camera
      (90 = pure side view, smaller = the handle turned toward the camera).
 3. `pnpm exec playwright test mockup` writes screenshots to `test-results/`.

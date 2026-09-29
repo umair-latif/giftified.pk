@@ -1,5 +1,5 @@
 import type { ProductId } from "@/config/products";
-import type { MockupSide, WrapGeometry } from "./mapping";
+import type { MockupSide, Outline, WrapGeometry } from "./mapping";
 
 /**
  * A photographed product the design is wrapped onto. Pixel values are in the
@@ -37,6 +37,14 @@ export interface MockupSpec {
   /** How much horizontal lines curve on the photo: px lower at the centre than at the edges. */
   sag: { rim: number; base: number };
   /**
+   * Measured top and base edges of the mug (photo pixels, left to right). When
+   * set, the print band follows them exactly and `sag` / `tilt` are unused for
+   * placement. Use it when the mug is tilted or not a clean cylinder.
+   */
+  outline?: Outline;
+  /** Photo tilt: px the horizontal lines are higher at the right silhouette than the left (negative = lower). */
+  tilt?: number;
+  /**
    * Distance from the rim to the top of the print, in mm. Omit to centre the
    * print vertically on the body. Set it once the vendor gives the value.
    * (The printed height is not here: it is the product's `printArea.heightMm`.)
@@ -61,7 +69,9 @@ const STUDIO = {
   // Printful 11oz (approx.): 8.3 cm across, 9.6 cm tall. Vendor to confirm.
   geometry: { diameterMm: 83 },
   mugHeightMm: 96,
-  sag: { rim: -26, base: 30 },
+  // Measured on the base line of the images (base +39 px at the centre vs the
+  // silhouette edges) and on the top edge of the wall (rim -28 px).
+  sag: { rim: -28, base: 39 },
   credit: "Canva",
 } as const;
 
@@ -101,10 +111,11 @@ export const MOCKUP_SPECS: Partial<Record<ProductId, readonly MockupSpec[]>> = {
       widthPx: 1080,
       heightPx: 1080,
       // Eye-level photo, mug turned a little (handle ~77 deg from the camera).
-      body: { left: 322, right: 806, top: 285, bottom: 894 },
+      body: { left: 322, right: 806, top: 286, bottom: 893 },
       geometry: { diameterMm: 83, handleAngleDeg: 77 },
       mugHeightMm: 96,
-      sag: { rim: -18, base: 25 },
+      // Measured: base edge 22 px lower at the centre, rim front edge 13 px higher.
+      sag: { rim: -13, base: 22 },
       credit: "Canva",
     },
     {
@@ -115,10 +126,41 @@ export const MOCKUP_SPECS: Partial<Record<ProductId, readonly MockupSpec[]>> = {
       widthPx: 1080,
       heightPx: 1080,
       // Shot from above on a desk; handle turned ~60 deg from the camera.
-      body: { left: 320, right: 790, top: 245, bottom: 838 },
+      body: { left: 320, right: 782, top: 244, bottom: 835 },
       geometry: { diameterMm: 83, handleAngleDeg: 60 },
       mugHeightMm: 96,
-      sag: { rim: -20, base: 30 },
+      sag: { rim: -30, base: 22 },
+      // Measured on the photo (contrast-stretched): the mug is slightly tilted,
+      // so the top edge is level on the right and slopes down on the left, and
+      // the base edge is ~10 px higher on the right. The top follows the smooth
+      // rim, not the tight corner rounding (a printed wrap has square corners).
+      outline: {
+        top: [
+          [322, 276],
+          [330, 268],
+          [340, 262],
+          [380, 259],
+          [420, 255.5],
+          [460, 251.5],
+          [500, 248],
+          [540, 245],
+          [580, 244],
+          [700, 244],
+          [740, 245],
+          [782, 248],
+        ],
+        bottom: [
+          [325, 826],
+          [340, 829],
+          [375, 833],
+          [450, 834.5],
+          [550, 835],
+          [650, 832],
+          [725, 827],
+          [775, 820],
+          [782, 816],
+        ],
+      },
       credit: "Canva",
     },
   ],
