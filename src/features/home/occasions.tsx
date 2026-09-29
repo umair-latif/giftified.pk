@@ -2,7 +2,7 @@ import Link from "next/link";
 import { Container } from "@/components/ui/page";
 import { tileClass } from "./tile-style";
 
-/** Phase A: every tile opens the catalog. Task 19 points them to `/occasions/<slug>`. */
+/** Each tile opens `/occasions/<slug>` (task 19): the templates for that occasion. */
 export const OCCASIONS: readonly { slug: string; label: string }[] = [
   { slug: "eid", label: "Eid" },
   { slug: "birthday", label: "Birthday" },
@@ -29,7 +29,7 @@ export function Occasions() {
               }
             >
               <Link
-                href="/products"
+                href={`/occasions/${o.slug}`}
                 className={`${tileClass(i)} focus-visible:ring-brand-600/40 flex min-h-16 items-center justify-center rounded-2xl px-3 text-center font-medium shadow-sm hover:opacity-90 focus-visible:ring-2 focus-visible:outline-none active:opacity-80`}
               >
                 {o.label}

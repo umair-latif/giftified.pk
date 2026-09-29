@@ -21,6 +21,8 @@ import { loadCatalog } from "@/features/catalog/load-catalog";
 import { formatPkr } from "@/features/checkout/format";
 import { appBaseUrl } from "@/server/files/links";
 import { Page, PageTitle } from "@/components/ui/page";
+import { TemplateGrid } from "@/features/templates/components/template-grid";
+import { loadTemplates } from "@/features/templates/load-templates";
 
 export const revalidate = 3600;
 
@@ -71,6 +73,7 @@ export default async function ProductPage({
 
   const { productId, product } = m;
   const cfg = getProduct(productId)!;
+  const templates = await loadTemplates({ productId });
   const name = product?.name ?? cfg.name;
   const hero = product?.images[0];
   const colours = swatches(product, cfg.baseColors);
@@ -210,11 +213,22 @@ export default async function ProductPage({
         className="mt-6 lg:col-span-2 lg:mt-4"
       >
         <h2 id="designs-heading" className="font-display text-ink text-lg">
-          Ready-made designs — coming soon
+          {templates.length > 0
+            ? "Ready-made designs"
+            : "Ready-made designs — coming soon"}
         </h2>
-        <p className="mt-1 text-sm text-zinc-600">
-          Templates for Eid, birthdays, weddings and more are on the way.
-        </p>
+        {templates.length > 0 ? (
+          <>
+            <p className="mt-1 mb-3 text-sm text-zinc-600">
+              Pick one, then swap in your own photos and words.
+            </p>
+            <TemplateGrid templates={templates} />
+          </>
+        ) : (
+          <p className="mt-1 text-sm text-zinc-600">
+            Templates for Eid, birthdays, weddings and more are on the way.
+          </p>
+        )}
       </section>
     </Page>
   );

@@ -3,6 +3,7 @@ import { editableProductIds } from "@/config/products";
 import { slugFor } from "@/features/catalog/catalog-model";
 import { loadCatalog } from "@/features/catalog/load-catalog";
 import { appBaseUrl } from "@/server/files/links";
+import { OCCASION_SLUGS } from "@/server/templates/types";
 
 export const revalidate = 3600;
 
@@ -17,6 +18,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       url: `${base}/products/${slugFor(id, catalog)}`,
       changeFrequency: "weekly" as const,
       priority: 0.8,
+    })),
+    ...OCCASION_SLUGS.map((slug) => ({
+      url: `${base}/occasions/${slug}`,
+      changeFrequency: "weekly" as const,
+      priority: 0.6,
     })),
   ];
 }

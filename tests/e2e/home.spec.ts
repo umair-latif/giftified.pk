@@ -35,7 +35,7 @@ test("home page: hero, products, sections, no horizontal scroll", async ({
     await expect(page.getByRole("heading", { level: 2, name })).toBeVisible();
   await expect(
     page.getByRole("link", { name: "Eid", exact: true }),
-  ).toHaveAttribute("href", "/products");
+  ).toHaveAttribute("href", "/occasions/eid");
 
   // Scroll to the bottom so lazy images load, then check the width.
   await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
