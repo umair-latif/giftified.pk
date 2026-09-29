@@ -92,6 +92,7 @@ export function useFabricCanvas(product: ProductConfig, designKey?: string) {
     worstDpi: null,
     status: "ok",
   });
+  const [placeholders, setPlaceholders] = useState(0);
   const [busy, setBusy] = useState(false);
   const [notice, setNotice] = useState<string | null>(null);
 
@@ -160,6 +161,11 @@ export function useFabricCanvas(product: ProductConfig, designKey?: string) {
           const objects = canvas.getObjects();
           setLayerCount(objects.length);
           setSelection(describe(engine, canvas.getActiveObject()));
+          setPlaceholders(
+            objects.filter(
+              (o) => engine.isAssetImage(o) && o.placeholder === true,
+            ).length,
+          );
           const dpis = objects
             .map(engine.objectDpi)
             .filter((d): d is number => d !== null);
@@ -432,6 +438,7 @@ export function useFabricCanvas(product: ProductConfig, designKey?: string) {
     hostRef,
     status,
     layerCount,
+    placeholders,
     selection,
     guides,
     canUndo,

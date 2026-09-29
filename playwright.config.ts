@@ -24,6 +24,9 @@ export default defineConfig({
     port: PORT,
     reuseExistingServer: !process.env.CI,
     // e2e runs a production build without WooCommerce: opt in to the mock store.
-    env: { COMMERCE_MOCK: "1" },
+    env: {
+      COMMERCE_MOCK: "1",
+      TEMPLATE_EDITOR_EMAILS: "template-editor@example.pk",
+    },
   },
 });

@@ -19,7 +19,16 @@
    (design + presigned sample-photo URLs, published only). A template's photos are all
    `placeholder: true`; Replace clears the flag; checkout and `/api/designs` refuse a design that still
    has one ("sample photo — tap Replace").
-2. **Editor (next):** `?template=<id>` → import the sample photos into the local asset store and start a
+2. **Editor (built; slice 2):** `?template=<id>` → import the sample photos into the local asset store and start a
    fresh draft; "Tap to add photo" hint on placeholders; founder-only **Save as template** (admin
    secret) → thumbnail + `POST /api/admin/templates`.
 3. **Placeholder library:** founder-approved sample images in `templates/library/…`, picked by frame shape.
+
+**Slice 2 notes.** Template editors = signed-in accounts whose email is in `TEMPLATE_EDITOR_EMAILS`
+(`src/server/templates/editors.ts`; one function decides, so a WooCommerce role can replace the list
+later). Editors get a "Save as template" chip in the editor → `POST /api/admin/templates` (multipart:
+meta, design, sample photos = the ≤2048 px previews, WebP thumbnail); templates record `createdBy`.
+`/design/<product>?template=<id>` downloads the sample photos into the local asset store, writes the
+draft (asking first if one exists), then drops the parameter. A banner counts the sample photos still
+to replace. The mock commerce store now lives on `globalThis` so API routes see customers created by
+sign-up (Next bundles them separately).

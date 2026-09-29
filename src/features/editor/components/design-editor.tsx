@@ -11,6 +11,8 @@ import {
   type CropTarget,
   type SelectionInfo,
 } from "../hooks/use-fabric-canvas";
+import { SaveTemplateSheet } from "@/features/templates/save-template-sheet";
+import { useTemplateEditor } from "@/features/templates/use-template-editor";
 import { CropSheet } from "./crop-sheet";
 import { SelectionBar } from "./selection-bar";
 import { TextSheet } from "./text-sheet";
@@ -40,6 +42,8 @@ export function DesignEditor({
   const replacing = useRef(false);
   const [cropTarget, setCropTarget] = useState<CropTarget | null>(null);
   const [textSheetOpen, setTextSheetOpen] = useState(false);
+  const canSaveTemplate = useTemplateEditor();
+  const [templateSheetOpen, setTemplateSheetOpen] = useState(false);
   const selectionKind = !ed.selection
     ? null
     : ed.selection.text
@@ -172,6 +176,16 @@ export function DesignEditor({
               onMore={() => setTextSheetOpen(true)}
             />
           )}
+          {ed.placeholders > 0 && (
+            <p
+              className="bg-mint-100 text-brand-900 rounded-lg px-3 py-2 text-xs"
+              data-testid="placeholder-hint"
+            >
+              This template has {ed.placeholders} sample{" "}
+              {ed.placeholders === 1 ? "photo" : "photos"}. Tap a photo, then
+              choose Replace to add yours.
+            </p>
+          )}
           <p
             className="min-h-5 text-xs text-zinc-500"
             data-testid="editor-status"
@@ -210,6 +224,16 @@ export function DesignEditor({
             </div>
           )}
 
+          {canSaveTemplate && (
+            <div>
+              <Chip
+                onClick={() => setTemplateSheetOpen(true)}
+                disabled={!ready}
+              >
+                Save as template
+              </Chip>
+            </div>
+          )}
           <p className="text-[11px] text-zinc-400">
             Drag to move — it snaps to the centre lines · two fingers to resize
             and rotate (snaps level at 0°) · double-tap text to edit
@@ -217,6 +241,20 @@ export function DesignEditor({
         </aside>
       </main>
 
+      {templateSheetOpen && (
+        <SaveTemplateSheet
+          getDesign={async () => {
+            const design = ed.getDesign();
+            if (!design) return null;
+            const { renderDesignToDataUrl } = await import("../engine");
+            return {
+              design,
+              thumbnail: await renderDesignToDataUrl(design, 480),
+            };
+          }}
+          onClose={() => setTemplateSheetOpen(false)}
+        />
+      )}
       {textSheetOpen && ed.selection?.text && (
         <TextSheet
           text={ed.selection.text}

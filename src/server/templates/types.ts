@@ -29,6 +29,8 @@ export interface TemplateMeta {
   hasThumbnail: boolean;
   /** ISO 8601 (UTC). */
   createdAt: string;
+  /** Email of the template editor who saved it (absent on older templates). */
+  createdBy?: string;
 }
 
 export interface TemplateDetail {
@@ -51,6 +53,7 @@ export interface SaveTemplateInput {
   productId: ProductId;
   occasions: OccasionSlug[];
   published: boolean;
+  createdBy?: string;
   design: DesignDocument;
   /** Sample photos: one per asset id referenced by the design. */
   assets: { assetId: string; bytes: Uint8Array; contentType: string }[];
