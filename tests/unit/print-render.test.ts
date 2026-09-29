@@ -245,6 +245,20 @@ describe("renderPrintFile — images from originals", () => {
     expect(atMm(108, 44.5 + 20.5)[3]).toBe(0);
   });
 
+  it.each(["circle", "rounded", "heart", "arch", "star"])(
+    "cuts a %s frame: centre inked, corners of the photo transparent",
+    async (shape) => {
+      const doc = imageDesign();
+      (doc.fabric.objects as Record<string, unknown>[])[0]!.frameShape = shape;
+      const file = await renderPrintFile(doc, { resolveAsset });
+      const { atMm } = await pixels(file.png);
+      // Just inside the centre of the box the shape is always inked …
+      expect(atMm(108, 44.5 + 3)[3]).toBe(255);
+      // … and every shape leaves the photo's top-left corner empty.
+      expect(atMm(108 - 49, 44.5 - 19)[3]).toBe(0);
+    },
+  );
+
   it("throws a clear error naming a missing asset", async () => {
     const doc = imageDesign();
     const obj = (doc.fabric.objects as Record<string, unknown>[])[0]!;

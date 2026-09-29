@@ -12,6 +12,7 @@ export const IMAGE_CUSTOM_PROPS = [
   "sourceHeightPx",
   "previewWidthPx",
   "previewHeightPx",
+  "frameShape",
 ] as const;
 
 export function toAssetRef(id: string): string {

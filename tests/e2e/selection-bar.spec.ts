@@ -183,6 +183,52 @@ test("photo: crop to a square, reopen, and reset", async ({ page }) => {
   );
 });
 
+test("crop & shape: pick a shape, it is remembered, and Replace keeps the frame", async ({
+  page,
+}) => {
+  await page.goto("/design/mug");
+  await expect(
+    page.getByRole("button", { name: "Image", exact: true }),
+  ).toBeEnabled();
+  await page.getByTestId("image-input").setInputFiles({
+    name: "wide.png",
+    mimeType: "image/png",
+    buffer: await makePng(page, 3000, 1200),
+  });
+  await bar(page).getByRole("button", { name: "Crop" }).click();
+  const dialog = page.getByRole("dialog", { name: "Crop photo" });
+  await expect(dialog.getByRole("radio", { name: "No shape" })).toHaveAttribute(
+    "aria-checked",
+    "true",
+  );
+  await dialog.getByRole("radio", { name: "Circle" }).click();
+  // A circle needs a square frame.
+  await expect(dialog.getByRole("radio", { name: "Square" })).toHaveAttribute(
+    "aria-checked",
+    "true",
+  );
+  await dialog.getByRole("button", { name: "Done" }).click();
+
+  await bar(page).getByRole("button", { name: "Crop" }).click();
+  await expect(dialog.getByRole("radio", { name: "Circle" })).toHaveAttribute(
+    "aria-checked",
+    "true",
+  );
+  await dialog.getByRole("button", { name: "Cancel" }).click();
+
+  // Replace: a different photo goes into the same square frame.
+  const before = await readout(page);
+  await bar(page).getByRole("button", { name: "Replace" }).click();
+  await page.getByTestId("image-input").setInputFiles({
+    name: "tall.png",
+    mimeType: "image/png",
+    buffer: await makePng(page, 1200, 3000),
+  });
+  await expect(status(page)).toHaveText(
+    new RegExp(` ${before.w} × ${before.w} mm`),
+  );
+});
+
 test("crop survives reload (saved in the draft)", async ({ page }) => {
   await page.goto("/design/mug");
   await expect(

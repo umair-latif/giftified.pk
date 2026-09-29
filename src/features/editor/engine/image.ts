@@ -1,9 +1,16 @@
-import { FabricImage, Point, type Canvas, type FabricObject } from "fabric";
+import {
+  FabricImage,
+  Path,
+  Point,
+  type Canvas,
+  type FabricObject,
+} from "fabric";
 import type { PrintArea } from "@/config/products";
 import { imageDpi } from "@/lib/print-quality";
 import { IMAGE_CUSTOM_PROPS } from "../assets/asset-ref";
 import { applyTouchControls } from "./controls";
-import { FULL_RECT, type NormRect } from "./crop";
+import { FULL_RECT, viewToRect, type NormRect } from "./crop";
+import { buildFrameClip, isFrameShape, type FrameShape } from "./frame-shape";
 import { initialImageWidthMm } from "./image-fit";
 
 // Serialise our asset metadata with every image (history, drafts, orders).
@@ -22,7 +29,8 @@ interface PreviewMeta {
   previewHeightPx: number;
 }
 
-export type AssetImage = FabricImage & Partial<ImageAssetMeta & PreviewMeta>;
+export type AssetImage = FabricImage &
+  Partial<ImageAssetMeta & PreviewMeta> & { frameShape?: FrameShape };
 
 export function isAssetImage(obj: FabricObject | undefined): obj is AssetImage {
   return !!obj && obj.type.toLowerCase() === "image";
@@ -85,9 +93,14 @@ export function getCrop(img: AssetImage): NormRect {
  * Applies a normalised crop. The photo keeps its printed width and centre, so
  * the customer sees it change shape in place; DPI updates accordingly.
  */
-export function applyCrop(canvas: Canvas, rect: NormRect = FULL_RECT): void {
+export function applyCrop(
+  canvas: Canvas,
+  rect: NormRect = FULL_RECT,
+  shape?: FrameShape | null,
+): void {
   const img = canvas.getActiveObject();
   if (!isAssetImage(img)) return;
+  if (shape !== undefined) img.frameShape = shape ?? undefined;
   const { w, h } = previewSize(img);
   const printedWidthMm = img.getScaledWidth();
   const centre = img.getCenterPoint();
@@ -100,9 +113,22 @@ export function applyCrop(canvas: Canvas, rect: NormRect = FULL_RECT): void {
   const scale = printedWidthMm / img.width;
   img.set({ scaleX: scale, scaleY: scale });
   img.setPositionByOrigin(new Point(centre.x, centre.y), "center", "center");
+  refreshFrameClip(img);
   img.setCoords();
   canvas.requestRenderAll();
   canvas.fire("object:modified", { target: img });
+}
+
+/** The photo's frame shape (null = plain rectangle). */
+export function getFrameShape(img: AssetImage): FrameShape | null {
+  return isFrameShape(img.frameShape) ? img.frameShape : null;
+}
+
+/** Rebuilds the clip from `frameShape` for the photo's current visible box. */
+export function refreshFrameClip(img: AssetImage): void {
+  img.clipPath =
+    buildFrameClip(Path, img.frameShape, img.width, img.height) ?? undefined;
+  img.dirty = true;
 }
 
 /** Effective print DPI of an image object at its current size and crop, or null for non-images. */
@@ -116,4 +142,46 @@ export function objectDpi(obj: FabricObject | undefined): number | null {
     widthMm: obj.getScaledWidth(),
     heightMm: obj.getScaledHeight(),
   });
+}
+
+/**
+ * Swaps the selected photo for another one, keeping its frame: same shape,
+ * same printed size and centre. The new photo is cover-cropped to the
+ * frame's current proportions, so it fills the shape like the old one did.
+ */
+export async function replaceImage(
+  canvas: Canvas,
+  previewUrl: string,
+  meta: ImageAssetMeta,
+): Promise<void> {
+  const img = canvas.getActiveObject();
+  if (!isAssetImage(img)) return;
+  const next = await FabricImage.fromURL(previewUrl);
+  const frameAspect = img.getScaledWidth() / img.getScaledHeight();
+  const printedWidthMm = img.getScaledWidth();
+  const centre = img.getCenterPoint();
+  const rect = viewToRect(next.width / next.height, {
+    frameAspect,
+    zoom: 1,
+    center: { x: 0.5, y: 0.5 },
+  });
+  img.setElement(next.getElement());
+  const preview: PreviewMeta = {
+    previewWidthPx: next.width,
+    previewHeightPx: next.height,
+  };
+  Object.assign(img, meta, preview);
+  img.set({
+    cropX: rect.x * next.width,
+    cropY: rect.y * next.height,
+    width: rect.w * next.width,
+    height: rect.h * next.height,
+  });
+  const scale = printedWidthMm / img.width;
+  img.set({ scaleX: scale, scaleY: scale });
+  img.setPositionByOrigin(new Point(centre.x, centre.y), "center", "center");
+  refreshFrameClip(img);
+  img.setCoords();
+  canvas.requestRenderAll();
+  canvas.fire("object:modified", { target: img });
 }

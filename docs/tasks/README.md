@@ -28,7 +28,7 @@ own folders.
 | 14  | [Order status + guest tracking](14-order-status-tracking.md)           | Claude (cloud session)                | `feat/order-tracking`       | done                      |
 | 15  | [Help and info pages](15-info-pages.md)                                | Claude (cloud session) + founder text | `feat/info-pages`           | done (founder TODOs open) |
 | 16  | [Editor ↔ print font parity](16-font-parity.md)                        | Lead                                  | `fix/font-parity`           | in review                 |
-| 17  | [Photo frames (Crop & shape)](17-photo-frames.md)                      | Lead                                  | `feat/photo-frames`         | after 12                  |
+| 17  | [Photo frames (Crop & shape)](17-photo-frames.md)                      | Lead                                  | `feat/photo-frames`         | in progress (Polaroid open) |
 | 18  | [Templates: placeholders, Save as template](18-templates-authoring.md) | Lead                                  | `feat/templates`            | after 17                  |
 | 19  | [Template gallery + occasion pages](19-template-gallery.md)            | _unassigned_                          | `feat/template-gallery`     | after 11, 18              |
 | 20  | [Accounts: sign-in/sign-up](20-auth.md)                                | Claude (cloud session)                | `feat/auth`                 | in review                 |

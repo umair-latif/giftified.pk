@@ -10,6 +10,7 @@ interface Props {
   text: TextStyle | null;
   onTextStyle: (style: Partial<TextStyle>) => void;
   onCrop: () => void;
+  onReplace: () => void;
   onCopy: () => void;
   onDelete: () => void;
   onMore: () => void;
@@ -17,13 +18,14 @@ interface Props {
 
 /**
  * Context bar shown above the main toolbar while something is selected.
- * Text: font, colour, bold / italic / underline. Photo: crop. Both: copy, delete.
+ * Text: font, colour, bold / italic / underline. Photo: crop & shape, replace. Both: copy, delete.
  */
 export function SelectionBar({
   kind,
   text,
   onTextStyle,
   onCrop,
+  onReplace,
   onCopy,
   onDelete,
   onMore,
@@ -71,7 +73,7 @@ export function SelectionBar({
               aria-label="More"
               aria-haspopup="dialog"
               onClick={onMore}
-              className="grid size-9 shrink-0 place-items-center rounded-md text-base font-semibold text-zinc-700 italic hover:bg-zinc-100 active:bg-zinc-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-600/20"
+              className="focus-visible:ring-brand-600/20 grid size-9 shrink-0 place-items-center rounded-md text-base font-semibold text-zinc-700 italic hover:bg-zinc-100 focus-visible:ring-2 focus-visible:outline-none active:bg-zinc-100"
             >
               Aa
             </button>
@@ -147,6 +149,9 @@ export function SelectionBar({
             <Action label="Crop" onClick={onCrop}>
               <CropIcon width={20} height={20} />
             </Action>
+            <Action label="Replace" onClick={onReplace}>
+              <ReplaceIcon />
+            </Action>
             <Divider />
           </>
         )}
@@ -184,7 +189,7 @@ function Toggle({
         disabled ? `This font has no ${label.toLowerCase()} style` : undefined
       }
       onClick={onClick}
-      className={`grid size-9 shrink-0 place-items-center rounded-md text-base focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-600/20 disabled:opacity-35 ${
+      className={`focus-visible:ring-brand-600/20 grid size-9 shrink-0 place-items-center rounded-md text-base focus-visible:ring-2 focus-visible:outline-none disabled:opacity-35 ${
         pressed
           ? "bg-brand-100 text-brand-700 hover:bg-brand-200"
           : "text-zinc-700 hover:bg-zinc-100 active:bg-zinc-100"
@@ -211,13 +216,31 @@ function Action({
       type="button"
       aria-label={label}
       onClick={onClick}
-      className={`flex h-11 w-11 shrink-0 flex-col items-center justify-center gap-0.5 rounded-md text-[10px] leading-none font-medium hover:bg-zinc-100 active:bg-zinc-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-600/20 ${
+      className={`focus-visible:ring-brand-600/20 flex h-11 w-11 shrink-0 flex-col items-center justify-center gap-0.5 rounded-md text-[10px] leading-none font-medium hover:bg-zinc-100 focus-visible:ring-2 focus-visible:outline-none active:bg-zinc-100 ${
         danger ? "text-red-600" : "text-zinc-700"
       }`}
     >
       {children}
       <span>{label}</span>
     </button>
+  );
+}
+
+function ReplaceIcon() {
+  return (
+    <svg
+      width={20}
+      height={20}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={2}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden
+    >
+      <path d="M4 8h13l-3-3M20 16H7l3 3" />
+    </svg>
   );
 }
 
