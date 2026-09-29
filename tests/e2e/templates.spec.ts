@@ -58,6 +58,37 @@ test("a template editor saves a template; a customer starts from it and must rep
   await expect(saved).toContainText("Template saved");
   const id = (await saved.locator("code").textContent())!;
 
+  // The gallery pages show it straight away (thumbnail + name), and the
+  // occasion tile opens it in the editor.
+  // Saving a template expires the cached gallery pages.
+  for (const u of ["/occasions/eid", "/products/mug"]) {
+    await expect
+      .poll(
+        async () =>
+          (await (await page.request.get(u)).text()).includes("Eid card"),
+        { timeout: 15_000 },
+      )
+      .toBe(true);
+  }
+  await page.goto("/products/mug");
+  const card = page
+    .getByTestId("template-grid")
+    .getByRole("link", { name: /Eid card/ });
+  await expect(card).toBeVisible();
+  await expect(card.locator("img")).toBeVisible();
+  await page.goto("/occasions/eid");
+  await expect(
+    page.getByTestId("template-grid").getByRole("link", { name: /Eid card/ }),
+  ).toBeVisible();
+  await page.goto("/occasions/birthday");
+  await expect(page.getByTestId("no-templates")).toBeVisible();
+  // The editor already has this editor's own draft: accept "replace it?".
+  page.once("dialog", (d) => void d.accept());
+  await page.goto("/occasions/eid");
+  await page.getByRole("link", { name: /Eid card/ }).click();
+  await expect(page).toHaveURL(/\/design\/mug/);
+  await expect(page.getByTestId("placeholder-hint")).toBeVisible();
+
   // A different browser context = a customer with an empty draft.
   const customer = await page
     .context()
@@ -73,6 +104,16 @@ test("a template editor saves a template; a customer starts from it and must rep
   );
   await expect(cp).toHaveURL(/\/design\/mug$/); // ?template= dropped
   await customer.close();
+});
+
+test("occasion pages exist for each tile and 404 for unknown ones", async ({
+  page,
+}) => {
+  await page.goto("/");
+  await page.getByRole("link", { name: "Shaadi" }).click();
+  await expect(page).toHaveURL(/\/occasions\/shaadi$/);
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Shaadi");
+  expect((await page.goto("/occasions/nope"))?.status()).toBe(404);
 });
 
 test("an unknown template opens a friendly message", async ({ page }) => {

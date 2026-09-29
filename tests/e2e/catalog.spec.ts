@@ -33,8 +33,8 @@ test("catalog → mug page → Design your own opens the editor", async ({
   const first = page.locator("main section").first();
   await expect(first).toHaveAttribute("data-testid", "design-your-own");
   await expect(first.getByRole("heading")).toHaveText("Design your own");
-  // Gallery slot for task 19.
-  await expect(page.locator("#designs")).toContainText("coming soon");
+  // Gallery slot (task 19): "coming soon" until a template is published.
+  await expect(page.locator("#designs")).toContainText("Ready-made designs");
 
   await first.getByRole("link", { name: "Start designing" }).tap();
   await expect(page).toHaveURL(/\/design\/mug$/);

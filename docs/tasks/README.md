@@ -15,7 +15,7 @@ own folders.
 | 03  | [VendorProof.pdf builder](03-vendor-proof-pdf.md)                      | Claude (2nd session)                  | `feat/vendor-proof`         | done (live)               |
 | 04  | [3D mug preview](04-mug-3d-preview.md)                                 | Founder (model) + _unassigned_        | `feat/mug-3d`               | waiting for the mug GLB   |
 | 05  | [COD checkout form](05-checkout-form.md)                               | Claude (3rd session)                  | `feat/checkout-form`        | done (live)               |
-| 06  | [Text styling sheet](06-text-styling-sheet.md)                         | Claude (cloud session)                | `feat/text-sheet`           | in review                 |
+| 06  | [Text styling sheet](06-text-styling-sheet.md)                         | Claude (cloud session)                | `feat/text-sheet`           | done |
 | 07  | [300 DPI print renderer](07-print-renderer.md)                         | Claude (cloud session)                | `feat/print-renderer`       | done                      |
 | 08  | [Order pipeline, manual dispatch](08-order-pipeline.md)                | Lead                                  | `feat/order-pipeline`       | done (live)               |
 | 09  | [Photo background removal](09-background-removal.md)                   | —                                     | `feat/bg-removal`           | **postponed**             |
@@ -23,22 +23,23 @@ own folders.
 | 10  | [Home page](10-home-page.md)                                           | Claude (cloud session)                | `feat/home`                 | done                      |
 | 11  | [Catalog + product pages](11-catalog-product-pages.md)                 | Claude (2nd session)                  | `feat/catalog`              | done                      |
 | 12  | [Cart](12-cart.md)                                                     | Lead                                  | `feat/cart`                 | done                      |
-| 13  | [Checkout v2 (from the cart)](13-checkout-v2.md)                       | Claude (2nd session)                  | `feat/checkout-v2`          | in review                 |
-| 13b | Checkout legal: content confirmation, small print, opt-in, IP          | Claude (subagent)                     | `feat/checkout-legal`       | in review                 |
+| 13  | [Checkout v2 (from the cart)](13-checkout-v2.md)                       | Claude (2nd session)                  | `feat/checkout-v2`          | done |
+| 13b | Checkout legal: content confirmation, small print, opt-in, IP          | Claude (subagent)                     | `feat/checkout-legal`       | done |
 | 14  | [Order status + guest tracking](14-order-status-tracking.md)           | Claude (cloud session)                | `feat/order-tracking`       | done                      |
 | 15  | [Help and info pages](15-info-pages.md)                                | Claude (cloud session) + founder text | `feat/info-pages`           | done (founder TODOs open) |
-| 16  | [Editor ↔ print font parity](16-font-parity.md)                        | Lead                                  | `fix/font-parity`           | in review                 |
+| 16  | [Editor ↔ print font parity](16-font-parity.md)                        | Lead                                  | `fix/font-parity`           | done |
 | 17  | [Photo frames (Crop & shape)](17-photo-frames.md)                      | Lead                                  | `feat/photo-frames`         | done                      |
-| 18  | [Templates: placeholders, Save as template](18-templates-authoring.md) | Claude (cloud session)                | `feat/templates`            | in progress (slice 1 in review) |
-| 19  | [Template gallery + occasion pages](19-template-gallery.md)            | _unassigned_                          | `feat/template-gallery`     | after 11, 18              |
-| 20  | [Accounts: sign-in/sign-up](20-auth.md)                                | Claude (cloud session)                | `feat/auth`                 | in review                 |
-| 21  | [Account area](21-account-area.md)                                     | _unassigned_                          | `feat/account`              | after 20                  |
-| 22  | [Saved designs](22-saved-designs.md)                                   | Lead + assistant                      | `feat/saved-designs`        | after 20                  |
+| 18  | [Templates: placeholders, Save as template](18-templates-authoring.md) | Claude (cloud session)                | `feat/templates`            | slice 3 open (needs sample images) |
+| 19  | [Template gallery + occasion pages](19-template-gallery.md)            | Claude (cloud session) | `feat/template-gallery`     | in progress |
+| 20  | [Accounts: sign-in/sign-up](20-auth.md)                                | Claude (cloud session)                | `feat/auth`                 | done |
+| 21  | [Account area](21-account-area.md)                                     | _unassigned_                          | `feat/account`              | ready |
+| 22  | [Saved designs](22-saved-designs.md)                                   | Lead + assistant                      | `feat/saved-designs`        | ready |
 | 23  | [Customer-shared templates](23-shared-templates.md)                    | _unassigned_                          | `feat/shared-templates`     | after 19, 22              |
-| 24  | [Delete customer photos 30 days after delivery](24-data-retention.md)  | Lead                                  | `feat/retention`            | in review (PR #34)        |
+| 24  | [Delete customer photos 30 days after delivery](24-data-retention.md)  | Lead                                  | `feat/retention`            | done (PR #34) |
 | 25  | [Design-system cleanup: buttons, cards, tokens](25-design-consistency.md) | Claude (cloud)                     | `feat/design-tokens`        | done                        |
 
-**Right now, assistants can take:** 17 (after 12, merged), 25 (ready, independent). The
+**Right now, assistants can take:** 21 (account area) and 22 (saved designs), both unblocked by 20;
+18 slice 3 (placeholder photo library) waits for founder-approved images. The
 plan behind 10–23 is in
 [`docs/plans/storefront-and-accounts.md`](../plans/storefront-and-accounts.md); brand rules in
 [`docs/brand.md`](../brand.md). Briefs 19–23 are outlines and get detail when their dependencies land.

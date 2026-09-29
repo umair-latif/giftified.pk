@@ -1,3 +1,5 @@
+import { revalidateTag } from "next/cache";
+import { TEMPLATES_CACHE_TAG } from "@/features/templates/load-templates";
 import { z } from "zod";
 import { getStorage } from "@/lib/storage";
 import {
@@ -64,6 +66,8 @@ export async function POST(req: Request): Promise<Response> {
       { ...meta.data, design, assets, thumbnail, createdBy: editor.email },
       getStorage(),
     );
+    // The gallery pages are cached: show the new template right away.
+    revalidateTag(TEMPLATES_CACHE_TAG, { expire: 0 });
     return Response.json(saved, { status: 201 });
   } catch (err) {
     if (err instanceof TemplateError)
