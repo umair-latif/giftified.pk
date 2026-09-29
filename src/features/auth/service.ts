@@ -24,6 +24,8 @@ export type AuthResult =
 
 export const TOO_MANY = "Too many attempts. Please wait a while and try again.";
 export const BAD_LOGIN = "Wrong email or password.";
+export const UNAVAILABLE =
+  "We couldn’t reach the account service just now. Please try again in a few minutes.";
 export const BAD_LINK =
   "This link has expired or was already used. Please ask for a new one.";
 
@@ -56,11 +58,17 @@ export async function signUp(
   deps.ipLimiter.hit(deps.clientKey);
 
   const { name, email, password } = parsed.data;
-  const customer = await deps.commerce.createCustomer({
-    email,
-    password,
-    ...splitName(name),
-  });
+  let customer: Customer | null;
+  try {
+    customer = await deps.commerce.createCustomer({
+      email,
+      password,
+      ...splitName(name),
+    });
+  } catch (err) {
+    console.error("[auth] sign-up failed", err);
+    return { ok: false, message: UNAVAILABLE };
+  }
   if (!customer)
     return {
       ok: false,
@@ -85,11 +93,19 @@ export async function signIn(
   )
     return { ok: false, message: TOO_MANY };
 
-  const customer = await deps.commerce.verifyCustomerPassword(
-    email,
-    password,
-    deps.clientIp,
-  );
+  let customer: Customer | null;
+  try {
+    customer = await deps.commerce.verifyCustomerPassword(
+      email,
+      password,
+      deps.clientIp,
+    );
+  } catch (err) {
+    // WordPress unreachable, plugin missing or misconfigured: a setup problem,
+    // never shown as "wrong password" and never a bare 500 page.
+    console.error("[auth] sign-in check failed", err);
+    return { ok: false, message: UNAVAILABLE };
+  }
   // Only failures count, so shared mobile-carrier IPs aren't locked out by successes.
   if (!customer) {
     deps.ipLimiter.hit(deps.clientKey);
@@ -176,13 +192,18 @@ export async function resetPassword(
     (deps.now?.() ?? Date.now()) / 1000,
   );
   if (!claims) return { ok: false, message: BAD_LINK };
-  const customer = await deps.commerce.getCustomer(claims.customerId);
-  // The record changed since the link was made (e.g. the password was reset already).
-  if (!customer || customer.modifiedAt !== claims.modifiedAt)
-    return { ok: false, message: BAD_LINK };
-  await deps.commerce.setCustomerPassword(customer.id, parsed.data.password);
-  const updated = (await deps.commerce.getCustomer(customer.id)) ?? customer;
-  return { ok: true, customer: updated };
+  try {
+    const customer = await deps.commerce.getCustomer(claims.customerId);
+    // The record changed since the link was made (e.g. the password was reset already).
+    if (!customer || customer.modifiedAt !== claims.modifiedAt)
+      return { ok: false, message: BAD_LINK };
+    await deps.commerce.setCustomerPassword(customer.id, parsed.data.password);
+    const updated = (await deps.commerce.getCustomer(customer.id)) ?? customer;
+    return { ok: true, customer: updated };
+  } catch (err) {
+    console.error("[auth] password reset failed", err);
+    return { ok: false, message: UNAVAILABLE };
+  }
 }
 
 /** Same email = same account: finds the customer, or creates one with a random password. */

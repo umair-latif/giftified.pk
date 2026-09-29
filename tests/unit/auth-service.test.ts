@@ -9,11 +9,13 @@ import {
   signIn,
   signUp,
   TOO_MANY,
+  UNAVAILABLE,
   type AuthDeps,
   type ResetDeps,
 } from "@/features/auth/service";
 import { createMockCommerce } from "@/lib/commerce/mock";
 import { createMockEmail } from "@/lib/email/mock";
+import { signResetToken } from "@/server/auth/reset-token";
 
 const SECRET = "s3cret";
 let commerce: ReturnType<typeof createMockCommerce>;
@@ -303,5 +305,61 @@ describe("customerForGoogle", () => {
       commerce,
     );
     expect(g.id).toBe(signedUp.customer.id);
+  });
+});
+
+describe("when the account service is down", () => {
+  const boom = () => {
+    throw new Error("WordPress sign-in check failed (404)");
+  };
+  it("sign-in, sign-up and reset answer with a friendly message instead of throwing", async () => {
+    const err = vi.spyOn(console, "error").mockImplementation(() => {});
+    const broken = {
+      ...commerce,
+      verifyCustomerPassword: boom,
+      createCustomer: boom,
+      getCustomer: boom,
+    };
+    const d = deps({ commerce: broken });
+    expect(
+      await signIn({ email: "a@example.pk", password: "whatever1" }, d),
+    ).toEqual({ ok: false, message: UNAVAILABLE });
+    expect(await signUp(ayesha, d)).toEqual({
+      ok: false,
+      message: UNAVAILABLE,
+    });
+    const token = signResetToken(
+      { customerId: 1, modifiedAt: "m" },
+      SECRET,
+      now / 1000,
+    );
+    expect(
+      await resetPassword(
+        { token, password: "brand new pass" },
+        { commerce: broken, secret: SECRET, now: () => now },
+      ),
+    ).toEqual({ ok: false, message: UNAVAILABLE });
+    expect(err).toHaveBeenCalled();
+    err.mockRestore();
+  });
+});
+
+describe("password reset when email is not configured", () => {
+  it("answers ok (no account hints) and logs, instead of throwing", async () => {
+    const err = vi.spyOn(console, "error").mockImplementation(() => {});
+    await signUp(ayesha, deps());
+    const noEmail = {
+      send: () => {
+        throw new Error("RESEND_API_KEY is not set in production.");
+      },
+    };
+    expect(
+      await requestPasswordReset(
+        { email: "ayesha@example.pk" },
+        resetDeps({ email: noEmail }),
+      ),
+    ).toEqual({ ok: true });
+    expect(err).toHaveBeenCalled();
+    err.mockRestore();
   });
 });

@@ -131,6 +131,15 @@ describe("WooCommerce customers", () => {
     ).toBeUndefined();
   });
 
+  it("treats a missing JWT secret as a setup error, not a wrong password", async () => {
+    const bad = client(() =>
+      Response.json({ code: "jwt_auth_bad_config" }, { status: 403 }),
+    );
+    await expect(bad.woo.verifyCustomerPassword("a@b.pk", "x")).rejects.toThrow(
+      /JWT_AUTH_SECRET_KEY/,
+    );
+  });
+
   it("returns null for wrong credentials and throws when the plugin is missing", async () => {
     const wrong = client(() =>
       Response.json({ code: "incorrect_password" }, { status: 403 }),
