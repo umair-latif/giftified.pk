@@ -479,8 +479,23 @@ export function createWooCommerceClient(config: WooConfig): CommerceClient {
           signal: AbortSignal.timeout(TIMEOUT_MS),
         },
       );
-      await res.body?.cancel();
-      // 403 = wrong credentials (or a lockout); 404 = plugin not installed.
+      const text = await res.text();
+      let code: string | undefined;
+      try {
+        code = (JSON.parse(text) as { code?: string }).code;
+      } catch {
+        /* not JSON */
+      }
+      // 403 = wrong credentials (or a lockout). But the plugin also answers 403
+      // when JWT_AUTH_SECRET_KEY is missing in wp-config.php: that is our setup
+      // being broken, not the customer's password.
+      if (code === "jwt_auth_bad_config")
+        throw new WooCommerceError(
+          "JWT Authentication plugin is not configured: define JWT_AUTH_SECRET_KEY in wp-config.php",
+          res.status,
+          code,
+        );
+      // 404 = plugin not installed (thrown below).
       if (res.status === 401 || res.status === 403) return null;
       if (!res.ok)
         throw new WooCommerceError(
