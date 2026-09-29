@@ -25,6 +25,7 @@ import {
 } from "../fonts/load-fonts";
 import { designFontFaces, migrateDesignFonts } from "../fonts/migrate";
 // Only type imports from Fabric inside, so this does not pull Fabric into the initial bundle.
+import type { FrameShape } from "../engine/frame-shape";
 import { getTextStyle } from "../engine/text-style";
 
 export type EditorStatus = "loading" | "ready" | "error";
@@ -52,6 +53,8 @@ export interface CropTarget {
   imageAspect: number;
   /** Current crop (normalised). */
   rect: NormRect;
+  /** Current frame shape, null = plain rectangle. */
+  shape: FrameShape | null;
 }
 
 export interface PrintQuality {
@@ -332,8 +335,8 @@ export function useFabricCanvas(product: ProductConfig, designKey?: string) {
     [applyTextStyle],
   );
 
-  /** Validates, stores (original + preview) and places an uploaded photo. */
-  const addImage = useCallback(async (file: File) => {
+  /** Validates, stores (original + preview) and places an uploaded photo (or, with `replace`, swaps the selected one). */
+  const addImage = useCallback(async (file: File, replace = false) => {
     const dc = designRef.current;
     const engine = engineRef.current;
     if (!dc || !engine) return;
@@ -358,11 +361,13 @@ export function useFabricCanvas(product: ProductConfig, designKey?: string) {
           "We couldn't add that photo. Please try again.",
           "decode",
         );
-      await engine.addImage(dc.canvas, dc.area, url, {
+      const meta = {
         assetId: id,
         sourceWidthPx: prepared.widthPx,
         sourceHeightPx: prepared.heightPx,
-      });
+      };
+      if (replace) await engine.replaceImage(dc.canvas, url, meta);
+      else await engine.addImage(dc.canvas, dc.area, url, meta);
     } catch (err) {
       console.error("[editor] image upload failed", err);
       setNotice(
@@ -390,12 +395,19 @@ export function useFabricCanvas(product: ProductConfig, designKey?: string) {
     const full = engine.getCrop(obj);
     const previewW = obj.width / full.w;
     const previewH = obj.height / full.h;
-    return { src: obj.getSrc(), imageAspect: previewW / previewH, rect: full };
+    return {
+      src: obj.getSrc(),
+      imageAspect: previewW / previewH,
+      rect: full,
+      shape: engine.getFrameShape(obj),
+    };
   }, []);
 
   const applyCrop = useCallback(
-    (rect: NormRect) => run((e, dc) => e.applyCrop(dc.canvas, rect)),
-    [run],
+    (rect: NormRect, shape: FrameShape | null) =>
+      // Soft shadows are only OK on mugs; apparel prints none (vendors unconfirmed).
+      run((e, dc) => e.applyCrop(dc.canvas, rect, shape, product.id === "mug")),
+    [run, product.id],
   );
 
   /** Clear the selection (e.g. tap on empty space around the canvas). */

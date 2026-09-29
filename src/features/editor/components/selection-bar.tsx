@@ -10,6 +10,7 @@ interface Props {
   text: TextStyle | null;
   onTextStyle: (style: Partial<TextStyle>) => void;
   onCrop: () => void;
+  onReplace: () => void;
   onCopy: () => void;
   onDelete: () => void;
   onMore: () => void;
@@ -17,13 +18,14 @@ interface Props {
 
 /**
  * Context bar shown above the main toolbar while something is selected.
- * Text: font, colour, bold / italic / underline. Photo: crop. Both: copy, delete.
+ * Text: font, colour, bold / italic / underline. Photo: crop & shape, replace. Both: copy, delete.
  */
 export function SelectionBar({
   kind,
   text,
   onTextStyle,
   onCrop,
+  onReplace,
   onCopy,
   onDelete,
   onMore,
@@ -147,6 +149,9 @@ export function SelectionBar({
             <Action label="Crop" onClick={onCrop}>
               <CropIcon width={20} height={20} />
             </Action>
+            <Action label="Replace" onClick={onReplace}>
+              <ReplaceIcon />
+            </Action>
             <Divider />
           </>
         )}
@@ -218,6 +223,24 @@ function Action({
       {children}
       <span>{label}</span>
     </button>
+  );
+}
+
+function ReplaceIcon() {
+  return (
+    <svg
+      width={20}
+      height={20}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={2}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden
+    >
+      <path d="M4 8h13l-3-3M20 16H7l3 3" />
+    </svg>
   );
 }
 

@@ -36,6 +36,8 @@ export function DesignEditor({
   const { widthMm, heightMm } = product.printArea;
   const ready = ed.status === "ready" && !ed.busy;
   const fileInput = useRef<HTMLInputElement>(null);
+  // The one file input serves "add photo" and "replace photo".
+  const replacing = useRef(false);
   const [cropTarget, setCropTarget] = useState<CropTarget | null>(null);
   const [textSheetOpen, setTextSheetOpen] = useState(false);
   const selectionKind = !ed.selection
@@ -119,7 +121,9 @@ export function DesignEditor({
             onChange={(e) => {
               const file = e.target.files?.[0];
               e.target.value = ""; // allow picking the same file again
-              if (file) void ed.addImage(file);
+              const replace = replacing.current;
+              replacing.current = false;
+              if (file) void ed.addImage(file, replace);
             }}
           />
 
@@ -148,7 +152,10 @@ export function DesignEditor({
           <EditorToolbar
             ready={ready}
             onAddText={ed.addText}
-            onAddImage={() => fileInput.current?.click()}
+            onAddImage={() => {
+              replacing.current = false;
+              fileInput.current?.click();
+            }}
           />
           {selectionKind && (
             <SelectionBar
@@ -156,6 +163,10 @@ export function DesignEditor({
               text={ed.selection?.text ?? null}
               onTextStyle={ed.applyTextStyle}
               onCrop={() => setCropTarget(ed.getCropTarget())}
+              onReplace={() => {
+                replacing.current = true;
+                fileInput.current?.click();
+              }}
               onCopy={ed.copySelected}
               onDelete={ed.deleteSelected}
               onMore={() => setTextSheetOpen(true)}
@@ -217,8 +228,8 @@ export function DesignEditor({
         <CropSheet
           target={cropTarget}
           onCancel={() => setCropTarget(null)}
-          onApply={(rect) => {
-            ed.applyCrop(rect);
+          onApply={(rect, shape) => {
+            ed.applyCrop(rect, shape);
             setCropTarget(null);
           }}
         />

@@ -21,11 +21,14 @@ export {
   addImage,
   applyCrop,
   getCrop,
+  getFrameShape,
   isAssetImage,
   objectDpi,
+  replaceImage,
   type ImageAssetMeta,
 } from "./image";
 export { type NormRect } from "./crop";
+export { type FrameShape } from "./frame-shape";
 export { applyTextStyle, getTextStyle, type TextStyle } from "./text-style";
 export {
   toDesignDocument,
