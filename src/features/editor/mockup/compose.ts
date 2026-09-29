@@ -45,8 +45,9 @@ function sample(
 /**
  * Wraps a rendered design (transparent PNG data URL of the whole print area)
  * around the mug photo. The photo's own brightness shades the print
- * (multiply), so gloss and the round falloff carry through. `side: "left"`
- * mirrors the photo (handle on the left) and shows the other half of the wrap.
+ * (multiply), so gloss and the round falloff carry through. `spec.side` says
+ * which half of the wrap the photo shows (handle side); `spec.mirror` flips the
+ * photo when it was measured the other way round.
  * Returns a WebP/JPEG data URL at the photo's size.
  */
 export async function composeMockup(
@@ -70,7 +71,8 @@ export async function composeMockup(
   canvas.height = H;
   const ctx = canvas.getContext("2d", { willReadFrequently: true });
   if (!ctx) throw new Error("Canvas not available");
-  if (side === "left") {
+  const mirror = !!spec.mirror;
+  if (mirror) {
     ctx.translate(W, 0);
     ctx.scale(-1, 1);
   }
@@ -90,8 +92,8 @@ export async function composeMockup(
   const dd = dctx.getImageData(0, 0, dw, dh).data;
 
   const b = spec.body;
-  const left = side === "left" ? W - b.right : b.left;
-  const right = side === "left" ? W - b.left : b.right;
+  const left = mirror ? W - b.right : b.left;
+  const right = mirror ? W - b.left : b.right;
   const cx = (left + right) / 2;
   const r = (right - left) / 2;
   const pxPerMm = verticalPxPerMm(b, spec.mugHeightMm);

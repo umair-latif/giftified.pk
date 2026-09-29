@@ -17,6 +17,8 @@ export interface MockupSpec {
   label: string;
   /** Which half of the wrap this photo shows: "right" = handle on the right. */
   side: MockupSide;
+  /** Flip the photo left/right before use (body coordinates are in the unflipped photo). */
+  mirror?: boolean;
   src: string;
   widthPx: number;
   heightPx: number;
@@ -44,39 +46,80 @@ export interface MockupSpec {
   credit: string;
 }
 
-/** Straight-on side photo, handle on the right. The left view mirrors it. */
-const MUG_SIDE = {
-  src: "/mockups/mug-side.webp",
-  widthPx: 822,
-  heightPx: 642,
-  body: { left: 217.2, right: 604.2, top: 82.8, bottom: 573 },
+/**
+ * The Canva mug set (1080 x 1080). Photos are interchangeable: to change the
+ * background, props or colours, replace the file and re-measure `body`, `sag`
+ * and `handleAngleDeg` (docs/ops/mockup-assets.md); nothing else changes.
+ *
+ * Vector-style studio shots (front/left/right) share one mug, so they share
+ * geometry. Their `top` is the top edge of the wall at the centre, and the
+ * camera is slightly above the base (base curves down, rim outline curves up).
+ */
+const STUDIO = {
+  widthPx: 1080,
+  heightPx: 1080,
   // Printful 11oz (approx.): 8.3 cm across, 9.6 cm tall. Vendor to confirm.
   geometry: { diameterMm: 83 },
   mugHeightMm: 96,
-  // Measured on the photo: the base edge is ~20 px lower at the centre; the
-  // camera is at rim height, so the rim is nearly straight (slightly up).
-  sag: { rim: -6, base: 20 },
-  credit: "Unsplash",
+  sag: { rim: -26, base: 30 },
+  credit: "Canva",
 } as const;
 
 export const MOCKUP_SPECS: Partial<Record<ProductId, readonly MockupSpec[]>> = {
   mug: [
-    { ...MUG_SIDE, id: "left", label: "Left", side: "left" },
-    { ...MUG_SIDE, id: "right", label: "Right", side: "right" },
+    {
+      ...STUDIO,
+      id: "front",
+      label: "Front",
+      // Handle hidden behind the mug (180 deg): the design centre faces us.
+      side: "right",
+      src: "/mockups/mug-front.webp",
+      body: { left: 272, right: 756, top: 221, bottom: 834 },
+      geometry: { diameterMm: 83, handleAngleDeg: 180 },
+    },
+    {
+      ...STUDIO,
+      id: "left",
+      label: "Left",
+      side: "left",
+      src: "/mockups/mug-left.webp",
+      body: { left: 279, right: 762, top: 221, bottom: 834 },
+    },
+    {
+      ...STUDIO,
+      id: "right",
+      label: "Right",
+      side: "right",
+      src: "/mockups/mug-right.webp",
+      body: { left: 276, right: 759, top: 221, bottom: 834 },
+    },
     {
       id: "lifestyle",
       label: "Lifestyle",
-      side: "right",
+      side: "left",
       src: "/mockups/mug-lifestyle.webp",
-      widthPx: 900,
-      heightPx: 900,
-      body: { left: 232, right: 596, top: 260, bottom: 677 },
-      // The photo is from ~20 deg above (both rim and base curve down) and the
-      // mug is turned so the handle is ~64 deg from the camera.
-      geometry: { diameterMm: 83, handleAngleDeg: 64 },
+      widthPx: 1080,
+      heightPx: 1080,
+      // Eye-level photo, mug turned a little (handle ~77 deg from the camera).
+      body: { left: 322, right: 806, top: 285, bottom: 894 },
+      geometry: { diameterMm: 83, handleAngleDeg: 77 },
       mugHeightMm: 96,
-      sag: { rim: 48, base: 65 },
-      credit: "Unsplash",
+      sag: { rim: -18, base: 25 },
+      credit: "Canva",
+    },
+    {
+      id: "flatlay",
+      label: "Flat lay",
+      side: "left",
+      src: "/mockups/mug-flatlay.webp",
+      widthPx: 1080,
+      heightPx: 1080,
+      // Shot from above on a desk; handle turned ~60 deg from the camera.
+      body: { left: 320, right: 790, top: 245, bottom: 838 },
+      geometry: { diameterMm: 83, handleAngleDeg: 60 },
+      mugHeightMm: 96,
+      sag: { rim: -20, base: 30 },
+      credit: "Canva",
     },
   ],
 };
