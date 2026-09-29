@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { formatPkr } from "@/features/checkout/format";
 import type { HomeProductCard } from "./product-cards";
+import { Container } from "@/components/ui/page";
 
 function CardBody({ card }: { card: HomeProductCard }) {
   return (
@@ -35,8 +36,8 @@ function CardBody({ card }: { card: HomeProductCard }) {
 
 export function ProductsSection({ cards }: { cards: HomeProductCard[] }) {
   return (
-    <section aria-labelledby="home-products" className="px-4 pt-8">
-      <div className="mx-auto max-w-3xl">
+    <section aria-labelledby="home-products" className="pt-8">
+      <Container width="wide">
         <h2 id="home-products" className="text-brand-900 text-2xl">
           Pick a product
         </h2>
@@ -49,7 +50,7 @@ export function ProductsSection({ cards }: { cards: HomeProductCard[] }) {
               {card.href ? (
                 <Link
                   href={card.href}
-                  className="hover:bg-mint-100 active:bg-mint-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-600/20 flex gap-4 rounded-2xl border border-zinc-200 bg-white p-3 shadow-sm sm:flex-col"
+                  className="hover:bg-mint-100 active:bg-mint-100 focus-visible:ring-brand-600/20 flex gap-4 rounded-2xl border border-zinc-200 bg-white p-3 shadow-sm focus-visible:ring-2 focus-visible:outline-none sm:flex-col"
                 >
                   <CardBody card={card} />
                 </Link>
@@ -64,7 +65,7 @@ export function ProductsSection({ cards }: { cards: HomeProductCard[] }) {
             </li>
           ))}
         </ul>
-      </div>
+      </Container>
     </section>
   );
 }

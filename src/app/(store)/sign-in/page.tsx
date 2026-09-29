@@ -6,6 +6,7 @@ import { SignInForm } from "@/features/auth/components/sign-in-form";
 import { getSessionCustomerId } from "@/server/auth/cookies";
 import { googleConfigFromEnv } from "@/server/auth/google";
 import { safeNextPath } from "@/server/auth/safe-next";
+import { Page, PageTitle } from "@/components/ui/page";
 
 export const metadata: Metadata = {
   title: "Sign in",
@@ -22,8 +23,8 @@ export default async function SignInPage(props: PageProps<"/sign-in">) {
     : "/sign-up";
 
   return (
-    <main className="mx-auto flex max-w-md flex-col gap-4 px-4 py-6">
-      <h1 className="font-display text-ink text-2xl">Sign in</h1>
+    <Page width="narrow" className="flex flex-col gap-4">
+      <PageTitle>Sign in</PageTitle>
       {error === "google" && (
         <p
           className="rounded-lg bg-red-50 p-3 text-sm text-red-800"
@@ -54,6 +55,6 @@ export default async function SignInPage(props: PageProps<"/sign-in">) {
           Keep shopping
         </Link>
       </p>
-    </main>
+    </Page>
   );
 }

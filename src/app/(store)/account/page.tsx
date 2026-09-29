@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { signOutAction } from "@/features/auth/actions";
 import { getSessionCustomer } from "@/server/auth/cookies";
+import { Page, PageTitle } from "@/components/ui/page";
 
 export const metadata: Metadata = {
   title: "Your account",
@@ -15,8 +16,8 @@ export default async function AccountPage() {
   const name = `${customer.firstName} ${customer.lastName}`.trim();
 
   return (
-    <main className="mx-auto flex max-w-md flex-col gap-4 px-4 py-6">
-      <h1 className="font-display text-ink text-2xl">Your account</h1>
+    <Page width="narrow" className="flex flex-col gap-4">
+      <PageTitle>Your account</PageTitle>
       <section className="rounded-lg bg-white p-4 ring-1 ring-zinc-200">
         {name && (
           <p className="text-ink font-medium" data-testid="account-name">
@@ -30,12 +31,12 @@ export default async function AccountPage() {
       <form action={signOutAction}>
         <button
           type="submit"
-          className="text-ink h-12 w-full rounded-full border border-zinc-300 bg-white font-semibold hover:bg-zinc-50 active:bg-zinc-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-600/20"
+          className="text-ink focus-visible:ring-brand-600/20 h-12 w-full rounded-full border border-zinc-300 bg-white font-semibold hover:bg-zinc-50 focus-visible:ring-2 focus-visible:outline-none active:bg-zinc-50"
           data-testid="sign-out"
         >
           Sign out
         </button>
       </form>
-    </main>
+    </Page>
   );
 }

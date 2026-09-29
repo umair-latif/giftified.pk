@@ -6,6 +6,7 @@ import { SignUpForm } from "@/features/auth/components/sign-up-form";
 import { getSessionCustomerId } from "@/server/auth/cookies";
 import { googleConfigFromEnv } from "@/server/auth/google";
 import { safeNextPath } from "@/server/auth/safe-next";
+import { Page, PageTitle } from "@/components/ui/page";
 
 export const metadata: Metadata = {
   title: "Create an account",
@@ -21,8 +22,8 @@ export default async function SignUpPage(props: PageProps<"/sign-up">) {
     : "/sign-in";
 
   return (
-    <main className="mx-auto flex max-w-md flex-col gap-4 px-4 py-6">
-      <h1 className="font-display text-ink text-2xl">Create an account</h1>
+    <Page width="narrow" className="flex flex-col gap-4">
+      <PageTitle>Create an account</PageTitle>
       <p className="text-sm text-zinc-600">
         Keep your orders and designs in one place. You can always order without
         an account too.
@@ -40,11 +41,11 @@ export default async function SignUpPage(props: PageProps<"/sign-up">) {
         Already have an account?{" "}
         <Link
           href={signInHref}
-          className="text-brand-700 hover:text-brand-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-600/20 rounded font-medium"
+          className="text-brand-700 hover:text-brand-800 focus-visible:ring-brand-600/20 rounded font-medium focus-visible:ring-2 focus-visible:outline-none"
         >
           Sign in
         </Link>
       </p>
-    </main>
+    </Page>
   );
 }

@@ -60,11 +60,11 @@ export function DesignEditor({
       className={`bg-cream flex min-h-dvh flex-col ${selectionKind ? "pb-36" : "pb-24"}`}
     >
       <AppHeader
-        title={item ? "Edit design" : product.name}
-        backHref={item ? "/cart" : "/"}
-        backLabel={item ? "Back to cart" : "Back to products"}
+        title={item ? "Edit design" : "Design"}
+        backHref={item ? "/cart" : `/products/${product.id}`}
+        backLabel={item ? "Back to cart" : "Back to product"}
         next={{
-          label: "Next",
+          label: "Preview",
           href: `/design/${product.id}/preview${item ? `?item=${encodeURIComponent(item.id)}` : ""}`,
         }}
         actions={
@@ -97,6 +97,7 @@ export function DesignEditor({
         }}
       >
         <p className="text-xs text-zinc-500">
+          <span className="font-medium text-zinc-700">{product.name}</span> ·{" "}
           {product.subtitle} · print area {widthMm} × {heightMm} mm
         </p>
         <EditorStage

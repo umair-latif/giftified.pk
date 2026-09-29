@@ -1,4 +1,5 @@
 import type { ReactNode, SVGProps } from "react";
+import { Container } from "@/components/ui/page";
 
 const svg: SVGProps<SVGSVGElement> = {
   width: 28,
@@ -48,8 +49,8 @@ const STEPS: { title: string; text: string; icon: ReactNode }[] = [
 
 export function HowItWorks() {
   return (
-    <section aria-labelledby="home-how" className="px-4 pt-10">
-      <div className="mx-auto max-w-3xl">
+    <section aria-labelledby="home-how" className="pt-10">
+      <Container width="wide">
         <h2 id="home-how" className="text-brand-900 text-2xl">
           How it works
         </h2>
@@ -71,7 +72,7 @@ export function HowItWorks() {
             </li>
           ))}
         </ol>
-      </div>
+      </Container>
     </section>
   );
 }

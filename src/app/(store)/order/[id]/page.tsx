@@ -8,6 +8,7 @@ import { RememberOrder } from "@/features/orders/components/remember-order";
 import { loadOrderForLink } from "@/features/orders/order-access";
 import { toOrderView } from "@/features/orders/order-view";
 import { getCommerce } from "@/lib/commerce";
+import { Page, PageTitle } from "@/components/ui/page";
 
 export const metadata: Metadata = {
   title: "Your order",
@@ -30,12 +31,10 @@ export default async function OrderStatusPage(props: PageProps<"/order/[id]">) {
   const justPlaced = view.status === "on-hold";
 
   return (
-    <main className="mx-auto flex max-w-md flex-col gap-4 px-4 py-6 sm:max-w-2xl">
+    <Page width="content" className="flex flex-col gap-4">
       <RememberOrder id={view.id} t={t} createdAt={view.createdAt} />
       <section className="rounded-lg bg-white p-4 ring-1 ring-zinc-200">
-        <h1 className="font-display text-ink text-2xl">
-          {justPlaced ? "Thank you!" : "Your order"}
-        </h1>
+        <PageTitle>{justPlaced ? "Thank you!" : "Your order"}</PageTitle>
         <p className="mt-1 text-sm text-zinc-500">
           Order number{" "}
           <span
@@ -92,7 +91,7 @@ export default async function OrderStatusPage(props: PageProps<"/order/[id]">) {
         Keep this page’s link to check your order later, or find it any time on{" "}
         <Link
           href="/track"
-          className="text-brand-700 hover:text-brand-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-600/20 rounded font-medium underline"
+          className="text-brand-700 hover:text-brand-800 focus-visible:ring-brand-600/20 rounded font-medium underline focus-visible:ring-2 focus-visible:outline-none"
         >
           Track your order
         </Link>
@@ -100,10 +99,10 @@ export default async function OrderStatusPage(props: PageProps<"/order/[id]">) {
       </p>
       <Link
         href="/"
-        className="bg-brand-600 hover:bg-brand-700 active:bg-brand-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-600/40 grid h-12 place-items-center rounded-full font-semibold text-white"
+        className="bg-brand-600 hover:bg-brand-700 active:bg-brand-700 focus-visible:ring-brand-600/40 grid h-12 place-items-center rounded-full font-semibold text-white focus-visible:ring-2 focus-visible:outline-none"
       >
         Back to the shop
       </Link>
-    </main>
+    </Page>
   );
 }

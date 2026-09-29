@@ -149,10 +149,10 @@ test("rotation snaps level and Straighten resets it", async ({ page }) => {
 
 test("back / next navigation keeps the design", async ({ page }) => {
   await openEditorWithText(page);
-  await page.getByRole("link", { name: "Next" }).click();
+  await page.getByRole("link", { name: "Preview", exact: true }).click();
   await expect(page).toHaveURL(/\/design\/mug\/preview$/);
   await expect(
-    page.getByRole("img", { name: /Custom Mug design/ }),
+    page.getByRole("img", { name: /Custom Mug, left view/ }),
   ).toBeVisible();
   await expect(page.getByTestId("preview-layers")).toHaveText("1");
 
@@ -164,8 +164,9 @@ test("back / next navigation keeps the design", async ({ page }) => {
   await page.reload();
   await expect(status(page)).toHaveText(/1 layer\b/);
 
-  await page.getByRole("link", { name: "Back to products" }).click();
-  await expect(page).toHaveURL(/\/$/);
+  // Back from the editor goes to the product page, not the home page.
+  await page.getByRole("link", { name: "Back to product" }).click();
+  await expect(page).toHaveURL(/\/products\/mug$/);
 });
 
 test("unknown products 404", async ({ page }) => {
