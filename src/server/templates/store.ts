@@ -37,6 +37,7 @@ const metaSchema = z.object({
   published: z.boolean(),
   hasThumbnail: z.boolean(),
   createdAt: z.string(),
+  createdBy: z.string().optional(),
 });
 const indexSchema = z.array(metaSchema);
 
@@ -143,6 +144,7 @@ export async function saveTemplate(
     published: input.published,
     hasThumbnail: !!input.thumbnail,
     createdAt: now().toISOString(),
+    ...(input.createdBy ? { createdBy: input.createdBy } : {}),
   };
   const index = await readIndex(storage);
   await storage.put(templateIndexKey(), JSON.stringify([...index, meta]), {

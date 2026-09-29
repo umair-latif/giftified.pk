@@ -6,6 +6,10 @@ import { createWooCommerceClient, wooConfigFromEnv } from "./woocommerce";
 export type * from "./types";
 
 let client: CommerceClient | undefined;
+// Next bundles server actions, pages and route handlers separately, so a plain
+// module singleton would give each its own mock store (a customer created at
+// sign-up would be unknown to an API route). The mock is shared via globalThis.
+const shared = globalThis as { __giftifiedMockCommerce?: CommerceClient };
 
 /**
  * The one entry point for store access: WooCommerce when `WC_URL` is set
@@ -15,7 +19,7 @@ let client: CommerceClient | undefined;
 export function getCommerce(): CommerceClient {
   client ??= process.env.WC_URL
     ? createWooCommerceClient(wooConfigFromEnv())
-    : mockOrFail();
+    : (shared.__giftifiedMockCommerce ??= mockOrFail());
   return client;
 }
 

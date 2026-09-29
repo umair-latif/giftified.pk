@@ -201,3 +201,40 @@ describe("placeholders block ordering", () => {
     ).rejects.toThrow(/sample photo/);
   });
 });
+
+describe("template editors", () => {
+  it("matches signed-in emails against TEMPLATE_EDITOR_EMAILS (case-insensitive, trimmed)", async () => {
+    const { isTemplateEditorEmail } =
+      await import("@/server/templates/editors");
+    const env = {
+      TEMPLATE_EDITOR_EMAILS: " Founder@Giftified.pk , helper@example.pk ",
+    };
+    expect(isTemplateEditorEmail("founder@giftified.pk", env)).toBe(true);
+    expect(isTemplateEditorEmail("HELPER@example.pk", env)).toBe(true);
+    expect(isTemplateEditorEmail("other@example.pk", env)).toBe(false);
+    expect(isTemplateEditorEmail("", env)).toBe(false);
+    expect(isTemplateEditorEmail("founder@giftified.pk", {})).toBe(false);
+  });
+
+  it("records who saved a template", async () => {
+    const { storage } = createMemoryStorage();
+    const meta = await saveTemplate(
+      {
+        name: "X",
+        productId: "mug",
+        occasions: [],
+        published: true,
+        design: base,
+        assets: [],
+        createdBy: "founder@giftified.pk",
+      },
+      storage,
+      ids,
+    );
+    expect(meta.createdBy).toBe("founder@giftified.pk");
+    expect(
+      (await listTemplates({}, storage)).find((t) => t.id === meta.id)
+        ?.createdBy,
+    ).toBe("founder@giftified.pk");
+  });
+});
