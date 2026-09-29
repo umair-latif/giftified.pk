@@ -214,3 +214,68 @@ describe("shipping by city", () => {
     expect(quoteFromZones("Multan", onlyNotCovered)).toBeNull();
   });
 });
+
+describe("buildOrderBody — delivery address", () => {
+  const base: CreateOrderInput = {
+    checkoutId: "chk-1",
+    customer: {
+      fullName: "Ayesha Khan",
+      phone: "+923001234567",
+      city: "Lahore",
+      addressLine: "House 12, Street 4",
+    },
+    lines: [],
+  };
+  const lines = [
+    { wooProductId: 101, wooVariationId: 1011, quantity: 1, designId: "d1" },
+  ];
+
+  it("uses one address for billing and shipping by default", () => {
+    const body = buildOrderBody(base, lines, 200);
+    expect(body.shipping).toEqual(body.billing);
+  });
+
+  it("keeps billing as is and ships to the delivery address, still with the phone", () => {
+    const body = buildOrderBody(
+      {
+        ...base,
+        delivery: {
+          fullName: "Sana Malik",
+          city: "Karachi",
+          addressLine: "Flat 4, Clifton",
+          landmark: "Near the park",
+        },
+      },
+      lines,
+      250,
+    );
+    expect(body.billing).toMatchObject({
+      first_name: "Ayesha",
+      city: "Lahore",
+      address_1: "House 12, Street 4",
+    });
+    expect(body.shipping).toMatchObject({
+      first_name: "Sana",
+      last_name: "Malik",
+      city: "Karachi",
+      address_1: "Flat 4, Clifton",
+      address_2: "Near the park",
+      phone: "+923001234567",
+    });
+  });
+
+  it("defaults the receiver to the customer", () => {
+    const body = buildOrderBody(
+      {
+        ...base,
+        delivery: { city: "Karachi", addressLine: "Flat 4, Clifton" },
+      },
+      lines,
+      250,
+    );
+    expect(body.shipping).toMatchObject({
+      first_name: "Ayesha",
+      last_name: "Khan",
+    });
+  });
+});

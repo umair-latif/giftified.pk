@@ -1,4 +1,7 @@
-import type { ReactNode } from "react";
+"use client";
+
+import { useState, type ReactNode } from "react";
+import { EyeIcon, EyeOffIcon } from "@/components/ui/icons";
 import {
   errorId,
   Field,
@@ -36,6 +39,25 @@ export function TextField({
   error?: string | undefined;
   inputMode?: "email" | "text";
 }) {
+  const [shown, setShown] = useState(false);
+  const isPassword = type === "password";
+  const input = (
+    <input
+      id={id}
+      name={name}
+      type={isPassword && shown ? "text" : type}
+      autoComplete={autoComplete}
+      defaultValue={defaultValue}
+      inputMode={inputMode}
+      required
+      maxLength={isPassword ? 128 : 254}
+      aria-invalid={!!error}
+      aria-describedby={error ? errorId(id) : undefined}
+      autoCapitalize={type === "text" ? "words" : "none"}
+      spellCheck={false}
+      className={`${inputClass(!!error)} ${isPassword ? "pr-12" : ""}`}
+    />
+  );
   return (
     <Field
       id={id}
@@ -43,21 +65,24 @@ export function TextField({
       {...(hint ? { hint } : {})}
       {...(error ? { error } : {})}
     >
-      <input
-        id={id}
-        name={name}
-        type={type}
-        autoComplete={autoComplete}
-        defaultValue={defaultValue}
-        inputMode={inputMode}
-        required
-        maxLength={type === "password" ? 128 : 254}
-        aria-invalid={!!error}
-        aria-describedby={error ? errorId(id) : undefined}
-        autoCapitalize={type === "text" ? "words" : "none"}
-        spellCheck={false}
-        className={inputClass(!!error)}
-      />
+      {isPassword ? (
+        <div className="relative">
+          {input}
+          <button
+            type="button"
+            onClick={() => setShown((v) => !v)}
+            aria-label={shown ? "Hide password" : "Show password"}
+            aria-pressed={shown}
+            aria-controls={id}
+            className="absolute top-0 right-0 grid size-12 place-items-center rounded-full text-zinc-500 active:text-zinc-900"
+            data-testid={`${id}-toggle`}
+          >
+            {shown ? <EyeOffIcon /> : <EyeIcon />}
+          </button>
+        </div>
+      ) : (
+        input
+      )}
     </Field>
   );
 }

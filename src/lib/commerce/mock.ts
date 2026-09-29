@@ -83,6 +83,8 @@ export function createMockCommerce(
     firstName: c.firstName,
     lastName: c.lastName,
     modifiedAt: c.modifiedAt,
+    ...(c.phone ? { phone: c.phone } : {}),
+    ...(c.address ? { address: c.address } : {}),
   });
   const byEmail = (email: string) =>
     [...customers.values()].find((c) => c.email === email.trim().toLowerCase());
@@ -117,8 +119,8 @@ export function createMockCommerce(
           );
         return { ...line, unitPricePkr: variant.pricePkr };
       });
-      const shippingPkr =
-        SHIPPING_PKR[input.customer.city] ?? DEFAULT_SHIPPING_PKR;
+      const shipCity = input.delivery?.city ?? input.customer.city;
+      const shippingPkr = SHIPPING_PKR[shipCity] ?? DEFAULT_SHIPPING_PKR;
       const subtotal = lines.reduce(
         (s, l) => s + l.unitPricePkr * l.quantity,
         0,
@@ -127,7 +129,18 @@ export function createMockCommerce(
         id: nextId++,
         status: "on-hold",
         createdAt: new Date(now()).toISOString(),
-        customer: input.customer,
+        // Like WooCommerce mapping: the delivery address wins over billing.
+        customer: input.delivery
+          ? {
+              ...input.customer,
+              fullName: input.delivery.fullName ?? input.customer.fullName,
+              city: input.delivery.city,
+              addressLine: input.delivery.addressLine,
+              ...(input.delivery.landmark
+                ? { landmark: input.delivery.landmark }
+                : {}),
+            }
+          : input.customer,
         ...(input.email ? { email: input.email } : {}),
         lines,
         shippingPkr,
@@ -168,6 +181,17 @@ export function createMockCommerce(
     async verifyCustomerPassword(email, password) {
       const c = byEmail(email);
       return c && c.password === password ? publicCustomer(c) : null;
+    },
+    async updateCustomerProfile(id, profile) {
+      const c = customers.get(id);
+      if (!c) throw new Error(`Customer ${id} not found`);
+      c.phone = profile.phone;
+      c.address = {
+        city: profile.city,
+        addressLine: profile.addressLine,
+        ...(profile.landmark ? { landmark: profile.landmark } : {}),
+      };
+      c.modifiedAt = new Date((clock += 1000)).toISOString();
     },
     async setCustomerPassword(id, password) {
       const c = customers.get(id);

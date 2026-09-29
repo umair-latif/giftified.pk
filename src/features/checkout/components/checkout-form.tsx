@@ -17,11 +17,11 @@ import { newId } from "@/lib/id";
 import { normalizePkMobile } from "@/lib/phone";
 import { printQualityReport } from "@/lib/print-quality";
 import type { CartItem } from "@/types/cart";
-import { placeOrder } from "../actions";
+import { getCheckoutPrefill, placeOrder } from "../actions";
 import { formatPkr } from "../format";
 import type { FieldErrors } from "../schema";
 import { CityPicker } from "./city-picker";
-import { Consents } from "./consents";
+import { CheckboxRow, Consents } from "./consents";
 import { Field, errorId, inputClass } from "./field";
 
 const CITY_KEY = "giftified:city";
@@ -32,7 +32,13 @@ const FIELDS = [
   "city",
   "addressLine",
   "landmark",
+  "deliveryName",
+  "deliveryCity",
+  "deliveryAddressLine",
+  "deliveryLandmark",
 ] as const;
+/** Same name as `SIGNED_IN_COOKIE` (server-only module): "someone is signed in". */
+const SIGNED_IN_COOKIE = "giftified_signed_in=1";
 type Values = Record<(typeof FIELDS)[number], string>;
 /** Print quality per design, or "missing" when the design isn't on this phone any more. */
 type DesignState = "ok" | "warn" | "block" | "missing";
@@ -72,8 +78,18 @@ export function CheckoutForm() {
     city: "",
     addressLine: "",
     landmark: "",
+    deliveryName: "",
+    deliveryCity: "",
+    deliveryAddressLine: "",
+    deliveryLandmark: "",
   });
   const [quoteCity, setQuoteCity] = useState("");
+  const [deliveryQuoteCity, setDeliveryQuoteCity] = useState("");
+  // Deliver somewhere other than the address above (e.g. a gift).
+  const [deliveryDifferent, setDeliveryDifferent] = useState(false);
+  // Signed-in customers: details prefilled from the account; offer to save them.
+  const [signedIn, setSignedIn] = useState(false);
+  const [saveToAccount, setSaveToAccount] = useState(false);
   const [quote, setQuote] = useState<CartQuote | null>(null);
   const [designs, setDesigns] = useState<Map<string, DesignState> | null>(null);
   const [errors, setErrors] = useState<FieldErrors>({});
@@ -100,6 +116,33 @@ export function CheckoutForm() {
     setQuoteCity((c) => c || city);
   }, []);
 
+  // Signed in (the page is static, so ask the server after mount): fill what is
+  // still empty from the account. Never overwrites what the customer typed.
+  useEffect(() => {
+    if (!document.cookie.split("; ").includes(SIGNED_IN_COOKIE)) return;
+    let stale = false;
+    getCheckoutPrefill()
+      .then((p) => {
+        if (stale || !p) return;
+        setSignedIn(true);
+        setSaveToAccount(p.offerSave);
+        setValues((v) => ({
+          ...v,
+          fullName: v.fullName || p.fullName || "",
+          email: v.email || p.email || "",
+          phone: v.phone || p.phone || "",
+          city: v.city || p.city || "",
+          addressLine: v.addressLine || p.addressLine || "",
+          landmark: v.landmark || p.landmark || "",
+        }));
+        if (p.city) setQuoteCity((c) => c || p.city!);
+      })
+      .catch(() => {}); // guest experience is fine
+    return () => {
+      stale = true;
+    };
+  }, []);
+
   // Print quality of each design in the cart (read from this phone).
   const designKeys = items?.map((i) => `${i.productId}:${i.designKey}`).join();
   useEffect(() => {
@@ -121,13 +164,15 @@ export function CheckoutForm() {
   useEffect(() => {
     if (!linesKey) return;
     let stale = false;
-    quoteCart({ lines: JSON.parse(linesKey) as unknown, city: quoteCity })
+    // Delivery is priced for the city the parcel goes to.
+    const city = deliveryDifferent ? deliveryQuoteCity : quoteCity;
+    quoteCart({ lines: JSON.parse(linesKey) as unknown, city })
       .then((q) => !stale && setQuote(q))
       .catch(() => !stale && setQuote(null));
     return () => {
       stale = true;
     };
-  }, [linesKey, quoteCity]);
+  }, [linesKey, quoteCity, deliveryQuoteCity, deliveryDifferent]);
 
   const problems = useMemo((): Problem[] => {
     if (!items || !designs) return [];
@@ -154,7 +199,13 @@ export function CheckoutForm() {
       document.getElementById("contentConfirmed")?.focus();
       return;
     }
-    const key = JSON.stringify({ values, items, marketingOptIn });
+    const key = JSON.stringify({
+      values,
+      items,
+      marketingOptIn,
+      deliveryDifferent,
+      saveToAccount,
+    });
     if (attempt.current?.key !== key) attempt.current = { key, id: newId() };
     inFlight.current = true;
     setSubmitting(true);
@@ -174,8 +225,25 @@ export function CheckoutForm() {
         uploaded.current.set(d.designKey, designId);
       }
       setProgress("Placing order…");
+      const {
+        deliveryName,
+        deliveryCity,
+        deliveryAddressLine,
+        deliveryLandmark,
+        ...main
+      } = values;
       const r = await placeOrder({
-        ...values,
+        ...main,
+        ...(deliveryDifferent
+          ? {
+              deliveryDifferent,
+              deliveryName,
+              deliveryCity,
+              deliveryAddressLine,
+              deliveryLandmark,
+            }
+          : {}),
+        ...(signedIn ? { saveToAccount } : {}),
         contentConfirmed,
         marketingOptIn,
         checkoutId: attempt.current.id,
@@ -364,6 +432,80 @@ export function CheckoutForm() {
         />
       </Field>
 
+      {signedIn && (
+        <CheckboxRow
+          id="saveToAccount"
+          checked={saveToAccount}
+          onChange={setSaveToAccount}
+        >
+          Save these details to my account for next time
+        </CheckboxRow>
+      )}
+      <CheckboxRow
+        id="deliveryDifferent"
+        checked={deliveryDifferent}
+        onChange={setDeliveryDifferent}
+      >
+        Deliver to a different place (a gift, or my office)
+      </CheckboxRow>
+      {deliveryDifferent && (
+        <fieldset
+          className="flex flex-col gap-4 rounded-lg bg-white p-4 ring-1 ring-zinc-200"
+          data-testid="delivery-block"
+        >
+          <legend className="px-1 text-sm font-semibold text-zinc-900">
+            Delivery details
+          </legend>
+          <Field
+            id="deliveryName"
+            label="Receiver’s name"
+            hint="optional — if not you"
+            error={errors.deliveryName}
+          >
+            <input {...input("deliveryName")} autoComplete="off" />
+          </Field>
+          <Field
+            id="deliveryCity"
+            label="Delivery city"
+            error={errors.deliveryCity}
+          >
+            <CityPicker
+              id="deliveryCity"
+              value={values.deliveryCity}
+              onChange={set("deliveryCity")}
+              onCommit={setDeliveryQuoteCity}
+              invalid={!!errors.deliveryCity}
+              describedBy={
+                errors.deliveryCity ? errorId("deliveryCity") : undefined
+              }
+            />
+          </Field>
+          <Field
+            id="deliveryAddressLine"
+            label="Delivery location"
+            error={errors.deliveryAddressLine}
+          >
+            <input
+              {...input("deliveryAddressLine")}
+              autoComplete="off"
+              placeholder="House, street, area"
+            />
+          </Field>
+          <Field
+            id="deliveryLandmark"
+            label="Delivery landmark"
+            hint="optional"
+            error={errors.deliveryLandmark}
+          >
+            <input
+              {...input("deliveryLandmark")}
+              autoComplete="off"
+              placeholder="Near the mosque, school…"
+            />
+          </Field>
+        </fieldset>
+      )}
+
       <dl className="grid grid-cols-2 gap-y-1 rounded-lg bg-white p-4 text-sm ring-1 ring-zinc-200">
         <dt className="text-zinc-500">Items</dt>
         <dd className="text-right" data-testid="subtotal">
@@ -373,7 +515,9 @@ export function CheckoutForm() {
         <dd className="text-right" data-testid="shipping">
           {quote?.shippingPkr != null
             ? formatPkr(quote.shippingPkr)
-            : "Choose your city"}
+            : deliveryDifferent
+              ? "Choose the delivery city"
+              : "Choose your city"}
         </dd>
         <dt className="font-semibold text-zinc-900">Total</dt>
         <dd className="text-right font-semibold" data-testid="total">

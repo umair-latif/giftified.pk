@@ -45,6 +45,45 @@ const lineSchema = z.object({
   designId,
 });
 
+/** The delivery block, validated only when "different delivery address" is ticked. */
+const deliverySchema = z.object({
+  name: z
+    .string()
+    .optional()
+    .transform((s) => s?.trim().replace(/\s+/g, " ") || undefined)
+    .pipe(
+      z
+        .string()
+        .min(2, "Please write the receiver’s full name.")
+        .max(80, "That name is too long.")
+        .optional(),
+    ),
+  city: text(
+    2,
+    60,
+    "Please choose the delivery city.",
+    "That city name is too long.",
+  ).transform(canonicalCity),
+  addressLine: text(
+    8,
+    200,
+    "Please write the full delivery address — house number, street and area.",
+    "That address is too long. Put extra details in Landmark.",
+  ),
+  landmark: z
+    .string()
+    .optional()
+    .transform((s) => s?.trim().replace(/\s+/g, " ") || undefined)
+    .pipe(z.string().max(120, "Please keep the landmark short.").optional()),
+});
+
+const DELIVERY_FIELD: Record<string, CheckoutFieldName> = {
+  name: "deliveryName",
+  city: "deliveryCity",
+  addressLine: "deliveryAddressLine",
+  landmark: "deliveryLandmark",
+};
+
 export const checkoutSchema = z
   .object({
     checkoutId: z
@@ -103,12 +142,35 @@ export const checkoutSchema = z
       .optional()
       .transform((s) => s?.trim().replace(/\s+/g, " ") || undefined)
       .pipe(z.string().max(120, "Please keep the landmark short.").optional()),
+    /** Deliver somewhere else than the address above (e.g. a gift). */
+    deliveryDifferent: z.boolean().optional().default(false),
+    deliveryName: z.string().optional(),
+    deliveryCity: z.string().optional(),
+    deliveryAddressLine: z.string().optional(),
+    deliveryLandmark: z.string().optional(),
+    /** Signed-in customers: keep phone + address on the account for next time. */
+    saveToAccount: z.boolean().optional().default(false),
     /** Required: the design follows Pakistani law and our Printing guidelines. */
     contentConfirmed: z.literal(true, CONTENT_NOT_CONFIRMED),
     /** Optional, unticked by default: offers and discounts. */
     marketingOptIn: z.boolean().optional().default(false),
   })
   .superRefine((v, ctx) => {
+    if (v.deliveryDifferent) {
+      const d = deliverySchema.safeParse({
+        name: v.deliveryName,
+        city: v.deliveryCity,
+        addressLine: v.deliveryAddressLine,
+        landmark: v.deliveryLandmark,
+      });
+      if (!d.success)
+        for (const issue of d.error.issues)
+          ctx.addIssue({
+            code: "custom",
+            path: [DELIVERY_FIELD[String(issue.path[0])] ?? "deliveryCity"],
+            message: issue.message,
+          });
+    }
     v.lines.forEach((line, i) => {
       const product = getProduct(line.productId);
       if (!product || !product.baseColors.some((c) => c.id === line.colourId))
@@ -125,7 +187,8 @@ export type CheckoutFieldName = keyof CheckoutFields;
 export type FieldErrors = Partial<Record<CheckoutFieldName, string>>;
 
 export type ParsedCheckout =
-  { ok: true; order: CreateOrderInput } | { ok: false; errors: FieldErrors };
+  | { ok: true; order: CreateOrderInput; saveToAccount: boolean }
+  | { ok: false; errors: FieldErrors };
 
 /**
  * Validates raw form input and maps it to the commerce contract. `now` is the
@@ -145,8 +208,17 @@ export function parseCheckout(
     return { ok: false, errors };
   }
   const v = r.data;
+  const delivery = v.deliveryDifferent
+    ? deliverySchema.parse({
+        name: v.deliveryName,
+        city: v.deliveryCity,
+        addressLine: v.deliveryAddressLine,
+        landmark: v.deliveryLandmark,
+      })
+    : undefined;
   return {
     ok: true,
+    saveToAccount: v.saveToAccount,
     order: {
       checkoutId: v.checkoutId,
       customer: {
@@ -156,6 +228,16 @@ export function parseCheckout(
         addressLine: v.addressLine,
         ...(v.landmark ? { landmark: v.landmark } : {}),
       },
+      ...(delivery
+        ? {
+            delivery: {
+              ...(delivery.name ? { fullName: delivery.name } : {}),
+              city: delivery.city,
+              addressLine: delivery.addressLine,
+              ...(delivery.landmark ? { landmark: delivery.landmark } : {}),
+            },
+          }
+        : {}),
       ...(v.email ? { email: v.email } : {}),
       consents: {
         contentConfirmedAt: now.toISOString(),

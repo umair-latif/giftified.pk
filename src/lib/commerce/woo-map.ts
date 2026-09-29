@@ -280,6 +280,11 @@ function splitName(fullName: string): { first: string; last: string } {
   return { first: parts[0] ?? "", last: parts.slice(1).join(" ") };
 }
 
+function splitNameKeys(fullName: string) {
+  const { first, last } = splitName(fullName);
+  return { first_name: first, last_name: last };
+}
+
 /** IPv4 or IPv6 literal (no ports, no names) — never pass header junk to WooCommerce. */
 export function isIp(v: string): boolean {
   return (
@@ -316,13 +321,24 @@ export function buildOrderBody(
     country: "PK",
     phone: input.customer.phone,
   };
+  // A different delivery address only changes WooCommerce's shipping block;
+  // billing stays the customer's own. Phone/email stay so the courier can call.
+  const shipping = input.delivery
+    ? {
+        ...address,
+        ...splitNameKeys(input.delivery.fullName ?? input.customer.fullName),
+        address_1: input.delivery.addressLine,
+        address_2: input.delivery.landmark ?? "",
+        city: input.delivery.city,
+      }
+    : address;
   return {
     payment_method: "cod",
     payment_method_title: "Cash on Delivery",
     set_paid: false,
     status: "on-hold",
     billing: address,
-    shipping: address,
+    shipping,
     line_items: lines.map((l) => ({
       product_id: l.wooProductId,
       ...(l.wooVariationId ? { variation_id: l.wooVariationId } : {}),

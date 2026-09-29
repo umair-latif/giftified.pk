@@ -75,3 +75,15 @@ _Forgot password_).
 | Google button missing                          | `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` not set.                                                   |
 | Google returns "redirect_uri_mismatch"         | The redirect URI in Google console differs from `APP_URL` + `/api/auth/google/callback`.               |
 | No reset email                                 | Check the logs for `[auth] password reset email failed`; verify the Resend domain and key.             |
+
+## 7. Checkout for signed-in customers
+
+- **Prefill:** checkout stays a static page; after it loads, if the "signed in" cookie is present, it asks the
+  server for the customer's name, email and — if saved — phone and address (WooCommerce _billing_ fields), and
+  fills only the fields that are still empty. Guests see nothing different.
+- **Save to account:** while the account has no address, "Save these details to my account" is offered ticked;
+  ticked, the order's phone + address are written to the customer's billing fields (best effort — never blocks
+  the order). The next order is prefilled. Task 21 adds editing them in the account area.
+- **Different delivery address:** "Deliver to a different place" adds a delivery block (optional receiver name,
+  city, address, landmark). Billing stays the customer's own; WooCommerce's _shipping_ address becomes the
+  delivery one, delivery is priced for the delivery city, and the print vendor / tracking pages use it.

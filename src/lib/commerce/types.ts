@@ -62,6 +62,18 @@ export interface Customer {
    * embed it, so changing the password makes an old link stop working.
    */
   modifiedAt: string;
+  /** Saved billing phone (as typed in WP admin or checkout), if any. */
+  phone?: string;
+  /** Saved address, if any: fills checkout for signed-in customers. */
+  address?: { city: string; addressLine: string; landmark?: string };
+}
+
+/** What checkout saves to the account when the customer ticks "save my details". */
+export interface CustomerProfileUpdate {
+  phone: string;
+  city: string;
+  addressLine: string;
+  landmark?: string;
 }
 
 export interface NewCustomer {
@@ -156,6 +168,11 @@ export interface CommerceClient {
     clientIp?: string,
   ): Promise<Customer | null>;
   setCustomerPassword(id: number, password: string): Promise<void>;
+  /** Saves the customer's phone and address (WooCommerce billing). */
+  updateCustomerProfile(
+    id: number,
+    profile: CustomerProfileUpdate,
+  ): Promise<void>;
 
   /**
    * Retention job (task 24): page `page` (1-based, 100 per page) of ALL

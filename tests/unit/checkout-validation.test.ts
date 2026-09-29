@@ -35,6 +35,7 @@ describe("parseCheckout (whole cart → one order)", () => {
     const r = parseCheckout(valid, now);
     expect(r).toEqual({
       ok: true,
+      saveToAccount: false,
       order: {
         checkoutId: valid.checkoutId,
         consents: {
@@ -281,5 +282,60 @@ describe("formatPkr", () => {
     [-250, "-Rs 250"],
   ])("%d → %s", (n, s) => {
     expect(formatPkr(n)).toBe(s);
+  });
+});
+
+describe("parseCheckout — different delivery address", () => {
+  const gift = {
+    ...valid,
+    deliveryDifferent: true,
+    deliveryName: " Sana  Malik ",
+    deliveryCity: "lahore",
+    deliveryAddressLine: "Flat 4, Block B, Gulberg",
+    deliveryLandmark: "Near the park",
+  };
+
+  it("maps a delivery block next to the billing address", () => {
+    const r = parseCheckout(gift);
+    if (!r.ok) throw new Error(JSON.stringify(r));
+    expect(r.order.customer.addressLine).toBe("House 12, Street 4, Model Town");
+    expect(r.order.delivery).toEqual({
+      fullName: "Sana Malik",
+      city: "Lahore",
+      addressLine: "Flat 4, Block B, Gulberg",
+      landmark: "Near the park",
+    });
+  });
+
+  it("ignores delivery fields unless the box is ticked", () => {
+    const r = parseCheckout({ ...gift, deliveryDifferent: false });
+    if (!r.ok) throw new Error(JSON.stringify(r));
+    expect(r.order.delivery).toBeUndefined();
+  });
+
+  it("requires city and address when ticked; the receiver name is optional", () => {
+    const r = parseCheckout({
+      ...valid,
+      deliveryDifferent: true,
+      deliveryName: "",
+      deliveryCity: "",
+      deliveryAddressLine: "x",
+    });
+    expect(r).toMatchObject({
+      ok: false,
+      errors: {
+        deliveryCity: expect.any(String),
+        deliveryAddressLine: expect.any(String),
+      },
+    });
+    if (!r.ok) expect(r.errors.deliveryName).toBeUndefined();
+    const noName = parseCheckout({ ...gift, deliveryName: "" });
+    expect(noName.ok && noName.order.delivery?.fullName).toBeFalsy();
+    expect(noName.ok).toBe(true);
+  });
+
+  it("passes saveToAccount through", () => {
+    const r = parseCheckout({ ...valid, saveToAccount: true });
+    expect(r.ok && r.saveToAccount).toBe(true);
   });
 });

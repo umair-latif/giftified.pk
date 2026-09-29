@@ -5,6 +5,8 @@ import { canonicalCity, searchCities } from "@/config/cities";
 import { inputClass } from "./field";
 
 interface Props {
+  /** Input id/name; "city" by default. */
+  id?: string;
   value: string;
   onChange: (city: string) => void;
   /** Called when the customer picks a city or leaves the field (for the shipping quote). */
@@ -18,6 +20,7 @@ interface Props {
  * it, or keep what you typed ("Other") if your city isn't listed.
  */
 export function CityPicker({
+  id = "city",
   value,
   onChange,
   onCommit,
@@ -39,15 +42,15 @@ export function CityPicker({
   return (
     <div className="relative">
       <input
-        id="city"
-        name="city"
+        id={id}
+        name={id}
         role="combobox"
         aria-expanded={open}
         aria-controls={listId}
         aria-autocomplete="list"
         aria-invalid={invalid || undefined}
         aria-describedby={describedBy}
-        autoComplete="address-level2"
+        autoComplete={id === "city" ? "address-level2" : "off"}
         placeholder="Search your city"
         className={inputClass(invalid)}
         value={value}

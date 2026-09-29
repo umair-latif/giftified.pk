@@ -77,7 +77,7 @@ export function Consents({
 }
 
 /** The whole row is the label, so the tap target is the full width (≥ 44 px tall). */
-function CheckboxRow({
+export function CheckboxRow({
   id,
   checked,
   onChange,
