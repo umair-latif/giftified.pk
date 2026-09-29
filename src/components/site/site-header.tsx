@@ -1,11 +1,12 @@
 import Link from "next/link";
 import { TruckIcon } from "@/components/ui/icons";
 import { Wordmark } from "@/components/ui/wordmark";
+import { AccountLink } from "./account-link";
 import { CartLink } from "./cart-link";
 
 /**
  * Header for the shop pages (home, catalog, product, cart, checkout, info).
- * The editor keeps its focused AppHeader. Account icon arrives with task 20.
+ * The editor keeps its focused AppHeader.
  */
 export function SiteHeader() {
   return (
@@ -27,6 +28,7 @@ export function SiteHeader() {
         >
           <TruckIcon />
         </Link>
+        <AccountLink />
         <CartLink />
       </div>
     </header>

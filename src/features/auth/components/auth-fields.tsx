@@ -1,0 +1,99 @@
+import type { ReactNode } from "react";
+import {
+  errorId,
+  Field,
+  inputClass,
+} from "@/features/checkout/components/field";
+import type { AuthState } from "../schema";
+
+/** Values and errors from the last submit, in the shape the inputs need. */
+export function useAuthView(state: AuthState) {
+  return {
+    fieldErrors: state.status === "error" ? state.fieldErrors : undefined,
+    message: state.status === "error" ? state.message : undefined,
+    values: state.status === "error" ? state.values : undefined,
+  };
+}
+
+export function TextField({
+  id,
+  name,
+  label,
+  hint,
+  type = "text",
+  autoComplete,
+  defaultValue,
+  error,
+  inputMode,
+}: {
+  id: string;
+  name: string;
+  label: string;
+  hint?: string;
+  type?: "text" | "email" | "password";
+  autoComplete: string;
+  defaultValue?: string | undefined;
+  error?: string | undefined;
+  inputMode?: "email" | "text";
+}) {
+  return (
+    <Field
+      id={id}
+      label={label}
+      {...(hint ? { hint } : {})}
+      {...(error ? { error } : {})}
+    >
+      <input
+        id={id}
+        name={name}
+        type={type}
+        autoComplete={autoComplete}
+        defaultValue={defaultValue}
+        inputMode={inputMode}
+        required
+        maxLength={type === "password" ? 128 : 254}
+        aria-invalid={!!error}
+        aria-describedby={error ? errorId(id) : undefined}
+        autoCapitalize={type === "text" ? "words" : "none"}
+        spellCheck={false}
+        className={inputClass(!!error)}
+      />
+    </Field>
+  );
+}
+
+export function FormMessage({ children }: { children?: ReactNode }) {
+  if (!children) return null;
+  return (
+    <p
+      className="rounded-lg bg-red-50 p-3 text-sm text-red-800"
+      role="alert"
+      data-testid="auth-error"
+    >
+      {children}
+    </p>
+  );
+}
+
+export function SubmitButton({
+  pending,
+  children,
+  pendingLabel,
+}: {
+  pending: boolean;
+  children: ReactNode;
+  pendingLabel: string;
+}) {
+  return (
+    <button
+      type="submit"
+      disabled={pending}
+      className="bg-brand-600 active:bg-brand-700 h-12 rounded-full font-semibold text-white disabled:opacity-60"
+    >
+      {pending ? pendingLabel : children}
+    </button>
+  );
+}
+
+export const formClass =
+  "flex flex-col gap-4 rounded-lg bg-white p-4 ring-1 ring-zinc-200";

@@ -9,3 +9,10 @@ link sent via Resend (`src/lib/email`), new password saved with `PUT /customers/
 Attempts_ plugin + per-IP limit; orders placed while signed in get `customer_id`. Pages `/sign-in`,
 `/sign-up`, `/reset-password`; header shows the account state. Ops doc for the two WP plugins and the
 Google OAuth client. Guest checkout stays exactly as it is.
+
+**Built (in review).** Guide and troubleshooting: [`docs/ops/accounts.md`](../ops/accounts.md).
+Code: `src/server/auth/` (signed tokens, session cookie, reset link, Google), `src/features/auth/`
+(schema, `service.ts` logic with injected deps, Server Actions, forms), `src/lib/email/` (Resend + mock),
+pages `/sign-in`, `/sign-up`, `/reset-password`, and a minimal `/account` (orders, designs, addresses = task 21).
+Contract change: `CommerceClient` gained `findCustomerByEmail`, `getCustomer`, `createCustomer`,
+`verifyCustomerPassword`, `setCustomerPassword` (+ `Customer`, `NewCustomer` types) — lead, please review that file.

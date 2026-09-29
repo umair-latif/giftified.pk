@@ -8,6 +8,7 @@ import type {
 import type {
   CatalogProduct,
   CommerceClient,
+  Customer,
   VerifiedWebhook,
   WebhookVerification,
 } from "./types";
@@ -54,6 +55,19 @@ export function createMockCommerce(): CommerceClient {
   const orders = new Map<OrderId, Order>();
   const byCheckout = new Map<string, OrderId>();
   let nextId = 1000;
+  // Accounts: plain-text passwords are fine here — dev/test only.
+  const customers = new Map<number, Customer & { password: string }>();
+  let nextCustomerId = 500;
+  let clock = Date.parse("2026-01-01T00:00:00Z");
+  const publicCustomer = (c: Customer & { password: string }): Customer => ({
+    id: c.id,
+    email: c.email,
+    firstName: c.firstName,
+    lastName: c.lastName,
+    modifiedAt: c.modifiedAt,
+  });
+  const byEmail = (email: string) =>
+    [...customers.values()].find((c) => c.email === email.trim().toLowerCase());
 
   const find = (productId: ProductId) =>
     CATALOG.find((p) => p.productId === productId) ?? null;
@@ -104,6 +118,38 @@ export function createMockCommerce(): CommerceClient {
       orders.set(order.id, order);
       byCheckout.set(input.checkoutId, order.id);
       return structuredClone(order);
+    },
+
+    async findCustomerByEmail(email) {
+      const c = byEmail(email);
+      return c ? publicCustomer(c) : null;
+    },
+    async getCustomer(id) {
+      const c = customers.get(id);
+      return c ? publicCustomer(c) : null;
+    },
+    async createCustomer(input) {
+      if (byEmail(input.email)) return null;
+      const c = {
+        id: nextCustomerId++,
+        email: input.email.trim().toLowerCase(),
+        firstName: input.firstName,
+        lastName: input.lastName,
+        modifiedAt: new Date((clock += 1000)).toISOString(),
+        password: input.password,
+      };
+      customers.set(c.id, c);
+      return publicCustomer(c);
+    },
+    async verifyCustomerPassword(email, password) {
+      const c = byEmail(email);
+      return c && c.password === password ? publicCustomer(c) : null;
+    },
+    async setCustomerPassword(id, password) {
+      const c = customers.get(id);
+      if (!c) throw new Error(`Customer ${id} not found`);
+      c.password = password;
+      c.modifiedAt = new Date((clock += 1000)).toISOString();
     },
 
     getOrder: async (id) => structuredClone(orders.get(id) ?? null),

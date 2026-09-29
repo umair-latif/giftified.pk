@@ -4,6 +4,7 @@ import { headers } from "next/headers";
 import { getCommerce } from "@/lib/commerce";
 import { getStorage } from "@/lib/storage";
 import { designKey } from "@/lib/storage/keys";
+import { getSessionCustomerId } from "@/server/auth/cookies";
 import { orderStatusUrl } from "@/server/orders/order-link";
 import type { OrderId } from "@/types/order";
 import { clientIpFromHeaders } from "./client-ip";
@@ -30,6 +31,9 @@ export async function placeOrder(input: unknown): Promise<PlaceOrderResult> {
   if (!parsed.ok) return { ok: false, errors: parsed.errors };
   const customerIp = clientIpFromHeaders(await headers());
   if (customerIp) parsed.order.customerIp = customerIp;
+  // Signed in: the order joins the account ("My orders", task 21). Guests unchanged.
+  const customerId = await getSessionCustomerId();
+  if (customerId) parsed.order.customerId = customerId;
   try {
     // The print job needs every uploaded design; never create an order without them.
     const designIds = [...new Set(parsed.order.lines.map((l) => l.designId))];
