@@ -9,6 +9,7 @@ const LINKS = [
   { href: "/about", label: "About us" },
   { href: "/privacy", label: "Privacy" },
   { href: "/terms", label: "Terms" },
+  { href: "/printing-guidelines", label: "Printing guidelines" },
 ] as const;
 
 export function SiteFooter() {

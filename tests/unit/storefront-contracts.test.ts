@@ -141,6 +141,7 @@ describe("commerce contract additions", () => {
         checkoutId: "c",
         email: "a@b.pk",
         customerId: 42,
+        customerIp: "39.45.12.7",
         customer: {
           fullName: "A B",
           phone: "+923001234567",
@@ -153,6 +154,25 @@ describe("commerce contract additions", () => {
       200,
     );
     expect(body.billing).toMatchObject({ email: "a@b.pk" });
-    expect(body).toMatchObject({ customer_id: 42 });
+    expect(body).toMatchObject({
+      customer_id: 42,
+      customer_ip_address: "39.45.12.7",
+    });
+    const junk = buildOrderBody(
+      {
+        checkoutId: "c",
+        customerIp: "1.2.3.4, <script>",
+        customer: {
+          fullName: "A B",
+          phone: "+923001234567",
+          city: "Lahore",
+          addressLine: "x",
+        },
+        lines: [],
+      },
+      [],
+      200,
+    );
+    expect(junk).not.toHaveProperty("customer_ip_address");
   });
 });

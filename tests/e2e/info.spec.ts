@@ -14,6 +14,11 @@ const PAGES = [
   },
   { path: "/privacy", heading: "Privacy", title: "Privacy · Giftified.pk" },
   { path: "/terms", heading: "Terms of sale", title: "Terms · Giftified.pk" },
+  {
+    path: "/printing-guidelines",
+    heading: "Printing guidelines",
+    title: "Printing guidelines · Giftified.pk",
+  },
 ] as const;
 
 for (const p of PAGES) {

@@ -45,6 +45,11 @@ export interface CreateOrderInput {
   email?: string;
   /** WooCommerce customer ID when signed in (task 20). */
   customerId?: number;
+  /**
+   * The customer's IP address (first `x-forwarded-for` hop), stored on the
+   * WooCommerce order for fraud checks and legal requests (privacy notice).
+   */
+  customerIp?: string;
   lines: OrderLineInput[];
   /** Idempotency key generated on the client per checkout attempt. */
   checkoutId: string;
