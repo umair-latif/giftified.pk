@@ -1,19 +1,29 @@
 import type { ProductId } from "@/config/products";
-import type { WrapGeometry } from "./mapping";
+import type { MockupSide, WrapGeometry } from "./mapping";
 
 /**
  * A photographed product the design is wrapped onto. Pixel values are in the
  * coordinates of `src` (public/mockups/*.webp), NOT print pixels.
  *
- * TODO(vendor): `geometry.diameterMm` and `mugHeightMm` are Printful's approximate 11oz size. Confirm it and
- * the handle gap with the vendor (docs/ops/print-specs.md). Kept here rather
- * than in src/config/products/ until a dedicated config PR moves it.
+ * TODO(vendor): `geometry.diameterMm` and `mugHeightMm` are Printful's
+ * approximate 11oz size. Confirm them and the handle gap with the vendor
+ * (docs/ops/print-specs.md). Kept here rather than in src/config/products/
+ * until a dedicated config PR moves it.
  */
 export interface MockupSpec {
+  /** Stable id, also the preview tab key. */
+  id: string;
+  /** Tab label. */
+  label: string;
+  /** Which half of the wrap this photo shows: "right" = handle on the right. */
+  side: MockupSide;
   src: string;
   widthPx: number;
   heightPx: number;
-  /** Mug body on the photo: left/right silhouette x, rim y and base y. */
+  /**
+   * Mug body on the photo: left/right silhouette x, and y of the rim's front
+   * edge (top) and of the base's front edge (bottom) at the centre.
+   */
   body: { left: number; right: number; top: number; bottom: number };
   geometry: Omit<WrapGeometry, "wrapMm">;
   /**
@@ -34,18 +44,39 @@ export interface MockupSpec {
   credit: string;
 }
 
-export const MOCKUP_SPECS: Partial<Record<ProductId, MockupSpec>> = {
-  mug: {
-    src: "/mockups/mug-side.webp",
-    widthPx: 822,
-    heightPx: 642,
-    body: { left: 217.2, right: 604.2, top: 82.8, bottom: 573 },
-    // Printful 11oz (approx.): 8.3 cm across, 9.6 cm tall. Vendor to confirm.
-    geometry: { diameterMm: 83 },
-    mugHeightMm: 96,
-    // Measured on the photo: the base edge is ~20 px lower at the centre; the
-    // camera is at rim height, so the rim is nearly straight (slightly up).
-    sag: { rim: -6, base: 20 },
-    credit: "Unsplash",
-  },
+/** Straight-on side photo, handle on the right. The left view mirrors it. */
+const MUG_SIDE = {
+  src: "/mockups/mug-side.webp",
+  widthPx: 822,
+  heightPx: 642,
+  body: { left: 217.2, right: 604.2, top: 82.8, bottom: 573 },
+  // Printful 11oz (approx.): 8.3 cm across, 9.6 cm tall. Vendor to confirm.
+  geometry: { diameterMm: 83 },
+  mugHeightMm: 96,
+  // Measured on the photo: the base edge is ~20 px lower at the centre; the
+  // camera is at rim height, so the rim is nearly straight (slightly up).
+  sag: { rim: -6, base: 20 },
+  credit: "Unsplash",
+} as const;
+
+export const MOCKUP_SPECS: Partial<Record<ProductId, readonly MockupSpec[]>> = {
+  mug: [
+    { ...MUG_SIDE, id: "left", label: "Left", side: "left" },
+    { ...MUG_SIDE, id: "right", label: "Right", side: "right" },
+    {
+      id: "lifestyle",
+      label: "Lifestyle",
+      side: "right",
+      src: "/mockups/mug-lifestyle.webp",
+      widthPx: 900,
+      heightPx: 900,
+      body: { left: 232, right: 596, top: 260, bottom: 677 },
+      // The photo is from ~20 deg above (both rim and base curve down) and the
+      // mug is turned so the handle is ~64 deg from the camera.
+      geometry: { diameterMm: 83, handleAngleDeg: 64 },
+      mugHeightMm: 96,
+      sag: { rim: 48, base: 65 },
+      credit: "Unsplash",
+    },
+  ],
 };

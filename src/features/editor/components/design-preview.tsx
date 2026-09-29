@@ -13,12 +13,8 @@ import { MOCKUP_SPECS } from "../mockup/specs";
 import { loadFaces, whenFacesLoaded } from "../fonts/load-fonts";
 import { designFontFaces, migrateDesignFonts } from "../fonts/migrate";
 
-type View = "flat" | "left" | "right";
-const VIEW_LABELS: Record<View, string> = {
-  flat: "Flat design",
-  left: "Left side",
-  right: "Right side",
-};
+/** "flat" or a mockup id from `MOCKUP_SPECS`. */
+type View = string;
 
 type State =
   | { kind: "loading" }
@@ -53,10 +49,9 @@ export function DesignPreview({
   // set is ignored until the new one arrives.
   const [mockups, setMockups] = useState<{
     of: string;
-    left: string;
-    right: string;
+    byId: Record<string, string>;
   } | null>(null);
-  const spec = MOCKUP_SPECS[product.id];
+  const specs = MOCKUP_SPECS[product.id];
   const { widthMm, heightMm } = product.printArea;
   const base = product.baseColors[0]?.hex ?? "#ffffff";
 
@@ -116,15 +111,18 @@ export function DesignPreview({
   // Wrap the rendered design around the product photo (lazy, client-only).
   const designSrc = state.kind === "ready" ? state.src : null;
   useEffect(() => {
-    if (!spec || !designSrc) return;
+    if (!specs || !designSrc) return;
     let cancelled = false;
     void import("../mockup/compose")
       .then(async ({ composeMockup }) => {
-        const [left, right] = await Promise.all([
-          composeMockup(designSrc, product, spec, "left"),
-          composeMockup(designSrc, product, spec, "right"),
-        ]);
-        if (!cancelled) setMockups({ of: designSrc, left, right });
+        const urls = await Promise.all(
+          specs.map((s) => composeMockup(designSrc, product, s)),
+        );
+        if (cancelled) return;
+        setMockups({
+          of: designSrc,
+          byId: Object.fromEntries(specs.map((s, i) => [s.id, urls[i]!])),
+        });
       })
       .catch((err: unknown) => {
         console.error("[preview] mockup failed", err);
@@ -132,12 +130,19 @@ export function DesignPreview({
     return () => {
       cancelled = true;
     };
-  }, [designSrc, product, spec]);
+  }, [designSrc, product, specs]);
 
   const current = mockups && mockups.of === designSrc ? mockups : null;
-  const mockupSrc = view === "flat" || !current ? undefined : current[view];
+  const spec = specs?.find((s) => s.id === view);
+  const mockupSrc = spec && current ? current.byId[spec.id] : undefined;
   const showMockup = !!spec && !!mockupSrc;
-  const views: View[] = spec && designSrc ? ["flat", "left", "right"] : [];
+  const views: { id: View; label: string }[] =
+    specs && designSrc
+      ? [
+          { id: "flat", label: "Flat" },
+          ...specs.map((s) => ({ id: s.id, label: s.label })),
+        ]
+      : [];
 
   return (
     <div className="flex flex-col gap-3">
@@ -149,16 +154,16 @@ export function DesignPreview({
         >
           {views.map((v) => (
             <button
-              key={v}
+              key={v.id}
               type="button"
               role="tab"
-              aria-selected={view === v}
-              onClick={() => setView(v)}
+              aria-selected={view === v.id}
+              onClick={() => setView(v.id)}
               className={`h-9 flex-1 rounded-full text-xs font-medium ${
-                view === v ? "bg-brand-600 text-white" : "text-zinc-600"
+                view === v.id ? "bg-brand-600 text-white" : "text-zinc-600"
               }`}
             >
-              {VIEW_LABELS[v]}
+              {v.label}
             </button>
           ))}
         </div>
@@ -172,7 +177,7 @@ export function DesignPreview({
           {/* eslint-disable-next-line @next/next/no-img-element -- local data URL */}
           <img
             src={mockupSrc}
-            alt={`Your ${product.name}, ${VIEW_LABELS[view].toLowerCase()}`}
+            alt={`Your ${product.name}, ${spec.label.toLowerCase()} view`}
             className="absolute inset-0 size-full"
           />
         </div>
