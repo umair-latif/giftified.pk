@@ -28,6 +28,19 @@ stops short of the handle (the gap).
    body's left/right silhouette x and rim/base y in that image's pixels.
 3. `pnpm exec playwright test mockup` writes screenshots to `test-results/`.
 
+## When the vendor sends real measurements
+
+| Vendor number         | Change                                                                   |
+| --------------------- | ------------------------------------------------------------------------ |
+| Print width x height  | `src/config/products/mug.ts` `printArea` only; mockups follow it.        |
+| Mug outer diameter    | `mockup/specs.ts` `geometry.diameterMm`.                                 |
+| Rim-to-print distance | `mockup/specs.ts` `topMarginMm` (omit = centred on the body).            |
+| Handle gap            | Nothing: computed from wrap and diameter. A mismatch means one is wrong. |
+
+Then run `pnpm exec playwright test mockup` and check the screenshots in
+`test-results/`: margins, the gap next to the handle, and the base curve.
+Never edit `body` or `sag` for vendor numbers; they describe the photo.
+
 ## Vendor TODO
 
 `geometry.diameterMm` (82 mm) and the handle gap are assumptions. Confirm with

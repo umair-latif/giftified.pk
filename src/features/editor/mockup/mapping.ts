@@ -44,3 +44,57 @@ export function designXmm(
   if (x > geo.wrapMm) return null;
   return side === "right" ? x : geo.wrapMm - x;
 }
+
+/**
+ * The camera is not level with every horizontal circle of the mug, so a line
+ * around it is drawn as a curve: at the centre it sits `sag` px lower than at
+ * the silhouette edges (negative = higher, when the camera is below it).
+ * `sag` varies linearly from the rim to the base of the body.
+ */
+export interface VerticalCurve {
+  /** Body top/bottom y at the photo centre (px). */
+  top: number;
+  bottom: number;
+  /** Sag at the rim / at the base (px). */
+  rimSag: number;
+  baseSag: number;
+}
+
+/** Sag (px) of the horizontal line whose centre-of-mug y is `yc`. */
+export function sagAt(yc: number, c: VerticalCurve): number {
+  const f = Math.max(0, Math.min(1, (yc - c.top) / (c.bottom - c.top)));
+  return c.rimSag + (c.baseSag - c.rimSag) * f;
+}
+
+/** Screen y of the line that is at `yc` on the mug's centre, seen at `angleDeg`. */
+export function curvedY(
+  yc: number,
+  angleDeg: number,
+  c: VerticalCurve,
+): number {
+  const cos = Math.cos((angleDeg * Math.PI) / 180);
+  return yc + sagAt(yc, c) * (cos - 1);
+}
+
+/** Inverse of `curvedY`: the centre-of-mug y for a screen row `y` at `angleDeg`. */
+export function centreY(y: number, angleDeg: number, c: VerticalCurve): number {
+  const cos = Math.cos((angleDeg * Math.PI) / 180);
+  let yc = y;
+  for (let i = 0; i < 4; i++) yc = y - sagAt(yc, c) * (cos - 1);
+  return yc;
+}
+
+/**
+ * Top y (px, at the photo centre) of the print band. With `topMarginMm` it is
+ * measured down from the rim; without it the band is centred on the body.
+ */
+export function printBandTop(
+  body: { top: number; bottom: number },
+  bandPx: number,
+  pxPerMm: number,
+  topMarginMm?: number,
+): number {
+  return topMarginMm === undefined
+    ? (body.top + body.bottom) / 2 - bandPx / 2
+    : body.top + topMarginMm * pxPerMm;
+}
