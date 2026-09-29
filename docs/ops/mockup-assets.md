@@ -50,6 +50,10 @@ cos = c) / (1 - c)`. Check the result with `pnpm exec playwright test
 mockup` and look at the strip under the print: it should be an even width.
    - `geometry.handleAngleDeg`: where the handle is, in degrees from the camera
      (90 = pure side view, smaller = the handle turned toward the camera).
+     Judge it from where the handle **joins the body**: at the silhouette edge
+     it is ~90 (do not infer it from how far the handle sticks out; that
+     depends on the lens and shot angle). A too-small angle pushes the print
+     away from the handle towards the front.
 3. `pnpm exec playwright test mockup` writes screenshots to `test-results/`.
 
 ## When the vendor sends real measurements
