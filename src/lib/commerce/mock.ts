@@ -216,7 +216,9 @@ export function createMockCommerce(
             designIds: [
               ...new Set(o.lines.map((l) => l.designId).filter(Boolean)),
             ],
-            retainForReview: x.meta.get("_retain_for_review") === "yes",
+            retainForReview:
+              (x.meta.get("_retain_for_review") ??
+                x.meta.get("retain_for_review")) === "yes",
             retentionDoneAt: x.meta.get("_retention_done") ?? null,
           };
         }),

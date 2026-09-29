@@ -365,3 +365,33 @@ describe("retentionDeps", () => {
     ).toThrow(/WC_URL/);
   });
 });
+
+describe("founder-typed custom fields (WP admin refuses '_' names)", () => {
+  it("reads plain and underscore names; underscore wins", async () => {
+    const { founderMeta, founderMetaRaw, isRetainFlag } =
+      await import("@/lib/commerce/woo-map");
+    expect(founderMeta([{ key: "courier", value: " TCS " }], "_courier")).toBe(
+      "TCS",
+    );
+    expect(
+      founderMeta(
+        [
+          { key: "courier", value: "Leopards" },
+          { key: "_courier", value: "TCS" },
+        ],
+        "_courier",
+      ),
+    ).toBe("TCS");
+    expect(
+      founderMeta([{ key: "courier", value: "  " }], "_courier"),
+    ).toBeUndefined();
+    expect(
+      isRetainFlag(
+        founderMetaRaw(
+          [{ key: "retain_for_review", value: "Yes" }],
+          "_retain_for_review",
+        ),
+      ),
+    ).toBe(true);
+  });
+});

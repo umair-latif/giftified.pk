@@ -256,6 +256,25 @@ export function metaValue(meta: WooMeta[], key: string): string | undefined {
   return typeof v === "string" && v !== "" ? v : undefined;
 }
 
+/**
+ * A field the founder fills in by hand in WP admin → order → Custom fields.
+ * WordPress hides and refuses names starting with "_" in that box, so the
+ * plain name ("courier") is accepted as well as the underscore one ("_courier",
+ * which the REST API can still write). The underscore one wins if both exist.
+ */
+export function founderMetaRaw(meta: WooMeta[], key: string): unknown {
+  const plain = key.replace(/^_/, "");
+  return (
+    meta.find((m) => m.key === key)?.value ??
+    meta.find((m) => m.key === plain)?.value
+  );
+}
+
+export function founderMeta(meta: WooMeta[], key: string): string | undefined {
+  const v = founderMetaRaw(meta, key);
+  return typeof v === "string" && v.trim() !== "" ? v.trim() : undefined;
+}
+
 function splitName(fullName: string): { first: string; last: string } {
   const parts = fullName.trim().split(/\s+/);
   return { first: parts[0] ?? "", last: parts.slice(1).join(" ") };
@@ -387,9 +406,9 @@ export function mapOrder(o: WooOrder, catalog: CatalogProduct[]): Order {
     };
   });
 
-  const courier = metaValue(o.meta_data, META.courier);
-  const trackingNumber = metaValue(o.meta_data, META.trackingNumber);
-  const trackingUrl = metaValue(o.meta_data, META.trackingUrl);
+  const courier = founderMeta(o.meta_data, META.courier);
+  const trackingNumber = founderMeta(o.meta_data, META.trackingNumber);
+  const trackingUrl = founderMeta(o.meta_data, META.trackingUrl);
   const email = o.billing.email?.trim().toLowerCase();
 
   const created = o.date_created_gmt;
@@ -634,7 +653,7 @@ export function mapRetentionOrder(o: WooRetentionOrder): RetentionOrder {
     customerId: o.customer_id,
     designIds,
     retainForReview: isRetainFlag(
-      o.meta_data.find((m) => m.key === META.retainForReview)?.value,
+      founderMetaRaw(o.meta_data, META.retainForReview),
     ),
     retentionDoneAt: metaValue(o.meta_data, META.retentionDone) ?? null,
   };

@@ -88,7 +88,7 @@ For every order that has been **Completed** or **Cancelled** for at least 30 day
   and design photos deleted (30-day retention)."**), and the hidden custom field
   `_retention_done` = the date. That field is how the job knows it's finished: it never touches the
   order again, and never adds a second note.
-- **Refused designs:** orders with the custom field `_retain_for_review` = `yes` are never purged.
+- **Refused designs:** orders with the custom field `retain_for_review` = `yes` (or `_retain_for_review` via the REST API) are never purged.
   How to set it: [manual-dispatch.md](manual-dispatch.md#refused-designs). Set it **before** the 30
   days are over — files that are already deleted can't come back.
 - **Abandoned uploads:** designs that were uploaded at checkout but never ended up on any order are
