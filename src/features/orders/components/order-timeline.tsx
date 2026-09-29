@@ -17,7 +17,7 @@ export function OrderTimeline({
           step.state === "upcoming"
             ? "border-2 border-zinc-300 bg-white"
             : cancelled
-              ? "bg-red-600"
+              ? "bg-red-700"
               : "bg-brand-600";
         return (
           <li

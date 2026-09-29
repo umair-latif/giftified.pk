@@ -33,7 +33,7 @@ export default async function OrderStatusPage(props: PageProps<"/order/[id]">) {
   return (
     <Page width="content" className="flex flex-col gap-4">
       <RememberOrder id={view.id} t={t} createdAt={view.createdAt} />
-      <section className="rounded-lg bg-white p-4 ring-1 ring-zinc-200">
+      <section className="rounded-2xl bg-white p-4 ring-1 ring-zinc-200">
         <PageTitle>{justPlaced ? "Thank you!" : "Your order"}</PageTitle>
         <p className="mt-1 text-sm text-zinc-500">
           Order number{" "}
@@ -51,7 +51,7 @@ export default async function OrderStatusPage(props: PageProps<"/order/[id]">) {
 
       <section
         aria-label="Order summary"
-        className="rounded-lg bg-white p-4 ring-1 ring-zinc-200"
+        className="rounded-2xl bg-white p-4 ring-1 ring-zinc-200"
       >
         <ul className="divide-y divide-zinc-100">
           {view.lines.map((line, i) => (

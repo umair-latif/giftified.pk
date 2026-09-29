@@ -293,7 +293,7 @@ export function DesignPreview({
 
 const QUALITY = {
   ok: { label: "Sharp", className: "text-emerald-700" },
-  warn: { label: "May look soft", className: "text-amber-700" },
+  warn: { label: "May look soft", className: "text-amber-900" },
   block: {
     label: "Too blurry — go back and make it smaller",
     className: "text-red-700",

@@ -191,7 +191,7 @@ export function DesignEditor({
             ed.quality.status !== "ok" &&
             ed.quality.worstDpi !== null && (
               <p
-                className="text-xs text-amber-800"
+                className="text-xs text-amber-900"
                 data-testid="quality-warning"
               >
                 {ed.quality.status === "block"
@@ -264,7 +264,7 @@ function IconButton({
       aria-label={label}
       onClick={onClick}
       disabled={disabled}
-      className="focus-visible:ring-brand-600/20 grid size-10 shrink-0 place-items-center rounded-full text-zinc-700 lg:size-12 hover:bg-zinc-100 focus-visible:ring-2 focus-visible:outline-none active:bg-zinc-100 disabled:text-zinc-300 disabled:hover:bg-transparent"
+      className="focus-visible:ring-brand-600/20 grid size-11 shrink-0 place-items-center rounded-full text-zinc-700 hover:bg-zinc-100 focus-visible:ring-2 focus-visible:outline-none active:bg-zinc-100 disabled:text-zinc-300 disabled:hover:bg-transparent lg:size-12"
     >
       {children}
     </button>
@@ -285,7 +285,7 @@ function Chip({
       type="button"
       onClick={onClick}
       disabled={disabled}
-      className="focus-visible:ring-brand-600/20 h-8 rounded-full border border-zinc-300 bg-white px-3 text-xs font-medium text-zinc-700 hover:bg-zinc-100 focus-visible:ring-2 focus-visible:outline-none active:bg-zinc-100 disabled:border-zinc-200 disabled:text-zinc-300 disabled:hover:bg-white"
+      className="focus-visible:ring-brand-600/20 h-9 rounded-full border border-zinc-300 bg-white px-3 text-xs font-medium text-zinc-700 hover:bg-zinc-100 focus-visible:ring-2 focus-visible:outline-none active:bg-zinc-100 disabled:border-zinc-200 disabled:text-zinc-300 disabled:hover:bg-white"
     >
       {children}
     </button>

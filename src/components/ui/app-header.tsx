@@ -61,7 +61,7 @@ export function AppHeader({
           ) : (
             <span
               aria-disabled
-              className="ml-1 flex h-9 shrink-0 items-center gap-0.5 rounded-full bg-zinc-100 pr-2 pl-3.5 text-sm font-medium text-zinc-400"
+              className="bg-brand-300 ml-1 flex h-9 shrink-0 items-center gap-0.5 rounded-full pr-2 pl-3.5 text-sm font-medium text-white"
             >
               {next.label}
               <ArrowRightIcon width={18} height={18} />

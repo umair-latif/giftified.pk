@@ -50,7 +50,7 @@ export function ProductsSection({ cards }: { cards: HomeProductCard[] }) {
               {card.href ? (
                 <Link
                   href={card.href}
-                  className="hover:bg-mint-100 active:bg-mint-100 focus-visible:ring-brand-600/20 flex gap-4 rounded-2xl border border-zinc-200 bg-white p-3 shadow-sm focus-visible:ring-2 focus-visible:outline-none sm:flex-col"
+                  className="hover:bg-mint-100 active:bg-mint-100 focus-visible:ring-brand-600/20 flex gap-4 rounded-2xl bg-white p-3 shadow-sm ring-1 ring-zinc-200 focus-visible:ring-2 focus-visible:outline-none sm:flex-col"
                 >
                   <CardBody card={card} />
                 </Link>
