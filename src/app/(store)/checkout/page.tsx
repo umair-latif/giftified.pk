@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { CheckoutForm } from "@/features/checkout/components/checkout-form";
+import { Page, PageTitle } from "@/components/ui/page";
 
 export const metadata: Metadata = {
   title: "Checkout",
@@ -10,15 +11,15 @@ export const metadata: Metadata = {
 /** The whole cart → one Cash on Delivery order (guest; email optional). */
 export default function CheckoutPage() {
   return (
-    <main className="mx-auto max-w-md px-4 py-5 sm:max-w-2xl">
+    <Page width="content">
       <Link
         href="/cart"
-        className="text-brand-700 hover:text-brand-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-600/20 rounded text-sm font-medium"
+        className="text-brand-700 hover:text-brand-800 focus-visible:ring-brand-600/20 rounded text-sm font-medium focus-visible:ring-2 focus-visible:outline-none"
       >
         ← Back to cart
       </Link>
-      <h1 className="font-display text-ink mt-2 mb-4 text-2xl">Checkout</h1>
+      <PageTitle className="mt-2 mb-4">Checkout</PageTitle>
       <CheckoutForm />
-    </main>
+    </Page>
   );
 }

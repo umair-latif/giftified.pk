@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { pageWidthClass } from "@/components/ui/page";
 import { SITE, whatsappUrl } from "@/config/site";
 
 const LINKS = [
@@ -15,8 +16,8 @@ const LINKS = [
 export function SiteFooter() {
   const wa = whatsappUrl();
   return (
-    <footer className="bg-brand-900 text-brand-50 mt-12 px-4 pt-8 pb-[calc(2rem+env(safe-area-inset-bottom))] text-sm">
-      <div className="mx-auto max-w-5xl">
+    <footer className="bg-brand-900 text-brand-50 mt-12 pt-8 pb-[calc(2rem+env(safe-area-inset-bottom))] text-sm">
+      <div className={pageWidthClass("wide")}>
         <p className="font-display text-lg text-white">
           Giftified<span className="text-mint-300">.pk</span>
         </p>
@@ -27,7 +28,7 @@ export function SiteFooter() {
               <li key={l.href}>
                 <Link
                   href={l.href}
-                  className="hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-mint-300/60 rounded inline-flex min-h-11 items-center"
+                  className="focus-visible:ring-mint-300/60 inline-flex min-h-11 items-center rounded hover:text-white focus-visible:ring-2 focus-visible:outline-none"
                 >
                   {l.label}
                 </Link>
@@ -38,7 +39,7 @@ export function SiteFooter() {
         {wa && (
           <a
             href={wa}
-            className="bg-mint-300 text-brand-900 hover:bg-mint-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-mint-300/60 mt-4 inline-flex h-11 items-center rounded-full px-5 font-medium"
+            className="bg-mint-300 text-brand-900 hover:bg-mint-500 focus-visible:ring-mint-300/60 mt-4 inline-flex h-11 items-center rounded-full px-5 font-medium focus-visible:ring-2 focus-visible:outline-none"
           >
             Chat on WhatsApp
           </a>

@@ -19,6 +19,15 @@ Header with cart/account/track icons, footer, brand teal and cream, pill buttons
   entry in `MOCKUP_VIEWS` and a spec in `mockup/specs.ts`. The flat design is only shown when a product has no
   mockup photo yet (t-shirt, hoodie) or composing fails. To see the flat design, go back to Design.
 
+## Done in the follow-up pass (items 1 and 4)
+
+- **Three page widths** in `src/components/ui/page.tsx`: `narrow` (448), `content` (672), `wide` (1024), used through
+  `Page` / `Container`. Auth and account pages are narrow; cart, checkout, track, order, product, info and legal
+  are content; home and the product list are wide. The footer now lines up with the header. The home hero is two
+  columns from `md`.
+- **One page heading**, `PageTitle` (display font, teal): used on every page instead of per-page classes.
+  Any new page should use `<Page width=…>` and `<PageTitle>`.
+
 ## Suggested optimisations (biggest impact first)
 
 ### 1. One width system (the main desktop inconsistency)

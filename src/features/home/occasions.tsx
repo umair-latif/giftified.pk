@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Container } from "@/components/ui/page";
 
 /** Phase A: every tile opens the catalog. Task 19 points them to `/occasions/<slug>`. */
 export const OCCASIONS: readonly { slug: string; label: string }[] = [
@@ -16,8 +17,8 @@ const TILE_STYLES = ["bg-magenta text-white", "bg-sunny text-ink"] as const;
 
 export function Occasions() {
   return (
-    <section aria-labelledby="home-occasions" className="px-4 pt-10">
-      <div className="mx-auto max-w-3xl">
+    <section aria-labelledby="home-occasions" className="pt-10">
+      <Container width="wide">
         <h2 id="home-occasions" className="text-brand-900 text-2xl">
           Gifts for every occasion
         </h2>
@@ -31,14 +32,14 @@ export function Occasions() {
             >
               <Link
                 href="/products"
-                className={`${TILE_STYLES[i % TILE_STYLES.length]} flex min-h-16 items-center justify-center rounded-2xl px-3 text-center font-medium shadow-sm hover:opacity-90 active:opacity-80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-600/40`}
+                className={`${TILE_STYLES[i % TILE_STYLES.length]} focus-visible:ring-brand-600/40 flex min-h-16 items-center justify-center rounded-2xl px-3 text-center font-medium shadow-sm hover:opacity-90 focus-visible:ring-2 focus-visible:outline-none active:opacity-80`}
               >
                 {o.label}
               </Link>
             </li>
           ))}
         </ul>
-      </div>
+      </Container>
     </section>
   );
 }

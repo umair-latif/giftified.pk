@@ -4,6 +4,7 @@ import { buildCatalogCards } from "@/features/catalog/catalog-model";
 import { ProductCard } from "@/features/catalog/components/product-card";
 import { loadCatalog } from "@/features/catalog/load-catalog";
 import { appBaseUrl } from "@/server/files/links";
+import { Page, PageTitle } from "@/components/ui/page";
 
 export const revalidate = 3600;
 
@@ -18,8 +19,8 @@ export const metadata: Metadata = {
 export default async function ProductsPage() {
   const cards = buildCatalogCards(await loadCatalog(), getProduct);
   return (
-    <main className="mx-auto max-w-5xl px-4 py-6">
-      <h1 className="font-display text-ink text-2xl">Design your own gift</h1>
+    <Page width="wide">
+      <PageTitle>Design your own gift</PageTitle>
       <p className="mt-1 text-sm text-zinc-600">
         Pick a product, add your photos and words — pay cash when it arrives.
       </p>
@@ -30,6 +31,6 @@ export default async function ProductsPage() {
           </li>
         ))}
       </ul>
-    </main>
+    </Page>
   );
 }

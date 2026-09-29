@@ -6,6 +6,7 @@ import {
 } from "@/features/auth/components/reset-forms";
 import { authSecret } from "@/server/auth/secret";
 import { verifyResetToken } from "@/server/auth/reset-token";
+import { Page, PageTitle } from "@/components/ui/page";
 
 export const metadata: Metadata = {
   title: "Reset your password",
@@ -23,10 +24,10 @@ export default async function ResetPasswordPage(
   const valid = hasToken && verifyResetToken(token, authSecret()) !== null;
 
   return (
-    <main className="mx-auto flex max-w-md flex-col gap-4 px-4 py-6">
-      <h1 className="font-display text-ink text-2xl">
+    <Page width="narrow" className="flex flex-col gap-4">
+      <PageTitle>
         {valid ? "Choose a new password" : "Reset your password"}
-      </h1>
+      </PageTitle>
       {valid ? (
         <NewPasswordForm token={token} />
       ) : (
@@ -42,11 +43,11 @@ export default async function ResetPasswordPage(
       <p className="text-center text-sm text-zinc-600">
         <Link
           href="/sign-in"
-          className="text-brand-700 hover:text-brand-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-600/20 rounded font-medium"
+          className="text-brand-700 hover:text-brand-800 focus-visible:ring-brand-600/20 rounded font-medium focus-visible:ring-2 focus-visible:outline-none"
         >
           Back to sign in
         </Link>
       </p>
-    </main>
+    </Page>
   );
 }

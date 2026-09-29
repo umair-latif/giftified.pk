@@ -19,6 +19,7 @@ import { Swatches } from "@/features/catalog/components/swatches";
 import { loadCatalog } from "@/features/catalog/load-catalog";
 import { formatPkr } from "@/features/checkout/format";
 import { appBaseUrl } from "@/server/files/links";
+import { Page, PageTitle } from "@/components/ui/page";
 
 export const revalidate = 3600;
 
@@ -76,7 +77,7 @@ export default async function ProductPage({
   const url = `${appBaseUrl()}/products/${product?.slug ?? productId}`;
 
   return (
-    <main className="mx-auto max-w-3xl px-4 py-5">
+    <Page width="content">
       {product && (
         <script
           type="application/ld+json"
@@ -87,13 +88,13 @@ export default async function ProductPage({
       )}
       <Link
         href="/products"
-        className="text-brand-700 hover:text-brand-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-600/20 rounded text-sm font-medium"
+        className="text-brand-700 hover:text-brand-800 focus-visible:ring-brand-600/20 rounded text-sm font-medium focus-visible:ring-2 focus-visible:outline-none"
       >
         ← All products
       </Link>
 
       <header className="mt-2 flex flex-wrap items-baseline gap-x-3 gap-y-1">
-        <h1 className="font-display text-ink text-2xl">{name}</h1>
+        <PageTitle>{name}</PageTitle>
         {product && (
           <p className="text-zinc-900">
             from{" "}
@@ -136,7 +137,7 @@ export default async function ProductPage({
           </p>
           <Link
             href={`/design/${productId}`}
-            className="bg-brand-600 hover:bg-brand-700 active:bg-brand-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-600/40 flex h-12 items-center justify-center rounded-full text-base font-semibold text-white"
+            className="bg-brand-600 hover:bg-brand-700 active:bg-brand-700 focus-visible:ring-brand-600/40 flex h-12 items-center justify-center rounded-full text-base font-semibold text-white focus-visible:ring-2 focus-visible:outline-none"
           >
             Start designing
           </Link>
@@ -181,7 +182,7 @@ export default async function ProductPage({
               Arrives damaged or misprinted? We&apos;ll put it right —{" "}
               <Link
                 href="/help"
-                className="text-brand-700 hover:text-brand-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-600/20 rounded underline"
+                className="text-brand-700 hover:text-brand-800 focus-visible:ring-brand-600/20 rounded underline focus-visible:ring-2 focus-visible:outline-none"
               >
                 see Help
               </Link>
@@ -200,6 +201,6 @@ export default async function ProductPage({
           Templates for Eid, birthdays, weddings and more are on the way.
         </p>
       </section>
-    </main>
+    </Page>
   );
 }
