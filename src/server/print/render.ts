@@ -1,6 +1,7 @@
 import type { Canvas as NodeCanvas } from "canvas";
 import type { FabricObject } from "fabric";
 import { parseAssetRef } from "@/features/editor/assets/asset-ref";
+import { migrateDesignFonts } from "@/features/editor/fonts/migrate";
 import { MM_PER_INCH, PRINT_DPI, printPixelSize } from "@/lib/units";
 import { decodeOriginal } from "./decode-image";
 import { toOriginalGeometry, type ImageGeometry } from "./original-image";
@@ -36,7 +37,7 @@ function serverFamily(stack: unknown): string {
 
 /**
  * Deep-copies the Fabric JSON so it can be rendered on the server:
- * font stacks → registered server fonts, and every image's `src` blanked
+ * font stacks → the registered family (same name as in the browser), and every image's `src` blanked
  * (originals are attached after loading; nothing is fetched by URL).
  */
 function prepareJson(fabric: Json) {
@@ -87,6 +88,16 @@ function prepareJson(fabric: Json) {
   for (const k of ["background", "backgroundImage", "overlay", "overlayImage"])
     delete json[k];
   return { json, images };
+}
+
+/**
+ * The Fabric JSON the print canvas loads: fonts normalised exactly like the
+ * editor/preview (old device stacks → our fonts, no style a font has no real
+ * face for) and mapped to the registered family; images blanked for originals.
+ * Exported for the font-parity test (tests/unit/font-parity.test.ts).
+ */
+export function preparePrintJson(fabric: Json) {
+  return prepareJson(migrateDesignFonts(fabric));
 }
 
 async function loadOriginals(
@@ -170,7 +181,7 @@ export const renderPrintFile: RenderPrintFile = async (doc, opts = {}) => {
     doc.printArea.heightMm,
     dpi,
   );
-  const { json, images } = prepareJson(doc.fabric);
+  const { json, images } = preparePrintJson(doc.fabric);
   const originals = await loadOriginals(images, opts.resolveAsset);
 
   await registerServerFonts();

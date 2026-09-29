@@ -9,6 +9,8 @@ import {
 } from "@/lib/print-quality";
 import { resolveAssetRefs } from "../assets/resolve";
 import { loadDraft } from "../draft";
+import { loadFaces, whenFacesLoaded } from "../fonts/load-fonts";
+import { designFontFaces, migrateDesignFonts } from "../fonts/migrate";
 
 type State =
   | { kind: "loading" }
@@ -43,12 +45,20 @@ export function DesignPreview({
 
   useEffect(() => {
     let cancelled = false;
+    const draft = loadDraft(product.id, designKey);
+    // Fonts the design uses (old stacks migrated) — awaited before rendering;
+    // if one is late (slow/offline), render now and again once it arrives.
+    const faces = draft
+      ? designFontFaces(migrateDesignFonts(draft.fabric))
+      : [];
     const run = async () => {
-      const draft = loadDraft(product.id, designKey);
       const layers =
         (draft?.fabric.objects as unknown[] | undefined)?.length ?? 0;
       if (!draft || layers === 0) return { kind: "empty" } as const;
-      const { renderDesignToDataUrl } = await import("../engine");
+      const [{ renderDesignToDataUrl }, fontsReady] = await Promise.all([
+        import("../engine"),
+        loadFaces(faces),
+      ]);
       const width =
         Math.min(window.innerWidth, 448) *
         Math.min(window.devicePixelRatio || 1, 3);
@@ -58,15 +68,22 @@ export function DesignPreview({
         src: await renderDesignToDataUrl({ ...draft, fabric }, width),
         layers,
         quality: printQualityReport(draft.fabric),
+        fontsReady,
       } as const;
+    };
+    const show = (s: State) => {
+      if (cancelled) return;
+      setState(s);
+      onReady?.(s.kind === "ready" ? { src: s.src, quality: s.quality } : null);
     };
     run()
       .then((s) => {
-        if (cancelled) return;
-        setState(s);
-        onReady?.(
-          s.kind === "ready" ? { src: s.src, quality: s.quality } : null,
-        );
+        show(s);
+        if (s.kind === "ready" && !s.fontsReady) {
+          void whenFacesLoaded(faces).then(async (ok) => {
+            if (ok && !cancelled) show(await run());
+          });
+        }
       })
       .catch((err: unknown) => {
         console.error("[preview] render failed", err);

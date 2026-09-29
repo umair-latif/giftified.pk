@@ -145,17 +145,20 @@ test("outline: thickness and colour, each change is one undo step", async ({
   );
 });
 
-test("self-hosted fonts load only once the sheet opens", async ({ page }) => {
+test("fonts: the editor fetches only the new-text face; the sheet loads the rest", async ({
+  page,
+}) => {
   const fontRequests: string[] = [];
   page.on("request", (r) => {
-    if (r.url().includes("/fonts/text-sheet/")) fontRequests.push(r.url());
+    const m = r.url().match(/\/fonts\/print\/(.+)$/);
+    if (m?.[1]) fontRequests.push(m[1]);
   });
   await openEditorWithText(page);
   await expect(page.getByTestId("selection-bar")).toBeVisible();
-  expect(fontRequests).toEqual([]);
+  expect(fontRequests).toEqual(["liberation/LiberationSans-Bold.woff2"]);
 
   await more(page).click();
   await expect
     .poll(() => fontRequests.length, { message: "font files requested" })
-    .toBeGreaterThan(0);
+    .toBeGreaterThan(1);
 });

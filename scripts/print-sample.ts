@@ -38,7 +38,7 @@ function samplePhoto(): Uint8Array {
     ctx.stroke();
   }
   ctx.fillStyle = "#ffffff";
-  ctx.font = "bold 220px 'Giftified Print Sans'";
+  ctx.font = "bold 220px 'Giftified Sans'";
   ctx.textAlign = "center";
   ctx.fillText("ORIGINAL", ORIGINAL.width / 2, ORIGINAL.height / 2 + 80);
   return new Uint8Array(c.toBuffer("image/jpeg", { quality: 0.92 }));

@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 import { CopyIcon, CropIcon, TrashIcon } from "@/components/ui/icons";
-import { FONTS } from "@/config/fonts";
-import { loadTextSheetFonts } from "../fonts/load-fonts";
+import { FONTS, fontForFamily, hasFace } from "@/config/fonts";
+import { loadPickerFonts } from "../fonts/load-fonts";
 import type { TextStyle } from "../engine/text-style";
 import { TextColourPicker } from "./text-colour-picker";
 
@@ -28,6 +28,25 @@ export function SelectionBar({
   onDelete,
   onMore,
 }: Props) {
+  // Bold/italic only where the font has a REAL face for it (the print can't
+  // fake one the way a browser does) — e.g. no italic for Caveat, neither for Urdu.
+  const font = text ? fontForFamily(text.fontFamily) : null;
+  const canBold =
+    !text ||
+    !font ||
+    hasFace(
+      font,
+      text.fontWeight === "bold" ? "normal" : "bold",
+      text.fontStyle,
+    );
+  const canItalic =
+    !text ||
+    !font ||
+    hasFace(
+      font,
+      text.fontWeight,
+      text.fontStyle === "italic" ? "normal" : "italic",
+    );
   return (
     <div
       role="toolbar"
@@ -66,7 +85,9 @@ export function SelectionBar({
                   ? text.fontFamily
                   : ""
               }
-              onFocus={() => void loadTextSheetFonts()}
+              onFocus={() =>
+                void loadPickerFonts(text.fontWeight, text.fontStyle)
+              }
               onChange={(e) => onTextStyle({ fontFamily: e.target.value })}
               className="h-9 w-14 shrink-0 rounded-md border border-zinc-300 bg-white px-1 text-sm text-zinc-800"
               style={{ fontFamily: text.fontFamily }}
@@ -91,6 +112,7 @@ export function SelectionBar({
             <Toggle
               label="Bold"
               pressed={text.fontWeight === "bold"}
+              disabled={!canBold}
               onClick={() =>
                 onTextStyle({
                   fontWeight: text.fontWeight === "bold" ? "normal" : "bold",
@@ -102,6 +124,7 @@ export function SelectionBar({
             <Toggle
               label="Italic"
               pressed={text.fontStyle === "italic"}
+              disabled={!canItalic}
               onClick={() =>
                 onTextStyle({
                   fontStyle: text.fontStyle === "italic" ? "normal" : "italic",
@@ -141,11 +164,13 @@ export function SelectionBar({
 function Toggle({
   label,
   pressed,
+  disabled = false,
   onClick,
   children,
 }: {
   label: string;
   pressed: boolean;
+  disabled?: boolean;
   onClick: () => void;
   children: ReactNode;
 }) {
@@ -154,8 +179,12 @@ function Toggle({
       type="button"
       aria-label={label}
       aria-pressed={pressed}
+      disabled={disabled}
+      title={
+        disabled ? `This font has no ${label.toLowerCase()} style` : undefined
+      }
       onClick={onClick}
-      className={`grid size-9 shrink-0 place-items-center rounded-md text-base ${
+      className={`grid size-9 shrink-0 place-items-center rounded-md text-base disabled:opacity-35 ${
         pressed
           ? "bg-brand-100 text-brand-700"
           : "text-zinc-700 active:bg-zinc-100"

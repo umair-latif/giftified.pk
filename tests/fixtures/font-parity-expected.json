@@ -1,0 +1,117 @@
+{
+  "sans/normal/normal": {
+    "lines": ["Happy Birthday", "Ayesha! 0123 Eid", "Mubarak"],
+    "lineWidths": [47.8584, 54.7456, 27.2344],
+    "height": 26.2612
+  },
+  "sans/bold/normal": {
+    "lines": ["Happy Birthday", "Ayesha! 0123 Eid", "Mubarak"],
+    "lineWidths": [51.731, 57.3262, 28.7861],
+    "height": 26.2612
+  },
+  "sans/normal/italic": {
+    "lines": ["Happy Birthday", "Ayesha! 0123 Eid", "Mubarak"],
+    "lineWidths": [47.8584, 54.8105, 27.2344],
+    "height": 26.2612
+  },
+  "sans/bold/italic": {
+    "lines": ["Happy Birthday", "Ayesha! 0123 Eid", "Mubarak"],
+    "lineWidths": [51.731, 57.5859, 28.7861],
+    "height": 26.2612
+  },
+  "serif/normal/normal": {
+    "lines": ["Happy Birthday", "Ayesha! 0123 Eid", "Mubarak"],
+    "lineWidths": [49.3418, 53.5664, 28.1094],
+    "height": 26.2612
+  },
+  "serif/bold/normal": {
+    "lines": ["Happy Birthday", "Ayesha! 0123", "Eid Mubarak"],
+    "lineWidths": [57.1826, 47.2671, 46.7646],
+    "height": 26.2612
+  },
+  "serif/normal/italic": {
+    "lines": ["Happy Birthday", "Ayesha! 0123 Eid", "Mubarak"],
+    "lineWidths": [51.6216, 54.332, 29.3364],
+    "height": 26.2612
+  },
+  "serif/bold/italic": {
+    "lines": ["Happy Birthday", "Ayesha! 0123", "Eid Mubarak"],
+    "lineWidths": [59.9546, 48.3677, 48.0601],
+    "height": 26.2612
+  },
+  "mono/normal/normal": {
+    "lines": ["Happy Birthday", "Ayesha! 0123", "Eid Mubarak"],
+    "lineWidths": [58.8096, 50.4082, 46.2075],
+    "height": 26.2612
+  },
+  "mono/bold/normal": {
+    "lines": ["Happy Birthday", "Ayesha! 0123", "Eid Mubarak"],
+    "lineWidths": [58.8096, 50.4082, 46.2075],
+    "height": 26.2612
+  },
+  "mono/normal/italic": {
+    "lines": ["Happy Birthday", "Ayesha! 0123", "Eid Mubarak"],
+    "lineWidths": [58.8096, 50.4082, 46.2075],
+    "height": 26.2612
+  },
+  "mono/bold/italic": {
+    "lines": ["Happy Birthday", "Ayesha! 0123", "Eid Mubarak"],
+    "lineWidths": [58.8096, 50.4082, 46.2075],
+    "height": 26.2612
+  },
+  "playful/normal/normal": {
+    "lines": ["Happy Birthday", "Ayesha! 0123 Eid", "Mubarak"],
+    "lineWidths": [53.9069, 56.5179, 30.919],
+    "height": 26.2612
+  },
+  "playful/bold/normal": {
+    "lines": ["Happy Birthday", "Ayesha! 0123 Eid", "Mubarak"],
+    "lineWidths": [56.4479, 59.0169, 32.7249],
+    "height": 26.2612
+  },
+  "playful/normal/italic": {
+    "lines": ["Happy Birthday", "Ayesha! 0123 Eid", "Mubarak"],
+    "lineWidths": [54.1169, 56.9519, 30.919],
+    "height": 26.2612
+  },
+  "playful/bold/italic": {
+    "lines": ["Happy Birthday", "Ayesha! 0123 Eid", "Mubarak"],
+    "lineWidths": [56.5809, 59.2829, 32.7249],
+    "height": 26.2612
+  },
+  "elegant/normal/normal": {
+    "lines": ["Happy Birthday", "Ayesha! 0123 Eid", "Mubarak"],
+    "lineWidths": [49.2029, 51.1489, 27.965],
+    "height": 26.2612
+  },
+  "elegant/bold/normal": {
+    "lines": ["Happy Birthday", "Ayesha! 0123 Eid", "Mubarak"],
+    "lineWidths": [51.0089, 53.2209, 29.365],
+    "height": 26.2612
+  },
+  "elegant/normal/italic": {
+    "lines": ["Happy Birthday", "Ayesha! 0123 Eid", "Mubarak"],
+    "lineWidths": [48.0619, 49.5319, 27.286],
+    "height": 26.2612
+  },
+  "elegant/bold/italic": {
+    "lines": ["Happy Birthday", "Ayesha! 0123 Eid", "Mubarak"],
+    "lineWidths": [50.9179, 52.6679, 29.274],
+    "height": 26.2612
+  },
+  "handwritten/normal/normal": {
+    "lines": ["Happy Birthday Ayesha!", "0123 Eid Mubarak"],
+    "lineWidths": [57.4279, 45.3739],
+    "height": 17.0856
+  },
+  "handwritten/bold/normal": {
+    "lines": ["Happy Birthday Ayesha!", "0123 Eid Mubarak"],
+    "lineWidths": [58.1559, 45.8499],
+    "height": 17.0856
+  },
+  "urdu/normal/normal": {
+    "lines": ["سالگرہ مبارک عائشہ، عید", "مبارک ہو۔ ۰۱۲۳ خوش", "رہو"],
+    "lineWidths": [55.153, 58.7089, 8.372],
+    "height": 26.2612
+  }
+}

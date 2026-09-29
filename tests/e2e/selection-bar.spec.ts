@@ -72,17 +72,45 @@ test("text: font, bold, italic, underline — each is one undo step", async ({
   await underline.click();
   await expect(underline).toHaveAttribute("aria-pressed", "true");
   await font.selectOption({ label: "Serif" });
-  await expect(font).toHaveValue(/Georgia/);
+  await expect(font).toHaveValue(/Giftified Serif/);
 
   // Undo restores the last change first; the restore clears the selection, so reselect.
   const { cx, cy } = await canvasBox(page);
   await page.getByRole("button", { name: "Undo" }).click();
   await expect(page.getByRole("button", { name: "Redo" })).toBeEnabled();
   await page.mouse.click(cx, cy);
-  await expect(bar(page).getByLabel("Font")).toHaveValue(/Arial/);
+  await expect(bar(page).getByLabel("Font")).toHaveValue(/Giftified Sans/);
   await expect(
     bar(page).getByRole("button", { name: "Underline" }),
   ).toHaveAttribute("aria-pressed", "true");
+});
+
+test("text: fonts without a real bold/italic face disable (and drop) those styles", async ({
+  page,
+}) => {
+  await openEditorWithText(page);
+  const bold = bar(page).getByRole("button", { name: "Bold" });
+  const italic = bar(page).getByRole("button", { name: "Italic" });
+  const font = bar(page).getByLabel("Font");
+
+  await italic.click();
+  await expect(italic).toHaveAttribute("aria-pressed", "true");
+  // Caveat has bold but no italic: italic is dropped and disabled.
+  await font.selectOption({ label: "Handwritten" });
+  await expect(italic).toHaveAttribute("aria-pressed", "false");
+  await expect(italic).toBeDisabled();
+  await expect(bold).toBeEnabled();
+  await expect(bold).toHaveAttribute("aria-pressed", "true");
+  // Urdu (Nastaliq) has neither.
+  await font.selectOption({ label: "اردو" });
+  await expect(bold).toHaveAttribute("aria-pressed", "false");
+  await expect(bold).toBeDisabled();
+  await expect(italic).toBeDisabled();
+  // Back to a font with every face: both toggles work again.
+  await font.selectOption({ label: "Elegant" });
+  await expect(bold).toBeEnabled();
+  await italic.click();
+  await expect(italic).toHaveAttribute("aria-pressed", "true");
 });
 
 test("copy makes a second layer 5 mm down-right, delete removes the selection", async ({

@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { Sheet } from "@/components/ui/sheet";
 import { SwatchGrid } from "@/components/ui/swatch";
 import { TEXT_SWATCHES } from "@/config/colours";
-import { loadTextSheetFonts } from "../fonts/load-fonts";
+import { loadPickerFonts } from "../fonts/load-fonts";
 import type { TextStyle } from "../engine/text-style";
 
 interface Props {
@@ -31,10 +31,11 @@ const ALIGNMENTS = [
  */
 export function TextSheet({ text, onTextStyle, onClose }: Props) {
   // Self-hosted fonts (src/config/fonts.ts) load here, on demand, never on
-  // first paint — the bar's font picker shows them as soon as this resolves.
+  // first paint — one face per font, so switching in the bar's picker is instant.
+  const { fontWeight, fontStyle } = text;
   useEffect(() => {
-    void loadTextSheetFonts();
-  }, []);
+    void loadPickerFonts(fontWeight, fontStyle);
+  }, [fontWeight, fontStyle]);
 
   const [draft, setDraft] = useState(text.text);
   const inputRef = useRef<HTMLTextAreaElement>(null);

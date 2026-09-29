@@ -1,4 +1,5 @@
 import type { Canvas, FabricObject, Textbox } from "fabric";
+import { fitFace, fontForFamily } from "@/config/fonts";
 
 /**
  * Editor API for the text styling sheet. UI code calls these through
@@ -57,6 +58,16 @@ export function applyTextStyle(
   if (!isTextbox(target)) return;
   const { stroke, strokeWidthMm, ...rest } = style;
   target.set(rest);
+  // Only real faces: switching to a font without italic/bold (Caveat, Urdu)
+  // drops that style instead of letting the browser fake it (the print can't).
+  const font = fontForFamily(target.fontFamily);
+  if (font) {
+    const current = getTextStyle(target);
+    if (current) {
+      const face = fitFace(font, current.fontWeight, current.fontStyle);
+      target.set({ fontWeight: face.weight, fontStyle: face.style });
+    }
+  }
   if (stroke !== undefined || strokeWidthMm !== undefined) {
     const width = strokeWidthMm ?? target.strokeWidth;
     const colour = stroke === undefined ? target.stroke : stroke;
