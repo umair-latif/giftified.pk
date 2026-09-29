@@ -87,7 +87,7 @@ export function PreviewScreen({ product }: { product: ProductConfig }) {
           type="button"
           onClick={() => void submit()}
           disabled={!canSubmit}
-          className="bg-brand-600 hover:bg-brand-700 active:bg-brand-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-600/40 disabled:hover:bg-zinc-300 mx-auto flex h-12 w-full max-w-md items-center justify-center rounded-full text-base font-semibold text-white disabled:bg-zinc-300"
+          className="bg-brand-600 hover:bg-brand-700 active:bg-brand-700 focus-visible:ring-brand-600/40 mx-auto flex h-12 w-full max-w-md items-center justify-center rounded-full text-base font-semibold text-white focus-visible:ring-2 focus-visible:outline-none disabled:bg-zinc-300 disabled:hover:bg-zinc-300"
         >
           {busy ? "Saving…" : item ? "Save changes" : "Add to cart"}
         </button>

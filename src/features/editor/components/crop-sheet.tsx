@@ -284,7 +284,7 @@ export function CropSheet({ target, onCancel, onApply }: Props) {
 const clampZoom = (z: number) => Math.min(MAX_CROP_ZOOM, Math.max(1, z));
 
 const chipClass = (on: boolean) =>
-  `h-9 shrink-0 rounded-full px-3 text-xs font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40 ${
+  `h-9 shrink-0 rounded-full px-3 text-xs font-medium focus-visible:ring-2 focus-visible:ring-white/40 focus-visible:outline-none ${
     on
       ? "bg-white text-zinc-900 hover:bg-zinc-200"
       : "bg-zinc-800 text-zinc-200 hover:bg-zinc-700"

@@ -53,8 +53,8 @@ export async function composeMockup(
   designSrc: string,
   product: ProductConfig,
   spec: MockupSpec,
-  side: MockupSide,
 ): Promise<string> {
+  const side: MockupSide = spec.side;
   const [photo, design] = await Promise.all([
     loadImage(spec.src),
     loadImage(designSrc),

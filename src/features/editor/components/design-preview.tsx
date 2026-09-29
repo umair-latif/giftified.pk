@@ -13,12 +13,11 @@ import { MOCKUP_SPECS } from "../mockup/specs";
 import { loadFaces, whenFacesLoaded } from "../fonts/load-fonts";
 import { designFontFaces, migrateDesignFonts } from "../fonts/migrate";
 
-type View = "flat" | "left" | "right";
-const VIEW_LABELS: Record<View, string> = {
-  flat: "Flat design",
-  left: "Left side",
-  right: "Right side",
-};
+/**
+ * The preview is a gallery of photographed mockups: one entry per spec in
+ * `MOCKUP_SPECS` (mockup/specs.ts), so more angles or products only need a new
+ * spec. The flat design is not part of it — it is on the Design screen.
+ */
 
 type State =
   | { kind: "loading" }
@@ -48,15 +47,15 @@ export function DesignPreview({
   onReady?: (result: PreviewResult | null) => void;
 }) {
   const [state, setState] = useState<State>({ kind: "loading" });
-  const [view, setView] = useState<View>("flat");
+  const [selected, setSelected] = useState<string>();
+  const [mockupFailed, setMockupFailed] = useState(false);
   // Mockups belong to the design image they were made from (`of`); a stale
   // set is ignored until the new one arrives.
   const [mockups, setMockups] = useState<{
     of: string;
-    left: string;
-    right: string;
+    byId: Record<string, string>;
   } | null>(null);
-  const spec = MOCKUP_SPECS[product.id];
+  const specs = MOCKUP_SPECS[product.id];
   const { widthMm, heightMm } = product.printArea;
   const base = product.baseColors[0]?.hex ?? "#ffffff";
 
@@ -116,70 +115,102 @@ export function DesignPreview({
   // Wrap the rendered design around the product photo (lazy, client-only).
   const designSrc = state.kind === "ready" ? state.src : null;
   useEffect(() => {
-    if (!spec || !designSrc) return;
+    if (!specs || !designSrc) return;
     let cancelled = false;
     void import("../mockup/compose")
       .then(async ({ composeMockup }) => {
-        const [left, right] = await Promise.all([
-          composeMockup(designSrc, product, spec, "left"),
-          composeMockup(designSrc, product, spec, "right"),
-        ]);
-        if (!cancelled) setMockups({ of: designSrc, left, right });
+        const urls = await Promise.all(
+          specs.map((s) => composeMockup(designSrc, product, s)),
+        );
+        if (cancelled) return;
+        setMockups({
+          of: designSrc,
+          byId: Object.fromEntries(specs.map((s, i) => [s.id, urls[i]!])),
+        });
       })
       .catch((err: unknown) => {
         console.error("[preview] mockup failed", err);
+        if (!cancelled) setMockupFailed(true);
       });
     return () => {
       cancelled = true;
     };
-  }, [designSrc, product, spec]);
+  }, [designSrc, product, specs]);
 
   const current = mockups && mockups.of === designSrc ? mockups : null;
-  const mockupSrc = view === "flat" || !current ? undefined : current[view];
-  const showMockup = !!spec && !!mockupSrc;
-  const views: View[] = spec && designSrc ? ["flat", "left", "right"] : [];
+  // Mockups are the preview. Without a photo for this product (or if composing
+  // failed) the flat render is shown instead, so there is always something.
+  const useGallery = !!specs?.length && !mockupFailed && state.kind !== "empty";
+  const gallery = current
+    ? (specs ?? []).flatMap((s) => {
+        const src = current.byId[s.id];
+        return src ? [{ spec: s, src }] : [];
+      })
+    : [];
+  const shown = gallery.find((g) => g.spec.id === selected) ?? gallery[0];
+  const showFlat = !useGallery || state.kind !== "ready";
+  const first = specs?.[0];
 
   return (
     <div className="flex flex-col gap-3">
-      {views.length > 0 && (
+      {useGallery && state.kind === "ready" && first && (
         <div
-          role="tablist"
-          aria-label="Preview view"
-          className="flex gap-1 rounded-full bg-white p-1 ring-1 ring-zinc-200"
+          className="flex flex-col gap-2"
+          role="group"
+          aria-label="Preview gallery"
+          data-testid="preview-gallery"
         >
-          {views.map((v) => (
-            <button
-              key={v}
-              type="button"
-              role="tab"
-              aria-selected={view === v}
-              onClick={() => setView(v)}
-              className={`h-9 flex-1 rounded-full text-xs font-medium ${
-                view === v ? "bg-brand-600 text-white" : "text-zinc-600"
-              }`}
-            >
-              {VIEW_LABELS[v]}
-            </button>
-          ))}
-        </div>
-      )}
-      {spec && showMockup && (
-        <div
-          className="relative w-full overflow-hidden rounded-md shadow-sm ring-1 ring-zinc-300"
-          style={{ aspectRatio: `${spec.widthPx} / ${spec.heightPx}` }}
-          data-testid="preview-mockup"
-        >
-          {/* eslint-disable-next-line @next/next/no-img-element -- local data URL */}
-          <img
-            src={mockupSrc}
-            alt={`Your ${product.name}, ${VIEW_LABELS[view].toLowerCase()}`}
-            className="absolute inset-0 size-full"
-          />
+          <div
+            className="relative w-full overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-zinc-200"
+            style={{
+              aspectRatio: `${(shown?.spec ?? first).widthPx} / ${(shown?.spec ?? first).heightPx}`,
+            }}
+            data-testid="preview-mockup"
+          >
+            {shown ? (
+              // eslint-disable-next-line @next/next/no-img-element -- local data URL
+              <img
+                src={shown.src}
+                alt={`Your ${product.name}, ${shown.spec.label.toLowerCase()} view`}
+                className="absolute inset-0 size-full"
+              />
+            ) : (
+              <span className="absolute inset-0 grid place-items-center text-xs text-zinc-400">
+                Rendering preview…
+              </span>
+            )}
+          </div>
+          {gallery.length > 1 && (
+            <ul className="flex gap-2 overflow-x-auto pb-1" aria-label="Views">
+              {gallery.map((g) => (
+                <li key={g.spec.id} className="shrink-0">
+                  <button
+                    type="button"
+                    onClick={() => setSelected(g.spec.id)}
+                    aria-label={g.spec.label}
+                    aria-current={g.spec.id === shown?.spec.id}
+                    data-testid={`preview-thumb-${g.spec.id}`}
+                    className={`focus-visible:ring-brand-600/60 block h-16 overflow-hidden rounded-lg bg-white ring-2 focus-visible:outline-none ${
+                      g.spec.id === shown?.spec.id
+                        ? "ring-brand-600"
+                        : "ring-zinc-200 hover:ring-zinc-300"
+                    }`}
+                    style={{
+                      aspectRatio: `${g.spec.widthPx} / ${g.spec.heightPx}`,
+                    }}
+                  >
+                    {/* eslint-disable-next-line @next/next/no-img-element -- local data URL */}
+                    <img src={g.src} alt="" className="size-full" />
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
       )}
       <div
-        hidden={showMockup}
-        className="relative grid w-full place-items-center overflow-hidden rounded-md shadow-sm ring-1 ring-zinc-300"
+        hidden={!showFlat}
+        className="relative grid w-full place-items-center overflow-hidden rounded-2xl shadow-sm ring-1 ring-zinc-300"
         style={{
           aspectRatio: `${widthMm} / ${heightMm}`,
           backgroundColor: base,
@@ -214,7 +245,7 @@ export function DesignPreview({
           </span>
         )}
       </div>
-      {product.edgeLabels && (
+      {product.edgeLabels && showFlat && (
         <div className="-mt-2 flex justify-between text-[10px] tracking-wide text-zinc-400 uppercase">
           <span>← {product.edgeLabels.left}</span>
           <span>Front</span>
