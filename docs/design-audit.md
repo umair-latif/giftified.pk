@@ -3,7 +3,7 @@
 Every page was rendered from a production build at both sizes (signed in, with one item in the cart) and
 compared. Screens: home, products, product, design, preview, cart, checkout, track, help, about, contact,
 privacy, terms, printing guidelines, sign-in, sign-up, reset password, account, 404.
-Colour/radius/disabled-button drift is already listed in [task 25](tasks/25-design-tokens.md) and is not repeated.
+Colour/radius/disabled-button drift is already listed in [task 25](tasks/25-design-consistency.md) and is not repeated.
 
 ## What is already consistent
 
