@@ -135,7 +135,7 @@ test("photos survive reload and appear on the preview with their quality", async
   await page.getByRole("link", { name: "Preview", exact: true }).click();
   await expect(page.getByTestId("preview-quality")).toContainText("Sharp");
   await expect(
-    page.getByRole("img", { name: /Custom Mug, left view/ }),
+    page.getByRole("img", { name: /Custom Mug, front view/ }),
   ).toBeVisible();
 });
 

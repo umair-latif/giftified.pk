@@ -2,7 +2,7 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { expect, test } from "@playwright/test";
 
-test("preview is a gallery of mockups (no flat design): left, right and lifestyle", async ({
+test("preview is a gallery of mockups (no flat design): front, left, right, lifestyle and flat lay", async ({
   page,
 }) => {
   const doc: unknown = JSON.parse(
@@ -19,9 +19,11 @@ test("preview is a gallery of mockups (no flat design): left, right and lifestyl
   await expect(page.getByRole("tablist")).toHaveCount(0);
 
   for (const [id, label] of [
+    ["front", "front"],
     ["left", "left"],
     ["right", "right"],
     ["lifestyle", "lifestyle"],
+    ["flatlay", "flat lay"],
   ] as const) {
     await page.getByTestId(`preview-thumb-${id}`).click();
     await expect(page.getByTestId(`preview-thumb-${id}`)).toHaveAttribute(
