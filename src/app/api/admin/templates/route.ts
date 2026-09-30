@@ -1,4 +1,4 @@
-import { revalidateTag } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
 import { TEMPLATES_CACHE_TAG } from "@/features/templates/load-templates";
 import { z } from "zod";
 import { getCommerce } from "@/lib/commerce";
@@ -115,6 +115,8 @@ export async function POST(req: Request): Promise<Response> {
     }
     // The gallery pages are cached: show the new template right away.
     revalidateTag(TEMPLATES_CACHE_TAG, { expire: 0 });
+    // The home page lists the newest templates (ISR, 1 h): refresh it too.
+    revalidatePath("/");
     return Response.json(
       { ...saved, ...(warning ? { warning } : {}) },
       { status: 201 },

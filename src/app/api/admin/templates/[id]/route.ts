@@ -1,4 +1,4 @@
-import { revalidateTag } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
 import { TEMPLATES_CACHE_TAG } from "@/features/templates/load-templates";
 import { getCommerce } from "@/lib/commerce";
 import { getStorage } from "@/lib/storage";
@@ -40,6 +40,8 @@ export async function DELETE(
     }
     await deleteTemplate(id, storage);
     revalidateTag(TEMPLATES_CACHE_TAG, { expire: 0 });
+    // The home page lists the newest templates (ISR, 1 h): refresh it too.
+    revalidatePath("/");
     return Response.json({ ok: true });
   } catch (err) {
     console.error("[templates] delete failed", err);
