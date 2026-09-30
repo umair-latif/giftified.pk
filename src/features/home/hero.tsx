@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { Container } from "@/components/ui/page";
+import { buttonClass } from "@/components/ui/button";
 
 /** TODO(founder): replace with a real product photo (WebP, ≤ 100 KB, ~1600×1000). */
 const HERO_IMAGE = "/home/hero-placeholder.webp";
@@ -19,10 +20,7 @@ export function Hero() {
           <p className="text-ink mt-2 text-base">
             Pay cash on delivery across Pakistan
           </p>
-          <Link
-            href="/products"
-            className="bg-brand-600 hover:bg-brand-700 active:bg-brand-700 focus-visible:ring-brand-600/40 mt-5 inline-flex h-12 items-center rounded-full px-6 font-medium text-white focus-visible:ring-2 focus-visible:outline-none"
-          >
+          <Link href="/products" className={buttonClass("primary", "mt-5")}>
             Start designing
           </Link>
         </div>

@@ -83,7 +83,7 @@ export default async function DesignProductPage({
   };
 
   return (
-    <Page width="content">
+    <Page width="content" className="lg:max-w-5xl">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
