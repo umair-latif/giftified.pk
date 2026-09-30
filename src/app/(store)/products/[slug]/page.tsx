@@ -21,6 +21,7 @@ import { appBaseUrl } from "@/server/files/links";
 import { Page, PageTitle } from "@/components/ui/page";
 import { TemplateGrid } from "@/features/templates/components/template-grid";
 import { loadTemplates } from "@/features/templates/load-templates";
+import { buttonClass } from "@/components/ui/button";
 
 export const revalidate = 3600;
 
@@ -134,7 +135,7 @@ export default async function ProductPage({
             </p>
             <Link
               href={`/design/${productId}`}
-              className="bg-brand-600 hover:bg-brand-700 active:bg-brand-700 focus-visible:ring-brand-600/40 flex h-12 items-center justify-center rounded-full text-base font-semibold text-white focus-visible:ring-2 focus-visible:outline-none"
+              className={buttonClass("primary")}
             >
               Start designing
             </Link>

@@ -6,7 +6,9 @@ import type { CatalogProduct } from "@/lib/commerce/types";
  * prices and slugs come from WooCommerce (via the commerce adapter) and
  * "can it be designed" comes from the print config in `src/config/products`.
  *
- * TODO(founder): replace the `*-placeholder.webp` images in `public/home/`.
+ * The card picture is the product's first photo in WooCommerce; the
+ * `*-placeholder.webp` images in `public/home/` are only the fallback for a
+ * product without a photo (or not in the store).
  */
 export interface HomeProductInfo {
   productId: ProductId;
@@ -73,6 +75,7 @@ export function buildHomeProductCards(
     const slug = entry?.slug ?? info.productId;
     return {
       ...info,
+      image: entry?.images[0]?.src ?? info.image,
       href: hasPrintConfig(info.productId)
         ? `/products/${encodeURIComponent(slug)}`
         : null,

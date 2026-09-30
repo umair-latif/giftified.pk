@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { SITE, whatsappUrl } from "@/config/site";
 import { InfoPage, InfoSection } from "@/features/info/info-page";
+import { buttonClass } from "@/components/ui/button";
 
 export const metadata: Metadata = {
   title: "Contact us",
@@ -26,10 +27,7 @@ export default function ContactPage() {
           have one.
         </p>
         {wa ? (
-          <a
-            href={wa}
-            className="bg-brand-600 hover:bg-brand-700 active:bg-brand-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-600/40 inline-flex h-12 items-center rounded-full px-6 font-medium text-white no-underline!"
-          >
+          <a href={wa} className={buttonClass("primary")}>
             Chat on WhatsApp
           </a>
         ) : (
@@ -51,8 +49,8 @@ export default function ContactPage() {
 
       <InfoSection title="When we reply">
         <p>
-          We are available {SITE.hours}. Messages that arrive outside those hours
-          are answered the next morning.
+          We are available {SITE.hours}. Messages that arrive outside those
+          hours are answered the next morning.
         </p>
         <p>
           After you place an order we contact you ourselves to confirm it

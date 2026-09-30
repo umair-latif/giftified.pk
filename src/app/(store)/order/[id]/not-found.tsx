@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Page, PageTitle } from "@/components/ui/page";
+import { buttonClass } from "@/components/ui/button";
 
 /**
  * Shown for a missing or wrong order link. Deliberately the same for "no such
@@ -13,10 +14,7 @@ export default function OrderNotFound() {
         The link may be incomplete. Find your order with its number and your
         mobile number instead.
       </p>
-      <Link
-        href="/track"
-        className="bg-brand-600 hover:bg-brand-700 active:bg-brand-700 focus-visible:ring-brand-600/40 grid h-12 place-items-center rounded-full font-semibold text-white focus-visible:ring-2 focus-visible:outline-none"
-      >
+      <Link href="/track" className={buttonClass("primary")}>
         Track your order
       </Link>
     </Page>

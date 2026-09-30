@@ -11,6 +11,7 @@ import { useTemplateEditor } from "@/features/templates/use-template-editor";
 import { loadDraft, saveThumbnail } from "../draft";
 import { DesignPreview, type PreviewResult } from "./design-preview";
 import { MissingItem } from "./editor-entry";
+import { buttonClass } from "@/components/ui/button";
 
 /**
  * Preview step. New design → **Add to cart** (snapshot the draft into a cart
@@ -61,8 +62,7 @@ export function PreviewScreen({ product }: { product: ProductConfig }) {
     }
   }
 
-  const primaryClass =
-    "bg-brand-600 hover:bg-brand-700 active:bg-brand-700 focus-visible:ring-brand-600/40 disabled:bg-brand-300 disabled:hover:bg-brand-300 mx-auto flex h-12 w-full max-w-md items-center justify-center rounded-full text-base font-semibold text-white focus-visible:ring-2 focus-visible:outline-none lg:max-w-none";
+  const primaryClass = buttonClass("primary", "mx-auto");
   // Template editors publish a new design as a product instead of buying it.
   const publishing = canPublish && !item;
   const action = publishing ? (
