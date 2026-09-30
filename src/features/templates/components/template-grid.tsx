@@ -1,6 +1,6 @@
 import { OCCASIONS } from "@/features/home/occasions";
 import type { TemplateMeta } from "@/server/templates/types";
-import { loadDesignPrices } from "../load-design-prices";
+import { withLiveDesigns } from "../load-design-prices";
 import { templateHref, tileImage } from "../tile-image";
 import { DesignTile } from "./design-tile";
 
@@ -19,13 +19,13 @@ export async function TemplateGrid({
   templates: TemplateMeta[];
   productNames?: Record<string, string>;
 }) {
-  const prices = await loadDesignPrices(templates);
+  const { templates: live, prices } = await withLiveDesigns(templates);
   return (
     <ul
       className="grid grid-cols-2 gap-3 sm:grid-cols-3"
       data-testid="template-grid"
     >
-      {templates.map((t) => (
+      {live.map((t) => (
         <li key={t.id}>
           <DesignTile
             href={templateHref(t)}
