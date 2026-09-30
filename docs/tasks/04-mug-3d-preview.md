@@ -1,5 +1,8 @@
 # 04 — 3D mug preview
 
+> **POSTPONED (30 Sep 2026).** 3D preview is not part of the MVP. The preview uses flat photographic
+> mockups (`src/features/editor/mockup/`). Keep this brief for later; do not start it.
+
 **Branch:** `feat/mug-3d` · **Suggested owner:** Lead dev or a second Claude Code session
 
 ## Goal
