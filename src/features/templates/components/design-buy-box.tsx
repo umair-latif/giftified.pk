@@ -22,7 +22,7 @@ const CHIP =
 
 /**
  * Colour and size, then **Add to cart** (the design as it is) or
- * **Customize** (open it in the editor). After adding: customise it or go to
+ * **Make it yours** (open it in the editor). After adding: customise it or go to
  * the cart.
  */
 export function DesignBuyBox({
@@ -53,7 +53,7 @@ export function DesignBuyBox({
       setState({
         error:
           err instanceof TemplateNeedsPhotoError
-            ? "Add your photo first: tap Customize."
+            ? "Add your photo first: tap Make it yours."
             : err instanceof Error
               ? err.message
               : "Couldn’t add it to your cart.",
@@ -133,7 +133,7 @@ export function DesignBuyBox({
               href={customizeHref}
               className="text-brand-700 hover:bg-mint-100 focus-visible:ring-brand-600/40 ring-brand-600 inline-flex h-12 items-center rounded-full bg-white px-5 font-semibold ring-1 focus-visible:ring-2 focus-visible:outline-none"
             >
-              Customize it
+              Make it yours
             </Link>
           </div>
         </div>
@@ -142,9 +142,9 @@ export function DesignBuyBox({
           {needsPhoto ? (
             <Link
               href={customizeHref}
-              className="bg-brand-600 hover:bg-brand-700 active:bg-brand-700 focus-visible:ring-brand-600/40 flex h-12 flex-1 items-center justify-center rounded-full text-base font-semibold text-white focus-visible:ring-2 focus-visible:outline-none"
+              className="bg-brand-600 hover:bg-brand-700 active:bg-brand-700 focus-visible:ring-brand-600/40 flex h-12 flex-1 items-center justify-center rounded-full text-base font-semibold text-white focus-visible:ring-2 focus-visible:outline-none sm:flex-none sm:px-8"
             >
-              Add your photo
+              Make it yours
             </Link>
           ) : (
             <>
@@ -152,15 +152,15 @@ export function DesignBuyBox({
                 type="button"
                 onClick={() => void add()}
                 disabled={state === "adding"}
-                className="bg-brand-600 hover:bg-brand-700 active:bg-brand-700 focus-visible:ring-brand-600/40 disabled:bg-brand-300 disabled:hover:bg-brand-300 h-12 flex-1 rounded-full text-base font-semibold text-white focus-visible:ring-2 focus-visible:outline-none"
+                className="bg-brand-600 hover:bg-brand-700 active:bg-brand-700 focus-visible:ring-brand-600/40 disabled:bg-brand-300 disabled:hover:bg-brand-300 h-12 flex-1 rounded-full text-base font-semibold text-white focus-visible:ring-2 focus-visible:outline-none sm:flex-none sm:px-8"
               >
                 {state === "adding" ? "Adding…" : "Add to cart"}
               </button>
               <Link
                 href={customizeHref}
-                className="text-brand-700 focus-visible:ring-brand-600/40 ring-brand-600 flex h-12 flex-1 items-center justify-center rounded-full bg-white text-base font-semibold ring-1 hover:bg-zinc-50 focus-visible:ring-2 focus-visible:outline-none"
+                className="text-brand-700 focus-visible:ring-brand-600/40 ring-brand-600 flex h-12 flex-1 items-center justify-center rounded-full bg-white text-base font-semibold ring-1 hover:bg-zinc-50 focus-visible:ring-2 focus-visible:outline-none sm:flex-none sm:px-8"
               >
-                Customize
+                Make it yours
               </Link>
             </>
           )}
