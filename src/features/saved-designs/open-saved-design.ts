@@ -1,4 +1,5 @@
 import type { ProductId } from "@/config/products";
+import { mapImageSources } from "@/features/editor/assets/asset-ref";
 import { putAsset } from "@/features/editor/assets/asset-store";
 import {
   makePreview,
@@ -60,13 +61,41 @@ export async function openSavedDesign(
     throw new OpenDesignFailed("That design is for another product.");
   const design = data.design;
 
-  const objects = (design.fabric.objects ?? []) as Record<string, unknown>[];
+  await downloadPhotos(design, data.assetUrls, doFetch);
+  clearDraft(productId); // drops the old draft's template and saved-design links
+  if (!saveDraft(design))
+    throw new OpenDesignFailed(
+      "Your phone's storage is full, so the design couldn't be opened.",
+    );
+  // A design product (task 26) stays priced as that product.
+  if (data.meta.templateId) setDraftTemplate(productId, data.meta.templateId);
+  setDraftSaved(productId, { id: data.meta.id, name: data.meta.name });
+  return design;
+}
+
+/**
+ * Puts a stored design's ORIGINAL photos into the local asset store, each
+ * with a preview of exactly the size the design was made with (crops are
+ * stored in preview pixels). Shared by "open saved design" and "Order again".
+ */
+export async function downloadPhotos(
+  design: DesignDocument,
+  assetUrls: Record<string, string>,
+  doFetch: typeof fetch = (i, init) => fetch(i, init),
+): Promise<void> {
+  // Image objects by asset id, also inside groups (photo frames).
+  const byAsset = new Map<string, Record<string, unknown>>();
+  mapImageSources(design.fabric, (o) => {
+    if (typeof o.assetId === "string" && !byAsset.has(o.assetId))
+      byAsset.set(o.assetId, o);
+    return typeof o.src === "string" ? o.src : null;
+  });
   await Promise.all(
-    Object.entries(data.assetUrls).map(async ([assetId, url]) => {
+    Object.entries(assetUrls).map(async ([assetId, url]) => {
       const r = await doFetch(url);
       if (!r.ok) throw new OpenDesignFailed("A photo couldn't be downloaded.");
       const original = await r.blob();
-      const o = objects.find((x) => x.assetId === assetId) ?? {};
+      const o = byAsset.get(assetId) ?? {};
       const w = Number(o.sourceWidthPx) || 1;
       const h = Number(o.sourceHeightPx) || 1;
       const fit = previewSize(w, h);
@@ -86,13 +115,4 @@ export async function openSavedDesign(
       });
     }),
   );
-  clearDraft(productId); // drops the old draft's template and saved-design links
-  if (!saveDraft(design))
-    throw new OpenDesignFailed(
-      "Your phone's storage is full, so the design couldn't be opened.",
-    );
-  // A design product (task 26) stays priced as that product.
-  if (data.meta.templateId) setDraftTemplate(productId, data.meta.templateId);
-  setDraftSaved(productId, { id: data.meta.id, name: data.meta.name });
-  return design;
 }

@@ -78,6 +78,12 @@ export async function placeOrder(input: unknown): Promise<PlaceOrderResult> {
             : {}),
         })
         .catch((err) => console.error("[checkout] saving profile failed", err));
+    if (customerId && parsed.order.consents)
+      // Task 21: the checkout choice becomes the account's preference. Best effort.
+      await syncMarketingPreference(
+        customerId,
+        parsed.order.consents.marketingOptIn,
+      );
     if (customerId)
       // Task 22: the order's designs join "My designs". Best effort.
       await addOrderDesigns(
@@ -99,6 +105,21 @@ export async function placeOrder(input: unknown): Promise<PlaceOrderResult> {
   }
 }
 
+async function syncMarketingPreference(customerId: number, optIn: boolean) {
+  try {
+    const commerce = getCommerce();
+    const c = await commerce.getCustomer(customerId);
+    if (!c || (c.marketingOptIn === true) === optIn) return;
+    await commerce.updateCustomerAccount(customerId, {
+      firstName: c.firstName,
+      lastName: c.lastName,
+      marketingOptIn: optIn,
+    });
+  } catch (err) {
+    console.error("[checkout] saving marketing preference failed", err);
+  }
+}
+
 /** What checkout can fill in for a signed-in customer. Every field is optional. */
 export interface CheckoutPrefill {
   fullName?: string;
@@ -109,6 +130,8 @@ export interface CheckoutPrefill {
   landmark?: string;
   /** True when the account has no address yet, so "save it" is offered ticked. */
   offerSave: boolean;
+  /** The account's marketing preference (task 21): the opt-in box starts ticked. */
+  marketingOptIn?: boolean;
 }
 
 /**
@@ -131,5 +154,6 @@ export async function getCheckoutPrefill(): Promise<CheckoutPrefill | null> {
         }
       : {}),
     offerSave: !c.address,
+    ...(c.marketingOptIn ? { marketingOptIn: true } : {}),
   };
 }
