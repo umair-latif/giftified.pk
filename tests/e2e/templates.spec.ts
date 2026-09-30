@@ -164,14 +164,14 @@ test("a template editor publishes a design as a product from the preview; others
   await submit.click();
   await expect(ep.getByTestId("template-saved")).toContainText("Product saved");
 
-  // The product page: title, price, Add to cart / Customize.
+  // The product page: title, price, Add to cart / Make it yours.
   await ep.getByRole("link", { name: "View the product page" }).click();
   await expect(ep).toHaveURL(/\/designs\/happy-birthday-/);
   await expect(ep.getByRole("heading", { level: 1 })).toHaveText(
     "Happy Birthday",
   );
   await expect(ep.getByTestId("design-price")).toContainText("1,899");
-  await expect(ep.getByRole("link", { name: "Customize" })).toHaveAttribute(
+  await expect(ep.getByRole("link", { name: "Make it yours" })).toHaveAttribute(
     "href",
     /\/design\/mug\?template=/,
   );
@@ -185,12 +185,31 @@ test("a template editor publishes a design as a product from the preview; others
   await expect
     .poll(async () => image.evaluate((el: HTMLImageElement) => el.naturalWidth))
     .toBeGreaterThan(0);
+  // Nothing may push the page wider than the phone: the gallery, its strip
+  // and the buy box must all fit inside the viewport.
+  const overflow = await ep.evaluate(() => {
+    const w = window.innerWidth;
+    return ["design-gallery", "design-buy-box"].flatMap((id) => {
+      const el = document.querySelector(`[data-testid="${id}"]`);
+      return (
+        [el, ...(el?.querySelectorAll("img, a, button, ul") ?? [])]
+          .filter((e): e is Element => !!e)
+          // The thumbnail strip scrolls sideways on purpose; its box must fit.
+          .filter((e) => !e.closest("ul") || e.tagName === "UL")
+          .filter((e) => e.getBoundingClientRect().right > w + 1)
+          .map((e) => `${id}: ${e.tagName}`)
+      );
+    });
+  });
+  expect(overflow).toEqual([]);
   await gallery.getByTestId("design-thumb-2").click();
   await expect(gallery.getByRole("img", { name: /left view/i })).toBeVisible();
   await ep.getByRole("button", { name: "Add to cart" }).click();
   const added = ep.getByTestId("added-to-cart");
   await expect(added).toContainText("Added to your cart");
-  await expect(added.getByRole("link", { name: "Customize it" })).toBeVisible();
+  await expect(
+    added.getByRole("link", { name: "Make it yours" }),
+  ).toBeVisible();
 
   // The cart prices the line from the design product, not the plain mug.
   await added.getByRole("link", { name: "Go to cart" }).click();
