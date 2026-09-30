@@ -27,13 +27,12 @@ one exists — one-line change in `src/config/site.ts`.
 - **Delivery: 5–7 days once printing is finished.**
 - Delivery charge varies by city, so the page says it is shown at checkout before the order is
   placed. The real figure comes from the WooCommerce flat-rate zones — it is never hardcoded.
-- TODO(founder): **printing turnaround** — how many working days to print after the customer
-  confirms. Without it the page cannot state a total delivery time, which is the single fact
-  customers ask for most. (`why-giftified.tsx` also waits on this.)
-- TODO(founder): any areas we don't deliver to.
-- TODO(founder): do customers get a courier tracking number, and if so by SMS or WhatsApp?
-- TODO(founder): how many times / over how many days do we try to reach a customer before
-  cancelling an unconfirmed order?
+- **Printing: 1–3 days after the customer confirms.** Total ≈ 6–10 days (also on the home page).
+- **Delivery is nationwide** — no excluded areas.
+- **Tracking numbers** are sent by email or message when the parcel goes to the courier.
+- **Unconfirmed orders:** we wait about a week, then cancel. The founder added that without signing
+  in the design changes would be lost; the page says a guest's design "may not be kept" (guest
+  designs are purged under the retention job; saved designs for accounts are task 22, not built yet).
 
 ## Cancellation → `/help` ("Can I change or cancel my order?")
 
