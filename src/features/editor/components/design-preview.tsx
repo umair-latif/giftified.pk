@@ -155,11 +155,11 @@ export function DesignPreview({
   const first = specs?.[0];
 
   return (
-    <div className="flex flex-col gap-3 lg:grid lg:grid-cols-[minmax(0,1fr)_18rem] lg:items-start lg:gap-x-6">
+    <div className="flex flex-col gap-3 lg:grid lg:grid-cols-[auto_20rem] lg:items-start lg:justify-center lg:gap-x-8">
       <div className="flex min-w-0 flex-col gap-3">
         {useGallery && state.kind === "ready" && first && (
           <div
-            className="flex flex-col gap-2 lg:max-w-[38rem] lg:flex-row-reverse lg:items-start lg:gap-3"
+            className="flex flex-col gap-2 lg:w-[38rem] lg:flex-row-reverse lg:items-start lg:gap-3"
             role="group"
             aria-label="Preview gallery"
             data-testid="preview-gallery"
