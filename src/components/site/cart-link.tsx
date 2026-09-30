@@ -13,7 +13,7 @@ export function CartLink() {
       aria-label={
         count ? `Cart, ${count} item${count === 1 ? "" : "s"}` : "Cart"
       }
-      className="text-ink hover:bg-mint-100 active:bg-mint-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-600/20 relative grid size-11 place-items-center rounded-full"
+      className="text-ink hover:bg-mint-100 active:bg-mint-100 focus-visible:ring-brand-600/20 relative grid size-11 place-items-center rounded-full focus-visible:ring-2 focus-visible:outline-none"
       data-testid="cart-link"
     >
       <BagIcon />

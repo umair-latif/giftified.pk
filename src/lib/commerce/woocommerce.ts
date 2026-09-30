@@ -28,6 +28,7 @@ import {
   metaValue,
   parsePkr,
   quoteFromZones,
+  regularIfReduced,
   sanitizeHtml,
   type ResolvedLine,
   type ZoneWithRates,
@@ -403,6 +404,7 @@ export function createWooCommerceClient(config: WooConfig): CommerceClient {
       name: p.name,
       descriptionHtml: sanitizeHtml(p.description ?? ""),
       pricePkr,
+      ...regularIfReduced(p.regular_price, pricePkr),
       ...(p.images[0] ? { imageUrl: p.images[0].src } : {}),
       ...(p.categories?.length
         ? { categoryIds: p.categories.map((c) => c.id) }

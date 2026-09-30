@@ -2,11 +2,11 @@ import { Container } from "@/components/ui/page";
 
 /**
  * Promises shown on the home page. Edit here only — keep every line true.
- * TODO(founder): add "Delivery in N working days" once the courier times are known.
  */
 export const WHY_GIFTIFIED: readonly string[] = [
   "Cash on delivery everywhere in Pakistan",
   "We call to confirm before printing",
+  "Printed in 1–3 days, delivered in 5–7 more",
   "300 DPI print quality",
   "Free reprint if it arrives damaged",
 ];

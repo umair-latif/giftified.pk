@@ -34,7 +34,7 @@ export function DesignGallery({
       <div className="bg-cream aspect-square rounded-3xl ring-1 ring-zinc-200" />
     );
   return (
-    <div className="space-y-2" data-testid="design-gallery">
+    <div className="min-w-0 space-y-2" data-testid="design-gallery">
       <div className="bg-cream relative aspect-square overflow-hidden rounded-3xl ring-1 ring-zinc-200">
         <Image
           key={shown.src}
@@ -44,11 +44,16 @@ export function DesignGallery({
           unoptimized
           preload={index === 0}
           sizes="(max-width: 768px) 100vw, 480px"
-          className="object-contain"
+          className={`object-contain ${
+            shown.label === "Design" ? "" : "md:scale-[1.2]"
+          }`}
         />
       </div>
       {sources.length > 1 && (
-        <ul className="flex gap-2 overflow-x-auto pb-1" aria-label="Views">
+        <ul
+          className="flex max-w-full [scrollbar-width:none] gap-2 overflow-x-auto p-1 md:flex-wrap md:overflow-visible [&::-webkit-scrollbar]:hidden"
+          aria-label="Views"
+        >
           {sources.map((s, i) => (
             <li key={s.src} className="shrink-0">
               <button

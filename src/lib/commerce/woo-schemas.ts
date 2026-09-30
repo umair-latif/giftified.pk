@@ -27,6 +27,8 @@ export const wooProductSchema = z.object({
   type: z.string(),
   status: z.string(),
   price: z.string(),
+  /** Regular (non-sale) price; `price` already has the sale price applied. */
+  regular_price: z.string().optional(),
   stock_status: z.string(),
   variations: z.array(z.number()).default([]),
   images: z
@@ -44,6 +46,7 @@ export const wooVariationSchema = z.object({
   id: z.number(),
   sku: z.string().default(""),
   price: z.string(),
+  regular_price: z.string().optional(),
   status: z.string().default("publish"),
   stock_status: z.string(),
   attributes: z.array(wooAttributeOptionSchema),

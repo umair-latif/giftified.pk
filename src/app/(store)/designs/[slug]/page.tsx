@@ -3,11 +3,11 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Disclosure } from "@/components/ui/disclosure";
 import { Page, PageTitle } from "@/components/ui/page";
+import { PriceTag } from "@/components/ui/price-tag";
 import { getProduct } from "@/config/products";
 import { sizes as sizesOf } from "@/features/catalog/catalog-model";
 import { DeliveryEstimate } from "@/features/catalog/components/delivery-estimate";
 import { loadCatalog } from "@/features/catalog/load-catalog";
-import { formatPkr } from "@/features/checkout/format";
 import { DesignGallery } from "@/features/templates/components/design-gallery";
 import { DesignBuyBox } from "@/features/templates/components/design-buy-box";
 import { loadTemplates } from "@/features/templates/load-templates";
@@ -97,33 +97,41 @@ export default async function DesignProductPage({
         ← {cfg.name} designs
       </Link>
 
-      <div className="mt-2 grid gap-5 lg:grid-cols-2 lg:gap-10">
+      <div className="mt-2 grid grid-cols-[minmax(0,1fr)] gap-5 lg:grid-cols-2 lg:gap-10">
         <DesignGallery
           templateId={meta.id}
           name={info.name}
           images={meta.images ?? []}
           hasThumbnail={meta.hasThumbnail}
         />
-        <div className="space-y-4">
+        <div className="min-w-0 space-y-4">
           <header className="space-y-1">
             <PageTitle>{info.name}</PageTitle>
             <p className="text-brand-900">
-              <span
+              <PriceTag
+                pkr={info.pricePkr}
+                regularPkr={info.regularPricePkr}
                 className="text-xl font-semibold"
-                data-testid="design-price"
-              >
-                {formatPkr(info.pricePkr)}
-              </span>{" "}
+                testId="design-price"
+              />{" "}
               <span className="bg-mint-300 text-ink ml-1 rounded-full px-2.5 py-0.5 text-xs font-semibold">
                 Cash on Delivery
               </span>
             </p>
           </header>
           {info.descriptionHtml && (
-            <div
-              className="text-ink space-y-2 text-sm [&_li]:ml-5 [&_li]:list-disc"
-              dangerouslySetInnerHTML={{ __html: info.descriptionHtml }}
-            />
+            <section aria-labelledby="about-design" className="space-y-1">
+              <h2
+                id="about-design"
+                className="text-brand-900 text-sm font-semibold"
+              >
+                About this design
+              </h2>
+              <div
+                className="text-ink space-y-2 text-sm break-words [&_img]:h-auto [&_img]:max-w-full [&_li]:ml-5 [&_li]:list-disc"
+                dangerouslySetInnerHTML={{ __html: info.descriptionHtml }}
+              />
+            </section>
           )}
           <DesignBuyBox
             templateId={meta.id}
@@ -136,7 +144,7 @@ export default async function DesignProductPage({
       </div>
 
       <Disclosure
-        summary="Details"
+        summary="Details about the product"
         className="mt-6 rounded-2xl bg-white ring-1 ring-zinc-200"
         summaryClassName="rounded-2xl text-base font-semibold"
         bodyClassName="space-y-4 pt-1"

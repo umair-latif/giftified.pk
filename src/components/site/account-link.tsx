@@ -21,7 +21,7 @@ export function AccountLink() {
     <Link
       href={isSignedIn ? "/account" : "/sign-in"}
       aria-label={isSignedIn ? "Your account" : "Sign in"}
-      className="text-ink hover:bg-mint-100 active:bg-mint-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-600/20 relative grid size-11 place-items-center rounded-full"
+      className="text-ink hover:bg-mint-100 active:bg-mint-100 focus-visible:ring-brand-600/20 relative grid size-11 place-items-center rounded-full focus-visible:ring-2 focus-visible:outline-none"
       data-testid="account-link"
     >
       <UserIcon />

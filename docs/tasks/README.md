@@ -13,7 +13,7 @@ own folders.
 | 01  | [WooCommerce adapter + order webhook](01-woocommerce-adapter.md)       | Claude (2nd session)                  | `feat/woo-adapter`          | done                      |
 | 02  | [WhatsApp messaging + reply webhook](02-whatsapp-messaging.md)         | —                                     | `feat/whatsapp`             | **postponed** (post-MVP)  |
 | 03  | [VendorProof.pdf builder](03-vendor-proof-pdf.md)                      | Claude (2nd session)                  | `feat/vendor-proof`         | done (live)               |
-| 04  | [3D mug preview](04-mug-3d-preview.md)                                 | Founder (model) + _unassigned_        | `feat/mug-3d`               | waiting for the mug GLB   |
+| 04  | [3D mug preview](04-mug-3d-preview.md)                                 | Founder (model) + _unassigned_        | `feat/mug-3d`               | **postponed** (3D is out of the MVP; flat mockups are used) |
 | 05  | [COD checkout form](05-checkout-form.md)                               | Claude (3rd session)                  | `feat/checkout-form`        | done (live)               |
 | 06  | [Text styling sheet](06-text-styling-sheet.md)                         | Claude (cloud session)                | `feat/text-sheet`           | done |
 | 07  | [300 DPI print renderer](07-print-renderer.md)                         | Claude (cloud session)                | `feat/print-renderer`       | done                      |
@@ -26,20 +26,22 @@ own folders.
 | 13  | [Checkout v2 (from the cart)](13-checkout-v2.md)                       | Claude (2nd session)                  | `feat/checkout-v2`          | done |
 | 13b | Checkout legal: content confirmation, small print, opt-in, IP          | Claude (subagent)                     | `feat/checkout-legal`       | done |
 | 14  | [Order status + guest tracking](14-order-status-tracking.md)           | Claude (cloud session)                | `feat/order-tracking`       | done                      |
-| 15  | [Help and info pages](15-info-pages.md)                                | Claude (cloud session) + founder text | `feat/info-pages`           | done (founder TODOs open) |
+| 15  | [Help and info pages](15-info-pages.md)                                | Claude (cloud session) + founder text | `feat/info-pages`           | done (legal review + brand values open) |
 | 16  | [Editor ↔ print font parity](16-font-parity.md)                        | Lead                                  | `fix/font-parity`           | done |
 | 17  | [Photo frames (Crop & shape)](17-photo-frames.md)                      | Lead                                  | `feat/photo-frames`         | done                      |
-| 18  | [Templates: placeholders, Save as template](18-templates-authoring.md) | Claude (cloud session)                | `feat/templates`            | slice 3 open (needs sample images) |
-| 19  | [Template gallery + occasion pages](19-template-gallery.md)            | Claude (cloud session) | `feat/template-gallery`     | in progress |
+| 18  | [Templates: placeholders, Save as template](18-templates-authoring.md) | Claude (cloud session)                | `feat/templates`            | slices 1–2 done; slice 3 waits for approved photos |
+| 19  | [Template gallery + occasion pages](19-template-gallery.md)            | Claude (cloud session) | `feat/template-gallery`     | done |
 | 20  | [Accounts: sign-in/sign-up](20-auth.md)                                | Claude (cloud session)                | `feat/auth`                 | done |
 | 21  | [Account area](21-account-area.md)                                     | _unassigned_                          | `feat/account`              | ready |
 | 22  | [Saved designs](22-saved-designs.md)                                   | Lead + assistant                      | `feat/saved-designs`        | ready |
 | 23  | [Customer-shared templates](23-shared-templates.md)                    | _unassigned_                          | `feat/shared-templates`     | after 19, 22              |
 | 24  | [Delete customer photos 30 days after delivery](24-data-retention.md)  | Lead                                  | `feat/retention`            | done (PR #34) |
 | 25  | [Design-system cleanup: buttons, cards, tokens](25-design-consistency.md) | Claude (cloud)                     | `feat/design-tokens`        | done                        |
-| 26  | [Design products: buy a template as is, or customise](26-design-products.md) | Claude (cloud session) | `feat/design-products` | in progress (slices 1–3 in PR #55, 5 built) |
+| 26  | [Design products: buy a template as is, or customise](26-design-products.md) | Claude (cloud session) | `feat/design-products` | slices 1–5 done (PRs #55, #57, #58); slice 6 later |
+| 27  | [T-shirt: print specs, colours, sizes, flat preview](27-tshirt.md) | _unassigned_ | `feat/tshirt` | ready (needs founder inputs) |
+| 28  | [Hoodie: print specs, colours, sizes, flat preview](28-hoodie.md) | _unassigned_ | `feat/hoodie` | after 27 |
 
-**Right now, assistants can take:** 21 (account area) and 22 (saved designs), both unblocked by 20;
+**Right now, assistants can take:** 27 (t-shirt), 21 (account area) and 22 (saved designs). 28 (hoodie) follows 27.
 18 slice 3 (placeholder photo library) waits for founder-approved images. The
 plan behind 10–23 is in
 [`docs/plans/storefront-and-accounts.md`](../plans/storefront-and-accounts.md); brand rules in
@@ -47,7 +49,10 @@ plan behind 10–23 is in
 
 Update this table in your PR when you pick up or finish a task.
 
-**MVP scope note:** COD confirmation and sending files to the vendor are done by the
+**MVP scope note:** the MVP products are mug, t-shirt and hoodie, with flat 2D mockups. 3D preview is
+postponed (task 04) and is not part of the MVP.
+
+**Order note:** COD confirmation and sending files to the vendor are done by the
 founder by hand. The WhatsApp contract and mock stay in the code so it can be added
 later without rework, but no MVP code may depend on it.
 

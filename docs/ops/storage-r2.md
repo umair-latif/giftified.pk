@@ -28,6 +28,14 @@ Bucket → **Settings** → **CORS Policy** → paste (add your own test origins
 ]
 ```
 
+**Vercel preview deployments.** Every deployment has its own URL
+(`giftified-<hash>-<team>.vercel.app`), and CORS needs the exact origin, so a policy listing one
+preview breaks on the next. The bucket is private and every request needs a short-lived signed link,
+so for a **test bucket** it is fine to use `"AllowedOrigins": ["*"]` (keep the other settings). For
+the production bucket list only the real domain(s). Symptom of a missing origin: the browser console
+says "blocked by CORS policy" on a `...r2.cloudflarestorage.com/...?X-Amz-...` request (photos in a
+template or design don't load, uploads fail).
+
 ## 3. API token
 
 R2 → **Manage API tokens** → **Create API token** → permission **Object Read & Write**, limited to

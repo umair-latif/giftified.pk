@@ -37,6 +37,8 @@ export interface CatalogCard {
   /** `/products/<slug>` when the product can be designed, else null ("Coming soon"). */
   href: string | null;
   fromPricePkr: number | null;
+  /** Regular price of that cheapest variant when it is reduced, else null. */
+  fromRegularPricePkr: number | null;
   image: { src: string; alt: string } | null;
   swatches: Swatch[];
 }
@@ -45,6 +47,14 @@ export interface CatalogCard {
 export function fromPrice(product: CatalogProduct): number {
   const prices = product.variants.map((v) => v.pricePkr);
   return prices.length > 0 ? Math.min(...prices) : product.basePricePkr;
+}
+
+/** Regular price of the cheapest variant, only when it is reduced (a sale). */
+export function fromRegularPrice(product: CatalogProduct): number | null {
+  const cheapest = [...product.variants].sort(
+    (a, b) => a.pricePkr - b.pricePkr,
+  )[0];
+  return cheapest?.regularPricePkr ?? null;
 }
 
 /**
@@ -105,6 +115,7 @@ export function buildCatalogCards(
         ? `/products/${encodeURIComponent(slugFor(i.productId, catalog))}`
         : null,
       fromPricePkr: entry ? fromPrice(entry) : null,
+      fromRegularPricePkr: entry ? fromRegularPrice(entry) : null,
       image: img ? { src: img.src, alt: img.alt } : null,
       swatches: swatches(entry, cfg?.baseColors),
     };
