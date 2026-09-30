@@ -67,6 +67,17 @@ describe("home product cards", () => {
     expect(fromPrice(product())).toBe(1999);
   });
 
+  it("shows the WooCommerce photo, falling back to the placeholder", () => {
+    const withPhoto = product({
+      images: [{ src: "https://shop.example/mug.jpg", alt: "Mug" }],
+    });
+    const [mug, tshirt] = buildHomeProductCards([withPhoto], hasConfig);
+    expect(mug!.image).toBe("https://shop.example/mug.jpg");
+    expect(tshirt!.image).toBe("/home/tshirt-placeholder.webp");
+    const [noPhoto] = buildHomeProductCards([product()], hasConfig);
+    expect(noPhoto!.image).toBe("/home/mug-placeholder.webp");
+  });
+
   it("every card has a WebP image under public/home", () => {
     for (const p of HOME_PRODUCTS)
       expect(p.image).toMatch(/^\/home\/.+\.webp$/);
