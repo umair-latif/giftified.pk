@@ -34,7 +34,12 @@ export function EditorStage({
       : "border-zinc-400/60 border-dashed";
 
   return (
-    <div className="relative w-full">
+    // Desktop: fill the column, but never taller than the window (tall print
+    // areas such as shirts) — then the stage narrows and stays centred.
+    <div
+      className="relative w-full lg:mx-auto lg:max-w-[calc((100dvh-13rem)*var(--stage-ar))]"
+      style={{ ["--stage-ar" as string]: String(widthMm / heightMm) }}
+    >
       <div
         className="relative w-full overflow-hidden rounded-md shadow-sm ring-1 ring-zinc-300"
         style={{
