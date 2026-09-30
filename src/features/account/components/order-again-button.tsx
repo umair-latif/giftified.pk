@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import type { OrderLineInput } from "@/types/order";
 import { orderAgain } from "../order-again";
+import { buttonClass } from "@/components/ui/button";
 
 type Line = Pick<
   OrderLineInput,
@@ -41,7 +42,7 @@ export function OrderAgainButton({
             setBusy(false);
           }
         }}
-        className="bg-brand-600 hover:bg-brand-700 active:bg-brand-700 focus-visible:ring-brand-600/40 disabled:bg-brand-300 disabled:hover:bg-brand-300 h-12 w-full rounded-full font-semibold text-white focus-visible:ring-2 focus-visible:outline-none"
+        className={buttonClass("primary", "mx-auto")}
         data-testid="order-again"
       >
         {busy ? "Adding to cart…" : "Order again"}

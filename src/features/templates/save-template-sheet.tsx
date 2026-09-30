@@ -9,6 +9,7 @@ import { OCCASIONS } from "@/features/home/occasions";
 import type { OccasionSlug } from "@/server/templates/types";
 import type { DesignDocument } from "@/types/design";
 import { buildTemplateForm, type ProductImage } from "./build-template-form";
+import { buttonClass } from "@/components/ui/button";
 
 interface Props {
   /** Current design plus a thumbnail render of it. */
@@ -233,7 +234,7 @@ export function SaveTemplateSheet({
           <button
             type="submit"
             disabled={state.kind === "saving" || !name.trim() || !productReady}
-            className="bg-brand-600 hover:bg-brand-700 disabled:bg-brand-300 disabled:hover:bg-brand-300 h-12 w-full rounded-full text-base font-semibold text-white"
+            className={buttonClass("primary")}
           >
             {state.kind === "saving"
               ? "Saving…"

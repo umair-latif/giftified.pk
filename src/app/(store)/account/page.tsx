@@ -6,6 +6,7 @@ import { formatDate, orderStatusLabel } from "@/features/account/format";
 import { signOutAction } from "@/features/auth/actions";
 import { getCommerce } from "@/lib/commerce";
 import { getSessionCustomer } from "@/server/auth/cookies";
+import { buttonClass } from "@/components/ui/button";
 
 export const metadata: Metadata = {
   title: "Your account",
@@ -103,7 +104,7 @@ export default async function AccountPage() {
       <form action={signOutAction}>
         <button
           type="submit"
-          className="text-ink focus-visible:ring-brand-600/20 h-12 w-full rounded-full border border-zinc-300 bg-white font-semibold hover:bg-zinc-50 focus-visible:ring-2 focus-visible:outline-none active:bg-zinc-50"
+          className={buttonClass("secondary")}
           data-testid="sign-out"
         >
           Sign out

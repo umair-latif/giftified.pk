@@ -8,6 +8,7 @@ import {
 } from "@/features/checkout/components/field";
 import { trackOrderAction } from "../actions";
 import type { TrackState } from "../track";
+import { buttonClass } from "@/components/ui/button";
 
 const initial: TrackState = { status: "idle" };
 
@@ -81,7 +82,7 @@ export function TrackForm() {
       <button
         type="submit"
         disabled={pending}
-        className="bg-brand-600 hover:bg-brand-700 active:bg-brand-700 focus-visible:ring-brand-600/40 disabled:bg-brand-300 disabled:hover:bg-brand-300 h-12 rounded-full font-semibold text-white focus-visible:ring-2 focus-visible:outline-none"
+        className={buttonClass("primary")}
       >
         {pending ? "Checking…" : "Show my order"}
       </button>

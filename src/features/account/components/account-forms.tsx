@@ -14,14 +14,13 @@ import {
   sendPasswordLinkAction,
 } from "../actions";
 import { DELETE_CONFIRM_WORD, type FormState } from "../schema";
+import { buttonClass } from "@/components/ui/button";
 
 const idle: FormState = { status: "idle" };
 const card =
   "flex flex-col gap-4 rounded-2xl bg-white p-4 ring-1 ring-zinc-200";
-const primary =
-  "bg-brand-600 hover:bg-brand-700 active:bg-brand-700 focus-visible:ring-brand-600/40 disabled:bg-brand-300 disabled:hover:bg-brand-300 h-12 rounded-full font-semibold text-white focus-visible:ring-2 focus-visible:outline-none";
-const secondary =
-  "text-ink focus-visible:ring-brand-600/20 h-12 rounded-full border border-zinc-300 bg-white font-semibold hover:bg-zinc-50 focus-visible:ring-2 focus-visible:outline-none active:bg-zinc-50 disabled:text-zinc-400";
+const primary = buttonClass("primary");
+const secondary = buttonClass("secondary");
 
 function Input({
   id,

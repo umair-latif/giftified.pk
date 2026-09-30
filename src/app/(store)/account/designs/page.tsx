@@ -7,6 +7,7 @@ import { SavedDesignCard } from "@/features/saved-designs/components/saved-desig
 import { MAX_SAVED_DESIGNS } from "@/lib/commerce/types";
 import { getSessionCustomer } from "@/server/auth/cookies";
 import { savedDesignDeps, thumbnailUrls } from "@/server/saved-designs";
+import { buttonClass } from "@/components/ui/button";
 
 export const metadata: Metadata = {
   title: "My designs",
@@ -42,10 +43,7 @@ export default async function SavedDesignsPage() {
           <p className="mt-1 text-sm text-zinc-600">
             In the editor, tap <strong>Save to my designs</strong>.
           </p>
-          <Link
-            href="/design/mug"
-            className="bg-brand-600 hover:bg-brand-700 active:bg-brand-700 mt-3 inline-flex h-12 items-center rounded-full px-5 font-semibold text-white"
-          >
+          <Link href="/design/mug" className={buttonClass("primary", "mt-3")}>
             Start designing
           </Link>
         </section>

@@ -9,6 +9,7 @@ import { importTemplate } from "@/features/templates/import-template";
 import { DesignEditor } from "./design-editor";
 import { openSavedDesign } from "@/features/saved-designs/open-saved-design";
 import { getDraftSaved, loadDraft } from "../draft";
+import { buttonClass } from "@/components/ui/button";
 
 /**
  * `/design/<product>` edits the product's draft; `?item=<cart line id>` edits
@@ -35,10 +36,7 @@ export function MissingItem() {
   return (
     <main className="mx-auto max-w-md p-6 text-sm" data-testid="missing-item">
       <p className="text-zinc-700">This design is no longer in your cart.</p>
-      <Link
-        href="/cart"
-        className="bg-brand-600 hover:bg-brand-700 active:bg-brand-700 focus-visible:ring-brand-600/40 mt-4 inline-flex h-11 items-center rounded-full px-5 font-medium text-white focus-visible:ring-2 focus-visible:outline-none"
-      >
+      <Link href="/cart" className={buttonClass("primary", "mt-4")}>
         Go to cart
       </Link>
     </main>
@@ -101,7 +99,7 @@ function TemplateStart({
           </p>
           <Link
             href={`/design/${product.id}`}
-            className="bg-brand-600 hover:bg-brand-700 active:bg-brand-700 focus-visible:ring-brand-600/40 mt-4 inline-flex h-12 items-center rounded-full px-5 font-medium text-white focus-visible:ring-2 focus-visible:outline-none"
+            className={buttonClass("primary", "mt-4")}
           >
             Design your own
           </Link>
@@ -159,8 +157,7 @@ function SavedStart({
   state: SavedState;
   product: ProductConfig;
 }) {
-  const link =
-    "bg-brand-600 hover:bg-brand-700 active:bg-brand-700 focus-visible:ring-brand-600/40 mt-4 inline-flex h-12 items-center rounded-full px-5 font-medium text-white focus-visible:ring-2 focus-visible:outline-none";
+  const link = buttonClass("primary", "mt-4");
   return (
     <main className="mx-auto max-w-md p-6 text-sm" data-testid="saved-start">
       {state === "loading" ? (

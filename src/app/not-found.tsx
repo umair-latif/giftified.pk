@@ -3,14 +3,14 @@ import Link from "next/link";
 import { SiteFooter } from "@/components/site/site-footer";
 import { SiteHeader } from "@/components/site/site-header";
 import { Page, PageTitle } from "@/components/ui/page";
+import { buttonClass } from "@/components/ui/button";
 
 export const metadata: Metadata = {
   title: "Page not found",
   robots: { index: false },
 };
 
-const button =
-  "bg-brand-600 hover:bg-brand-700 active:bg-brand-700 focus-visible:ring-brand-600/40 inline-flex h-12 items-center rounded-full px-6 font-medium text-white focus-visible:ring-2 focus-visible:outline-none";
+const button = buttonClass("primary");
 const secondary =
   "text-brand-700 hover:text-brand-800 focus-visible:ring-brand-600/20 inline-flex h-12 items-center rounded-full px-4 font-medium underline focus-visible:ring-2 focus-visible:outline-none";
 

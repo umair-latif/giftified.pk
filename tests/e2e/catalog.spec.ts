@@ -45,7 +45,10 @@ test("delivery estimate: Lahore costs Rs 200 and the city is remembered", async 
   page,
 }) => {
   await page.goto("/products/mug");
-  await page.getByText("Details", { exact: true }).tap();
+  // Details are always open (no tap needed).
+  await expect(
+    page.getByRole("heading", { name: "Details about the product" }),
+  ).toBeVisible();
   await expect(page.getByText(/228 × 89 mm · printed at/)).toBeVisible();
 
   const city = page.getByLabel("Delivery estimate — your city");
@@ -57,7 +60,6 @@ test("delivery estimate: Lahore costs Rs 200 and the city is remembered", async 
   await noSideScroll(page);
 
   await page.reload();
-  await page.getByText("Details", { exact: true }).tap();
   await expect(city).toHaveValue("Lahore");
   await expect(page.locator("#delivery-result")).toContainText("Rs 200");
 });

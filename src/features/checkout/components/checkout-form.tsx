@@ -25,6 +25,7 @@ import type { FieldErrors } from "../schema";
 import { CityPicker } from "./city-picker";
 import { CheckboxRow, Consents } from "./consents";
 import { Field, errorId, inputClass } from "./field";
+import { buttonClass } from "@/components/ui/button";
 
 const CITY_KEY = "giftified:city";
 const FIELDS = [
@@ -328,10 +329,7 @@ export function CheckoutForm() {
         data-testid="checkout-empty"
       >
         <p className="text-zinc-700">Your cart is empty.</p>
-        <Link
-          href="/products"
-          className="bg-brand-600 hover:bg-brand-700 active:bg-brand-700 focus-visible:ring-brand-600/40 mt-4 inline-flex h-12 items-center rounded-full px-5 font-semibold text-white focus-visible:ring-2 focus-visible:outline-none"
-        >
+        <Link href="/products" className={buttonClass("primary", "mt-4")}>
           Browse products
         </Link>
       </div>
@@ -609,7 +607,7 @@ export function CheckoutForm() {
         <button
           type="submit"
           disabled={submitting || problems.length > 0 || !contentConfirmed}
-          className="bg-brand-600 hover:bg-brand-700 active:bg-brand-700 focus-visible:ring-brand-600/40 disabled:bg-brand-300 disabled:hover:bg-brand-300 h-12 rounded-full text-base font-semibold text-white focus-visible:ring-2 focus-visible:outline-none"
+          className={buttonClass("primary")}
         >
           {submitting
             ? (progress ?? "Placing order…")

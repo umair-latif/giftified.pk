@@ -7,6 +7,7 @@ import { formatDate, orderStatusLabel } from "@/features/account/format";
 import { formatPkr } from "@/features/checkout/format";
 import { getCommerce } from "@/lib/commerce";
 import { getSessionCustomerId } from "@/server/auth/cookies";
+import { buttonClass } from "@/components/ui/button";
 
 export const metadata: Metadata = {
   title: "My orders",
@@ -42,10 +43,7 @@ export default async function AccountOrdersPage(
           data-testid="account-orders-empty"
         >
           <p className="text-ink">No orders yet.</p>
-          <Link
-            href="/products"
-            className="bg-brand-600 hover:bg-brand-700 active:bg-brand-700 mt-3 inline-flex h-12 items-center rounded-full px-5 font-semibold text-white"
-          >
+          <Link href="/products" className={buttonClass("primary", "mt-3")}>
             Browse products
           </Link>
         </section>
