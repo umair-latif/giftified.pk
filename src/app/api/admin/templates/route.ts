@@ -21,6 +21,8 @@ const metaSchema = z.object({
   productId: z.enum(["mug", "tshirt", "hoodie"]),
   occasions: z.array(z.enum(OCCASION_SLUGS)).max(OCCASION_SLUGS.length),
   published: z.boolean(),
+  /** Labels of the `image:<n>` files (product images), in order. */
+  imageLabels: z.array(z.string().max(30)).max(10).optional(),
   /** Present when publishing as a product (task 26). */
   product: z
     .object({
@@ -33,7 +35,8 @@ const metaSchema = z.object({
 /**
  * POST /api/admin/templates (multipart) — template editors only.
  * Fields: `meta` (JSON), `design` (JSON DesignDocument), `thumbnail` (webp),
- * and one `asset:<assetId>` file per photo in the design (its sample photo).
+ * one `asset:<assetId>` file per photo in the design (its sample photo), and
+ * `image:<n>` files: product images (mockups), labelled by `meta.imageLabels`.
  */
 export async function POST(req: Request): Promise<Response> {
   const editor = await getTemplateEditor();
@@ -58,11 +61,14 @@ export async function POST(req: Request): Promise<Response> {
       contentType: string;
     }[] = [];
     let thumbnail: Uint8Array | undefined;
+    const imageBytes = new Map<number, Uint8Array>();
     for (const [key, value] of form.entries()) {
       if (typeof value === "string") continue;
       const bytes = new Uint8Array(await value.arrayBuffer());
       total += bytes.byteLength;
       if (key === "thumbnail") thumbnail = bytes;
+      else if (/^image:\d{1,2}$/.test(key))
+        imageBytes.set(Number(key.slice("image:".length)), bytes);
       else if (key.startsWith("asset:"))
         assets.push({
           assetId: key.slice("asset:".length),
@@ -73,9 +79,16 @@ export async function POST(req: Request): Promise<Response> {
     if (total > MAX_BYTES)
       return Response.json({ error: "Template is too large" }, { status: 413 });
 
-    const { product, ...rest } = meta.data;
+    const { product, imageLabels = [], ...rest } = meta.data;
+    const images = [...imageBytes.entries()]
+      .sort(([a], [b]) => a - b)
+      .map(([i, bytes]) => ({
+        label: imageLabels[i] ?? `Image ${i + 1}`,
+        bytes,
+      }));
     const common = {
       ...rest,
+      images,
       design,
       assets,
       thumbnail,
@@ -91,6 +104,8 @@ export async function POST(req: Request): Promise<Response> {
           storage: getStorage(),
           thumbnailUrl: (id) =>
             `${appBaseUrl()}/api/templates/${encodeURIComponent(id)}/thumbnail`,
+          imageUrl: (id, n) =>
+            `${appBaseUrl()}/api/templates/${encodeURIComponent(id)}/images/${n}`,
         },
       );
       saved = result.meta;

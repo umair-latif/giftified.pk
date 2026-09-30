@@ -11,6 +11,7 @@ import {
   templateAssetKey,
   templateDesignKey,
   templateIndexKey,
+  templateImageKey,
   templateThumbKey,
   type ObjectStorage,
 } from "@/lib/storage";
@@ -36,6 +37,7 @@ const metaSchema = z.object({
   occasions: z.array(z.enum(OCCASION_SLUGS)),
   published: z.boolean(),
   hasThumbnail: z.boolean(),
+  images: z.array(z.object({ label: z.string() })).optional(),
   createdAt: z.string(),
   createdBy: z.string().optional(),
   product: z
@@ -147,6 +149,11 @@ export async function saveTemplate(
         contentType: a.contentType,
       }),
     ),
+    ...(input.images ?? []).map((img, i) =>
+      storage.put(templateImageKey(id, i), img.bytes, {
+        contentType: "image/webp",
+      }),
+    ),
     input.thumbnail
       ? storage.put(templateThumbKey(id), input.thumbnail, {
           contentType: "image/webp",
@@ -160,6 +167,9 @@ export async function saveTemplate(
     occasions: [...new Set(input.occasions)],
     published: input.published,
     hasThumbnail: !!input.thumbnail,
+    ...(input.images?.length
+      ? { images: input.images.map((i) => ({ label: i.label })) }
+      : {}),
     createdAt: now().toISOString(),
     ...(input.createdBy ? { createdBy: input.createdBy } : {}),
     ...(input.product ? { product: input.product } : {}),

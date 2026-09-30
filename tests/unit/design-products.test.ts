@@ -38,6 +38,8 @@ describe("publishing a design as a product", () => {
       storage,
       thumbnailUrl: (id) =>
         `https://giftified.pk/api/templates/${id}/thumbnail`,
+      imageUrl: (id, n) =>
+        `https://giftified.pk/api/templates/${id}/images/${n}`,
       makeId: () => "Abc123xyz",
     });
     expect(warning).toBeUndefined();
@@ -47,7 +49,7 @@ describe("publishing a design as a product", () => {
       description: "A cheerful mug.\n\nDishwasher safe.",
     });
     expect(publish).toHaveBeenCalledWith(meta.product!.wooProductId, {
-      imageUrl: "https://giftified.pk/api/templates/Abc123xyz/thumbnail",
+      imageUrls: ["https://giftified.pk/api/templates/Abc123xyz/thumbnail"],
     });
     expect(await getTemplate("Abc123xyz", {}, storage)).not.toBeNull();
   });
@@ -58,7 +60,13 @@ describe("publishing a design as a product", () => {
     const publish = vi.spyOn(commerce, "publishDesignProduct");
     await publishTemplateProduct(
       { ...input, published: false },
-      { commerce, storage, thumbnailUrl: () => "x", makeId: () => "d1" },
+      {
+        commerce,
+        storage,
+        thumbnailUrl: () => "x",
+        imageUrl: () => "x",
+        makeId: () => "d1",
+      },
     );
     expect(publish).not.toHaveBeenCalled();
   });
@@ -74,6 +82,7 @@ describe("publishing a design as a product", () => {
         commerce,
         storage,
         thumbnailUrl: () => "x",
+        imageUrl: () => "x",
         makeId: () => "d2",
       }),
     ).rejects.toBeInstanceOf(WooCommerceError);
@@ -93,6 +102,7 @@ describe("publishing a design as a product", () => {
       commerce,
       storage,
       thumbnailUrl: () => "x",
+      imageUrl: () => "x",
       makeId: () => "d3",
     });
     expect(r.warning).toMatch(/still a draft/);
@@ -104,6 +114,7 @@ describe("publishing a design as a product", () => {
       commerce: createMockCommerce(),
       storage: createMemoryStorage().storage,
       thumbnailUrl: () => "x",
+      imageUrl: () => "x",
     };
     for (const bad of [0, -5, 12.5, 2_000_000])
       await expect(
@@ -231,7 +242,9 @@ describe("WooCommerce design products", () => {
 
   it("publishes with the image, and without it when WooCommerce can't fetch it", async () => {
     const ok = fakeShop();
-    await ok.client.publishDesignProduct(777, { imageUrl: "https://x/y.webp" });
+    await ok.client.publishDesignProduct(777, {
+      imageUrls: ["https://x/y.webp"],
+    });
     expect(ok.calls.at(-1)!.body).toEqual({
       status: "publish",
       images: [{ src: "https://x/y.webp" }],
@@ -239,7 +252,7 @@ describe("WooCommerce design products", () => {
 
     const bad = fakeShop({ imageFails: true });
     await bad.client.publishDesignProduct(777, {
-      imageUrl: "https://x/y.webp",
+      imageUrls: ["https://x/y.webp"],
     });
     const puts = bad.calls.filter((c) => c.method === "PUT");
     expect(puts).toHaveLength(2);
@@ -576,5 +589,104 @@ describe("WooCommerce coupons and categories", () => {
       { id: 9 },
       { id: 5 },
     ]);
+  });
+});
+
+describe("product images (mockups)", () => {
+  it("stores the images with the template and hands WooCommerce their URLs in order", async () => {
+    const commerce = createMockCommerce();
+    const { storage } = createMemoryStorage();
+    const publish = vi.spyOn(commerce, "publishDesignProduct");
+    const { meta } = await publishTemplateProduct(
+      {
+        ...input,
+        images: [
+          { label: "Front", bytes: new Uint8Array([1]) },
+          { label: "Left", bytes: new Uint8Array([2]) },
+        ],
+      },
+      {
+        commerce,
+        storage,
+        thumbnailUrl: (id) => `https://x/${id}/thumbnail`,
+        imageUrl: (id, n) => `https://x/${id}/images/${n}`,
+        makeId: () => "img1",
+      },
+    );
+    expect(meta.images).toEqual([{ label: "Front" }, { label: "Left" }]);
+    expect(publish).toHaveBeenCalledWith(meta.product!.wooProductId, {
+      imageUrls: ["https://x/img1/images/0", "https://x/img1/images/1"],
+    });
+    expect(await storage.get("templates/img1/images/1.webp")).toEqual(
+      new Uint8Array([2]),
+    );
+  });
+
+  it("image keys are bounded", async () => {
+    const { templateImageKey } = await import("@/lib/storage/keys");
+    expect(templateImageKey("abc", 0)).toBe("templates/abc/images/0.webp");
+    expect(() => templateImageKey("abc", 20)).toThrow();
+    expect(() => templateImageKey("../x", 0)).toThrow();
+  });
+});
+
+describe("design title on lines and the vendor proof", () => {
+  it("priceCart returns the design title per line (null for plain products)", async () => {
+    const { priceCart } = await import("@/server/checkout/pricing");
+    const commerce = createMockCommerce();
+    const made = await commerce.createDesignProduct({
+      templateId: "t9",
+      baseProductId: "mug",
+      name: "Happy Birthday",
+      description: "Hi",
+      pricePkr: 1899,
+    });
+    await commerce.publishDesignProduct(made.wooProductId, {});
+    const r = await priceCart(commerce, {
+      lines: [
+        { productId: "mug", colourId: "white", quantity: 1 },
+        { productId: "mug", colourId: "white", quantity: 1, templateId: "t9" },
+      ],
+      city: "",
+    });
+    expect(r.lineTitles).toEqual([null, "Happy Birthday"]);
+  });
+
+  it("the proof shows the design title instead of the (duplicate) quantity row", async () => {
+    const { buildVendorProof } = await import("@/server/pdf/vendor-proof");
+    const { PDFDocument } = await import("pdf-lib");
+    const png = new Uint8Array(
+      Buffer.from(
+        "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==",
+        "base64",
+      ),
+    );
+    const make = (designTitle?: string) =>
+      buildVendorProof({
+        orderId: 1,
+        createdAt: "2026-09-30T00:00:00Z",
+        productId: "mug",
+        productName: "Custom Mug",
+        ...(designTitle ? { designTitle } : {}),
+        colourName: "White",
+        quantity: 1,
+        print: {
+          widthMm: 228,
+          heightMm: 89,
+          dpi: 300,
+          placement: "x",
+          offsetXMm: 0,
+          offsetYMm: 0,
+        },
+        printPng: png,
+        customerCity: "Lahore",
+      });
+    const withTitle = await make("Happy Birthday");
+    const without = await make();
+    expect((await PDFDocument.load(withTitle)).getPageCount()).toBe(1);
+    // Different content → different bytes; both are valid one-page PDFs.
+    expect(
+      Buffer.compare(Buffer.from(withTitle), Buffer.from(without)),
+    ).not.toBe(0);
   });
 });

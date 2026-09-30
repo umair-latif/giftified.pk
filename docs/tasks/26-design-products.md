@@ -96,3 +96,16 @@ print the design title; coupons; locked photos; text boxes that start as wide as
   `Order.discountPkr?`.
 - Not supported: email-restricted coupons (refused), per-customer limits, "exclude sale items".
 - The mock store ships a demo coupon `WELCOME10` (10 % off everything) for local development and the e2e tests.
+
+## Product images and design titles (follow-up)
+
+- **Product images:** Publishing as a product now stores the design's mockups (every view of the product's
+  mockup set: front / left / right / lifestyle / flat lay) plus the flat artwork as `templates/<id>/images/<n>.webp`
+  (`TemplateMeta.images` = labels, in order). `GET /api/templates/<id>/images/<n>` serves them (published only);
+  `/designs/<slug>` shows them as a gallery; WooCommerce gets the same URLs as the product's images
+  (`publishDesignProduct(id, { imageUrls })`); the gallery card / cart thumbnail is the first mockup, small.
+  Older designs without images fall back to the thumbnail. The request stays under Vercel's 4.5 MB limit
+  (images ≤ 1080 px WebP).
+- **Design title:** cart and checkout lines show the design's title (product name beneath it) — `priceCart`
+  returns `lineTitles`. The vendor proof shows "Design: <title>" in place of the (already large) quantity row;
+  `VendorProofInput.designTitle?` is the only contract change.

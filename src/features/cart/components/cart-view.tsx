@@ -98,6 +98,7 @@ export function CartView() {
             key={item.id}
             item={item}
             unitPricePkr={quote ? quote.unitPricePkr[i] : undefined}
+            title={quote?.lineTitles[i] ?? undefined}
           />
         ))}
       </ul>
@@ -201,9 +202,12 @@ export function CartView() {
 function CartLine({
   item,
   unitPricePkr,
+  title,
 }: {
   item: CartItem;
   unitPricePkr: number | null | undefined;
+  /** Ready-made design title (design products). */
+  title?: string;
 }) {
   const product = getProduct(item.productId);
   const [thumb, setThumb] = useState<string | null>(null);
@@ -233,10 +237,11 @@ function CartLine({
         )}
       </div>
       <div className="min-w-0 flex-1">
-        <p className="font-medium text-zinc-900">
-          {product?.name ?? item.productId}
+        <p className="font-medium text-zinc-900" data-testid="line-title">
+          {title ?? product?.name ?? item.productId}
         </p>
         <p className="text-xs text-zinc-500">
+          {title ? `${product?.name ?? item.productId} · ` : ""}
           {colour}
           {item.size ? ` · ${item.size}` : ""}
         </p>

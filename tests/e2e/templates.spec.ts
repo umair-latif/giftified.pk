@@ -175,6 +175,18 @@ test("a template editor publishes a design as a product from the preview; others
     "href",
     /\/design\/mug\?template=/,
   );
+  // Product images: the design on the mug from several angles, not just the flat artwork.
+  const gallery = ep.getByTestId("design-gallery");
+  await expect(gallery).toBeVisible();
+  await expect(
+    gallery.getByRole("list", { name: "Views" }).getByRole("button"),
+  ).toHaveCount(6); // 5 mockups + the flat design
+  const image = gallery.locator("img").first();
+  await expect
+    .poll(async () => image.evaluate((el: HTMLImageElement) => el.naturalWidth))
+    .toBeGreaterThan(0);
+  await gallery.getByTestId("design-thumb-1").click();
+  await expect(gallery.getByRole("img", { name: /left view/i })).toBeVisible();
   await ep.getByRole("button", { name: "Add to cart" }).click();
   const added = ep.getByTestId("added-to-cart");
   await expect(added).toContainText("Added to your cart");
@@ -184,5 +196,7 @@ test("a template editor publishes a design as a product from the preview; others
   await added.getByRole("link", { name: "Go to cart" }).click();
   await expect(ep).toHaveURL(/\/cart$/);
   await expect(ep.getByText("1,899").first()).toBeVisible();
+  // The line is titled with the design, with the product beneath it.
+  await expect(ep.getByTestId("line-title")).toHaveText("Happy Birthday");
   await editorCtx.close();
 });

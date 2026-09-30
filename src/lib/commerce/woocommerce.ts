@@ -408,14 +408,14 @@ export function createWooCommerceClient(config: WooConfig): CommerceClient {
 
   async function publishDesignProduct(
     wooProductId: number,
-    opts: { imageUrl?: string },
+    opts: { imageUrls?: string[] },
   ): Promise<void> {
     const publish = (withImage: boolean) =>
       request("PUT", `/products/${wooProductId}`, {
         body: {
           status: "publish",
-          ...(withImage && opts.imageUrl
-            ? { images: [{ src: opts.imageUrl }] }
+          ...(withImage && opts.imageUrls?.length
+            ? { images: opts.imageUrls.map((src) => ({ src })) }
             : {}),
         },
       });
@@ -425,7 +425,7 @@ export function createWooCommerceClient(config: WooConfig): CommerceClient {
       // WooCommerce fetches the image itself; when it can't (unreachable host,
       // local dev), publish without one — the founder adds it in WP admin.
       if (
-        opts.imageUrl &&
+        opts.imageUrls?.length &&
         err instanceof WooCommerceError &&
         err.status === 400
       )
