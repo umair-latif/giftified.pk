@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { SITE, whatsappUrl } from "@/config/site";
-import { InfoPage, InfoSection, Todo } from "@/features/info/info-page";
+import { InfoPage, InfoSection } from "@/features/info/info-page";
 
 export const metadata: Metadata = {
   title: "Contact us",
@@ -34,10 +34,7 @@ export default function ContactPage() {
           </a>
         ) : (
           <p>
-            <Todo>
-              TODO(founder): WhatsApp number (set SITE.whatsapp in
-              src/config/site.ts; the button appears automatically)
-            </Todo>
+            WhatsApp is temporarily unavailable &ndash; please email us instead.
           </p>
         )}
       </InfoSection>
@@ -48,21 +45,14 @@ export default function ContactPage() {
             <a href={`mailto:${SITE.email}`}>{SITE.email}</a>
           </p>
         ) : (
-          <p>
-            <Todo>
-              TODO(founder): support email (set SITE.email in
-              src/config/site.ts)
-            </Todo>
-          </p>
+          <p>Please reach us on WhatsApp.</p>
         )}
       </InfoSection>
 
       <InfoSection title="When we reply">
         <p>
-          <Todo>
-            TODO(founder): opening hours and days (e.g. Mon&ndash;Sat, 10am
-            &ndash; 7pm), and how quickly we usually reply
-          </Todo>
+          We are available {SITE.hours}. Messages that arrive outside those hours
+          are answered the next morning.
         </p>
         <p>
           After you place an order we contact you ourselves to confirm it
@@ -91,10 +81,9 @@ export default function ContactPage() {
           use <Link href="/track">Track your order</Link>.
         </p>
         <p>
-          <Todo>
-            TODO(founder): business address to show here, if any (or say we are
-            online-only)
-          </Todo>
+          We are an online-only shop &ndash; there is no walk-in counter. Your
+          order is printed by our partner workshops in Gujrat and Sialkot and
+          sent straight to you by courier.
         </p>
       </InfoSection>
     </InfoPage>

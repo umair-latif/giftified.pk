@@ -181,10 +181,10 @@ export interface CommerceClient {
   createDesignProduct(input: NewDesignProduct): Promise<DesignProduct>;
   /** The published design product, or null when unknown, draft or unpublished. */
   getDesignProduct(templateId: string): Promise<DesignProductInfo | null>;
-  /** Publishes it, with an image WooCommerce downloads from `imageUrl` (skipped if that download fails). */
+  /** Publishes it, with the images WooCommerce downloads from `imageUrls` (first = main; skipped if a download fails). */
   publishDesignProduct(
     wooProductId: number,
-    opts: { imageUrl?: string },
+    opts: { imageUrls?: string[] },
   ): Promise<void>;
 
   /**

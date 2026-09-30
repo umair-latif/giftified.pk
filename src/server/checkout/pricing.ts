@@ -22,6 +22,8 @@ export interface CartPricing {
   /** Per line, same order; null = no longer sold in this colour/size (or design). */
   unitPricePkr: (number | null)[];
   subtotalPkr: number;
+  /** Per line: the ready-made design's title, or null for a plain product. */
+  lineTitles: (string | null)[];
   /** Whole rupees off from the coupon (0 = none). */
   discountPkr: number;
   /** The accepted coupon code, lower-case. */
@@ -123,6 +125,9 @@ export async function priceCart(
     : null;
   return {
     unitPricePkr,
+    lineTitles: input.lines.map((l) =>
+      l.templateId ? (designs.get(l.templateId)?.name ?? null) : null,
+    ),
     subtotalPkr,
     discountPkr,
     ...(couponCode ? { couponCode } : {}),

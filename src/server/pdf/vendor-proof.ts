@@ -216,7 +216,10 @@ export const buildVendorProof: BuildVendorProof = async (input) => {
     ["Product", input.productName],
     ["Colour", input.colourName],
     ["Size", input.size ?? "One size"],
-    ["Quantity", String(input.quantity)],
+    // Quantity is already large in the header; a ready-made design shows its title instead.
+    input.designTitle
+      ? ["Design", input.designTitle]
+      : ["Quantity", String(input.quantity)],
   ];
   rows.forEach(([k, v], i) => {
     const y = 46 + i * 7.5;

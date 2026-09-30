@@ -127,9 +127,22 @@ export function PreviewScreen({ product }: { product: ProductConfig }) {
           productId={product.id}
           getDesign={async () => {
             const design = loadDraft(product.id);
-            return design
-              ? { design, thumbnail: await makeThumbnail(result.src, 800) }
-              : null;
+            if (!design) return null;
+            const flat = await makeThumbnail(result.src, 800);
+            // Product images: the design on the product (every mockup view),
+            // then the flat artwork.
+            const [{ MOCKUP_SPECS }, { composeMockup }] = await Promise.all([
+              import("../mockup/specs"),
+              import("../mockup/compose"),
+            ]);
+            const images = await Promise.all(
+              (MOCKUP_SPECS[product.id] ?? []).map(async (spec) => ({
+                label: spec.label,
+                dataUrl: await composeMockup(result.src, product, spec),
+              })),
+            );
+            if (flat) images.push({ label: "Design", dataUrl: flat });
+            return { design, thumbnail: flat, images };
           }}
           onClose={() => setPublishOpen(false)}
         />

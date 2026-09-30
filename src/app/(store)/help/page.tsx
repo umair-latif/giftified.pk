@@ -66,19 +66,12 @@ const ORDERING: readonly FaqItem[] = [
             <Todo>TODO(founder): working days to print after confirmation</Todo>
           </li>
           <li>
-            Delivery:{" "}
-            <Todo>
-              TODO(founder): days for major cities vs. other cities; which
-              courier(s)
-            </Todo>
+            Delivery: 5&ndash;7 days once printing is finished.
           </li>
           <li>
-            Delivery charge: shown at checkout for your city before you place
-            the order.{" "}
-            <Todo>
-              TODO(founder): flat charge amounts in PKR, and any free-delivery
-              threshold
-            </Todo>
+            Delivery charge: this depends on your city, so it is shown at
+            checkout before you place the order &ndash; there is nothing extra
+            to pay the rider beyond the total you see there.
           </li>
         </ul>
         <p>
@@ -134,16 +127,15 @@ const ORDERING: readonly FaqItem[] = [
     answer: (
       <>
         <p>
-          Yes, until you confirm it on our call or message: just tell us then,
-          or <Link href="/contact">contact us</Link> as soon as possible.
+          Yes. You can cancel or change your order any time up to the moment we
+          hand your design over to the printing partner &ndash; which happens
+          after you confirm the order on our call or message. Just tell us on
+          that call, or <Link href="/contact">contact us</Link> as soon as
+          possible.
         </p>
         <p>
-          Once you have confirmed and printing has started, your product is made
-          just for you, so it usually can&rsquo;t be cancelled.{" "}
-          <Todo>
-            TODO(founder): cancellation policy after confirmation, and what
-            happens if a customer refuses the parcel at the door
-          </Todo>
+          After your design has gone to printing it can no longer be cancelled,
+          because your product is made just for you and cannot be resold.
         </p>
       </>
     ),
@@ -216,19 +208,32 @@ const QUALITY: readonly FaqItem[] = [
       <>
         <p>
           Please check the parcel when it arrives and{" "}
-          <Link href="/contact">contact us</Link> with photos of the problem.
+          <Link href="/contact">contact us</Link> within{" "}
+          <strong>48 hours</strong> with your order number, a description of the
+          problem and clear photos of the item.
+        </p>
+        <ul>
+          <li>
+            <strong>Printing fault</strong> (smudged, misaligned, wrong colours,
+            wrong size printed) &ndash; we reprint your item free of charge.
+          </li>
+          <li>
+            <strong>Damaged product</strong> (a mug that arrived broken or
+            chipped, a torn garment) &ndash; we reprint it, or refund you if you
+            prefer.
+          </li>
+        </ul>
+        <p>
+          Refunds are only for a fault on our side: a printing fault or a damaged
+          product, reported with photos within 48 hours.
         </p>
         <p>
-          <Todo>
-            TODO(founder): reprint/refund policy &ndash; which problems qualify
-            (broken mug, wrong size, print fault), how many days to report, do
-            we need the item back, reprint vs. refund
-          </Todo>
-        </p>
-        <p>
-          Because every item is made to order, we can&rsquo;t take back items
-          for a change of mind or for problems caused by a low-quality photo you
-          chose to order anyway. <Todo>TODO(founder): confirm this rule</Todo>
+          Because every item is made to order, we can&rsquo;t take back items for
+          a change of mind, for a mistake in the design you sent us (a typo, the
+          wrong photo, the wrong spelling of a name), or for a photo that printed
+          soft after the editor warned you it was low quality and you chose to
+          order it anyway. Please check your design carefully on the preview
+          screen before you order.
         </p>
       </>
     ),

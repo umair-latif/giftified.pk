@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Disclosure } from "@/components/ui/disclosure";
@@ -9,6 +8,7 @@ import { sizes as sizesOf } from "@/features/catalog/catalog-model";
 import { DeliveryEstimate } from "@/features/catalog/components/delivery-estimate";
 import { loadCatalog } from "@/features/catalog/load-catalog";
 import { formatPkr } from "@/features/checkout/format";
+import { DesignGallery } from "@/features/templates/components/design-gallery";
 import { DesignBuyBox } from "@/features/templates/components/design-buy-box";
 import { loadTemplates } from "@/features/templates/load-templates";
 import { getCommerce } from "@/lib/commerce";
@@ -62,9 +62,12 @@ export default async function DesignProductPage({
   if (!cfg) notFound();
   const catalog = await loadCatalog();
   const base = catalog.find((p) => p.productId === info.baseProductId);
-  const image = meta.hasThumbnail
-    ? `/api/templates/${encodeURIComponent(meta.id)}/thumbnail`
-    : null;
+  const tid = encodeURIComponent(meta.id);
+  const image = meta.images?.length
+    ? `/api/templates/${tid}/images/0`
+    : meta.hasThumbnail
+      ? `/api/templates/${tid}/thumbnail`
+      : null;
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "Product",
@@ -95,19 +98,12 @@ export default async function DesignProductPage({
       </Link>
 
       <div className="mt-2 grid gap-5 lg:grid-cols-2 lg:gap-10">
-        <div className="bg-cream relative aspect-[3/2] overflow-hidden rounded-3xl ring-1 ring-zinc-200 lg:aspect-square">
-          {image && (
-            <Image
-              src={image}
-              alt={info.name}
-              fill
-              unoptimized
-              preload
-              sizes="(max-width: 768px) 100vw, 480px"
-              className="object-contain"
-            />
-          )}
-        </div>
+        <DesignGallery
+          templateId={meta.id}
+          name={info.name}
+          images={meta.images ?? []}
+          hasThumbnail={meta.hasThumbnail}
+        />
         <div className="space-y-4">
           <header className="space-y-1">
             <PageTitle>{info.name}</PageTitle>
