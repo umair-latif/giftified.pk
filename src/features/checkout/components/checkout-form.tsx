@@ -689,8 +689,11 @@ function OrderSummary({
                 ) : null}
               </div>
               <div className="min-w-0 flex-1 text-sm">
-                <p className="font-medium text-zinc-900">{productName(item)}</p>
+                <p className="font-medium text-zinc-900">
+                  {quote?.lineTitles[i] ?? productName(item)}
+                </p>
                 <p className="text-xs text-zinc-500">
+                  {quote?.lineTitles[i] ? `${productName(item)} · ` : ""}
                   {colourName(item)}
                   {item.size ? ` · ${item.size}` : ""} · Qty {item.quantity}
                 </p>

@@ -8,13 +8,15 @@ import { formatPkr } from "@/features/checkout/format";
 import { OCCASIONS } from "@/features/home/occasions";
 import type { OccasionSlug } from "@/server/templates/types";
 import type { DesignDocument } from "@/types/design";
-import { buildTemplateForm } from "./build-template-form";
+import { buildTemplateForm, type ProductImage } from "./build-template-form";
 
 interface Props {
   /** Current design plus a thumbnail render of it. */
   getDesign: () => Promise<{
     design: DesignDocument;
     thumbnail: string | null;
+    /** Mockups of the design on the product; the first is the main image. */
+    images?: ProductImage[];
   } | null>;
   onClose: () => void;
   /** Publish as a shop product: also asks for a description and a price. */
@@ -70,6 +72,7 @@ export function SaveTemplateSheet({
             : {}),
         },
         current.thumbnail,
+        current.images,
       );
       const res = await fetch("/api/admin/templates", {
         method: "POST",

@@ -65,8 +65,9 @@ export async function publishTemplateProduct(
   deps: {
     commerce: CommerceClient;
     storage?: ObjectStorage;
-    /** Public URL WooCommerce can download the thumbnail from. */
+    /** Public URLs WooCommerce can download the thumbnail / product image `n` from. */
     thumbnailUrl: (templateId: string) => string;
+    imageUrl: (templateId: string, index: number) => string;
     makeId?: () => string;
   },
 ): Promise<PublishProductResult> {
@@ -106,7 +107,12 @@ export async function publishTemplateProduct(
   if (!input.published) return { meta };
   try {
     await deps.commerce.publishDesignProduct(created.wooProductId, {
-      imageUrl: input.thumbnail ? deps.thumbnailUrl(id) : undefined,
+      // The product images (mockups) when there are some, else the thumbnail.
+      imageUrls: input.images?.length
+        ? input.images.map((_, i) => deps.imageUrl(id, i))
+        : input.thumbnail
+          ? [deps.thumbnailUrl(id)]
+          : [],
     });
   } catch (err) {
     console.error("[templates] publishing the shop product failed", err);

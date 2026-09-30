@@ -116,11 +116,19 @@ export async function prepareLine(
   if (deps.buildProof) {
     try {
       const product = getProduct(line.productId);
+      // Ready-made design: the vendor sees its title (a hiccup never blocks the proof).
+      const designTitle = line.templateId
+        ? await deps.commerce
+            .getDesignProduct(line.templateId)
+            .then((d) => d?.name)
+            .catch(() => undefined)
+        : undefined;
       const pdf = await deps.buildProof({
         orderId: order.id,
         createdAt: order.createdAt,
         productId: line.productId,
         productName: product?.name ?? line.productId,
+        ...(designTitle ? { designTitle } : {}),
         colourName:
           product?.baseColors.find((c) => c.id === line.colourId)?.name ??
           line.colourId,

@@ -10,6 +10,7 @@
  *   templates/<id>/design.json               template DesignDocument
  *   templates/<id>/assets/<assetId>          sample (placeholder) photo
  *   templates/<id>/thumbnail.webp            gallery thumbnail
+ *   templates/<id>/images/<n>.webp           product images (mockups), n = 0…
  *
  * Folder prefixes (`designFolder`, `orderFolder`) are what the retention job
  * (task 24) deletes; `assertFolderPrefix` guards every prefix delete.
@@ -83,3 +84,9 @@ export const templateAssetKey = (templateId: string, assetId: string) =>
 
 export const templateThumbKey = (templateId: string) =>
   `templates/${assertSafeId(templateId, "templateId")}/thumbnail.webp`;
+
+export const templateImageKey = (templateId: string, index: number) => {
+  if (!Number.isInteger(index) || index < 0 || index > 19)
+    throw new Error(`Invalid image index: ${index}`);
+  return `templates/${assertSafeId(templateId, "templateId")}/images/${index}.webp`;
+};

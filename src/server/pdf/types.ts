@@ -10,6 +10,8 @@ export interface VendorProofInput {
   createdAt: string; // ISO 8601
   productId: ProductId;
   productName: string;
+  /** Title of the ready-made design this line was bought as (design products, task 26). */
+  designTitle?: string;
   colourName: string;
   size?: string;
   quantity: number;

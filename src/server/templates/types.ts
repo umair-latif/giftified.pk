@@ -27,6 +27,8 @@ export interface TemplateMeta {
   /** Only published templates are shown to customers. */
   published: boolean;
   hasThumbnail: boolean;
+  /** Product images (mockups) stored with the template, in display order (task 26). */
+  images?: { label: string }[];
   /** ISO 8601 (UTC). */
   createdAt: string;
   /** Email of the template editor who saved it (absent on older templates). */
@@ -71,4 +73,6 @@ export interface SaveTemplateInput {
   /** Sample photos: one per asset id referenced by the design. */
   assets: { assetId: string; bytes: Uint8Array; contentType: string }[];
   thumbnail?: Uint8Array;
+  /** Product images (mockups of the design on the product), first = main image. */
+  images?: { label: string; bytes: Uint8Array }[];
 }
