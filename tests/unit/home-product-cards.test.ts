@@ -39,6 +39,7 @@ describe("home product cards", () => {
     expect(noStore[0]).toMatchObject({
       href: "/products/mug",
       fromPricePkr: null,
+      fromRegularPricePkr: null,
     });
   });
 

@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { formatPkr } from "@/features/checkout/format";
+import { PriceTag } from "@/components/ui/price-tag";
 import type { HomeProductCard } from "./product-cards";
 import { Container } from "@/components/ui/page";
 
@@ -20,9 +20,12 @@ function CardBody({ card }: { card: HomeProductCard }) {
         <span className="text-ink text-sm">{card.note}</span>
         {card.href ? (
           card.fromPricePkr !== null && (
-            <span className="text-brand-700 mt-1 text-sm font-medium">
-              from {formatPkr(card.fromPricePkr)}
-            </span>
+            <PriceTag
+              from
+              pkr={card.fromPricePkr}
+              regularPkr={card.fromRegularPricePkr}
+              className="text-brand-700 mt-1 text-sm"
+            />
           )
         ) : (
           <span className="bg-sunny text-ink mt-2 w-fit rounded-full px-2.5 py-0.5 text-xs font-medium">

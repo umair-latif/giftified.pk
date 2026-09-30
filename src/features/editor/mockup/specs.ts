@@ -75,8 +75,21 @@ const STUDIO = {
   credit: "Canva",
 } as const;
 
+/**
+ * Order = the order of the preview tabs and of a design product's stored
+ * images (the first one is its main picture): a side view with the handle
+ * first, then the front and the other side, then the lifestyle shots.
+ */
 export const MOCKUP_SPECS: Partial<Record<ProductId, readonly MockupSpec[]>> = {
   mug: [
+    {
+      ...STUDIO,
+      id: "right",
+      label: "Right",
+      side: "right",
+      src: "/mockups/mug-right.webp",
+      body: { left: 276, right: 759, top: 221, bottom: 834 },
+    },
     {
       ...STUDIO,
       id: "front",
@@ -94,14 +107,6 @@ export const MOCKUP_SPECS: Partial<Record<ProductId, readonly MockupSpec[]>> = {
       side: "left",
       src: "/mockups/mug-left.webp",
       body: { left: 279, right: 762, top: 221, bottom: 834 },
-    },
-    {
-      ...STUDIO,
-      id: "right",
-      label: "Right",
-      side: "right",
-      src: "/mockups/mug-right.webp",
-      body: { left: 276, right: 759, top: 221, bottom: 834 },
     },
     {
       id: "lifestyle",
