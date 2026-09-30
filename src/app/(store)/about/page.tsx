@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { InfoPage, InfoSection, Todo } from "@/features/info/info-page";
+import { InfoPage, InfoSection } from "@/features/info/info-page";
 import { PRINT_DPI } from "@/lib/units";
 
 export const metadata: Metadata = {
@@ -17,10 +17,9 @@ export default function AboutPage() {
     >
       <InfoSection title="Our story">
         <p>
-          <Todo>
-            TODO(founder): the short story &ndash; who started Giftified.pk,
-            when, and why (2&ndash;4 sentences)
-          </Todo>
+          Giftified.pk started from a simple frustration: ordering a personalised
+          gift in Pakistan usually meant sending a photo to someone on WhatsApp
+          and hoping the result looked like what you had in mind.
         </p>
         <p>
           We wanted personalised gifts in Pakistan to be simple: design
@@ -62,15 +61,6 @@ export default function AboutPage() {
             you if a photo is too small to print sharply.
           </li>
         </ul>
-      </InfoSection>
-
-      <InfoSection title="What we care about">
-        <p>
-          <Todo>
-            TODO(founder): brand values from the brand sheet (they are not in
-            docs/brand.md yet) &ndash; list them here with one line each
-          </Todo>
-        </p>
       </InfoSection>
 
       <p className="text-sm">
