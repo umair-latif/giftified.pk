@@ -1,7 +1,6 @@
 "use client";
 
-import Image from "next/image";
-import { useState } from "react";
+import { ImageGallery } from "@/components/ui/image-gallery";
 
 interface Props {
   templateId: string;
@@ -27,60 +26,16 @@ export function DesignGallery({
     : hasThumbnail
       ? [{ label: "Design", src: `/api/templates/${id}/thumbnail` }]
       : [];
-  const [index, setIndex] = useState(0);
-  const shown = sources[index];
-  if (!shown)
-    return (
-      <div className="bg-cream aspect-square rounded-3xl ring-1 ring-zinc-200" />
-    );
   return (
-    <div className="min-w-0 space-y-2" data-testid="design-gallery">
-      <div className="bg-cream relative aspect-square overflow-hidden rounded-3xl ring-1 ring-zinc-200">
-        <Image
-          key={shown.src}
-          src={shown.src}
-          alt={`${name}, ${shown.label.toLowerCase()} view`}
-          fill
-          unoptimized
-          preload={index === 0}
-          sizes="(max-width: 768px) 100vw, 480px"
-          className={`object-contain ${
-            shown.label === "Design" ? "" : "md:scale-[1.2]"
-          }`}
-        />
-      </div>
-      {sources.length > 1 && (
-        <ul
-          className="flex max-w-full [scrollbar-width:none] gap-2 overflow-x-auto p-1 md:flex-wrap md:overflow-visible [&::-webkit-scrollbar]:hidden"
-          aria-label="Views"
-        >
-          {sources.map((s, i) => (
-            <li key={s.src} className="shrink-0">
-              <button
-                type="button"
-                onClick={() => setIndex(i)}
-                aria-label={s.label}
-                aria-current={i === index}
-                data-testid={`design-thumb-${i}`}
-                className={`focus-visible:ring-brand-600/60 relative block size-16 overflow-hidden rounded-lg bg-white ring-2 focus-visible:outline-none ${
-                  i === index
-                    ? "ring-brand-600"
-                    : "ring-zinc-200 hover:ring-zinc-300"
-                }`}
-              >
-                <Image
-                  src={s.src}
-                  alt=""
-                  fill
-                  unoptimized
-                  sizes="64px"
-                  className="object-cover"
-                />
-              </button>
-            </li>
-          ))}
-        </ul>
-      )}
-    </div>
+    <ImageGallery
+      testId="design"
+      unoptimized
+      sizes="(max-width: 768px) 100vw, 480px"
+      items={sources.map((s) => ({
+        ...s,
+        alt: `${name}, ${s.label.toLowerCase()} view`,
+        className: `object-contain ${s.label === "Design" ? "" : "md:scale-[1.2]"}`,
+      }))}
+    />
   );
 }
