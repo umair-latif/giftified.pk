@@ -44,12 +44,14 @@ export function DesignGallery({
           unoptimized
           preload={index === 0}
           sizes="(max-width: 768px) 100vw, 480px"
-          className="object-contain"
+          className={`object-contain ${
+            shown.label === "Design" ? "" : "md:scale-[1.2]"
+          }`}
         />
       </div>
       {sources.length > 1 && (
         <ul
-          className="flex max-w-full gap-2 overflow-x-auto pb-1"
+          className="flex max-w-full [scrollbar-width:none] gap-2 overflow-x-auto p-1 md:flex-wrap md:overflow-visible [&::-webkit-scrollbar]:hidden"
           aria-label="Views"
         >
           {sources.map((s, i) => (
