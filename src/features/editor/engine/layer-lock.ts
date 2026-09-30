@@ -7,7 +7,12 @@ import { FabricObject, type Canvas } from "fabric";
  * `features/templates/lock-layers.ts`) stamps `templateLocked` on the locked
  * layers; this module makes Fabric honour it.
  */
-export const LAYER_PROPS = ["customizable", "templateLocked"] as const;
+// (`autoWidth` is the text box flag of engine/text-fit.ts; saved the same way.)
+export const LAYER_PROPS = [
+  "customizable",
+  "templateLocked",
+  "autoWidth",
+] as const;
 
 // Serialised with every object (history, drafts, saved templates).
 FabricObject.customProperties = [...LAYER_PROPS];

@@ -1,5 +1,6 @@
 import type { Canvas, FabricObject, Textbox } from "fabric";
 import { fitFace, fontForFamily } from "@/config/fonts";
+import { fitTextWidth, isAutoWidth, printAreaWidthMm } from "./text-fit";
 
 /**
  * Editor API for the text styling sheet. UI code calls these through
@@ -78,6 +79,7 @@ export function applyTextStyle(
       strokeLineJoin: "round",
     });
   }
+  if (isAutoWidth(target)) fitTextWidth(target, printAreaWidthMm(canvas));
   target.initDimensions();
   target.setCoords();
   canvas.requestRenderAll();

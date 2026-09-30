@@ -1,0 +1,49 @@
+import type { Canvas, FabricObject, Textbox } from "fabric";
+import { isTextbox } from "./text-style";
+
+/**
+ * Auto-width text: a new text box is exactly as wide as its text and grows as
+ * you type, wrapping only at the print-area edge (or where you press Enter).
+ * The `autoWidth` flag is saved with the object, so text made before this
+ * existed — and every template's fixed-width text — keeps its saved width.
+ */
+type AutoWidth = { autoWidth?: boolean };
+
+export const isAutoWidth = (obj: FabricObject | undefined): boolean =>
+  !!obj && (obj as AutoWidth).autoWidth === true;
+
+/** A little air beside the widest line, so a hair's difference in font metrics (editor vs print) never wraps a word. */
+const PAD_EM = 0.04;
+const MIN_EM = 0.6;
+
+/** Width of the print area in mm (the canvas is exactly the print area). */
+export const printAreaWidthMm = (canvas: Canvas): number =>
+  canvas.getWidth() / (canvas.getZoom() || 1);
+
+/**
+ * Sets the box width to the widest line of its text, at most `maxWidthMm`
+ * (scene millimetres, i.e. after any scaling).
+ */
+export function fitTextWidth(tb: Textbox, maxWidthMm: number): void {
+  const maxLocal = maxWidthMm / (tb.scaleX || 1);
+  // Lay the text out as wide as allowed, then shrink to its widest line.
+  tb.set({ width: maxLocal });
+  tb.initDimensions();
+  let widest = 0;
+  for (let i = 0; i < tb.textLines.length; i++)
+    widest = Math.max(widest, tb.getLineWidth(i));
+  const fit = Math.max(tb.fontSize * MIN_EM, widest + tb.fontSize * PAD_EM);
+  tb.set({ width: Math.min(maxLocal, fit) });
+  tb.initDimensions();
+  tb.setCoords();
+  tb.dirty = true;
+}
+
+/** Keeps auto-width text hugging what is typed (Fabric fires `text:changed` on every keystroke). */
+export function attachTextAutoWidth(canvas: Canvas): () => void {
+  return canvas.on("text:changed", ({ target }) => {
+    if (!isTextbox(target) || !isAutoWidth(target)) return;
+    fitTextWidth(target, printAreaWidthMm(canvas));
+    canvas.requestRenderAll();
+  });
+}

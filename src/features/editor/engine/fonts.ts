@@ -1,5 +1,6 @@
 import { cache, type Canvas, type FabricObject } from "fabric";
 import { onFontLoaded } from "../fonts/load-fonts";
+import { fitTextWidth, isAutoWidth, printAreaWidthMm } from "./text-fit";
 import { isTextbox } from "./text-style";
 
 // Fabric caches glyph widths per family; widths measured with a fallback font
@@ -22,7 +23,9 @@ export function relayoutText(canvas: Canvas): void {
   cache.clearFontCache();
   eachText(canvas.getObjects(), (o) => {
     if (!isTextbox(o)) return;
-    o.initDimensions();
+    // Auto-width text re-fits its new font; fixed-width text keeps its saved wrapping.
+    if (isAutoWidth(o)) fitTextWidth(o, printAreaWidthMm(canvas));
+    else o.initDimensions();
     o.setCoords();
     o.dirty = true;
   });
