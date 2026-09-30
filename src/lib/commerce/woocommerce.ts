@@ -7,6 +7,7 @@ import type {
   CatalogProduct,
   CommerceClient,
   Customer,
+  CustomerOrderPage,
   DesignProduct,
   DesignProductInfo,
   NewDesignProduct,
@@ -50,6 +51,7 @@ import {
   type WooVariation,
 } from "./woo-schemas";
 import { verifyWooWebhook } from "./woo-webhook";
+import { assertSavedDesignList, parseSavedDesigns } from "./saved-designs";
 
 /**
  * Real CommerceClient on headless WooCommerce (REST API v3).
@@ -148,6 +150,9 @@ function mapCustomer(c: WooCustomer): Customer {
           },
         }
       : {}),
+    ...(metaValue(c.meta_data, META.marketingOptIn) === "yes"
+      ? { marketingOptIn: true }
+      : {}),
     id: c.id,
     email: c.email.toLowerCase(),
     firstName: c.first_name,
@@ -155,6 +160,9 @@ function mapCustomer(c: WooCustomer): Customer {
     modifiedAt: c.date_modified_gmt ?? "",
   };
 }
+
+/** Customer orders per page on /account/orders. */
+const CUSTOMER_ORDERS_PAGE = 20;
 
 /** WooCommerce error codes for "this email/username is taken". */
 const EXISTS_CODES = new Set([
@@ -171,7 +179,7 @@ export function createWooCommerceClient(config: WooConfig): CommerceClient {
   ).toString("base64")}`;
 
   async function request(
-    method: "GET" | "POST" | "PUT",
+    method: "GET" | "POST" | "PUT" | "DELETE",
     path: string,
     opts: RequestOpts = {},
   ): Promise<{ json: unknown; headers: Headers }> {
@@ -739,6 +747,84 @@ export function createWooCommerceClient(config: WooConfig): CommerceClient {
             city: profile.city,
             country: "PK",
           },
+        },
+      });
+    },
+
+    async updateCustomerAccount(id, update) {
+      await request("PUT", `/customers/${id}`, {
+        body: {
+          first_name: update.firstName,
+          last_name: update.lastName,
+          // WC replaces an existing key when meta is sent without an id.
+          meta_data: [
+            {
+              key: META.marketingOptIn,
+              value: update.marketingOptIn ? "yes" : "no",
+            },
+          ],
+        },
+      });
+    },
+
+    async deleteCustomer(id) {
+      try {
+        // force: customers can't be trashed. reassign=0: WordPress keeps no
+        // posts for them (orders stay in WooCommerce either way).
+        await request("DELETE", `/customers/${id}`, {
+          query: { force: true, reassign: 0 },
+        });
+      } catch (e) {
+        if (e instanceof WooCommerceError && e.status === 404) return;
+        throw e;
+      }
+    },
+
+    async listCustomerOrders(customerId, page = 1): Promise<CustomerOrderPage> {
+      if (!Number.isInteger(customerId) || customerId <= 0)
+        throw new WooCommerceError(`Invalid customer ${customerId}`, 400);
+      if (!Number.isInteger(page) || page < 1)
+        throw new WooCommerceError(`Invalid page ${page}`, 400);
+      const { json, headers } = await request("GET", "/orders", {
+        query: {
+          customer: customerId,
+          page,
+          per_page: CUSTOMER_ORDERS_PAGE,
+          orderby: "date",
+          order: "desc",
+        },
+      });
+      const raw = z.array(wooOrderSchema).parse(json);
+      const catalog = await listProducts();
+      return {
+        // Belt and braces: never show another customer's order.
+        orders: raw
+          .filter((o) => o.customer_id === customerId)
+          .map((o) => mapOrder(o, catalog)),
+        totalPages: Math.max(1, Number(headers.get("x-wp-totalpages")) || 1),
+      };
+    },
+
+    async getCustomerOrder(customerId, id) {
+      const o = await rawOrder(id);
+      if (!o || customerId <= 0 || o.customer_id !== customerId) return null;
+      return mapOrder(o, await listProducts());
+    },
+
+    async listSavedDesigns(customerId) {
+      const c = await get(`/customers/${customerId}`, wooCustomerSchema);
+      return parseSavedDesigns(
+        c.meta_data.find((m) => m.key === META.savedDesigns)?.value,
+      );
+    },
+
+    async setSavedDesigns(customerId, designs) {
+      assertSavedDesignList(designs);
+      await request("PUT", `/customers/${customerId}`, {
+        body: {
+          meta_data: [
+            { key: META.savedDesigns, value: JSON.stringify(designs) },
+          ],
         },
       });
     },
