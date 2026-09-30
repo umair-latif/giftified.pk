@@ -96,6 +96,28 @@ test("a template editor saves a template; a customer starts from it and must rep
   );
   await expect(cp).toHaveURL(/\/design\/mug$/); // ?template= dropped
   await customer.close();
+
+  // Customers never see "Delete template"; the editor does, and it removes the design.
+  await page.goto("/products/mug");
+  page.once("dialog", (d) => void d.accept());
+  await page
+    .getByTestId("template-grid")
+    .getByRole("listitem")
+    .filter({ hasText: "Eid card" })
+    .getByTestId("delete-template")
+    .click();
+  await expect
+    .poll(async () => (await page.request.get(`/api/templates/${id}`)).status())
+    .toBe(404);
+  await expect
+    .poll(
+      async () =>
+        (await (await page.request.get("/products/mug")).text()).includes(
+          "Eid card",
+        ),
+      { timeout: 15_000 },
+    )
+    .toBe(false);
 });
 
 test("occasion pages exist for each tile and 404 for unknown ones", async ({
