@@ -20,7 +20,9 @@ import type {
   WebhookVerification,
   DesignProduct,
   NewDesignProduct,
+  SavedDesign,
 } from "./types";
+import { assertSavedDesignList, parseSavedDesigns } from "./saved-designs";
 
 /**
  * In-memory store for local development and tests. Deterministic prices so
@@ -86,6 +88,7 @@ export function createMockCommerce(
   let nextId = 1000;
   // Accounts: plain-text passwords are fine here — dev/test only.
   const customers = new Map<number, Customer & { password: string }>();
+  const savedDesigns = new Map<number, SavedDesign[]>();
   let nextCustomerId = 500;
   let clock = Date.parse("2026-01-01T00:00:00Z");
   const publicCustomer = (c: Customer & { password: string }): Customer => ({
@@ -96,7 +99,17 @@ export function createMockCommerce(
     modifiedAt: c.modifiedAt,
     ...(c.phone ? { phone: c.phone } : {}),
     ...(c.address ? { address: c.address } : {}),
+    ...(c.marketingOptIn ? { marketingOptIn: true } : {}),
   });
+  const mustCustomer = (id: number) => {
+    const c = customers.get(id);
+    if (!c) throw new Error(`Customer ${id} not found`);
+    return c;
+  };
+  const ownOrders = (customerId: number) =>
+    [...orders.values()]
+      .filter((o) => extras.get(o.id)?.customerId === customerId)
+      .sort((a, b) => b.id - a.id);
   const byEmail = (email: string) =>
     [...customers.values()].find((c) => c.email === email.trim().toLowerCase());
   const RETENTION_PAGE = 100;
@@ -333,6 +346,43 @@ export function createMockCommerce(
       if (!c) throw new Error(`Customer ${id} not found`);
       c.password = password;
       c.modifiedAt = new Date((clock += 1000)).toISOString();
+    },
+
+    async updateCustomerAccount(id, update) {
+      const c = mustCustomer(id);
+      c.firstName = update.firstName;
+      c.lastName = update.lastName;
+      c.marketingOptIn = update.marketingOptIn;
+      c.modifiedAt = new Date((clock += 1000)).toISOString();
+    },
+    async deleteCustomer(id) {
+      customers.delete(id);
+      savedDesigns.delete(id);
+    },
+    async listCustomerOrders(customerId, page = 1) {
+      const all = ownOrders(customerId);
+      const size = 20;
+      return {
+        orders: structuredClone(all.slice((page - 1) * size, page * size)),
+        totalPages: Math.max(1, Math.ceil(all.length / size)),
+      };
+    },
+    async getCustomerOrder(customerId, id) {
+      const o = orders.get(id);
+      return o && customerId > 0 && extras.get(id)?.customerId === customerId
+        ? structuredClone(o)
+        : null;
+    },
+    async listSavedDesigns(customerId) {
+      mustCustomer(customerId);
+      return parseSavedDesigns(
+        structuredClone(savedDesigns.get(customerId) ?? []),
+      );
+    },
+    async setSavedDesigns(customerId, designs) {
+      mustCustomer(customerId);
+      assertSavedDesignList(designs);
+      savedDesigns.set(customerId, structuredClone(designs));
     },
 
     getOrder: async (id) => structuredClone(orders.get(id) ?? null),

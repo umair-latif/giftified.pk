@@ -40,7 +40,10 @@ export const META = {
   printPngUrl: "_print_png_url",
   proofPdfUrl: "_proof_pdf_url",
   contentConfirmed: "_content_confirmed",
+  /** Order meta AND customer meta (the account's default, task 21). */
   marketingOptIn: "_marketing_optin",
+  /** Customer meta: JSON list of saved designs (task 22). */
+  savedDesigns: "_saved_designs",
   retainForReview: "_retain_for_review",
   retentionDone: "_retention_done",
   templateId: "_template_id",

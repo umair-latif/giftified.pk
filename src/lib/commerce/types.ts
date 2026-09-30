@@ -72,6 +72,50 @@ export interface Customer {
   phone?: string;
   /** Saved address, if any: fills checkout for signed-in customers. */
   address?: { city: string; addressLine: string; landmark?: string };
+  /**
+   * Customer meta `_marketing_optin` = "yes" (task 21): the default for the
+   * checkout opt-in. Absent = not opted in.
+   */
+  marketingOptIn?: boolean;
+}
+
+/** What the customer can change on /account/profile (task 21). Email is not editable. */
+export interface CustomerAccountUpdate {
+  firstName: string;
+  lastName: string;
+  marketingOptIn: boolean;
+}
+
+/** Customer meta `_saved_designs` holds at most this many (task 22). */
+export const MAX_SAVED_DESIGNS = 50;
+
+/**
+ * One of the customer's saved designs (task 22), kept as a small JSON list in
+ * WooCommerce customer meta `_saved_designs`. The files live in storage:
+ *  - `source: "account"` (Save to my designs): `accounts/<customerId>/designs/<id>/`,
+ *    a prefix the retention job (task 24) never reads or deletes;
+ *  - `source: "order"` (placed while signed in): `designs/<id>/`, kept because
+ *    the retention job never deletes designs of signed-in orders.
+ */
+export interface SavedDesign {
+  /** Storage id (safe id, see `lib/storage/keys.ts`). */
+  id: string;
+  productId: ProductId;
+  /** Shown in the list; the customer can rename it. 1–60 characters. */
+  name: string;
+  source: "account" | "order";
+  /** The order it came from (`source: "order"`). */
+  orderId?: OrderId;
+  /** A thumbnail.webp is stored beside the design. */
+  hasThumbnail: boolean;
+  /** ISO 8601. */
+  updatedAt: string;
+}
+
+/** One page of a customer's orders, newest first. */
+export interface CustomerOrderPage {
+  orders: Order[];
+  totalPages: number;
 }
 
 /** What checkout saves to the account when the customer ticks "save my details". */
@@ -241,6 +285,29 @@ export interface CommerceClient {
     id: number,
     profile: CustomerProfileUpdate,
   ): Promise<void>;
+
+  // Account area (task 21) and saved designs (task 22).
+  /** Name and marketing preference (`_marketing_optin` customer meta). */
+  updateCustomerAccount(
+    id: number,
+    update: CustomerAccountUpdate,
+  ): Promise<void>;
+  /**
+   * Deletes the WooCommerce customer (the account). Their orders stay in
+   * WooCommerce for the accounting period. The caller deletes stored files first.
+   */
+  deleteCustomer(id: number): Promise<void>;
+  /** Orders placed while signed in to this account, newest first, 20 per page (1-based). */
+  listCustomerOrders(
+    customerId: number,
+    page?: number,
+  ): Promise<CustomerOrderPage>;
+  /** The order, only if it belongs to this customer; otherwise null (same as "no such order"). */
+  getCustomerOrder(customerId: number, id: OrderId): Promise<Order | null>;
+  /** The customer's saved designs, newest first. Invalid entries are dropped. */
+  listSavedDesigns(customerId: number): Promise<SavedDesign[]>;
+  /** Replaces the whole list (at most `MAX_SAVED_DESIGNS`). */
+  setSavedDesigns(customerId: number, designs: SavedDesign[]): Promise<void>;
 
   /**
    * Retention job (task 24): page `page` (1-based, 100 per page) of ALL

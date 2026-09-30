@@ -79,6 +79,8 @@ export const wooOrderSchema = z.object({
   status: z.string(),
   date_created_gmt: z.string().nullable(),
   payment_method: z.string(),
+  /** 0 = guest order. */
+  customer_id: z.number().default(0),
   total: z.string(),
   shipping_total: z.string(),
   discount_total: z.string().optional(),
@@ -142,6 +144,7 @@ export const wooCustomerSchema = z.object({
       city: z.string().default(""),
     })
     .optional(),
+  meta_data: z.array(wooMetaSchema).default([]),
 });
 export type WooCustomer = z.infer<typeof wooCustomerSchema>;
 
