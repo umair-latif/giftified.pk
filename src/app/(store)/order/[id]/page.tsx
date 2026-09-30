@@ -9,6 +9,7 @@ import { loadOrderForLink } from "@/features/orders/order-access";
 import { toOrderView } from "@/features/orders/order-view";
 import { getCommerce } from "@/lib/commerce";
 import { Page, PageTitle } from "@/components/ui/page";
+import { buttonClass } from "@/components/ui/button";
 
 export const metadata: Metadata = {
   title: "Your order",
@@ -97,10 +98,7 @@ export default async function OrderStatusPage(props: PageProps<"/order/[id]">) {
         </Link>
         .
       </p>
-      <Link
-        href="/"
-        className="bg-brand-600 hover:bg-brand-700 active:bg-brand-700 focus-visible:ring-brand-600/40 grid h-12 place-items-center rounded-full font-semibold text-white focus-visible:ring-2 focus-visible:outline-none"
-      >
+      <Link href="/" className={buttonClass("primary")}>
         Back to the shop
       </Link>
     </Page>

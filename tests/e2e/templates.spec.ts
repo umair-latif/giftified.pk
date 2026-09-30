@@ -195,7 +195,7 @@ test("a template editor publishes a design as a product from the preview; others
         [el, ...(el?.querySelectorAll("img, a, button, ul") ?? [])]
           .filter((e): e is Element => !!e)
           // The thumbnail strip scrolls sideways on purpose; its box must fit.
-          .filter((e) => !e.closest("ul") || e.tagName === "UL")
+          .filter((e) => !e.closest("ul, .snap-x") || e.tagName === "UL")
           .filter((e) => e.getBoundingClientRect().right > w + 1)
           .map((e) => `${id}: ${e.tagName}`)
       );
@@ -203,7 +203,15 @@ test("a template editor publishes a design as a product from the preview; others
   });
   expect(overflow).toEqual([]);
   await gallery.getByTestId("design-thumb-2").click();
-  await expect(gallery.getByRole("img", { name: /left view/i })).toBeVisible();
+  // The picture is scrolled into the viewport (the strip snaps to it).
+  await expect
+    .poll(async () =>
+      gallery.getByRole("img", { name: /left view/i }).evaluate((el) => {
+        const r = el.getBoundingClientRect();
+        return r.left >= -1 && r.right <= window.innerWidth + 1;
+      }),
+    )
+    .toBe(true);
   await ep.getByRole("button", { name: "Add to cart" }).click();
   const added = ep.getByTestId("added-to-cart");
   await expect(added).toContainText("Added to your cart");
