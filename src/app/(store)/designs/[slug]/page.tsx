@@ -1,12 +1,11 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { Disclosure } from "@/components/ui/disclosure";
 import { Page, PageTitle } from "@/components/ui/page";
 import { PriceTag } from "@/components/ui/price-tag";
 import { getProduct } from "@/config/products";
 import { sizes as sizesOf } from "@/features/catalog/catalog-model";
-import { DeliveryEstimate } from "@/features/catalog/components/delivery-estimate";
+import { ProductDetails } from "@/features/catalog/components/product-details";
 import { loadCatalog } from "@/features/catalog/load-catalog";
 import { DesignGallery } from "@/features/templates/components/design-gallery";
 import { DesignBuyBox } from "@/features/templates/components/design-buy-box";
@@ -83,7 +82,7 @@ export default async function DesignProductPage({
   };
 
   return (
-    <Page width="content" className="lg:max-w-5xl">
+    <Page width="wide">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
@@ -143,33 +142,7 @@ export default async function DesignProductPage({
         </div>
       </div>
 
-      <Disclosure
-        summary="Details about the product"
-        className="mt-6 rounded-2xl bg-white ring-1 ring-zinc-200"
-        summaryClassName="rounded-2xl text-base font-semibold"
-        bodyClassName="space-y-4 pt-1"
-      >
-        <p className="text-ink text-sm">{cfg.subtitle}.</p>
-        <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-2 text-sm">
-          <dt className="text-zinc-500">Print area</dt>
-          <dd>
-            {cfg.printArea.widthMm} × {cfg.printArea.heightMm} mm · printed at{" "}
-            {cfg.printDpi} DPI
-          </dd>
-          <dt className="text-zinc-500">Reprints</dt>
-          <dd>
-            Arrives damaged or misprinted? We&apos;ll put it right —{" "}
-            <Link
-              href="/help"
-              className="text-brand-700 hover:text-brand-800 focus-visible:ring-brand-600/20 rounded underline focus-visible:ring-2 focus-visible:outline-none"
-            >
-              see Help
-            </Link>
-            .
-          </dd>
-        </dl>
-        <DeliveryEstimate />
-      </Disclosure>
+      <ProductDetails cfg={cfg} className="mt-6" />
     </Page>
   );
 }

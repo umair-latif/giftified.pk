@@ -37,31 +37,31 @@ async function seedCart(page: Page) {
   }, store);
 }
 
-test("product page: picture on the left, title, Start designing and details on the right", async ({
+test("product page: gallery left, title and Start designing right, details full width below", async ({
   page,
 }) => {
   await page.goto("/products/mug");
-  const image = await page.locator("main img").first().boundingBox();
+  const image = await page.locator("main svg, main img").first().boundingBox();
   const title = await page.getByRole("heading", { level: 1 }).boundingBox();
   const start = await page
     .getByRole("link", { name: "Start designing" })
     .boundingBox();
-  const details = await page
-    .getByText("Details", { exact: true })
-    .boundingBox();
+  const details = await page.getByTestId("product-details").boundingBox();
   expect(image!.width).toBeGreaterThan(380);
-  for (const box of [title, start, details])
+  for (const box of [title, start])
     expect(box!.x).toBeGreaterThan(image!.x + image!.width - 1);
-  // The right column reads top to bottom: title, then the button, then details.
   expect(title!.y).toBeLessThan(start!.y);
-  expect(start!.y).toBeLessThan(details!.y);
-  // Ready-made designs is full width below both columns.
+  // Details: always open, below both columns, spanning their full width.
+  expect(details!.y).toBeGreaterThan(image!.y + image!.height - 1);
+  expect(details!.x).toBeLessThanOrEqual(image!.x + 1);
+  expect(details!.x + details!.width).toBeGreaterThanOrEqual(
+    start!.x + start!.width - 1,
+  );
+  // Ready-made designs is full width below the details.
   const designs = await page
     .getByRole("heading", { name: /Ready-made designs/ })
     .boundingBox();
-  expect(designs!.y).toBeGreaterThan(
-    Math.max(image!.y + image!.height, details!.y) - 1,
-  );
+  expect(designs!.y).toBeGreaterThan(details!.y + details!.height - 1);
 });
 
 test("checkout: form on the left, order summary and Place order on the right", async ({

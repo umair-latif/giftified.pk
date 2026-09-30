@@ -1,8 +1,6 @@
 import type { Metadata } from "next";
-import Image from "next/image";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
-import { Disclosure } from "@/components/ui/disclosure";
 import { editableProductIds, getProduct } from "@/config/products";
 import {
   fromPrice,
@@ -13,7 +11,7 @@ import {
   slugFor,
   swatches,
 } from "@/features/catalog/catalog-model";
-import { DeliveryEstimate } from "@/features/catalog/components/delivery-estimate";
+import { ProductDetails } from "@/features/catalog/components/product-details";
 import { ProductArt } from "@/features/catalog/components/product-art";
 import { ProductGallery } from "@/features/catalog/components/product-gallery";
 import { Swatches } from "@/features/catalog/components/swatches";
@@ -76,16 +74,12 @@ export default async function ProductPage({
   const cfg = getProduct(productId)!;
   const templates = await loadTemplates({ productId });
   const name = product?.name ?? cfg.name;
-  const hero = product?.images[0];
   const colours = swatches(product, cfg.baseColors);
   const productSizes = sizesOf(product);
   const url = `${appBaseUrl()}/products/${product?.slug ?? productId}`;
 
   return (
-    <Page
-      width="content"
-      className="lg:grid lg:max-w-5xl lg:grid-cols-2 lg:grid-rows-[auto_auto_auto_1fr_auto] lg:content-start lg:items-start lg:gap-x-10 lg:gap-y-4"
-    >
+    <Page width="wide">
       {product && (
         <script
           type="application/ld+json"
@@ -96,89 +90,65 @@ export default async function ProductPage({
       )}
       <Link
         href="/products"
-        className="text-brand-700 hover:text-brand-800 focus-visible:ring-brand-600/20 w-fit rounded text-sm font-medium focus-visible:ring-2 focus-visible:outline-none lg:col-span-2"
+        className="text-brand-700 hover:text-brand-800 focus-visible:ring-brand-600/20 w-fit rounded text-sm font-medium focus-visible:ring-2 focus-visible:outline-none"
       >
         ← All products
       </Link>
 
-      <header className="mt-2 flex flex-wrap items-baseline gap-x-3 gap-y-1 lg:col-start-2 lg:row-start-2 lg:mt-0">
-        <PageTitle>{name}</PageTitle>
-        {product && (
-          <p className="text-brand-900">
-            from{" "}
-            <span className="font-semibold">
-              {formatPkr(fromPrice(product))}
-            </span>
-          </p>
+      <div className="mt-2 grid grid-cols-[minmax(0,1fr)] gap-5 lg:grid-cols-2 lg:gap-10">
+        {product && product.images.length > 0 ? (
+          <ProductGallery images={product.images} name={name} />
+        ) : (
+          <ProductArt
+            productId={productId}
+            className="aspect-square overflow-hidden rounded-3xl ring-1 ring-zinc-200"
+          />
         )}
-        <span className="bg-mint-300 text-ink rounded-full px-2.5 py-0.5 text-xs font-semibold">
-          Cash on Delivery
-        </span>
-      </header>
+        <div className="min-w-0 space-y-4">
+          <header className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+            <PageTitle>{name}</PageTitle>
+            {product && (
+              <p className="text-brand-900">
+                from{" "}
+                <span className="font-semibold">
+                  {formatPkr(fromPrice(product))}
+                </span>
+              </p>
+            )}
+            <span className="bg-mint-300 text-ink rounded-full px-2.5 py-0.5 text-xs font-semibold">
+              Cash on Delivery
+            </span>
+          </header>
 
-      {/* First card, always: Design your own. */}
-      <section
-        aria-labelledby="design-own"
-        className="border-brand-200 mt-4 overflow-hidden rounded-3xl border-2 bg-white shadow-sm lg:contents"
-        data-testid="design-your-own"
-      >
-        <div className="lg:border-brand-200 lg:col-start-1 lg:row-span-3 lg:row-start-2 lg:overflow-hidden lg:rounded-3xl lg:border-2 lg:shadow-sm">
-          {hero ? (
-            <Image
-              src={hero.src}
-              alt={hero.alt}
-              width={960}
-              height={720}
-              sizes="(max-width: 768px) 100vw, 720px"
-              className="aspect-[4/3] w-full object-cover lg:aspect-square"
-              preload
-            />
-          ) : (
-            <ProductArt
-              productId={productId}
-              className="aspect-[4/3] lg:aspect-square"
-            />
-          )}
-        </div>
-        <div className="lg:border-brand-200 space-y-3 p-4 lg:col-start-2 lg:row-start-3 lg:rounded-3xl lg:border-2 lg:bg-white lg:shadow-sm">
-          <h2 id="design-own" className="font-display text-ink text-xl">
-            Design your own
-          </h2>
-          <p className="text-ink">
-            Your photos, your words. Start from a blank {name.toLowerCase()} and
-            make it yours.
-          </p>
-          <Link
-            href={`/design/${productId}`}
-            className={buttonClass("primary")}
+          {/* First card, always: Design your own. */}
+          <section
+            aria-labelledby="design-own"
+            className="border-brand-200 space-y-3 rounded-3xl border-2 bg-white p-4 shadow-sm"
+            data-testid="design-your-own"
           >
-            Start designing
-          </Link>
+            <h2 id="design-own" className="font-display text-ink text-xl">
+              Design your own
+            </h2>
+            <p className="text-ink">
+              Your photos, your words. Start from a blank {name.toLowerCase()}{" "}
+              and make it yours.
+            </p>
+            <Link
+              href={`/design/${productId}`}
+              className={buttonClass("primary")}
+            >
+              Start designing
+            </Link>
+          </section>
         </div>
-      </section>
+      </div>
 
-      <Disclosure
-        summary="Details"
-        className="mt-4 rounded-2xl bg-white ring-1 ring-zinc-200 lg:col-start-2 lg:row-start-4 lg:mt-0"
-        summaryClassName="rounded-2xl text-base font-semibold"
-        bodyClassName="space-y-4 pt-1"
-      >
-        <div className="space-y-4">
-          {product && <ProductGallery images={product.images} />}
-          {product?.descriptionHtml ? (
-            <div
-              className="text-ink space-y-2 text-sm [&_li]:ml-5 [&_li]:list-disc"
-              dangerouslySetInnerHTML={{ __html: product.descriptionHtml }}
-            />
-          ) : (
-            <p className="text-ink text-sm">{cfg.subtitle}.</p>
-          )}
-          <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-2 text-sm">
-            <dt className="text-zinc-500">Print area</dt>
-            <dd>
-              {cfg.printArea.widthMm} × {cfg.printArea.heightMm} mm · printed at{" "}
-              {cfg.printDpi} DPI
-            </dd>
+      <ProductDetails
+        cfg={cfg}
+        descriptionHtml={product?.descriptionHtml}
+        className="mt-6"
+        extraFacts={
+          <>
             <dt className="text-zinc-500">Colours</dt>
             <dd>
               <Swatches swatches={colours} size="md" />
@@ -192,27 +162,11 @@ export default async function ProductPage({
                 </dd>
               </>
             )}
-            <dt className="text-zinc-500">Reprints</dt>
-            <dd>
-              Arrives damaged or misprinted? We&apos;ll put it right —{" "}
-              <Link
-                href="/help"
-                className="text-brand-700 hover:text-brand-800 focus-visible:ring-brand-600/20 rounded underline focus-visible:ring-2 focus-visible:outline-none"
-              >
-                see Help
-              </Link>
-              .
-            </dd>
-          </dl>
-          <DeliveryEstimate />
-        </div>
-      </Disclosure>
+          </>
+        }
+      />
 
-      <section
-        id="designs"
-        aria-labelledby="designs-heading"
-        className="mt-6 lg:col-span-2 lg:mt-4"
-      >
+      <section id="designs" aria-labelledby="designs-heading" className="mt-8">
         <h2 id="designs-heading" className="font-display text-ink text-lg">
           {templates.length > 0
             ? "Ready-made designs"
