@@ -19,7 +19,7 @@ The customer can **Add to cart** as it is, or **Customize** it in the editor. On
   code field + server-side validation is its own slice — nothing exists yet).
 - The designer marks each layer **locked** (default) or **customizable**. Photos are always customizable
   sample photos for now (locked photos need the original stored: a later slice).
-- Later: text boxes should start as wide as their text instead of 60 % of the print area.
+- Text boxes start as wide as their text (built; see "Auto-width text" below) instead of 60 % of the print area.
 
 ## Slices
 
@@ -97,15 +97,12 @@ print the design title; coupons; locked photos; text boxes that start as wide as
 - Not supported: email-restricted coupons (refused), per-customer limits, "exclude sale items".
 - The mock store ships a demo coupon `WELCOME10` (10 % off everything) for local development and the e2e tests.
 
-## Product images and design titles (follow-up)
+## Auto-width text
 
-- **Product images:** Publishing as a product now stores the design's mockups (every view of the product's
-  mockup set: front / left / right / lifestyle / flat lay) plus the flat artwork as `templates/<id>/images/<n>.webp`
-  (`TemplateMeta.images` = labels, in order). `GET /api/templates/<id>/images/<n>` serves them (published only);
-  `/designs/<slug>` shows them as a gallery; WooCommerce gets the same URLs as the product's images
-  (`publishDesignProduct(id, { imageUrls })`); the gallery card / cart thumbnail is the first mockup, small.
-  Older designs without images fall back to the thumbnail. The request stays under Vercel's 4.5 MB limit
-  (images ≤ 1080 px WebP).
-- **Design title:** cart and checkout lines show the design's title (product name beneath it) — `priceCart`
-  returns `lineTitles`. The vendor proof shows "Design: <title>" in place of the (already large) quantity row;
-  `VendorProofInput.designTitle?` is the only contract change.
+New text boxes are exactly as wide as their text and grow as you type (`engine/text-fit.ts`). They wrap only at
+the print-area edge or at an Enter. The box is re-fitted on every keystroke (`text:changed`), when the font,
+weight or words change from the text sheet, and when a late font face arrives. The saved object carries
+`autoWidth: true`; **text made before this (and every existing template's text) has no flag and keeps its saved
+width and wrapping**, so nothing already designed reflows. A 4 % of the font size margin beside the widest line
+keeps a hair's difference between editor and print font metrics from wrapping a word. The status line now
+follows the size while typing.

@@ -7,6 +7,7 @@ export { applyTouchControls } from "./controls";
 export { isCustomizable, setCustomizable } from "./layer-lock";
 export { addText, type AddTextOptions } from "./text";
 export { attachTwoFingerGestures } from "./gestures";
+export { attachTextAutoWidth } from "./text-fit";
 export { attachHistory, type CanvasHistory } from "./history";
 export { attachCentreSnapping, NO_GUIDES, type GuideState } from "./guides";
 export {

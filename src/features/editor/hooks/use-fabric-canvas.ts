@@ -211,6 +211,7 @@ export function useFabricCanvas(product: ProductConfig, designKey?: string) {
         "object:moving",
         "object:scaling",
         "object:rotating",
+        "text:changed", // the size readout follows the box as it grows with the text
         "selection:created",
         "selection:updated",
         "selection:cleared",
@@ -221,6 +222,7 @@ export function useFabricCanvas(product: ProductConfig, designKey?: string) {
         product.printArea,
         sync,
       );
+      const detachTextFit = engine.attachTextAutoWidth(canvas);
       const detachSnap = engine.attachCentreSnapping(
         canvas,
         product.printArea,
@@ -260,6 +262,7 @@ export function useFabricCanvas(product: ProductConfig, designKey?: string) {
         cancelAnimationFrame(frame);
         ro.disconnect();
         detachSnap();
+        detachTextFit();
         detachGestures();
         history.detach();
         offs.forEach((off) => off());
