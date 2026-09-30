@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { mug } from "@/config/products/mug";
 import { Faq, type FaqItem } from "@/features/info/faq";
-import { InfoPage, InfoSection, Todo } from "@/features/info/info-page";
+import { InfoPage, InfoSection } from "@/features/info/info-page";
 import { DEFAULT_DPI_THRESHOLDS } from "@/lib/dpi";
 import { mmToPx, PRINT_DPI } from "@/lib/units";
 
@@ -41,11 +41,10 @@ const ORDERING: readonly FaqItem[] = [
         </ol>
         <p>
           Please keep your phone on after ordering. If we can&rsquo;t reach you,
-          we can&rsquo;t print your order.{" "}
-          <Todo>
-            TODO(founder): how many times / over how many days do we try before
-            cancelling an unconfirmed order?
-          </Todo>
+          we can&rsquo;t print your order: we wait about a week, and if we still
+          haven&rsquo;t been able to confirm it, the order is cancelled. If you
+          ordered without signing in, your design may not be kept after that, so
+          you would need to start again.
         </p>
       </>
     ),
@@ -61,13 +60,8 @@ const ORDERING: readonly FaqItem[] = [
           courier delivery to your city.
         </p>
         <ul>
-          <li>
-            Printing:{" "}
-            <Todo>TODO(founder): working days to print after confirmation</Todo>
-          </li>
-          <li>
-            Delivery: 5&ndash;7 days once printing is finished.
-          </li>
+          <li>Printing: 1&ndash;3 days after you confirm your order.</li>
+          <li>Delivery: 5&ndash;7 days once printing is finished.</li>
           <li>
             Delivery charge: this depends on your city, so it is shown at
             checkout before you place the order &ndash; there is nothing extra
@@ -75,8 +69,7 @@ const ORDERING: readonly FaqItem[] = [
           </li>
         </ul>
         <p>
-          We deliver across Pakistan.{" "}
-          <Todo>TODO(founder): any areas we don&rsquo;t deliver to?</Todo>
+          We deliver nationwide, all across Pakistan.
         </p>
       </>
     ),
@@ -113,10 +106,8 @@ const ORDERING: readonly FaqItem[] = [
           </li>
         </ul>
         <p>
-          <Todo>
-            TODO(founder): do customers get a courier tracking number? If so,
-            where do we send it (SMS, WhatsApp)?
-          </Todo>
+          When your parcel is handed to the courier, we send you the courier
+          tracking number by email or message.
         </p>
       </>
     ),
