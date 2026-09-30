@@ -7,6 +7,7 @@ import { OCCASIONS } from "@/features/home/occasions";
 import { TemplateGrid } from "@/features/templates/components/template-grid";
 import { loadTemplates } from "@/features/templates/load-templates";
 import { OCCASION_SLUGS, type OccasionSlug } from "@/server/templates/types";
+import { buttonClass } from "@/components/ui/button";
 
 export const revalidate = 300;
 
@@ -52,10 +53,7 @@ export default async function OccasionPage({
             data-testid="no-templates"
           >
             <p className="text-ink">{labelOf(slug)} designs are on the way.</p>
-            <Link
-              href="/products"
-              className="bg-brand-600 hover:bg-brand-700 active:bg-brand-700 focus-visible:ring-brand-600/40 mt-4 inline-flex h-12 items-center rounded-full px-5 font-semibold text-white focus-visible:ring-2 focus-visible:outline-none"
-            >
+            <Link href="/products" className={buttonClass("primary", "mt-4")}>
               Design your own
             </Link>
           </div>

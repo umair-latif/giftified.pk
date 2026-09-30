@@ -11,6 +11,7 @@ import { quoteCart, type CartQuote } from "../actions";
 import { readCoupon, writeCoupon } from "../coupon-storage";
 import { CouponBox } from "./coupon-box";
 import { removeFromCart, updateQuantity, useCart } from "../cart";
+import { buttonClass } from "@/components/ui/button";
 
 const CITY_KEY = "giftified:city";
 
@@ -79,10 +80,7 @@ export function CartView() {
         <p className="mt-1 text-zinc-500">
           Design a mug with your photo and a message — it takes a minute.
         </p>
-        <Link
-          href="/design/mug"
-          className="bg-brand-600 hover:bg-brand-700 active:bg-brand-700 focus-visible:ring-brand-600/40 mt-4 inline-flex h-12 items-center rounded-full px-5 font-medium text-white focus-visible:ring-2 focus-visible:outline-none"
-        >
+        <Link href="/design/mug" className={buttonClass("primary", "mt-4")}>
           Start designing
         </Link>
       </div>
@@ -180,11 +178,7 @@ export function CartView() {
         <Link
           href="/checkout"
           aria-disabled={unavailable || undefined}
-          className={`focus-visible:ring-brand-600/40 flex h-12 items-center justify-center rounded-full text-base font-semibold text-white focus-visible:ring-2 focus-visible:outline-none ${
-            unavailable
-              ? "pointer-events-none bg-zinc-300"
-              : "bg-brand-600 hover:bg-brand-700 active:bg-brand-700"
-          }`}
+          className={buttonClass("primary")}
         >
           Checkout · Cash on Delivery
         </Link>
