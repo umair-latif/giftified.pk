@@ -79,6 +79,7 @@ describe("catalog cards", () => {
     expect(card).toMatchObject({
       name: "Custom Mug",
       fromPricePkr: 1499,
+      fromRegularPricePkr: null,
       image: {
         src: "https://shop.test/wp-content/uploads/mug.webp",
         alt: "Mug",
@@ -95,6 +96,7 @@ describe("catalog cards", () => {
     expect(card).toMatchObject({
       href: "/products/mug",
       fromPricePkr: null,
+      fromRegularPricePkr: null,
       image: null,
       swatches: [{ name: "Gloss White", hex: "#ffffff" }],
     });

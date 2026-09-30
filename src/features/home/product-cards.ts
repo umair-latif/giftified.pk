@@ -41,9 +41,18 @@ export interface HomeProductCard extends HomeProductInfo {
   href: string | null;
   /** Lowest price in PKR, or null when the store didn't return one. */
   fromPricePkr: number | null;
+  /** Regular price of the cheapest variant when it is reduced, else null. */
+  fromRegularPricePkr: number | null;
 }
 
 /** Lowest variant price (the "from" price), falling back to the base price. */
+export function fromRegularPrice(product: CatalogProduct): number | null {
+  const cheapest = [...product.variants].sort(
+    (a, b) => a.pricePkr - b.pricePkr,
+  )[0];
+  return cheapest?.regularPricePkr ?? null;
+}
+
 export function fromPrice(product: CatalogProduct): number {
   const prices = product.variants.map((v) => v.pricePkr);
   return prices.length > 0 ? Math.min(...prices) : product.basePricePkr;
@@ -68,6 +77,7 @@ export function buildHomeProductCards(
         ? `/products/${encodeURIComponent(slug)}`
         : null,
       fromPricePkr: entry ? fromPrice(entry) : null,
+      fromRegularPricePkr: entry ? fromRegularPrice(entry) : null,
     };
   });
 }

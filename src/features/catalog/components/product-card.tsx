@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { formatPkr } from "@/features/checkout/format";
+import { PriceTag } from "@/components/ui/price-tag";
 import type { CatalogCard } from "../catalog-model";
 import { ProductArt } from "./product-art";
 import { Swatches } from "./swatches";
@@ -42,10 +42,11 @@ export function ProductCard({
         <p className="text-xs leading-snug text-zinc-600">{card.spec}</p>
         {card.fromPricePkr !== null && (
           <p className="text-sm text-zinc-900">
-            from{" "}
-            <span className="font-semibold">
-              {formatPkr(card.fromPricePkr)}
-            </span>
+            <PriceTag
+              from
+              pkr={card.fromPricePkr}
+              regularPkr={card.fromRegularPricePkr}
+            />
           </p>
         )}
         {/* One colour = nothing to choose, so no dot (it looked like an empty radio button). */}

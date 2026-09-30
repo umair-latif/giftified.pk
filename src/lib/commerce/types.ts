@@ -26,7 +26,10 @@ export interface CatalogVariant {
   size?: string;
   /** WooCommerce variation ID. */
   wooVariationId: number;
+  /** Current price (WooCommerce sale price already applied). */
   pricePkr: number;
+  /** Regular price, only when the variant is reduced (higher than `pricePkr`). */
+  regularPricePkr?: number;
   inStock: boolean;
 }
 
@@ -163,6 +166,8 @@ export interface DesignProductInfo {
   descriptionHtml: string;
   /** Current price in whole rupees (sale price applied). */
   pricePkr: number;
+  /** Regular price, only when the product is reduced (higher than `pricePkr`). */
+  regularPricePkr?: number;
   imageUrl?: string;
   categoryIds?: number[];
 }

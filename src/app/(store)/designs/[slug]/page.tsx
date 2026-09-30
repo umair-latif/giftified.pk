@@ -3,11 +3,11 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Disclosure } from "@/components/ui/disclosure";
 import { Page, PageTitle } from "@/components/ui/page";
+import { PriceTag } from "@/components/ui/price-tag";
 import { getProduct } from "@/config/products";
 import { sizes as sizesOf } from "@/features/catalog/catalog-model";
 import { DeliveryEstimate } from "@/features/catalog/components/delivery-estimate";
 import { loadCatalog } from "@/features/catalog/load-catalog";
-import { formatPkr } from "@/features/checkout/format";
 import { DesignGallery } from "@/features/templates/components/design-gallery";
 import { DesignBuyBox } from "@/features/templates/components/design-buy-box";
 import { loadTemplates } from "@/features/templates/load-templates";
@@ -108,12 +108,12 @@ export default async function DesignProductPage({
           <header className="space-y-1">
             <PageTitle>{info.name}</PageTitle>
             <p className="text-brand-900">
-              <span
+              <PriceTag
+                pkr={info.pricePkr}
+                regularPkr={info.regularPricePkr}
                 className="text-xl font-semibold"
-                data-testid="design-price"
-              >
-                {formatPkr(info.pricePkr)}
-              </span>{" "}
+                testId="design-price"
+              />{" "}
               <span className="bg-mint-300 text-ink ml-1 rounded-full px-2.5 py-0.5 text-xs font-semibold">
                 Cash on Delivery
               </span>

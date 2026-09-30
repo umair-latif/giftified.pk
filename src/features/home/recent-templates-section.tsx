@@ -1,5 +1,5 @@
-import Link from "next/link";
 import { Container } from "@/components/ui/page";
+import { DesignTile } from "@/features/templates/components/design-tile";
 import type { RecentTemplate } from "./recent-templates";
 
 /** "New templates": the newest published ones. Renders nothing while there are none. */
@@ -20,27 +20,15 @@ export function RecentTemplatesSection({
         </p>
         <ul className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
           {templates.map((t) => (
-            <li key={t.id} data-testid="home-template">
-              <Link
+            <li key={t.id}>
+              <DesignTile
+                testId="home-template"
                 href={t.href}
-                className="hover:bg-mint-100 active:bg-mint-100 focus-visible:ring-brand-600/20 block rounded-2xl border border-zinc-200 bg-white p-2 shadow-sm focus-visible:ring-2 focus-visible:outline-none"
-              >
-                <span className="bg-mint-100 block aspect-square overflow-hidden rounded-xl">
-                  {t.thumbnailUrl && (
-                    // eslint-disable-next-line @next/next/no-img-element -- short-lived storage link, not a static asset
-                    <img
-                      src={t.thumbnailUrl}
-                      alt=""
-                      loading="lazy"
-                      className="size-full object-cover"
-                    />
-                  )}
-                </span>
-                <span className="font-display text-brand-900 mt-2 block text-sm leading-tight">
-                  {t.name}
-                </span>
-                <span className="text-ink block text-xs">{t.productName}</span>
-              </Link>
+                name={t.name}
+                subtitle={t.productName}
+                image={t.image}
+                {...(t.price ? { price: t.price } : {})}
+              />
             </li>
           ))}
         </ul>

@@ -1,6 +1,19 @@
 import Link from "next/link";
 import { pageWidthClass } from "@/components/ui/page";
+import {
+  FacebookIcon,
+  InstagramIcon,
+  TiktokIcon,
+  YoutubeIcon,
+} from "@/components/ui/icons";
 import { SITE, whatsappUrl } from "@/config/site";
+
+const SOCIALS = [
+  { key: "instagram", label: "Instagram", Icon: InstagramIcon },
+  { key: "facebook", label: "Facebook", Icon: FacebookIcon },
+  { key: "tiktok", label: "TikTok", Icon: TiktokIcon },
+  { key: "youtube", label: "YouTube", Icon: YoutubeIcon },
+] as const;
 
 const GROUPS = [
   {
@@ -30,6 +43,9 @@ const GROUPS = [
 
 export function SiteFooter() {
   const wa = whatsappUrl();
+  const socials = SOCIALS.flatMap((s) =>
+    SITE.social[s.key] ? [{ ...s, url: SITE.social[s.key] }] : [],
+  );
   return (
     <footer className="bg-brand-900 text-brand-50 mt-12 pt-8 pb-[calc(2rem+env(safe-area-inset-bottom))] text-sm">
       <div className={pageWidthClass("wide")}>
@@ -46,6 +62,24 @@ export function SiteFooter() {
               >
                 Chat on WhatsApp
               </a>
+            )}
+            {socials.length > 0 && (
+              <ul className="mt-3 flex gap-1" aria-label="Social media">
+                {socials.map(({ key, label, Icon, url }) => (
+                  <li key={key}>
+                    <a
+                      href={url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-label={label}
+                      data-testid={`social-${key}`}
+                      className="focus-visible:ring-mint-300/60 inline-flex size-11 items-center justify-center rounded-full hover:bg-white/10 hover:text-white focus-visible:ring-2 focus-visible:outline-none"
+                    >
+                      <Icon />
+                    </a>
+                  </li>
+                ))}
+              </ul>
             )}
           </div>
           <nav aria-label="Footer" className="contents">

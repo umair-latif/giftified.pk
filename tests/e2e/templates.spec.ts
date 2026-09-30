@@ -185,7 +185,7 @@ test("a template editor publishes a design as a product from the preview; others
   await expect
     .poll(async () => image.evaluate((el: HTMLImageElement) => el.naturalWidth))
     .toBeGreaterThan(0);
-  await gallery.getByTestId("design-thumb-1").click();
+  await gallery.getByTestId("design-thumb-2").click();
   await expect(gallery.getByRole("img", { name: /left view/i })).toBeVisible();
   await ep.getByRole("button", { name: "Add to cart" }).click();
   const added = ep.getByTestId("added-to-cart");

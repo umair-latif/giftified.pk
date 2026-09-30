@@ -1,24 +1,24 @@
 import "server-only";
 import { getProduct } from "@/config/products";
-import {
-  getStorage,
-  templateThumbKey,
-  type ObjectStorage,
-} from "@/lib/storage";
+import { getStorage, type ObjectStorage } from "@/lib/storage";
 import { listTemplates } from "@/server/templates";
+import {
+  loadDesignPrices,
+  type DesignPrice,
+} from "@/features/templates/load-design-prices";
+import { templateHref, tileImage } from "@/features/templates/tile-image";
 
 export interface RecentTemplate {
   id: string;
   name: string;
   productName: string;
-  /** Short-lived link to the thumbnail, or null (the card shows a plain tile). */
-  thumbnailUrl: string | null;
-  /** The editor loads the template into a fresh draft. */
+  /** Mockup (or flat thumbnail) served by /api/templates, or null (plain tile). */
+  image: { src: string; kind: "mockup" | "art" } | null;
+  /** WooCommerce price of a design product (absent for plain templates). */
+  price?: DesignPrice;
+  /** Design products open their page; plain templates open the editor. */
   href: string;
 }
-
-/** Long enough that a cached (ISR) home page never shows an expired link. */
-const THUMB_URL_TTL_S = 6 * 3600;
 
 /**
  * The newest published templates, for the home page. Never throws: with no
@@ -34,19 +34,15 @@ export async function loadRecentTemplates(
     const metas = (await listTemplates({}, store))
       .filter((t) => getProduct(t.productId))
       .slice(0, limit);
-    return await Promise.all(
-      metas.map(async (t) => ({
-        id: t.id,
-        name: t.name,
-        productName: getProduct(t.productId)?.name ?? "",
-        thumbnailUrl: t.hasThumbnail
-          ? await store.presignGet(templateThumbKey(t.id), {
-              expiresInS: THUMB_URL_TTL_S,
-            })
-          : null,
-        href: `/design/${t.productId}?template=${encodeURIComponent(t.id)}`,
-      })),
-    );
+    const prices = await loadDesignPrices(metas);
+    return metas.map((t) => ({
+      id: t.id,
+      name: t.name,
+      productName: getProduct(t.productId)?.name ?? "",
+      image: tileImage(t),
+      ...(prices[t.id] ? { price: prices[t.id] } : {}),
+      href: templateHref(t),
+    }));
   } catch (err) {
     console.warn(
       "[home] templates unavailable:",

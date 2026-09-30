@@ -135,6 +135,15 @@ function colourDisplay(
   };
 }
 
+/** The regular price, only when it is higher than the current (sale) price. */
+export function regularIfReduced(
+  regular: string | undefined,
+  pricePkr: number,
+): { regularPricePkr: number } | Record<string, never> {
+  const r = regular ? parsePkr(regular) : null;
+  return r !== null && r > pricePkr ? { regularPricePkr: r } : {};
+}
+
 export function mapVariation(
   productId: ProductId,
   v: WooVariation,
@@ -153,6 +162,7 @@ export function mapVariation(
     ...(size ? { size: size.option } : {}),
     wooVariationId: v.id,
     pricePkr,
+    ...regularIfReduced(v.regular_price, pricePkr),
     inStock: v.stock_status === "instock",
   };
 }
@@ -190,6 +200,7 @@ export function mapProduct(
               ),
               wooVariationId: 0,
               pricePkr,
+              ...regularIfReduced(p.regular_price, pricePkr),
               inStock: p.stock_status === "instock",
             },
           ];

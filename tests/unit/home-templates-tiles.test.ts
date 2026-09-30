@@ -89,8 +89,11 @@ describe("loadRecentTemplates", () => {
       href: "/design/mug?template=newone",
       productName: "Custom Mug",
     });
-    expect(list[0]!.thumbnailUrl).toContain("templates/newone/");
-    expect(list[1]!.thumbnailUrl).toBeNull();
+    expect(list[0]!.image).toEqual({
+      src: "/api/templates/newone/thumbnail",
+      kind: "art",
+    });
+    expect(list[1]!.image).toBeNull();
   });
 
   it("honours the limit and never throws when storage fails", async () => {

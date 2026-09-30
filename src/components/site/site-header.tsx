@@ -15,20 +15,20 @@ export function SiteHeader() {
         <Link
           href="/"
           aria-label="Giftified.pk home"
-          className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-600/20 mr-auto rounded"
+          className="focus-visible:ring-brand-600/20 mr-auto rounded focus-visible:ring-2 focus-visible:outline-none"
         >
           <Wordmark />
         </Link>
         <Link
           href="/products"
-          className="text-ink hover:bg-mint-100 active:bg-mint-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-600/20 hidden h-11 items-center rounded-full px-3 text-sm font-medium sm:flex"
+          className="text-ink hover:bg-mint-100 active:bg-mint-100 focus-visible:ring-brand-600/20 hidden h-11 items-center rounded-full px-3 text-sm font-medium focus-visible:ring-2 focus-visible:outline-none sm:flex"
         >
           Products
         </Link>
         <Link
           href="/track"
           aria-label="Track your order"
-          className="text-ink hover:bg-mint-100 active:bg-mint-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-600/20 grid size-11 place-items-center rounded-full"
+          className="text-ink hover:bg-mint-100 active:bg-mint-100 focus-visible:ring-brand-600/20 grid size-11 place-items-center rounded-full focus-visible:ring-2 focus-visible:outline-none"
         >
           <TruckIcon />
         </Link>

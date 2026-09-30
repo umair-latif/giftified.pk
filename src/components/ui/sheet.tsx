@@ -88,7 +88,7 @@ export function Sheet({ title, onClose, children }: Props) {
             type="button"
             onClick={onClose}
             aria-label="Close"
-            className="-mr-2 grid size-9 place-items-center rounded-full text-lg text-zinc-500 hover:bg-zinc-100 focus-visible:ring-2 focus-visible:ring-brand-600/20 focus-visible:outline-none active:bg-zinc-100"
+            className="focus-visible:ring-brand-600/20 -mr-2 grid size-9 place-items-center rounded-full text-lg text-zinc-500 hover:bg-zinc-100 focus-visible:ring-2 focus-visible:outline-none active:bg-zinc-100"
           >
             ×
           </button>
