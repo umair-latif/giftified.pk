@@ -97,14 +97,14 @@ export default async function DesignProductPage({
         ← {cfg.name} designs
       </Link>
 
-      <div className="mt-2 grid gap-5 lg:grid-cols-2 lg:gap-10">
+      <div className="mt-2 grid grid-cols-[minmax(0,1fr)] gap-5 lg:grid-cols-2 lg:gap-10">
         <DesignGallery
           templateId={meta.id}
           name={info.name}
           images={meta.images ?? []}
           hasThumbnail={meta.hasThumbnail}
         />
-        <div className="space-y-4">
+        <div className="min-w-0 space-y-4">
           <header className="space-y-1">
             <PageTitle>{info.name}</PageTitle>
             <p className="text-brand-900">
@@ -120,10 +120,18 @@ export default async function DesignProductPage({
             </p>
           </header>
           {info.descriptionHtml && (
-            <div
-              className="text-ink space-y-2 text-sm [&_li]:ml-5 [&_li]:list-disc"
-              dangerouslySetInnerHTML={{ __html: info.descriptionHtml }}
-            />
+            <section aria-labelledby="about-design" className="space-y-1">
+              <h2
+                id="about-design"
+                className="text-brand-900 text-sm font-semibold"
+              >
+                About this design
+              </h2>
+              <div
+                className="text-ink space-y-2 text-sm break-words [&_img]:h-auto [&_img]:max-w-full [&_li]:ml-5 [&_li]:list-disc"
+                dangerouslySetInnerHTML={{ __html: info.descriptionHtml }}
+              />
+            </section>
           )}
           <DesignBuyBox
             templateId={meta.id}
@@ -136,7 +144,7 @@ export default async function DesignProductPage({
       </div>
 
       <Disclosure
-        summary="Details"
+        summary="Details about the product"
         className="mt-6 rounded-2xl bg-white ring-1 ring-zinc-200"
         summaryClassName="rounded-2xl text-base font-semibold"
         bodyClassName="space-y-4 pt-1"
