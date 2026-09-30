@@ -5,7 +5,8 @@ import {
   templateThumbKey,
   type ObjectStorage,
 } from "@/lib/storage";
-import { listTemplates } from "@/server/templates";
+import { getCommerce } from "@/lib/commerce";
+import { filterLiveTemplates, listTemplates } from "@/server/templates";
 
 export interface RecentTemplate {
   id: string;
@@ -31,7 +32,9 @@ export async function loadRecentTemplates(
 ): Promise<RecentTemplate[]> {
   try {
     const store = storage ?? getStorage();
-    const metas = (await listTemplates({}, store))
+    const metas = (
+      await filterLiveTemplates(await listTemplates({}, store), getCommerce)
+    )
       .filter((t) => getProduct(t.productId))
       .slice(0, limit);
     return await Promise.all(

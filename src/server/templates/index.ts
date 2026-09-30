@@ -1,3 +1,5 @@
+export { filterLiveTemplates } from "./live";
+export { deleteTemplate, findOrphanedTemplates } from "./orphans";
 export { publishTemplateProduct, slugify } from "./publish";
 export {
   TemplateError,

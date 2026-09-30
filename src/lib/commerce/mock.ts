@@ -192,6 +192,14 @@ export function createMockCommerce(
         categoryIds: (p.input.categories ?? []).map(categoryId),
       };
     },
+    async listDesignProducts(templateIds) {
+      const out = [];
+      for (const id of templateIds) {
+        const info = await this.getDesignProduct(id);
+        if (info) out.push(info);
+      }
+      return out;
+    },
     async publishDesignProduct(wooProductId) {
       for (const p of designProducts.values())
         if (p.wooProductId === wooProductId) p.status = "publish";

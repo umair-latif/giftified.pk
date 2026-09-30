@@ -181,6 +181,12 @@ export interface CommerceClient {
   createDesignProduct(input: NewDesignProduct): Promise<DesignProduct>;
   /** The published design product, or null when unknown, draft or unpublished. */
   getDesignProduct(templateId: string): Promise<DesignProductInfo | null>;
+  /**
+   * Which of these designs are still PUBLISHED products in the store (deleted,
+   * trashed or drafted ones are left out). Cached like the catalog; the product
+   * webhook refreshes it.
+   */
+  listDesignProducts(templateIds: string[]): Promise<DesignProductInfo[]>;
   /** Publishes it, with the images WooCommerce downloads from `imageUrls` (first = main; skipped if a download fails). */
   publishDesignProduct(
     wooProductId: number,
