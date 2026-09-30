@@ -10,6 +10,8 @@ import {
   saveDraft,
   savedDesignKeys,
   saveThumbnail,
+  getDraftSaved,
+  setDraftSaved,
 } from "@/features/editor/draft";
 import { lockLayersForCustomer } from "@/features/templates/lock-layers";
 import { newId } from "@/lib/id";
@@ -56,6 +58,9 @@ export function addDraftToCart(input: {
       "Your phone's storage is full, so the design couldn't be saved.",
     );
   if (input.thumbnail) saveThumbnail(designKey, input.thumbnail);
+  // Still the same saved design (My designs): saving from the cart updates it.
+  const savedRef = getDraftSaved(input.productId);
+  if (savedRef) setDraftSaved(input.productId, savedRef, designKey);
   const line: CartItem = {
     id: newId(),
     productId: input.productId,

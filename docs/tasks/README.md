@@ -32,8 +32,8 @@ own folders.
 | 18  | [Templates: placeholders, Save as template](18-templates-authoring.md) | Claude (cloud session)                | `feat/templates`            | slices 1–2 done; slice 3 waits for approved photos |
 | 19  | [Template gallery + occasion pages](19-template-gallery.md)            | Claude (cloud session) | `feat/template-gallery`     | done |
 | 20  | [Accounts: sign-in/sign-up](20-auth.md)                                | Claude (cloud session)                | `feat/auth`                 | done |
-| 21  | [Account area](21-account-area.md)                                     | _unassigned_                          | `feat/account`              | ready |
-| 22  | [Saved designs](22-saved-designs.md)                                   | Lead + assistant                      | `feat/saved-designs`        | ready |
+| 21  | [Account area](21-account-area.md)                                     | Claude (cloud session)                | `feat/account`              | in progress |
+| 22  | [Saved designs](22-saved-designs.md)                                   | Claude (cloud session)                | `feat/saved-designs`        | in review (after contract PR #77) |
 | 23  | [Customer-shared templates](23-shared-templates.md)                    | _unassigned_                          | `feat/shared-templates`     | after 19, 22              |
 | 24  | [Delete customer photos 30 days after delivery](24-data-retention.md)  | Lead                                  | `feat/retention`            | done (PR #34) |
 | 25  | [Design-system cleanup: buttons, cards, tokens](25-design-consistency.md) | Claude (cloud)                     | `feat/design-tokens`        | done                        |

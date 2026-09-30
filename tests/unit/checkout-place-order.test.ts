@@ -222,6 +222,34 @@ describe("checkout for signed-in customers (prefill, delivery, save)", () => {
     expect((await commerce.getCustomer(c.id))?.phone).toBe("+923001234567");
   });
 
+  it("adds a signed-in order's designs to My designs (task 22), never a guest's", async () => {
+    const cookies = await import("@/server/auth/cookies");
+    const commerce = getCommerce();
+    const c = (await commerce.createCustomer({
+      email: "mydesigns@example.pk",
+      firstName: "My",
+      lastName: "Designs",
+      password: "pw-pw-pw-pw",
+    }))!;
+    await saveDesigns("designMine1", "designGuest1");
+    const spy = vi.spyOn(cookies, "getSessionCustomerId");
+
+    spy.mockResolvedValueOnce(null);
+    await placeOrder(input("chk-mine-000001", ["designGuest1"]));
+    expect(await commerce.listSavedDesigns(c.id)).toEqual([]);
+
+    spy.mockResolvedValueOnce(c.id);
+    const r = await placeOrder(input("chk-mine-000002", ["designMine1"]));
+    if (!r.ok) throw new Error(JSON.stringify(r));
+    expect(await commerce.listSavedDesigns(c.id)).toEqual([
+      expect.objectContaining({
+        id: "designMine1",
+        source: "order",
+        orderId: r.orderId,
+      }),
+    ]);
+  });
+
   it("ships to the delivery address and prices delivery for its city", async () => {
     await saveDesigns("designPre1");
     const r = await placeOrder(
