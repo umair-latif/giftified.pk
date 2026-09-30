@@ -124,6 +124,7 @@ export function PreviewScreen({ product }: { product: ProductConfig }) {
       {publishOpen && result && (
         <SaveTemplateSheet
           asProduct
+          productId={product.id}
           getDesign={async () => {
             const design = loadDraft(product.id);
             return design
