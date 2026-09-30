@@ -222,6 +222,34 @@ describe("checkout for signed-in customers (prefill, delivery, save)", () => {
     expect((await commerce.getCustomer(c.id))?.phone).toBe("+923001234567");
   });
 
+  it("keeps the account's marketing preference in step with checkout (task 21)", async () => {
+    const cookies = await import("@/server/auth/cookies");
+    const { getCheckoutPrefill } = await import("@/features/checkout/actions");
+    const commerce = getCommerce();
+    const c = (await commerce.createCustomer({
+      email: "optin@example.pk",
+      firstName: "Opt",
+      lastName: "In",
+      password: "pw-pw-pw-pw",
+    }))!;
+    await saveDesigns("designOpt1");
+    const spy = vi.spyOn(cookies, "getSessionCustomerId");
+
+    spy.mockResolvedValueOnce(c.id);
+    await placeOrder({
+      ...input("chk-optin-000001", ["designOpt1"]),
+      marketingOptIn: true,
+    });
+    expect((await commerce.getCustomer(c.id))?.marketingOptIn).toBe(true);
+    const session = vi.spyOn(cookies, "getSessionCustomer");
+    session.mockResolvedValueOnce(await commerce.getCustomer(c.id));
+    expect((await getCheckoutPrefill())?.marketingOptIn).toBe(true);
+
+    spy.mockResolvedValueOnce(c.id);
+    await placeOrder(input("chk-optin-000002", ["designOpt1"]));
+    expect((await commerce.getCustomer(c.id))?.marketingOptIn).toBeUndefined();
+  });
+
   it("adds a signed-in order's designs to My designs (task 22), never a guest's", async () => {
     const cookies = await import("@/server/auth/cookies");
     const commerce = getCommerce();
