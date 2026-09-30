@@ -3,7 +3,7 @@ import { getProduct } from "@/config/products";
 import { getStorage, type ObjectStorage } from "@/lib/storage";
 import { listTemplates } from "@/server/templates";
 import {
-  loadDesignPrices,
+  withLiveDesigns,
   type DesignPrice,
 } from "@/features/templates/load-design-prices";
 import { templateHref, tileImage } from "@/features/templates/tile-image";
@@ -31,11 +31,12 @@ export async function loadRecentTemplates(
 ): Promise<RecentTemplate[]> {
   try {
     const store = storage ?? getStorage();
-    const metas = (await listTemplates({}, store))
-      .filter((t) => getProduct(t.productId))
-      .slice(0, limit);
-    const prices = await loadDesignPrices(metas);
-    return metas.map((t) => ({
+    const known = (await listTemplates({}, store)).filter((t) =>
+      getProduct(t.productId),
+    );
+    // Drop design products deleted in WooCommerce BEFORE taking the newest N.
+    const { templates: live, prices } = await withLiveDesigns(known);
+    return live.slice(0, limit).map((t) => ({
       id: t.id,
       name: t.name,
       productName: getProduct(t.productId)?.name ?? "",
