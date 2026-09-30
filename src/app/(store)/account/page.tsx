@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import { signOutAction } from "@/features/auth/actions";
 import { getSessionCustomer } from "@/server/auth/cookies";
@@ -28,6 +29,14 @@ export default async function AccountPage() {
           {customer.email}
         </p>
       </section>
+      <Link
+        href="/account/designs"
+        className="text-ink flex h-12 items-center justify-between rounded-2xl bg-white px-4 font-medium ring-1 ring-zinc-200 hover:bg-zinc-50"
+        data-testid="account-designs-link"
+      >
+        My designs
+        <span aria-hidden>›</span>
+      </Link>
       <form action={signOutAction}>
         <button
           type="submit"

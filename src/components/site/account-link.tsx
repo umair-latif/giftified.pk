@@ -1,22 +1,15 @@
 "use client";
 
 import Link from "next/link";
-import { useSyncExternalStore } from "react";
 import { UserIcon } from "@/components/ui/icons";
-
-/** Same name as `SIGNED_IN_COOKIE` in server/auth/cookies.ts (that file is server-only). */
-const SIGNED_IN_COOKIE = "giftified_signed_in";
-
-const noop = () => () => {};
-const signedIn = () =>
-  document.cookie.split("; ").some((c) => c === `${SIGNED_IN_COOKIE}=1`);
+import { useSignedIn } from "@/features/auth/signed-in";
 
 /**
  * Header account button. The cookie only says "someone is signed in", so the
  * header stays static and cacheable; false on the server and before hydration.
  */
 export function AccountLink() {
-  const isSignedIn = useSyncExternalStore(noop, signedIn, () => false);
+  const isSignedIn = useSignedIn();
   return (
     <Link
       href={isSignedIn ? "/account" : "/sign-in"}

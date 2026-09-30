@@ -11,6 +11,13 @@
  *   templates/<id>/assets/<assetId>          sample (placeholder) photo
  *   templates/<id>/thumbnail.webp            gallery thumbnail
  *   templates/<id>/images/<n>.webp           product images (mockups), n = 0…
+ *   designs/<designId>/thumbnail.webp        small preview (signed-in orders, task 22)
+ *   accounts/<customerId>/designs/<id>/…     a customer's saved design (task 22):
+ *        design.json, pending.json (while photos upload), assets/<assetId>, thumbnail.webp
+ *
+ * The retention job (task 24) only ever lists `designs/` and deletes
+ * `orders/<n>/` and `designs/<id>/`; `accounts/` is deleted only when the
+ * customer deletes a saved design or their account.
  *
  * Folder prefixes (`designFolder`, `orderFolder`) are what the retention job
  * (task 24) deletes; `assertFolderPrefix` guards every prefix delete.
@@ -94,3 +101,37 @@ export const templateImageKey = (templateId: string, index: number) => {
 /** "templates/<id>/" — everything stored for one template (design, photos, images, thumbnail). */
 export const templateFolder = (templateId: string) =>
   `templates/${assertSafeId(templateId, "templateId")}/`;
+
+export const designThumbKey = (designId: string) =>
+  `designs/${assertSafeId(designId, "designId")}/thumbnail.webp`;
+
+function customerPart(customerId: number): number {
+  if (!Number.isInteger(customerId) || customerId <= 0)
+    throw new Error(`Invalid customerId: ${customerId}`);
+  return customerId;
+}
+
+/** "accounts/<customerId>/" — everything stored for one account. */
+export const accountFolder = (customerId: number) =>
+  `accounts/${customerPart(customerId)}/`;
+
+/** "accounts/<customerId>/designs/<id>/" — one saved design (JSON, photos, thumbnail). */
+export const savedDesignFolder = (customerId: number, savedId: string) =>
+  `${accountFolder(customerId)}designs/${assertSafeId(savedId, "savedId")}/`;
+
+export const savedDesignKey = (customerId: number, savedId: string) =>
+  `${savedDesignFolder(customerId, savedId)}design.json`;
+
+/** The design while its photos are still uploading (becomes design.json on finish). */
+export const savedPendingKey = (customerId: number, savedId: string) =>
+  `${savedDesignFolder(customerId, savedId)}pending.json`;
+
+export const savedAssetKey = (
+  customerId: number,
+  savedId: string,
+  assetId: string,
+) =>
+  `${savedDesignFolder(customerId, savedId)}assets/${assertSafeId(assetId, "assetId")}`;
+
+export const savedThumbKey = (customerId: number, savedId: string) =>
+  `${savedDesignFolder(customerId, savedId)}thumbnail.webp`;

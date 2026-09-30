@@ -9,6 +9,7 @@ import {
   getSessionCustomerId,
 } from "@/server/auth/cookies";
 import { priceCart } from "@/server/checkout/pricing";
+import { addOrderDesigns, savedDesignDeps } from "@/server/saved-designs";
 import { orderStatusUrl } from "@/server/orders/order-link";
 import type { OrderId } from "@/types/order";
 import { clientIpFromHeaders } from "./client-ip";
@@ -77,6 +78,15 @@ export async function placeOrder(input: unknown): Promise<PlaceOrderResult> {
             : {}),
         })
         .catch((err) => console.error("[checkout] saving profile failed", err));
+    if (customerId)
+      // Task 22: the order's designs join "My designs". Best effort.
+      await addOrderDesigns(
+        customerId,
+        { id: order.id, lines: parsed.order.lines },
+        savedDesignDeps(),
+      ).catch((err) =>
+        console.error("[checkout] adding to My designs failed", err),
+      );
     return { ok: true, orderId: order.id, statusUrl: orderStatusUrl(order) };
   } catch (err) {
     console.error("[checkout] createOrder failed", err);

@@ -2,7 +2,7 @@ import type { ProductId } from "@/config/products";
 import type { DesignDocument } from "@/types/design";
 import { collectAssetIds } from "./assets/asset-ref";
 import { getAsset, type StoredAsset } from "./assets/asset-store";
-import { loadDraft } from "./draft";
+import { loadDraft, loadThumbnail } from "./draft";
 
 /**
  * Uploads the saved design and its ORIGINAL photos for an order, straight
@@ -21,7 +21,10 @@ export interface UploadDeps {
 
 export class DesignUploadFailed extends Error {}
 
-export type UploadOptions = Partial<Omit<UploadDeps, "loadDraft">>;
+export type UploadOptions = Partial<Omit<UploadDeps, "loadDraft">> & {
+  /** Small WebP of the design, stored beside it (My designs thumbnail). */
+  thumbnail?: Blob | null;
+};
 
 export async function uploadDesignForOrder(
   productId: ProductId,
@@ -43,7 +46,26 @@ export async function uploadCartDesign(
     throw new DesignUploadFailed(
       "A design in your cart is no longer on this phone. Please remove it and design it again.",
     );
-  return uploadDesign(design, deps);
+  return uploadDesign(design, {
+    thumbnail: dataUrlToBlob(loadThumbnail(designKey)),
+    ...deps,
+  });
+}
+
+/** A `data:image/…;base64,` URL as a Blob, or null. */
+export function dataUrlToBlob(dataUrl: string | null): Blob | null {
+  const m = dataUrl
+    ? /^data:(image\/[a-z+]+);base64,(.*)$/.exec(dataUrl)
+    : null;
+  if (!m) return null;
+  try {
+    const bin = atob(m[2]!);
+    const bytes = new Uint8Array(bin.length);
+    for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+    return new Blob([bytes], { type: m[1] });
+  } catch {
+    return null;
+  }
 }
 
 /** Uploads one design + its ORIGINAL photos; returns the server's designId. */
@@ -81,11 +103,13 @@ export async function uploadDesign(
         contentType: asset!.mime,
         size: asset!.original.size,
       })),
+      ...(deps.thumbnail ? { thumbnail: true } : {}),
     }),
   });
   const json = (await res.json().catch(() => ({}))) as {
     designId?: string;
     uploads?: { assetId: string; url: string; contentType: string }[];
+    thumbnailUrl?: string;
     error?: string;
   };
   if (!res.ok || !json.designId || !json.uploads) {
@@ -103,6 +127,14 @@ export async function uploadDesign(
     await putWithRetry(d.fetch, u.url, asset.original, u.contentType);
     d.onProgress?.(++done, json.uploads.length);
   }
+  if (json.thumbnailUrl && deps.thumbnail)
+    // Best effort: a missing thumbnail only means a plain tile in My designs.
+    await putWithRetry(
+      d.fetch,
+      json.thumbnailUrl,
+      deps.thumbnail,
+      "image/webp",
+    ).catch(() => undefined);
   return { designId: json.designId };
 }
 

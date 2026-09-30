@@ -89,7 +89,7 @@ function readDimensions(
   });
 }
 
-async function makePreview(
+export async function makePreview(
   file: Blob,
   width: number,
   height: number,

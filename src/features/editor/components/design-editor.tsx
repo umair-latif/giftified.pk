@@ -11,6 +11,7 @@ import {
   type CropTarget,
   type SelectionInfo,
 } from "../hooks/use-fabric-canvas";
+import { SaveDesignButton } from "@/features/saved-designs/components/save-design-button";
 import { SaveTemplateSheet } from "@/features/templates/save-template-sheet";
 import { useTemplateEditor } from "@/features/templates/use-template-editor";
 import { CropSheet } from "./crop-sheet";
@@ -233,6 +234,17 @@ export function DesignEditor({
             </div>
           )}
 
+          <SaveDesignButton
+            product={product}
+            getDesign={ed.getDesign}
+            disabled={!ready || ed.layerCount === 0}
+            {...(item
+              ? {
+                  designKey: item.designKey,
+                  returnTo: `/design/${product.id}?item=${encodeURIComponent(item.id)}`,
+                }
+              : {})}
+          />
           {canSaveTemplate && (
             <div>
               <Chip

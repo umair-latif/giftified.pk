@@ -192,3 +192,21 @@ describe("uploadDesignForOrder (phone side)", () => {
     ).rejects.toThrow(/no longer on this phone/);
   });
 });
+
+describe("design thumbnail (task 22)", () => {
+  it("hands out a thumbnail upload URL only when asked", async () => {
+    const { storage } = createMemoryStorage("/x");
+    const without = await createDesignUpload(
+      { design: textOnly, assets: [] },
+      storage,
+      () => "dNoThumb",
+    );
+    expect(without.thumbnailUrl).toBeUndefined();
+    const withThumb = await createDesignUpload(
+      { design: textOnly, assets: [], thumbnail: true },
+      storage,
+      () => "dThumb",
+    );
+    expect(withThumb.thumbnailUrl).toBe("/x/designs/dThumb/thumbnail.webp");
+  });
+});
