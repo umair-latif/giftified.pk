@@ -90,3 +90,7 @@ export const templateImageKey = (templateId: string, index: number) => {
     throw new Error(`Invalid image index: ${index}`);
   return `templates/${assertSafeId(templateId, "templateId")}/images/${index}.webp`;
 };
+
+/** "templates/<id>/" — everything stored for one template (design, photos, images, thumbnail). */
+export const templateFolder = (templateId: string) =>
+  `templates/${assertSafeId(templateId, "templateId")}/`;

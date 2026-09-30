@@ -380,18 +380,22 @@ export function createWooCommerceClient(config: WooConfig): CommerceClient {
     return { wooProductId: created.id, slug: created.slug || sku };
   }
 
-  async function getDesignProduct(
+  /** A published design product from WooCommerce, or null when it isn't a valid one. */
+  function toDesignInfo(
+    p: WooProduct,
     templateId: string,
-  ): Promise<DesignProductInfo | null> {
+  ): DesignProductInfo | null {
     const sku = designSku(templateId);
-    const found = await get("/products", z.array(wooProductSchema), {
-      query: { sku, status: "publish" },
-      ...CATALOG_CACHE,
-    });
-    const p = found.find((x) => x.sku === sku && x.status === "publish");
-    const pricePkr = p ? parsePkr(p.price) : null;
-    const base = p ? metaValue(p.meta_data ?? [], META.baseProduct) : undefined;
-    if (!p || pricePkr === null || !base || !isProductId(base)) return null;
+    const pricePkr = parsePkr(p.price);
+    const base = metaValue(p.meta_data ?? [], META.baseProduct);
+    if (
+      p.sku !== sku ||
+      p.status !== "publish" ||
+      pricePkr === null ||
+      !base ||
+      !isProductId(base)
+    )
+      return null;
     return {
       wooProductId: p.id,
       templateId,
@@ -406,6 +410,40 @@ export function createWooCommerceClient(config: WooConfig): CommerceClient {
         ? { categoryIds: p.categories.map((c) => c.id) }
         : {}),
     };
+  }
+
+  async function getDesignProduct(
+    templateId: string,
+  ): Promise<DesignProductInfo | null> {
+    const found = await get("/products", z.array(wooProductSchema), {
+      query: { sku: designSku(templateId), status: "publish" },
+      ...CATALOG_CACHE,
+    });
+    for (const p of found) {
+      const info = toDesignInfo(p, templateId);
+      if (info) return info;
+    }
+    return null;
+  }
+
+  async function listDesignProducts(
+    templateIds: string[],
+  ): Promise<DesignProductInfo[]> {
+    const out: DesignProductInfo[] = [];
+    // WooCommerce filters by a comma-separated list of SKUs; keep URLs short.
+    for (let i = 0; i < templateIds.length; i += 40) {
+      const chunk = templateIds.slice(i, i + 40);
+      const found = await getAll("/products", wooProductSchema, {
+        query: { sku: chunk.map(designSku).join(","), status: "publish" },
+        ...CATALOG_CACHE,
+      });
+      for (const id of chunk)
+        for (const p of found) {
+          const info = toDesignInfo(p, id);
+          if (info) out.push(info);
+        }
+    }
+    return out;
   }
 
   async function publishDesignProduct(
@@ -612,6 +650,7 @@ export function createWooCommerceClient(config: WooConfig): CommerceClient {
     findCoupon,
     createDesignProduct,
     getDesignProduct,
+    listDesignProducts,
     publishDesignProduct,
     quoteShipping,
 

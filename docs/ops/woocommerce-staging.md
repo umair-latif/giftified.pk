@@ -94,7 +94,8 @@ Advanced → Webhooks → Add webhook**:
 | Secret       | the same value as `WC_WEBHOOK_SECRET`           |
 | API version  | WP REST API Integration v3                      |
 
-Optional: add the same webhook again with topics **Product created** and **Product deleted**.
+Also add the same webhook with topics **Product created** and **Product deleted** (or one webhook per topic): design
+products you delete or trash in WP admin then leave the shop within seconds (`design-products.md`).
 Without these webhooks the shop pages still update, just up to an hour later.
 
 ## 8. Products: photos, descriptions and colours
