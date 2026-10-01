@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
-import { Page } from "@/components/ui/page";
 import { AccountHeading } from "@/features/account/components/account-heading";
 import { OrderAgainButton } from "@/features/account/components/order-again-button";
 import { formatDate } from "@/features/account/format";
@@ -29,7 +28,7 @@ export default async function AccountOrderPage(
   const view = toOrderView(order);
 
   return (
-    <Page width="content" className="flex flex-col gap-4">
+    <div className="flex max-w-2xl flex-col gap-4">
       <AccountHeading title={`Order #${order.id}`}>
         Placed {formatDate(order.createdAt)}
       </AccountHeading>
@@ -48,6 +47,6 @@ export default async function AccountOrderPage(
           ...(l.templateId ? { templateId: l.templateId } : {}),
         }))}
       />
-    </Page>
+    </div>
   );
 }

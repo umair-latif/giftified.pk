@@ -42,7 +42,9 @@ test("address, order history, order again, profile, and delete refused while an 
   await signUp(page, "acc");
 
   // Delivery address: saved on the account, then fills checkout.
-  await page.getByTestId("account-addresses-link").tap();
+  // Phone: sections open in place on the account page.
+  await page.locator("summary", { hasText: "Delivery address" }).tap();
+  await expect(page.getByTestId("account-section-addresses")).toBeVisible();
   await page.getByLabel("Mobile number").fill("0300 1234567");
   await page.getByLabel("City").fill("lah");
   await page.getByRole("option", { name: "Lahore" }).tap();
@@ -69,7 +71,8 @@ test("address, order history, order again, profile, and delete refused while an 
   await expect(page.getByTestId("account-latest-order")).toContainText(
     `Order #${id}`,
   );
-  await page.getByTestId("account-orders-link").tap();
+  await page.locator("summary", { hasText: "My orders" }).tap();
+  await expect(page).toHaveURL(/\/account$/); // opened in place, no new page
   await expect(page.getByTestId("account-order")).toHaveCount(1);
   await page.getByTestId("account-order").tap();
   await expect(page).toHaveURL(new RegExp(`/account/orders/${id}$`));
@@ -116,4 +119,31 @@ test("delete an account with no open orders", async ({ page }) => {
   await expect(page.getByTestId("account-deleted")).toBeVisible();
   await page.goto("/account");
   await expect(page).toHaveURL(/\/sign-in/);
+});
+
+test("desktop: menu on the left, the section on the right", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 1280, height: 900 });
+  await signUp(page, "acc-desk");
+  const nav = page.getByRole("navigation", { name: "Account" });
+  await expect(nav).toBeVisible();
+  await expect(page.getByTestId("account-nav-overview")).toHaveAttribute(
+    "aria-current",
+    "page",
+  );
+  // The phone cards are hidden on desktop.
+  await expect(page.getByTestId("account-section-orders")).toBeHidden();
+
+  await page.getByTestId("account-nav-orders").click();
+  await expect(page).toHaveURL(/\/account\/orders$/);
+  await expect(page.getByTestId("account-orders-empty")).toBeVisible();
+  await expect(page.getByTestId("account-nav-orders")).toHaveAttribute(
+    "aria-current",
+    "page",
+  );
+  await page.getByTestId("account-nav-addresses").click();
+  await expect(page.getByTestId("address-form")).toBeVisible();
+  await expect(nav).toBeVisible();
+  await expect(page.getByTestId("sign-out-desktop")).toBeVisible();
 });
