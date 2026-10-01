@@ -67,7 +67,9 @@ export function SamplePickerSheet({
     setBusy(true);
     setError(null);
     try {
-      const res = await fetch(s.url);
+      // The thumbnail <img> may have cached this URL WITHOUT CORS headers;
+      // reusing that copy fails the CORS check, so skip the cache.
+      const res = await fetch(s.url, { cache: "no-store" });
       if (!res.ok) throw new Error();
       onPick({
         id: s.id,
@@ -182,6 +184,7 @@ export function SamplePickerSheet({
                   <img
                     src={s.url}
                     alt=""
+                    crossOrigin="anonymous"
                     className="size-full object-cover"
                     loading="lazy"
                   />
