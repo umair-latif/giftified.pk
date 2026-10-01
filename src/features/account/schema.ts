@@ -41,7 +41,9 @@ export const addressSchema = z.object({
     .string()
     .optional()
     .transform((s) => s?.trim().replace(/\s+/g, " ") || undefined)
-    .pipe(z.string().max(120, "Please keep the landmark short.").optional()),
+    .pipe(
+      z.string().max(120, "Please keep the additional info short.").optional(),
+    ),
 });
 
 export const profileSchema = z.object({

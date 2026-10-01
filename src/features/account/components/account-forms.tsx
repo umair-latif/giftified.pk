@@ -1,6 +1,11 @@
 "use client";
 
-import { useActionState, useState } from "react";
+import {
+  startTransition,
+  useActionState,
+  useState,
+  type FormEvent,
+} from "react";
 import {
   errorId,
   Field,
@@ -25,10 +30,26 @@ const frame = (framed: boolean) => (framed ? card : plain);
 const primary = buttonClass("primary");
 const secondary = buttonClass("secondary");
 
+/**
+ * Submits a form to its Server Action WITHOUT React's automatic form reset.
+ * With `<form action>`, React resets uncontrolled fields after a successful
+ * action, back to the values the page was first rendered with — so a ticked
+ * box un-ticked itself and a changed address showed the old one after
+ * "Saved.". Here the fields keep exactly what the customer saved.
+ */
+function submitWithoutReset(dispatch: (data: FormData) => void) {
+  return (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const data = new FormData(e.currentTarget);
+    startTransition(() => dispatch(data));
+  };
+}
+
 function Input({
   id,
   label,
   hint,
+  placeholder,
   defaultValue,
   error,
   autoComplete,
@@ -37,6 +58,7 @@ function Input({
   id: string;
   label: string;
   hint?: string;
+  placeholder?: string;
   defaultValue?: string | undefined;
   error?: string | undefined;
   autoComplete: string;
@@ -53,6 +75,7 @@ function Input({
         id={id}
         name={id}
         defaultValue={defaultValue}
+        placeholder={placeholder}
         autoComplete={autoComplete}
         inputMode={inputMode}
         aria-invalid={!!error}
@@ -105,7 +128,7 @@ export function AddressForm({
   const [city, setCity] = useState(v.city ?? initial.city ?? "");
   return (
     <form
-      action={action}
+      onSubmit={submitWithoutReset(action)}
       className={frame(framed)}
       noValidate
       data-testid="address-form"
@@ -138,7 +161,8 @@ export function AddressForm({
       />
       <Input
         id="landmark"
-        label="Landmark"
+        label="Additional info"
+        placeholder="Landmark, floor, nearby mosque or school…"
         hint="optional"
         autoComplete="off"
         defaultValue={v.landmark ?? initial.landmark}
@@ -170,7 +194,7 @@ export function ProfileForm({
   const e = state.fieldErrors ?? {};
   return (
     <form
-      action={action}
+      onSubmit={submitWithoutReset(action)}
       className={frame(framed)}
       noValidate
       data-testid="profile-form"
