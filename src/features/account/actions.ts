@@ -28,6 +28,11 @@ const SIGNED_OUT: FormState = {
   status: "error",
   message: "You've been signed out. Please sign in again.",
 };
+const NOT_KEPT: FormState = {
+  status: "error",
+  message:
+    "We couldn't save that just now. Please try again, or message us if it keeps happening.",
+};
 const FAILED: FormState = {
   status: "error",
   message: "That didn't save just now. Please try again.",
@@ -53,12 +58,22 @@ export async function saveAddressAction(
       values,
     };
   try {
-    await getCommerce().updateCustomerProfile(id, {
+    const commerce = getCommerce();
+    await commerce.updateCustomerProfile(id, {
       phone: parsed.data.phone,
       city: parsed.data.city,
       addressLine: parsed.data.addressLine,
       ...(parsed.data.landmark ? { landmark: parsed.data.landmark } : {}),
     });
+    const after = await commerce.getCustomer(id);
+    const kept =
+      after?.address?.addressLine === parsed.data.addressLine &&
+      after.address.city === parsed.data.city &&
+      (after.address.landmark ?? "") === (parsed.data.landmark ?? "");
+    if (!kept) {
+      console.error("[account] address not kept by the store", id);
+      return { ...NOT_KEPT, values };
+    }
   } catch (err) {
     console.error("[account] saving address failed", err);
     return { ...FAILED, values };
@@ -84,7 +99,29 @@ export async function saveProfileAction(
   if (!parsed.success)
     return { status: "error", fieldErrors: fieldErrors(parsed.error), values };
   try {
-    await getCommerce().updateCustomerAccount(id, parsed.data);
+    const commerce = getCommerce();
+    await commerce.updateCustomerAccount(id, parsed.data);
+    // Say "Saved." only when the store really kept it (read back).
+    const after = await commerce.getCustomer(id);
+    const kept =
+      after &&
+      after.firstName === parsed.data.firstName &&
+      after.lastName === parsed.data.lastName &&
+      (after.marketingOptIn === true) === parsed.data.marketingOptIn;
+    if (!kept) {
+      console.error(
+        "[account] profile not kept by the store",
+        JSON.stringify({
+          wanted: parsed.data,
+          got: after && {
+            firstName: after.firstName,
+            lastName: after.lastName,
+            marketingOptIn: after.marketingOptIn === true,
+          },
+        }),
+      );
+      return { ...NOT_KEPT, values };
+    }
   } catch (err) {
     console.error("[account] saving profile failed", err);
     return { ...FAILED, values };

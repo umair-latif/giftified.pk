@@ -49,8 +49,15 @@ test("address, order history, order again, profile, and delete refused while an 
   await page.getByLabel("City").fill("lah");
   await page.getByRole("option", { name: "Lahore" }).tap();
   await page.getByLabel("Address").fill("House 12, Street 4, Model Town");
+  await page.getByLabel("Additional info").fill("Near the blue mosque");
   await page.getByRole("button", { name: "Save address" }).tap();
   await expect(page.getByTestId("form-saved")).toBeVisible();
+  await expect(page.getByLabel("Address").first()).toHaveValue(
+    "House 12, Street 4, Model Town",
+  );
+  await expect(page.getByLabel("Additional info")).toHaveValue(
+    "Near the blue mosque",
+  );
 
   await seedCart(page);
   await page.goto("/checkout");
@@ -90,9 +97,20 @@ test("address, order history, order again, profile, and delete refused while an 
   await page.getByTestId("profile-marketing").check();
   await page.getByRole("button", { name: "Save", exact: true }).tap();
   await expect(page.getByTestId("form-saved")).toBeVisible();
+  // Right after saving the form keeps what was saved (no reset to old values)…
+  await expect(page.getByTestId("profile-marketing")).toBeChecked();
+  await expect(page.getByLabel("First name")).toHaveValue("Sana");
+  // …and so does a fresh page.
   await page.reload();
   await expect(page.getByLabel("First name")).toHaveValue("Sana");
   await expect(page.getByTestId("profile-marketing")).toBeChecked();
+  // Unticking saves too.
+  await page.getByTestId("profile-marketing").uncheck();
+  await page.getByRole("button", { name: "Save", exact: true }).tap();
+  await expect(page.getByTestId("form-saved")).toBeVisible();
+  await expect(page.getByTestId("profile-marketing")).not.toBeChecked();
+  await page.reload();
+  await expect(page.getByTestId("profile-marketing")).not.toBeChecked();
 
   // The order is still open, so the account can't be deleted yet.
   await page.getByTestId("delete-account-start").tap();
