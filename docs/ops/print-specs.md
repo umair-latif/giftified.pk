@@ -47,6 +47,15 @@ editor and flat artwork preview. Garment mockups, colour/size selection,
 WooCommerce seed variations, apparel placement proofs and the size chart are
 follow-up work; registering the config alone does not complete task 27.
 
+The founder's front/back shirt illustrations are stored as
+`public/mockups/tshirt-editor-front.webp` and `tshirt-editor-back.webp`.
+The front illustration is a faded, non-interactive DOM background behind the
+editor's chest canvas; it never enters Fabric JSON or print exports. The back
+asset is reserved for later back-print support. Screen placement fractions live
+in `features/editor/mockup/garment-guide.ts` and are illustrative, not physical
+collar-offset specifications. The editable area's aspect ratio still comes from
+the product's print dimensions.
+
 ### Updating confirmed dimensions
 
 1. Open the file (e.g. `src/config/products/mug.ts`) and edit the numbers.

@@ -8,6 +8,14 @@ test("t-shirt configuration opens a portrait editor and preserves its draft", as
   await page.goto("/products/tshirt");
   await page.getByRole("link", { name: "Start designing" }).tap();
   await expect(page).toHaveURL(/\/design\/tshirt$/);
+  const guide = page.getByTestId("garment-guide");
+  await expect(guide).toBeVisible();
+  await expect(guide).toHaveAttribute(
+    "src",
+    "/mockups/tshirt-editor-front.webp",
+  );
+  await expect(guide).toHaveCSS("opacity", "0.25");
+  await expect(guide).toHaveCSS("pointer-events", "none");
   const status = page.getByTestId("editor-status");
   await expect(status).toContainText("0 layers");
   await page.getByRole("button", { name: "Text", exact: true }).tap();
