@@ -8,7 +8,11 @@ import { formatPkr } from "@/features/checkout/format";
 import { OCCASIONS } from "@/features/home/occasions";
 import type { OccasionSlug } from "@/server/templates/types";
 import type { DesignDocument } from "@/types/design";
-import { buildTemplateForm, type ProductImage } from "./build-template-form";
+import {
+  buildTemplateForm,
+  uploadTemplatePhotos,
+  type ProductImage,
+} from "./build-template-form";
 import { buttonClass } from "@/components/ui/button";
 
 interface Props {
@@ -62,9 +66,12 @@ export function SaveTemplateSheet({
     try {
       const current = await getDesign();
       if (!current) throw new Error("Nothing to save yet");
+      // Artwork originals go straight to storage first (too big for us).
+      const id = await uploadTemplatePhotos(current.design);
       const form = await buildTemplateForm(
         current.design,
         {
+          ...(id ? { id } : {}),
           name: name.trim(),
           occasions,
           published,
@@ -224,7 +231,8 @@ export function SaveTemplateSheet({
             <span>Publish (visible to customers)</span>
           </label>
           <p className="text-xs text-zinc-500">
-            Every photo becomes a sample photo the customer replaces.
+            Customers can buy it as it is or change anything. Customer&apos;s
+            photos must be replaced before they order.
           </p>
           {state.kind === "error" && (
             <p role="alert" className="text-red-700">

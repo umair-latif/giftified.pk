@@ -50,9 +50,13 @@ export function printQualityReport(
   const objects = Array.isArray(fabric.objects)
     ? (fabric.objects as Record<string, unknown>[])
     : [];
+  // Customer's photos (samples) are never printed: counted, not graded.
   const images = objects
     .filter(
-      (o) => typeof o.type === "string" && o.type.toLowerCase() === "image",
+      (o) =>
+        typeof o.type === "string" &&
+        o.type.toLowerCase() === "image" &&
+        o.placeholder !== true,
     )
     .map((o) => {
       // Cropped images use only part of the original: scale by the visible fraction.

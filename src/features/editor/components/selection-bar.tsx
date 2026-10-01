@@ -14,8 +14,8 @@ interface Props {
   onCopy: () => void;
   onDelete: () => void;
   onMore: () => void;
-  /** Template designers only: mark the layer as customer-editable. */
-  layerRole?: { customizable: boolean; onToggle: () => void };
+  /** Designers only, photos: open the "customer's photo" sheet. */
+  customerPhoto?: { active: boolean; onOpen: () => void };
 }
 
 /**
@@ -31,7 +31,7 @@ export function SelectionBar({
   onCopy,
   onDelete,
   onMore,
-  layerRole,
+  customerPhoto,
 }: Props) {
   // Bold/italic only where the font has a REAL face for it (the print can't
   // fake one the way a browser does) — e.g. no italic for Caveat, neither for Urdu.
@@ -155,19 +155,16 @@ export function SelectionBar({
             <Action label="Replace" onClick={onReplace}>
               <ReplaceIcon />
             </Action>
+            {customerPhoto && (
+              <Toggle
+                label="Customer's photo"
+                pressed={customerPhoto.active}
+                onClick={customerPhoto.onOpen}
+              >
+                <CustomerPhotoIcon />
+              </Toggle>
+            )}
             <Divider />
-          </>
-        )}
-        {layerRole && kind !== "image" && (
-          <>
-            <Divider />
-            <Toggle
-              label="Customers can edit"
-              pressed={layerRole.customizable}
-              onClick={layerRole.onToggle}
-            >
-              <span aria-hidden>✎</span>
-            </Toggle>
           </>
         )}
         <Action label="Copy" onClick={onCopy}>
@@ -261,4 +258,25 @@ function ReplaceIcon() {
 
 function Divider() {
   return <span aria-hidden className="mx-1 h-6 w-px shrink-0 bg-zinc-200" />;
+}
+
+/** A portrait in a frame: "the customer's own photo goes here". */
+function CustomerPhotoIcon() {
+  return (
+    <svg
+      width={20}
+      height={20}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={1.8}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden
+    >
+      <rect x="3" y="3" width="18" height="18" rx="3" />
+      <circle cx="12" cy="10" r="3" />
+      <path d="M6.5 19c1-3 3-4.5 5.5-4.5s4.5 1.5 5.5 4.5" />
+    </svg>
+  );
 }

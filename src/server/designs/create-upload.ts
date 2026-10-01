@@ -1,6 +1,10 @@
 import { z } from "zod";
 import { getProduct } from "@/config/products";
-import { collectAssetIds } from "@/features/editor/assets/asset-ref";
+import {
+  collectAssetIds,
+  collectTemplateAssets,
+  mapImageSources,
+} from "@/features/editor/assets/asset-ref";
 import {
   ACCEPTED_IMAGE_TYPES,
   MAX_UPLOAD_BYTES,
@@ -11,6 +15,7 @@ import {
   assetKey,
   designKey,
   designThumbKey,
+  templateAssetKey,
   type ObjectStorage,
 } from "@/lib/storage";
 import { isDesignDocument, type DesignDocument } from "@/types/design";
@@ -53,10 +58,17 @@ export class DesignUploadError extends Error {
   }
 }
 
+/** True when `assetId` is artwork of published design `templateId` (injected: server-only module). */
+export type TemplateArtworkCheck = (
+  templateId: string,
+  assetId: string,
+) => Promise<boolean>;
+
 export async function createDesignUpload(
   body: unknown,
   storage: ObjectStorage,
   makeId: () => string = newId,
+  isTemplateArtwork: TemplateArtworkCheck = async () => false,
 ): Promise<DesignUploadTicket> {
   const parsed = createDesignUploadSchema.safeParse(body);
   if (!parsed.success)
@@ -69,8 +81,12 @@ export async function createDesignUpload(
   if (!product)
     throw new DesignUploadError(`Unknown product ${design.productId}`, 422);
 
-  // Every referenced photo must be uploaded, and nothing else.
-  const referenced = new Set(collectAssetIds(design.fabric));
+  // Artwork of a published design is copied from its storage; every other
+  // referenced photo must be uploaded, and nothing else.
+  const fromTemplate = collectTemplateAssets(design.fabric);
+  const referenced = new Set(
+    collectAssetIds(design.fabric).filter((id) => !fromTemplate.has(id)),
+  );
   const offered = new Set(assets.map((a) => a.assetId));
   const missing = [...referenced].filter((id) => !offered.has(id));
   const extra = [...offered].filter((id) => !referenced.has(id));
@@ -95,11 +111,42 @@ export async function createDesignUpload(
   }
 
   // The server's product config is the source of truth for the print size.
+  // Artwork originals are copied in below, so the order's design stands on its
+  // own (reorder works even if the published design is deleted later).
   const stored: DesignDocument = {
     ...design,
     printArea: { ...product.printArea },
+    fabric: mapImageSources(design.fabric, (o) => {
+      delete o.templateAsset;
+      return typeof o.src === "string" ? o.src : null;
+    }),
   };
+  for (const [assetId, templateId] of fromTemplate)
+    if (!(await isTemplateArtwork(templateId, assetId)))
+      throw new DesignUploadError(
+        "This design isn't available any more. Please remove it from your cart.",
+        422,
+      );
+
   const designId = makeId();
+  // The design's artwork prints from the ORIGINAL kept with the published design.
+  await Promise.all(
+    [...fromTemplate].map(async ([assetId, templateId]) => {
+      const from = templateAssetKey(templateId, assetId);
+      const [bytes, info] = await Promise.all([
+        storage.get(from),
+        storage.head(from),
+      ]);
+      if (!bytes)
+        throw new DesignUploadError(
+          "This design isn't available any more. Please remove it from your cart.",
+          422,
+        );
+      await storage.put(assetKey(designId, assetId), bytes, {
+        contentType: info?.contentType ?? "application/octet-stream",
+      });
+    }),
+  );
   await storage.put(designKey(designId), JSON.stringify(stored), {
     contentType: "application/json",
   });

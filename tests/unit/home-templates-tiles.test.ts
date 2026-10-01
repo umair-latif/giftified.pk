@@ -6,6 +6,13 @@ import { saveTemplate } from "@/server/templates";
 import type { DesignDocument } from "@/types/design";
 
 vi.mock("server-only", () => ({}));
+// Every test design product is "still for sale" (the shop check has its own tests).
+vi.mock("@/features/templates/load-design-prices", () => ({
+  withLiveDesigns: async <T>(templates: readonly T[]) => ({
+    templates: [...templates],
+    prices: {},
+  }),
+}));
 const { loadRecentTemplates } =
   await import("@/features/home/recent-templates");
 
@@ -64,7 +71,12 @@ describe("loadRecentTemplates", () => {
         occasions: ["eid"],
         published: over.published ?? true,
         design,
-        assets: [],
+        product: {
+          slug: name.toLowerCase().replace(/\W/g, ""),
+          wooProductId: 1,
+          pricePkr: 1500,
+          description: "x",
+        },
         ...(over.thumbnail ? { thumbnail: new Uint8Array([1]) } : {}),
       },
       storage,
@@ -86,7 +98,7 @@ describe("loadRecentTemplates", () => {
     const list = await loadRecentTemplates(6, storage);
     expect(list.map((t) => t.name)).toEqual(["New one", "Old one"]);
     expect(list[0]).toMatchObject({
-      href: "/design/mug?template=newone",
+      href: "/designs/newone",
       productName: "Custom Mug",
     });
     expect(list[0]!.image).toEqual({
@@ -110,5 +122,29 @@ describe("loadRecentTemplates", () => {
     const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
     expect(await loadRecentTemplates(6, broken as typeof storage)).toEqual([]);
     warn.mockRestore();
+  });
+});
+
+describe("loadRecentTemplates: design products only", () => {
+  it("leaves out older plain templates (no shop product)", async () => {
+    const { storage } = createMemoryStorage();
+    const design = JSON.parse(
+      readFileSync(
+        new URL("../fixtures/design-mug.json", import.meta.url),
+        "utf8",
+      ),
+    ) as DesignDocument;
+    await saveTemplate(
+      {
+        name: "Plain",
+        productId: "mug",
+        occasions: [],
+        published: true,
+        design,
+      },
+      storage,
+      () => "plain1",
+    );
+    expect(await loadRecentTemplates(6, storage)).toEqual([]);
   });
 });

@@ -4,7 +4,6 @@
  */
 export { createDesignCanvas, type DesignCanvas } from "./create-canvas";
 export { applyTouchControls } from "./controls";
-export { isCustomizable, setCustomizable } from "./layer-lock";
 export { addText, type AddTextOptions } from "./text";
 export { attachTwoFingerGestures } from "./gestures";
 export { attachTextAutoWidth } from "./text-fit";
@@ -27,6 +26,9 @@ export {
   isAssetImage,
   objectDpi,
   replaceImage,
+  clearCustomerPhoto,
+  customerPhotoOf,
+  type CustomerPhotoRole,
   type ImageAssetMeta,
 } from "./image";
 export { type NormRect } from "./crop";

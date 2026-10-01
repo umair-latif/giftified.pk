@@ -4,11 +4,17 @@ import { getProduct } from "@/config/products";
 import {
   collectAssetIds,
   mapImageSources,
+  parseAssetRef,
+  templateAssetOf,
 } from "@/features/editor/assets/asset-ref";
+import { printQualityReport } from "@/lib/print-quality";
 import { newId } from "@/lib/id";
 import {
+  assertSafeId,
   getStorage,
+  sampleKey,
   templateAssetKey,
+  templatePreviewKey,
   templateDesignKey,
   templateIndexKey,
   templateImageKey,
@@ -16,6 +22,7 @@ import {
   type ObjectStorage,
 } from "@/lib/storage";
 import { isDesignDocument, type DesignDocument } from "@/types/design";
+import { getSample } from "./samples";
 import {
   OCCASION_SLUGS,
   type ListTemplatesFilter,
@@ -91,23 +98,199 @@ export async function getTemplate(
   if (!raw) return null;
   const design: unknown = JSON.parse(new TextDecoder().decode(raw));
   if (!isDesignDocument(design)) return null;
-  return { meta, design, assetIds: collectAssetIds(design.fabric) };
+  return {
+    meta,
+    design,
+    assetIds: collectAssetIds(design.fabric),
+    placeholderIds: placeholderAssetIds(design.fabric),
+  };
 }
 
-/** Marks every photo as a placeholder the customer must replace. */
-export function markPlaceholders(fabric: Record<string, unknown>) {
-  const marked = mapImageSources(fabric, (o) => {
-    o.placeholder = true;
-    o.customizable = true;
+/** Asset ids of the design's customer's photos (samples). */
+export function placeholderAssetIds(fabric: Record<string, unknown>): string[] {
+  const ids = new Set<string>();
+  mapImageSources(fabric, (o) => {
+    if (o.placeholder === true && typeof o.assetId === "string")
+      ids.add(o.assetId);
     return typeof o.src === "string" ? o.src : null;
   });
-  // `templateLocked` is a customer-side stamp; a saved template never carries it.
+  return [...ids];
+}
+
+/** Layer flags from before task 26 slice 4 (locks); nothing is locked any more. */
+const LEGACY_PROPS = ["customizable", "templateLocked"] as const;
+
+/**
+ * The design as stored for template `id`: customer's photos keep their
+ * `sampleId`, every other photo becomes artwork of this design
+ * (`templateAsset: id`), and old lock flags are dropped. Throws when a
+ * customer's photo has no sample.
+ */
+export function prepareTemplateFabric(
+  fabric: Record<string, unknown>,
+  id: string,
+): Record<string, unknown> {
+  const strip = (objects: unknown): unknown =>
+    Array.isArray(objects)
+      ? objects.map((raw: Record<string, unknown>) => {
+          const o = { ...raw };
+          for (const k of LEGACY_PROPS) delete o[k];
+          if (Array.isArray(o.objects)) o.objects = strip(o.objects);
+          return o;
+        })
+      : objects;
+  const cleaned = { ...fabric, objects: strip(fabric.objects) };
+  return mapImageSources(cleaned, (o) => {
+    if (o.placeholder === true) {
+      if (typeof o.sampleId !== "string" || !o.sampleId)
+        throw new TemplateError(
+          "Each customer's photo needs a sample photo. Tap the photo, then Customer's photo, and pick one.",
+        );
+      delete o.templateAsset;
+    } else {
+      delete o.placeholder;
+      delete o.sampleId;
+      o.templateAsset = id;
+    }
+    return typeof o.src === "string" ? o.src : null;
+  });
+}
+
+/** Where an artwork photo's files come from when saving template `id`. */
+type ArtworkSource =
+  { kind: "uploaded" } | { kind: "template"; templateId: string };
+
+/**
+ * True when `assetId` is an ARTWORK photo of template `templateId` (not a
+ * sample), so its original may be copied into another design or an order.
+ */
+export async function isTemplateArtwork(
+  templateId: string,
+  assetId: string,
+  opts: { includeUnpublished?: boolean },
+  storage: ObjectStorage = getStorage(),
+): Promise<boolean> {
+  const t = await getTemplate(templateId, opts, storage);
+  return (
+    !!t && t.assetIds.includes(assetId) && !t.placeholderIds.includes(assetId)
+  );
+}
+
+async function copyObject(
+  storage: ObjectStorage,
+  from: string,
+  to: string,
+  contentType?: string,
+): Promise<boolean> {
+  if (from === to) return (await storage.head(from)) !== null;
+  const [bytes, info] = await Promise.all([
+    storage.get(from),
+    storage.head(from),
+  ]);
+  if (!bytes) return false;
+  await storage.put(to, bytes, {
+    contentType: contentType ?? info?.contentType ?? "application/octet-stream",
+  });
+  return true;
+}
+
+interface CheckedTemplate {
+  id: string;
+  name: string;
+  index: TemplateMeta[];
+  printArea: DesignDocument["printArea"];
+  fabric: Record<string, unknown>;
+  placeholders: Map<string, string>;
+  artwork: Map<string, ArtworkSource>;
+}
+
+/**
+ * Every check `saveTemplate` makes, without writing anything: publishing
+ * runs it before creating the shop product, so a bad design never leaves a
+ * stray WooCommerce draft behind.
+ */
+export async function checkTemplate(
+  input: SaveTemplateInput,
+  id: string,
+  storage: ObjectStorage = getStorage(),
+): Promise<CheckedTemplate> {
+  const name = input.name.trim();
+  if (!name) throw new TemplateError("A template needs a name", 400);
+  if (!isDesignDocument(input.design, input.productId))
+    throw new TemplateError("Invalid design", 400);
+  const product = getProduct(input.productId);
+  if (!product) throw new TemplateError(`Unknown product ${input.productId}`);
+
+  const index = await readIndex(storage);
+  assertSafeId(id, "templateId");
+  if (index.some((t) => t.id === id))
+    throw new TemplateError("This design was already saved", 400);
+
+  // Where each photo's files come from.
+  const source = input.design.fabric;
+  const placeholders = new Map<string, string>(); // assetId → sampleId
+  const artwork = new Map<string, ArtworkSource>();
+  mapImageSources(source, (o) => {
+    const assetId =
+      typeof o.assetId === "string" ? o.assetId : parseAssetRef(o.src);
+    if (!assetId) throw new TemplateError("A photo has no file", 400);
+    if (o.placeholder === true) {
+      if (typeof o.sampleId === "string" && o.sampleId)
+        placeholders.set(assetId, o.sampleId);
+    } else {
+      const from = templateAssetOf(o);
+      artwork.set(
+        assetId,
+        from && from !== id
+          ? { kind: "template", templateId: from }
+          : { kind: "uploaded" },
+      );
+    }
+    return typeof o.src === "string" ? o.src : null;
+  });
+  const fabric = prepareTemplateFabric(source, id); // throws without samples
+
+  if (printQualityReport(fabric).status === "block")
+    throw new TemplateError(
+      "A photo is too blurry to print at its size. Make it smaller or use a sharper one.",
+    );
+
+  for (const sampleId of new Set(placeholders.values()))
+    if (!(await getSample(sampleId, storage)))
+      throw new TemplateError(
+        "A sample photo is no longer in the library. Pick another one.",
+      );
+  for (const [assetId, from] of artwork) {
+    if (from.kind === "uploaded") {
+      const [original, preview] = await Promise.all([
+        storage.head(templateAssetKey(id, assetId)),
+        storage.head(templatePreviewKey(id, assetId)),
+      ]);
+      if (!original || !preview)
+        throw new TemplateError(
+          "A photo didn't finish uploading. Please try again.",
+        );
+    } else if (
+      !(await isTemplateArtwork(
+        from.templateId,
+        assetId,
+        { includeUnpublished: true },
+        storage,
+      ))
+    ) {
+      throw new TemplateError(
+        "A photo from another design is no longer available. Replace it and try again.",
+      );
+    }
+  }
   return {
-    ...marked,
-    objects: (marked.objects as Record<string, unknown>[]).map((o) => ({
-      ...o,
-      templateLocked: undefined,
-    })),
+    id,
+    name,
+    index,
+    printArea: { ...product.printArea },
+    fabric,
+    placeholders,
+    artwork,
   };
 }
 
@@ -117,38 +300,44 @@ export async function saveTemplate(
   makeId: () => string = newId,
   now: () => Date = () => new Date(),
 ): Promise<TemplateMeta> {
-  const name = input.name.trim();
-  if (!name) throw new TemplateError("A template needs a name", 400);
-  if (!isDesignDocument(input.design, input.productId))
-    throw new TemplateError("Invalid design", 400);
-  const product = getProduct(input.productId);
-  if (!product) throw new TemplateError(`Unknown product ${input.productId}`);
+  const { id, name, index, printArea, fabric, placeholders, artwork } =
+    await checkTemplate(input, input.id ?? makeId(), storage);
 
-  const referenced = new Set(collectAssetIds(input.design.fabric));
-  const offered = new Set(input.assets.map((a) => a.assetId));
-  if (
-    [...referenced].some((id) => !offered.has(id)) ||
-    [...offered].some((id) => !referenced.has(id))
-  )
-    throw new TemplateError(
-      "Sample photos don't match the photos in the design",
-    );
+  // Copy samples and artwork from other designs into this one.
+  await Promise.all([
+    ...[...placeholders].map(async ([assetId, sampleId]) => {
+      if (
+        !(await copyObject(
+          storage,
+          sampleKey(sampleId),
+          templateAssetKey(id, assetId),
+        ))
+      )
+        throw new TemplateError("A sample photo is missing. Pick another one.");
+    }),
+    ...[...artwork].flatMap(([assetId, from]) =>
+      from.kind === "template"
+        ? [
+            copyObject(
+              storage,
+              templateAssetKey(from.templateId, assetId),
+              templateAssetKey(id, assetId),
+            ),
+            copyObject(
+              storage,
+              templatePreviewKey(from.templateId, assetId),
+              templatePreviewKey(id, assetId),
+            ),
+          ]
+        : [],
+    ),
+  ]);
 
-  const id = input.id ?? makeId();
-  const design: DesignDocument = {
-    ...input.design,
-    printArea: { ...product.printArea },
-    fabric: markPlaceholders(input.design.fabric),
-  };
+  const design: DesignDocument = { ...input.design, printArea, fabric };
   await Promise.all([
     storage.put(templateDesignKey(id), JSON.stringify(design), {
       contentType: "application/json",
     }),
-    ...input.assets.map((a) =>
-      storage.put(templateAssetKey(id, a.assetId), a.bytes, {
-        contentType: a.contentType,
-      }),
-    ),
     ...(input.images ?? []).map((img, i) =>
       storage.put(templateImageKey(id, i), img.bytes, {
         contentType: "image/webp",
@@ -174,28 +363,85 @@ export async function saveTemplate(
     ...(input.createdBy ? { createdBy: input.createdBy } : {}),
     ...(input.product ? { product: input.product } : {}),
   };
-  const index = await readIndex(storage);
   await storage.put(templateIndexKey(), JSON.stringify([...index, meta]), {
     contentType: "application/json",
   });
   return meta;
 }
 
-/** Short-lived download URLs for a template's sample photos (bucket stays private). */
+/** Image types a designer may upload as artwork (same as customers' photos). */
+export interface TemplateUploadRequest {
+  assets: { assetId: string; contentType: string; size: number }[];
+}
+
+export interface TemplateUploadTicket {
+  /** Pass back as the template id when saving. */
+  templateId: string;
+  uploads: {
+    assetId: string;
+    /** PUT the ORIGINAL here. */
+    original: { url: string; contentType: string };
+    /** PUT the ≤2048 px WebP preview here. */
+    preview: { url: string; contentType: "image/webp" };
+  }[];
+}
+
+/**
+ * Step 1 of publishing a design with artwork photos: reserve its id and hand
+ * back direct-upload URLs for each photo's original and preview (the
+ * originals can be far over our 4.5 MB request limit).
+ */
+export async function createTemplateUploads(
+  req: TemplateUploadRequest,
+  storage: ObjectStorage = getStorage(),
+  makeId: () => string = newId,
+): Promise<TemplateUploadTicket> {
+  const templateId = makeId();
+  const uploads = await Promise.all(
+    req.assets.map(async (a) => ({
+      assetId: assertSafeId(a.assetId, "assetId"),
+      original: {
+        contentType: a.contentType,
+        url: await storage.presignPut(templateAssetKey(templateId, a.assetId), {
+          contentType: a.contentType,
+          expiresInS: 30 * 60,
+        }),
+      },
+      preview: {
+        contentType: "image/webp" as const,
+        url: await storage.presignPut(
+          templatePreviewKey(templateId, a.assetId),
+          { contentType: "image/webp", expiresInS: 30 * 60 },
+        ),
+      },
+    })),
+  );
+  return { templateId, uploads };
+}
+
+/**
+ * Short-lived download URLs for the photos the editor shows (bucket stays
+ * private): a customer's photo's sample, or an artwork photo's PREVIEW (never
+ * its original, which can be many MB on a phone's data plan).
+ */
 export async function templateAssetUrls(
   detail: TemplateDetail,
   storage: ObjectStorage = getStorage(),
 ): Promise<Record<string, string>> {
+  const samples = new Set(detail.placeholderIds);
   const entries = await Promise.all(
-    detail.assetIds.map(
-      async (a) =>
-        [
-          a,
-          await storage.presignGet(templateAssetKey(detail.meta.id, a), {
-            expiresInS: 10 * 60,
-          }),
-        ] as const,
-    ),
+    detail.assetIds.map(async (a) => {
+      const id = detail.meta.id;
+      // Older designs stored only the sample/preview under assets/.
+      const key =
+        !samples.has(a) && (await storage.head(templatePreviewKey(id, a)))
+          ? templatePreviewKey(id, a)
+          : templateAssetKey(id, a);
+      return [
+        a,
+        await storage.presignGet(key, { expiresInS: 10 * 60 }),
+      ] as const;
+    }),
   );
   return Object.fromEntries(entries);
 }

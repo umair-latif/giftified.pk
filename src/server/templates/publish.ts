@@ -4,12 +4,12 @@ import { getProduct } from "@/config/products";
 import { OCCASIONS } from "@/features/home/occasions";
 import { newId } from "@/lib/id";
 import { getStorage, type ObjectStorage } from "@/lib/storage";
-import { saveTemplate, TemplateError } from "./store";
+import { checkTemplate, saveTemplate, TemplateError } from "./store";
 import type { SaveTemplateInput, TemplateMeta } from "./types";
 
 export interface PublishProductInput extends Omit<
   SaveTemplateInput,
-  "id" | "product"
+  "product"
 > {
   description: string;
   /** Whole rupees. */
@@ -81,7 +81,10 @@ export async function publishTemplateProduct(
     throw new TemplateError("Enter a price in whole rupees", 400);
   if (!description) throw new TemplateError("Add a short description", 400);
 
-  const id = (deps.makeId ?? newId)();
+  // Reserved by `createTemplateUploads` when artwork photos were uploaded first.
+  const id = input.id ?? (deps.makeId ?? newId)();
+  // Check the design first: a bad one must not leave a shop product behind.
+  await checkTemplate(input, id, deps.storage ?? getStorage());
   const created = await deps.commerce.createDesignProduct({
     templateId: id,
     baseProductId: input.productId,

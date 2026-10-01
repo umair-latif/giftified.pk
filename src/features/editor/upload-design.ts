@@ -1,6 +1,6 @@
 import type { ProductId } from "@/config/products";
 import type { DesignDocument } from "@/types/design";
-import { collectAssetIds } from "./assets/asset-ref";
+import { collectAssetIds, collectTemplateAssets } from "./assets/asset-ref";
 import { getAsset, type StoredAsset } from "./assets/asset-store";
 import { loadDraft, loadThumbnail } from "./draft";
 
@@ -82,7 +82,12 @@ export async function uploadDesign(
     onProgress: deps.onProgress,
   };
 
-  const ids = collectAssetIds(design.fabric);
+  // Artwork of a published design is copied on the server from that design's
+  // storage; only the customer's own photos go up from the phone.
+  const fromTemplate = collectTemplateAssets(design.fabric);
+  const ids = collectAssetIds(design.fabric).filter(
+    (id) => !fromTemplate.has(id),
+  );
   const assets = await Promise.all(
     ids.map(async (id) => ({ id, asset: await d.getAsset(id) })),
   );

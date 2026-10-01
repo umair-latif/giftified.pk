@@ -8,16 +8,19 @@
  *   orders/<orderId>/line-<n>/proof.pdf      VendorProof.pdf
  *   templates/index.json                     template list (task 18)
  *   templates/<id>/design.json               template DesignDocument
- *   templates/<id>/assets/<assetId>          sample (placeholder) photo
+ *   templates/<id>/assets/<assetId>          customer's photo: its sample; artwork: the ORIGINAL
+ *   templates/<id>/previews/<assetId>        artwork: ≤2048 px preview the editor shows
  *   templates/<id>/thumbnail.webp            gallery thumbnail
  *   templates/<id>/images/<n>.webp           product images (mockups), n = 0…
  *   designs/<designId>/thumbnail.webp        small preview (signed-in orders, task 22)
  *   accounts/<customerId>/designs/<id>/…     a customer's saved design (task 22):
  *        design.json, pending.json (while photos upload), assets/<assetId>, thumbnail.webp
+ *   samples/index.json                       sample photo library (designers)
+ *   samples/<sampleId>                       one sample photo (≤2048 px, never printed)
  *
  * The retention job (task 24) only ever lists `designs/` and deletes
- * `orders/<n>/` and `designs/<id>/`; `accounts/` is deleted only when the
- * customer deletes a saved design or their account.
+ * `orders/<n>/` and `designs/<id>/`; `accounts/`, `templates/` and `samples/`
+ * are never purged by it.
  *
  * Folder prefixes (`designFolder`, `orderFolder`) are what the retention job
  * (task 24) deletes; `assertFolderPrefix` guards every prefix delete.
@@ -135,3 +138,12 @@ export const savedAssetKey = (
 
 export const savedThumbKey = (customerId: number, savedId: string) =>
   `${savedDesignFolder(customerId, savedId)}thumbnail.webp`;
+
+/** Artwork photo of a published design: the ≤2048 px copy the editor shows. */
+export const templatePreviewKey = (templateId: string, assetId: string) =>
+  `templates/${assertSafeId(templateId, "templateId")}/previews/${assertSafeId(assetId, "assetId")}`;
+
+export const sampleIndexKey = () => "samples/index.json";
+
+export const sampleKey = (sampleId: string) =>
+  `samples/${assertSafeId(sampleId, "sampleId")}`;

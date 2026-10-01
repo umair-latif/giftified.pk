@@ -1,4 +1,5 @@
 import { getStorage } from "@/lib/storage";
+import { isTemplateArtwork } from "@/server/templates";
 import {
   DesignUploadError,
   createDesignUpload,
@@ -13,9 +14,17 @@ export async function POST(req: Request): Promise<Response> {
     return Response.json({ error: "Invalid JSON" }, { status: 400 });
   }
   try {
-    return Response.json(await createDesignUpload(body, getStorage()), {
-      status: 201,
-    });
+    const storage = getStorage();
+    return Response.json(
+      await createDesignUpload(
+        body,
+        storage,
+        undefined,
+        (templateId, assetId) =>
+          isTemplateArtwork(templateId, assetId, {}, storage),
+      ),
+      { status: 201 },
+    );
   } catch (err) {
     if (err instanceof DesignUploadError)
       return Response.json({ error: err.message }, { status: err.status });

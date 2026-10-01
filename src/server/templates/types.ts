@@ -5,8 +5,11 @@ import type { DesignDocument } from "@/types/design";
  * SHARED CONTRACT (task 18 → task 19 gallery, task 23 shared templates).
  * Change only with the lead developer's approval.
  *
- * A template is a saved design whose photos are all placeholders: sample
- * photos the customer replaces with their own ("Tap to add photo").
+ * A template is the stored file of a published design. Its photos are either
+ * "customer's photos" (`placeholder: true` + `sampleId`: a sample from the
+ * library the customer must replace) or artwork (`templateAsset: <id>`: the
+ * ORIGINAL is stored with the design and printed as it is). Customers may
+ * change anything; nothing is locked.
  */
 export const OCCASION_SLUGS = [
   "eid",
@@ -47,10 +50,12 @@ export interface TemplateMeta {
 
 export interface TemplateDetail {
   meta: TemplateMeta;
-  /** Every photo carries `placeholder: true`; `asset:<id>` refs point at `assetIds`. */
+  /** `asset:<id>` refs point at `assetIds`. */
   design: DesignDocument;
-  /** Sample photos stored with the template (asset ids from the design). */
+  /** Every photo stored with the template (asset ids from the design). */
   assetIds: string[];
+  /** The subset of `assetIds` that are customer's photos (samples). */
+  placeholderIds: string[];
 }
 
 export interface ListTemplatesFilter {
@@ -66,12 +71,18 @@ export interface SaveTemplateInput {
   occasions: OccasionSlug[];
   published: boolean;
   createdBy?: string;
-  /** Set when saving as a design product (see `publishTemplateProduct`). */
+  /**
+   * Reserved by `createTemplateUploads` when the design has artwork photos
+   * (their originals are already uploaded under it); otherwise a new id.
+   */
   id?: string;
   product?: TemplateMeta["product"];
+  /**
+   * Customer's photos need a `sampleId` (the server copies the sample). Artwork
+   * photos must be uploaded first (`createTemplateUploads`), or carry
+   * `templateAsset` of the published design they came from (copied too).
+   */
   design: DesignDocument;
-  /** Sample photos: one per asset id referenced by the design. */
-  assets: { assetId: string; bytes: Uint8Array; contentType: string }[];
   thumbnail?: Uint8Array;
   /** Product images (mockups of the design on the product), first = main image. */
   images?: { label: string; bytes: Uint8Array }[];
