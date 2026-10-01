@@ -6,7 +6,6 @@ import {
   setDraftTemplate,
 } from "@/features/editor/draft";
 import { isDesignDocument, type DesignDocument } from "@/types/design";
-import { lockLayersForCustomer } from "./lock-layers";
 
 interface TemplateResponse {
   meta: { id: string; productId: ProductId };
@@ -19,8 +18,8 @@ export class TemplateImportError extends Error {}
 /**
  * Starts a fresh draft from a published template: downloads its sample photos
  * into the local asset store (so they behave like any photo the customer
- * added) and writes the template's design as the product's draft. Every
- * photo is a placeholder until the customer replaces it.
+ * added) and writes the template's design as the product's draft. Customers
+ * may change anything; customer's photos must be replaced before ordering.
  */
 export async function importTemplate(
   templateId: string,
@@ -35,11 +34,26 @@ export async function importTemplate(
   )
     throw new TemplateImportError("Template doesn't fit this product");
 
+  await downloadTemplatePhotos(data.design, data.assetUrls);
+  const design: DesignDocument = data.design;
+  if (!saveDraft(design)) throw new TemplateImportError("Couldn't start");
+  setDraftTemplate(productId, templateId);
+  setDraftSaved(productId, null); // a new design, not a saved one
+  return design;
+}
+
+/**
+ * Puts a published design's photos into this phone's asset store, so the
+ * editor (and the cart) can show them: customer's photos get their sample,
+ * artwork its ≤2048 px preview. Artwork keeps its `templateAsset` flag, so
+ * checkout copies the ORIGINAL on the server instead of uploading this copy.
+ */
+export async function downloadTemplatePhotos(
+  design: DesignDocument,
+  assetUrls: Record<string, string>,
+): Promise<void> {
   const sizes = new Map<string, { w: number; h: number }>();
-  for (const o of (data.design.fabric.objects ?? []) as Record<
-    string,
-    unknown
-  >[]) {
+  for (const o of (design.fabric.objects ?? []) as Record<string, unknown>[]) {
     if (typeof o.assetId === "string")
       sizes.set(o.assetId, {
         w: Number(o.sourceWidthPx) || 1,
@@ -47,7 +61,7 @@ export async function importTemplate(
       });
   }
   await Promise.all(
-    Object.entries(data.assetUrls).map(async ([assetId, url]) => {
+    Object.entries(assetUrls).map(async ([assetId, url]) => {
       const photo = await (await fetch(url)).blob();
       const size = sizes.get(assetId) ?? { w: 1, h: 1 };
       await putAsset({
@@ -62,12 +76,4 @@ export async function importTemplate(
       });
     }),
   );
-  const design: DesignDocument = {
-    ...data.design,
-    fabric: lockLayersForCustomer(data.design.fabric),
-  };
-  if (!saveDraft(design)) throw new TemplateImportError("Couldn't start");
-  setDraftTemplate(productId, templateId);
-  setDraftSaved(productId, null); // a new design, not a saved one
-  return design;
 }

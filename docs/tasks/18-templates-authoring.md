@@ -1,5 +1,10 @@
 # 18 — Templates: placeholders and "Save as template"
 
+> **Update (1 Oct 2026):** "Save as template" is gone (every design is published as a product, task 26), and
+> the placeholder library is built as the **sample photo library**: designers add photos in the
+> "Customer's photo" sheet, with no tags; a customer's-photo slot only accepts library photos. Details in
+> task 26, slice 6.
+
 **Branch:** `feat/templates` · **Owner:** Lead · **Needs:** 17
 
 - Placeholder layers: photo frames with a sample photo marked `placeholder: true` ("Tap to add
@@ -22,7 +27,7 @@
 2. **Editor (built; slice 2):** `?template=<id>` → import the sample photos into the local asset store and start a
    fresh draft; "Tap to add photo" hint on placeholders; founder-only **Save as template** (admin
    secret) → thumbnail + `POST /api/admin/templates`.
-3. **Placeholder library:** founder-approved sample images in `templates/library/…`, picked by frame shape.
+3. **Sample photo library (built, task 26 slice 6):** `samples/index.json` + `samples/<id>`; picked by the designer, no tags.
 
 **Slice 2 notes.** Template editors = signed-in accounts whose email is in `TEMPLATE_EDITOR_EMAILS`
 (`src/server/templates/editors.ts`; one function decides, so a WooCommerce role can replace the list

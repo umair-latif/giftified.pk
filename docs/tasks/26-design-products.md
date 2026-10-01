@@ -17,8 +17,11 @@ The customer can **Add to cart** as it is, or **Customize** it in the editor. On
 - At publish time the editor asks for **title, description, price** (later changes in WP admin).
 - Coupons/price per design come from WooCommerce (categories per base product and per occasion; coupon
   code field + server-side validation is its own slice — nothing exists yet).
-- The designer marks each layer **locked** (default) or **customizable**. Photos are always customizable
-  sample photos for now (locked photos need the original stored: a later slice).
+- ~~The designer marks each layer locked or customizable.~~ **Replaced by slice 6 (1 Oct 2026): nothing is
+  locked.** Customers may change anything or buy the design as it is. The only mark is **Customer's photo**
+  on a photo layer (see slice 6).
+- **Every published design is a design product.** The editor's "Save as template" button is gone; designers
+  only have **Publish as product**. "Template" survives only in code as the name of the stored design file.
 - Text boxes start as wide as their text (built; see "Auto-width text" below) instead of 60 % of the print area.
 
 ## Slices
@@ -41,7 +44,7 @@ The customer can **Add to cart** as it is, or **Customize** it in the editor. On
    (`CommerceClient.findCoupon`); `placeOrder` re-checks and sends `coupon_lines` so WooCommerce computes the order
    discount. Design products are filed under "Ready-made <product>" + one category per occasion so coupons can
    target them in WP admin. Guide: [`docs/ops/coupons.md`](../ops/coupons.md).
-6. **Locked photos** (original stored with the template, copied into the order's files).
+6. **Customer's photos + artwork originals (built, `feat/customer-photos`).** See the notes below.
 
 ## Slice 2 notes
 
@@ -88,6 +91,25 @@ The customer can **Add to cart** as it is, or **Customize** it in the editor. On
 
 Cart/checkout show the base product name for design lines (not the design's title); the vendor proof does not
 print the design title; coupons; locked photos; text boxes that start as wide as their text.
+
+## Slice 6 notes (customer's photos, artwork, no locks)
+
+- **Designers** = signed-in accounts in `DESIGNER_EMAILS` (the old `TEMPLATE_EDITOR_EMAILS` still counts).
+- **Customer's photo** (selection bar, designers only, photos only) opens the sample picker: the photo in
+  that slot must be a **sample-library photo** (`samples/<id>`, managed in the same sheet: add / remove).
+  The layer gets `placeholder: true` + `sampleId`. "Make it part of the design" turns it back into artwork.
+  Publishing is refused while a customer's photo has no sample. Customers must replace it before ordering
+  ("Make it yours" only on the product page; checkout refuses a design that still has one).
+- **Every other photo is artwork**, printed as it is. Publishing uploads its ORIGINAL + ≤2048 px preview
+  straight from the phone (`POST /api/admin/templates/uploads` → presigned PUTs under a reserved design id),
+  stamps `templateAsset: <id>` on the layer and grades print quality (below 150 effective DPI is refused).
+- Customers' editors load the artwork **preview**; at checkout the server copies the **original** from
+  `templates/<id>/assets/` into the order's design (`createDesignUpload`) and drops `templateAsset`, so the
+  order stands on its own (reorder works even if the published design is deleted). Replacing an artwork photo
+  clears the flag (the customer's own photo uploads as usual).
+- Old lock flags (`customizable`, `templateLocked`) are ignored and stripped when a design is saved again.
+- Shop pages list design products only; older plain templates (no product) are hidden.
+- A design that is still for sale can't be deleted from the gallery: trash it in WP admin first.
 
 ## Slice 5 notes (coupons)
 

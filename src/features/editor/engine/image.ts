@@ -35,8 +35,18 @@ interface PreviewMeta {
 export type AssetImage = FabricImage &
   Partial<ImageAssetMeta & PreviewMeta> & {
     frameShape?: FrameShape;
+    /** "Customer's photo": must be replaced before ordering. */
     placeholder?: boolean;
+    /** Sample-library photo shown in a customer's photo. */
+    sampleId?: string;
+    /** Published design whose storage holds this photo's original. */
+    templateAsset?: string;
   };
+
+/** Makes the photo a "customer's photo" showing sample `sampleId`. */
+export interface CustomerPhotoRole {
+  sampleId: string;
+}
 
 export function isAssetImage(obj: FabricObject | undefined): obj is AssetImage {
   return !!obj && obj.type.toLowerCase() === "image";
@@ -191,6 +201,8 @@ export async function replaceImage(
   canvas: Canvas,
   previewUrl: string,
   meta: ImageAssetMeta,
+  /** Designers: the new photo is a sample in a "customer's photo" slot. */
+  role?: CustomerPhotoRole,
 ): Promise<void> {
   const img = canvas.getActiveObject();
   if (!isAssetImage(img)) return;
@@ -204,7 +216,11 @@ export async function replaceImage(
     center: { x: 0.5, y: 0.5 },
   });
   img.setElement(next.getElement());
-  img.placeholder = undefined; // a real photo now
+  // A new photo: no longer the design's artwork or a sample, unless a
+  // designer is filling a customer's-photo slot with one.
+  img.placeholder = role ? true : undefined;
+  img.sampleId = role?.sampleId;
+  img.templateAsset = undefined;
   const preview: PreviewMeta = {
     previewWidthPx: next.width,
     previewHeightPx: next.height,
@@ -223,4 +239,26 @@ export async function replaceImage(
   img.setCoords();
   canvas.requestRenderAll();
   canvas.fire("object:modified", { target: img });
+}
+
+/**
+ * Designers: turn the selected customer's photo back into ordinary artwork
+ * (the photo stays; customers no longer have to replace it). One undo step.
+ */
+export function clearCustomerPhoto(canvas: Canvas): void {
+  const img = canvas.getActiveObject();
+  if (!isAssetImage(img) || !img.placeholder) return;
+  img.placeholder = undefined;
+  img.sampleId = undefined;
+  canvas.fire("object:modified", { target: img });
+  canvas.requestRenderAll();
+}
+
+/** Selected photo's role: a customer's photo (with its sample) or artwork. */
+export function customerPhotoOf(
+  obj: FabricObject | undefined,
+): { sampleId: string | null } | null {
+  return isAssetImage(obj) && obj.placeholder === true
+    ? { sampleId: obj.sampleId ?? null }
+    : null;
 }

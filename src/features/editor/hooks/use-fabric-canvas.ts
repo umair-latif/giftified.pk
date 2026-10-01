@@ -39,8 +39,8 @@ export interface SelectionInfo {
   heightMm: number;
   /** Degrees, 0–360. */
   angle: number;
-  /** Template designers: customers may change this layer. */
-  customizable: boolean;
+  /** Designers: the selected photo is a "customer's photo" (sampleId = its sample). */
+  customerPhoto: { sampleId: string | null } | null;
   /** Present when the selection is text. */
   text: TextStyle | null;
   /** Effective print DPI when the selection is an image. */
@@ -168,7 +168,9 @@ export function useFabricCanvas(product: ProductConfig, designKey?: string) {
               (o) => engine.isAssetImage(o) && o.placeholder === true,
             ).length,
           );
+          // Customer's photos (samples) are replaced before printing: not graded.
           const dpis = objects
+            .filter((o) => !(engine.isAssetImage(o) && o.placeholder === true))
             .map(engine.objectDpi)
             .filter((d): d is number => d !== null);
           const worstDpi = dpis.length ? Math.min(...dpis) : null;
@@ -414,8 +416,60 @@ export function useFabricCanvas(product: ProductConfig, designKey?: string) {
     };
   }, []);
 
-  const setCustomizable = useCallback(
-    (value: boolean) => run((e, dc) => e.setCustomizable(dc.canvas, value)),
+  /**
+   * Designers: put sample-library photo `sample` into the selected photo's
+   * frame and make it a "customer's photo" (customers must replace it).
+   */
+  const applySample = useCallback(
+    async (sample: {
+      id: string;
+      blob: Blob;
+      widthPx: number;
+      heightPx: number;
+    }) => {
+      const dc = designRef.current;
+      const engine = engineRef.current;
+      if (!dc || !engine || !engine.isAssetImage(dc.canvas.getActiveObject()))
+        return;
+      setBusy(true);
+      setNotice(null);
+      try {
+        const id = newId();
+        await putAsset({
+          id,
+          name: "sample",
+          mime: sample.blob.type || "image/webp",
+          widthPx: sample.widthPx,
+          heightPx: sample.heightPx,
+          original: sample.blob,
+          preview: sample.blob,
+          createdAt: Date.now(),
+        });
+        const url = await previewUrl(id);
+        if (!url) throw new Error("sample preview missing");
+        await engine.replaceImage(
+          dc.canvas,
+          url,
+          {
+            assetId: id,
+            sourceWidthPx: sample.widthPx,
+            sourceHeightPx: sample.heightPx,
+          },
+          { sampleId: sample.id },
+        );
+      } catch (err) {
+        console.error("[editor] sample photo failed", err);
+        setNotice("We couldn't use that sample photo. Please try again.");
+      } finally {
+        setBusy(false);
+      }
+    },
+    [],
+  );
+
+  /** Designers: the selected customer's photo becomes ordinary artwork again. */
+  const clearCustomerPhoto = useCallback(
+    () => run((e, dc) => e.clearCustomerPhoto(dc.canvas)),
     [run],
   );
 
@@ -464,7 +518,8 @@ export function useFabricCanvas(product: ProductConfig, designKey?: string) {
     copySelected,
     getCropTarget,
     applyCrop,
-    setCustomizable,
+    applySample,
+    clearCustomerPhoto,
     quality,
     deleteSelected,
     straighten,
@@ -489,7 +544,7 @@ function describe(
     widthMm: obj.getScaledWidth(),
     heightMm: obj.getScaledHeight(),
     angle: ((obj.angle % 360) + 360) % 360,
-    customizable: engine.isCustomizable(obj),
+    customerPhoto: engine.customerPhotoOf(obj),
     text: getTextStyle(obj),
     dpi: dpi === null ? null : Math.round(dpi),
     dpiStatus: dpi === null ? null : dpiStatus(dpi),

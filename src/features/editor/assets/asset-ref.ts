@@ -13,12 +13,24 @@ export const IMAGE_CUSTOM_PROPS = [
   "previewWidthPx",
   "previewHeightPx",
   "frameShape",
-  /** Template sample photo the customer must replace (task 18). */
+  /** "Customer's photo": a sample the customer must replace before ordering. */
   "placeholder",
-  // Template layer roles (task 26): also on FabricObject in engine/layer-lock.ts.
-  "customizable",
-  "templateLocked",
+  /** Which sample-library photo a customer's photo shows (designers pick it). */
+  "sampleId",
+  /**
+   * Artwork of a published design: its ORIGINAL lives with that design
+   * (`templates/<id>/assets/<assetId>`), so checkout copies it on the server
+   * instead of uploading it from the phone. Cleared when the photo is replaced.
+   */
+  "templateAsset",
 ] as const;
+
+/** An image's design id when its original lives with a published design. */
+export function templateAssetOf(o: Record<string, unknown>): string | null {
+  return typeof o.templateAsset === "string" && o.templateAsset
+    ? o.templateAsset
+    : null;
+}
 
 export function toAssetRef(id: string): string {
   return `${ASSET_SCHEME}${id}`;
@@ -81,4 +93,22 @@ export function collectAssetIds(fabric: Record<string, unknown>): string[] {
     return typeof o.src === "string" ? o.src : null;
   });
   return [...ids];
+}
+
+/**
+ * Photos whose original lives with a published design: assetId → design
+ * (template) id. Checkout copies these on the server; the phone uploads only
+ * the rest.
+ */
+export function collectTemplateAssets(
+  fabric: Record<string, unknown>,
+): Map<string, string> {
+  const found = new Map<string, string>();
+  mapImageSources(fabric, (o) => {
+    const id = typeof o.assetId === "string" ? o.assetId : parseAssetRef(o.src);
+    const templateId = templateAssetOf(o);
+    if (id && templateId) found.set(id, templateId);
+    return typeof o.src === "string" ? o.src : null;
+  });
+  return found;
 }

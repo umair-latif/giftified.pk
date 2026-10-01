@@ -17,71 +17,95 @@ async function makePng(page: Page, width: number, height: number) {
   return Buffer.from(dataUrl.split(",")[1]!, "base64");
 }
 
-test("a template editor saves a template; a customer starts from it and must replace the sample photo", async ({
+test("a designer marks a customer's photo with a library sample and publishes; customers must replace it", async ({
   page,
 }) => {
-  // Guests and ordinary customers get no "Save as template".
-  await page.goto("/design/mug");
-  await expect(
-    page.getByRole("button", { name: "Image", exact: true }),
-  ).toBeEnabled();
-  await expect(
-    page.getByRole("button", { name: "Save as template" }),
-  ).toHaveCount(0);
-
-  await signInEditor(page);
-
+  // Guests get no "Customer's photo" switch.
   await page.goto("/design/mug");
   await expect(
     page.getByRole("button", { name: "Image", exact: true }),
   ).toBeEnabled();
   await page.getByTestId("image-input").setInputFiles({
-    name: "sample.png",
+    name: "photo.png",
     mimeType: "image/png",
     buffer: await makePng(page, 1600, 1200),
   });
-  await page.getByRole("button", { name: "Save as template" }).click();
-  const sheet = page.getByRole("dialog", { name: "Save as template" });
-  await sheet.getByLabel("Name").fill("Eid card");
-  await sheet.getByText("Eid", { exact: true }).click();
-  await sheet.getByLabel("Publish (visible to customers)").check();
-  await sheet.getByRole("button", { name: "Save template" }).click();
+  await expect(page.getByRole("button", { name: "Replace" })).toBeVisible();
+  await expect(
+    page.getByRole("button", { name: "Customer's photo" }),
+  ).toHaveCount(0);
+  await expect(
+    page.getByRole("button", { name: "Save as template" }),
+  ).toHaveCount(0);
+
+  await signInEditor(page);
+  await page.goto("/design/mug");
+  await expect(
+    page.getByRole("button", { name: "Image", exact: true }),
+  ).toBeEnabled();
+  // Designers only publish products now: no "Save as template".
+  await expect(
+    page.getByRole("button", { name: "Save as template" }),
+  ).toHaveCount(0);
+  await page.getByTestId("image-input").setInputFiles({
+    name: "photo.png",
+    mimeType: "image/png",
+    buffer: await makePng(page, 1600, 1200),
+  });
+  await page.getByRole("button", { name: "Customer's photo" }).click();
+  const sheet = page.getByRole("dialog", { name: "Customer's photo" });
+  // Designers add photos to the library here; only library photos can be picked.
+  await sheet.getByTestId("sample-input").setInputFiles({
+    name: "sample.png",
+    mimeType: "image/png",
+    buffer: await makePng(page, 900, 900),
+  });
+  await sheet
+    .getByRole("button", { name: /^Sample photo \d+$/ })
+    .first()
+    .click();
+  await expect(sheet).toHaveCount(0);
+  await expect(page.getByTestId("editor-status")).toContainText(
+    "(customer's photo)",
+  );
+
+  await page.getByRole("link", { name: /Preview/ }).click();
+  await page
+    .getByRole("button", { name: "Publish as product" })
+    .first()
+    .click();
+  const pub = page.getByRole("dialog", { name: "Publish as product" });
+  await pub.getByLabel("Name").fill("Eid card");
+  await pub.getByLabel("Description").fill("An Eid mug with your photo.");
+  await pub.getByLabel("Price (Rs)").fill("1799");
+  await pub.getByText("Eid", { exact: true }).click();
+  await pub.getByRole("button", { name: "Publish product" }).click();
   const saved = page.getByTestId("template-saved");
-  await expect(saved).toContainText("Template saved");
+  await expect(saved).toContainText("Product saved");
   const id = (await saved.locator("code").textContent())!;
 
-  // The gallery pages show it straight away (thumbnail + name), and the
-  // occasion tile opens it in the editor.
-  // Saving a template expires the cached gallery pages.
-  for (const u of ["/occasions/eid", "/products/mug"]) {
-    await expect
-      .poll(
-        async () =>
-          (await (await page.request.get(u)).text()).includes("Eid card"),
-        { timeout: 15_000 },
-      )
-      .toBe(true);
-  }
-  await page.goto("/products/mug");
-  const card = page
-    .getByTestId("template-grid")
-    .getByRole("link", { name: /Eid card/ });
-  await expect(card).toBeVisible();
-  await expect(card.locator("img")).toBeVisible();
-  await page.goto("/occasions/eid");
-  await expect(
-    page.getByTestId("template-grid").getByRole("link", { name: /Eid card/ }),
-  ).toBeVisible();
+  // Its page can't be bought as it is: the customer must add their photo.
+  await saved.getByRole("link", { name: "View the product page" }).click();
+  await expect(page).toHaveURL(/\/designs\/eid-card-/);
+  await expect(page.getByRole("link", { name: "Make it yours" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Add to cart" })).toHaveCount(
+    0,
+  );
+
+  // The occasion page lists it and opens its product page.
+  await expect
+    .poll(
+      async () =>
+        (await (await page.request.get("/occasions/eid")).text()).includes(
+          "Eid card",
+        ),
+      { timeout: 15_000 },
+    )
+    .toBe(true);
   await page.goto("/occasions/birthday");
   await expect(page.getByTestId("no-templates")).toBeVisible();
-  // The editor already has this editor's own draft: accept "replace it?".
-  page.once("dialog", (d) => void d.accept());
-  await page.goto("/occasions/eid");
-  await page.getByRole("link", { name: /Eid card/ }).click();
-  await expect(page).toHaveURL(/\/design\/mug/);
-  await expect(page.getByTestId("placeholder-hint")).toBeVisible();
 
-  // A different browser context = a customer with an empty draft.
+  // A customer (fresh browser) starting from it sees the sample hint.
   const customer = await page
     .context()
     .browser()!
@@ -97,27 +121,16 @@ test("a template editor saves a template; a customer starts from it and must rep
   await expect(cp).toHaveURL(/\/design\/mug$/); // ?template= dropped
   await customer.close();
 
-  // Customers never see "Delete template"; the editor does, and it removes the design.
-  await page.goto("/products/mug");
+  // A design still for sale can't be deleted here: trash it in WP admin first.
+  await page.goto("/occasions/eid");
   page.once("dialog", (d) => void d.accept());
-  await page
+  const tile = page
     .getByTestId("template-grid")
     .getByRole("listitem")
-    .filter({ hasText: "Eid card" })
-    .getByTestId("delete-template")
-    .click();
-  await expect
-    .poll(async () => (await page.request.get(`/api/templates/${id}`)).status())
-    .toBe(404);
-  await expect
-    .poll(
-      async () =>
-        (await (await page.request.get("/products/mug")).text()).includes(
-          "Eid card",
-        ),
-      { timeout: 15_000 },
-    )
-    .toBe(false);
+    .filter({ hasText: "Eid card" });
+  await tile.getByTestId("delete-template").click();
+  await expect(tile.getByRole("alert")).toContainText("WP admin");
+  expect((await page.request.get(`/api/templates/${id}`)).status()).toBe(200);
 });
 
 test("occasion pages exist for each tile and 404 for unknown ones", async ({
@@ -248,4 +261,45 @@ test("a template editor publishes a design as a product from the preview; others
   // The line is titled with the design, with the product beneath it.
   await expect(ep.getByTestId("line-title")).toHaveText("Happy Birthday");
   await editorCtx.close();
+});
+
+test("a design whose photo is artwork can be bought as it is", async ({
+  page,
+}) => {
+  await signInEditor(page);
+  await page.goto("/design/mug");
+  await expect(
+    page.getByRole("button", { name: "Image", exact: true }),
+  ).toBeEnabled();
+  await page.getByTestId("image-input").setInputFiles({
+    name: "art.png",
+    mimeType: "image/png",
+    buffer: await makePng(page, 2000, 1000),
+  });
+  await expect(page.getByRole("button", { name: "Replace" })).toBeVisible();
+  await page.getByRole("link", { name: /Preview/ }).click();
+  await page
+    .getByRole("button", { name: "Publish as product" })
+    .first()
+    .click();
+  const pub = page.getByRole("dialog", { name: "Publish as product" });
+  await pub.getByLabel("Name").fill("Lantern art");
+  await pub.getByLabel("Description").fill("Artwork mug.");
+  await pub.getByLabel("Price (Rs)").fill("1599");
+  await pub.getByRole("button", { name: "Publish product" }).click();
+  await expect(page.getByTestId("template-saved")).toContainText(
+    "Product saved",
+  );
+  await page.getByRole("link", { name: "View the product page" }).click();
+  // Under load the first tap can land before the page is interactive: retry.
+  await expect(async () => {
+    await page.getByRole("button", { name: "Add to cart" }).click();
+    await expect(page.getByTestId("added-to-cart")).toContainText(
+      "Added to your cart",
+      { timeout: 4000 },
+    );
+  }).toPass({ timeout: 20_000 });
+  await page.getByRole("link", { name: "Go to cart" }).click();
+  await expect(page.getByTestId("line-title")).toHaveText("Lantern art");
+  await expect(page.getByText("1,599").first()).toBeVisible();
 });

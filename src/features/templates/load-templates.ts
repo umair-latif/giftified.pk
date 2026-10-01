@@ -36,12 +36,16 @@ const cachedList = unstable_cache(
 );
 
 /**
- * Published templates for the shop pages, without the design products that were
- * removed or un-published in WooCommerce. Never throws.
+ * Published designs for the shop pages: design products only (plain
+ * templates from before every design became a product are not shown), without
+ * those removed or un-published in WooCommerce. Never throws.
  */
 export async function loadTemplates(
   filter: Omit<ListTemplatesFilter, "includeUnpublished"> = {},
 ): Promise<TemplateMeta[]> {
   const listed = await cachedList(filter.productId, filter.occasion);
-  return filterLiveTemplates(listed, getCommerce);
+  return filterLiveTemplates(
+    listed.filter((t) => t.product),
+    getCommerce,
+  );
 }

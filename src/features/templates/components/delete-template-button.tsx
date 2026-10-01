@@ -19,7 +19,7 @@ export function DeleteTemplateButton({
   if (!editor) return null;
 
   async function remove() {
-    if (!window.confirm(`Delete the template "${name}"? This can't be undone.`))
+    if (!window.confirm(`Delete the design "${name}"? This can't be undone.`))
       return;
     setBusy(true);
     setError(null);
@@ -35,9 +35,9 @@ export function DeleteTemplateButton({
         return;
       }
       const d = (await res.json().catch(() => ({}))) as { error?: string };
-      setError(d.error ?? "Couldn't delete the template");
+      setError(d.error ?? "Couldn't delete the design");
     } catch {
-      setError("Couldn't delete the template");
+      setError("Couldn't delete the design");
     }
     setBusy(false);
   }
@@ -51,7 +51,7 @@ export function DeleteTemplateButton({
         data-testid="delete-template"
         className="min-h-11 text-sm font-medium text-red-700 underline disabled:opacity-50"
       >
-        {busy ? "Deleting…" : "Delete template"}
+        {busy ? "Deleting…" : "Delete design"}
       </button>
       {error && (
         <p role="alert" className="text-xs text-red-700">

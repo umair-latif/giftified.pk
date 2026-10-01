@@ -13,7 +13,7 @@ import {
   getDraftSaved,
   setDraftSaved,
 } from "@/features/editor/draft";
-import { lockLayersForCustomer } from "@/features/templates/lock-layers";
+import { downloadTemplatePhotos } from "@/features/templates/import-template";
 import { newId } from "@/lib/id";
 import type { CartItem } from "@/types/cart";
 import { printQualityReport } from "@/lib/print-quality";
@@ -98,16 +98,19 @@ export async function addTemplateToCart(input: {
     `/api/templates/${encodeURIComponent(input.templateId)}`,
   );
   if (!res.ok) throw new Error("This design isn't available any more.");
-  const data = (await res.json()) as { design: unknown };
+  const data = (await res.json()) as {
+    design: unknown;
+    assetUrls?: Record<string, string>;
+  };
   const doc = data.design;
   if (!isDesignDocument(doc, input.productId))
     throw new Error("This design isn't available any more.");
   if (printQualityReport(doc.fabric).placeholders > 0)
     throw new TemplateNeedsPhotoError("Add your photo first.");
+  // The design's photos go on this phone too, so the line can be edited later.
+  await downloadTemplatePhotos(doc, data.assetUrls ?? {});
   const designKey = newId();
-  // Locked layers stay locked if the customer later edits this line from the cart.
-  const locked = { ...doc, fabric: lockLayersForCustomer(doc.fabric) };
-  if (!saveDraft(locked, designKey))
+  if (!saveDraft(doc, designKey))
     throw new Error(
       "Your phone's storage is full, so the design couldn't be saved.",
     );

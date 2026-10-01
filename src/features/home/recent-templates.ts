@@ -31,8 +31,9 @@ export async function loadRecentTemplates(
 ): Promise<RecentTemplate[]> {
   try {
     const store = storage ?? getStorage();
-    const known = (await listTemplates({}, store)).filter((t) =>
-      getProduct(t.productId),
+    // Design products only (older plain templates are not shown).
+    const known = (await listTemplates({}, store)).filter(
+      (t) => t.product && getProduct(t.productId),
     );
     // Drop design products deleted in WooCommerce BEFORE taking the newest N.
     const { templates: live, prices } = await withLiveDesigns(known);

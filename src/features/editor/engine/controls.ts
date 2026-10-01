@@ -1,5 +1,5 @@
 import type { FabricObject } from "fabric";
-import { applyLayerLock } from "./layer-lock";
+import "./layer-props";
 import { SNAP_ANGLE_STEP, SNAP_ANGLE_THRESHOLD } from "./snap";
 
 /**
@@ -22,5 +22,4 @@ export function applyTouchControls(obj: FabricObject): void {
   });
   // Side handles are too fiddly on a 360px screen; corners + rotate only.
   obj.setControlsVisibility({ mt: false, mb: false, ml: false, mr: false });
-  applyLayerLock(obj);
 }
