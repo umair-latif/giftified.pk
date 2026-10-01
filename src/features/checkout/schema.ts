@@ -73,13 +73,15 @@ const deliverySchema = z.object({
     8,
     200,
     "Please write the full delivery address — house number, street and area.",
-    "That address is too long. Put extra details in Landmark.",
+    "That address is too long. Put extra details in Additional info.",
   ),
   landmark: z
     .string()
     .optional()
     .transform((s) => s?.trim().replace(/\s+/g, " ") || undefined)
-    .pipe(z.string().max(120, "Please keep the landmark short.").optional()),
+    .pipe(
+      z.string().max(120, "Please keep the additional info short.").optional(),
+    ),
 });
 
 const DELIVERY_FIELD: Record<string, CheckoutFieldName> = {
@@ -140,13 +142,18 @@ export const checkoutSchema = z
       8,
       200,
       "Please write your full address — house number, street and area.",
-      "That address is too long. Put extra details in Landmark.",
+      "That address is too long. Put extra details in Additional info.",
     ),
     landmark: z
       .string()
       .optional()
       .transform((s) => s?.trim().replace(/\s+/g, " ") || undefined)
-      .pipe(z.string().max(120, "Please keep the landmark short.").optional()),
+      .pipe(
+        z
+          .string()
+          .max(120, "Please keep the additional info short.")
+          .optional(),
+      ),
     /** Deliver somewhere else than the address above (e.g. a gift). */
     deliveryDifferent: z.boolean().optional().default(false),
     deliveryName: z.string().optional(),

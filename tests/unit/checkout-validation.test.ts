@@ -182,7 +182,7 @@ describe("parseCheckout (whole cart → one order)", () => {
       city: "Please choose your city.",
       addressLine:
         "Please write your full address — house number, street and area.",
-      landmark: "Please keep the landmark short.",
+      landmark: "Please keep the additional info short.",
     });
   });
 
