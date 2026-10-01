@@ -19,6 +19,9 @@ import { buttonClass } from "@/components/ui/button";
 const idle: FormState = { status: "idle" };
 const card =
   "flex flex-col gap-4 rounded-2xl bg-white p-4 ring-1 ring-zinc-200";
+/** Inside a card already (mobile account home): no frame of its own. */
+const plain = "flex flex-col gap-4";
+const frame = (framed: boolean) => (framed ? card : plain);
 const primary = buttonClass("primary");
 const secondary = buttonClass("secondary");
 
@@ -86,7 +89,9 @@ function Status({ state, saved }: { state: FormState; saved: string }) {
 /** /account/addresses: the default delivery address, used to fill checkout. */
 export function AddressForm({
   initial,
+  framed = true,
 }: {
+  framed?: boolean;
   initial: {
     phone?: string;
     city?: string;
@@ -101,7 +106,7 @@ export function AddressForm({
   return (
     <form
       action={action}
-      className={card}
+      className={frame(framed)}
       noValidate
       data-testid="address-form"
     >
@@ -150,7 +155,9 @@ export function AddressForm({
 /** /account/profile: name and the marketing preference (email can't be changed here). */
 export function ProfileForm({
   initial,
+  framed = true,
 }: {
+  framed?: boolean;
   initial: {
     firstName: string;
     lastName: string;
@@ -164,7 +171,7 @@ export function ProfileForm({
   return (
     <form
       action={action}
-      className={card}
+      className={frame(framed)}
       noValidate
       data-testid="profile-form"
     >
@@ -214,10 +221,16 @@ export function ProfileForm({
 }
 
 /** Emails a link to choose a new password (the same link as "Forgot password"). */
-export function PasswordLinkForm({ email }: { email: string }) {
+export function PasswordLinkForm({
+  email,
+  framed = true,
+}: {
+  email: string;
+  framed?: boolean;
+}) {
   const [state, action, pending] = useActionState(sendPasswordLinkAction, idle);
   return (
-    <form action={action} className={card}>
+    <form action={action} className={frame(framed)}>
       <div>
         <h2 className="text-ink font-semibold">Password</h2>
         <p className="text-sm text-zinc-600">
@@ -234,12 +247,12 @@ export function PasswordLinkForm({ email }: { email: string }) {
 }
 
 /** Deletes the account, saved designs and their photos (after typing DELETE). */
-export function DeleteAccountForm() {
+export function DeleteAccountForm({ framed = true }: { framed?: boolean }) {
   const [state, action, pending] = useActionState(deleteAccountAction, idle);
   const [open, setOpen] = useState(false);
   const error = state.fieldErrors?.confirm;
   return (
-    <section className={card} aria-labelledby="delete-account">
+    <section className={frame(framed)} aria-labelledby="delete-account">
       <div>
         <h2 id="delete-account" className="font-semibold text-red-700">
           Delete my account

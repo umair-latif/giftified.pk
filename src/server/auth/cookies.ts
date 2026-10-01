@@ -1,5 +1,6 @@
 import "server-only";
 import { cookies } from "next/headers";
+import { cache } from "react";
 import { getCommerce, type Customer } from "@/lib/commerce";
 import { authSecret } from "./secret";
 import { SESSION_TTL_S, signSession, verifySession } from "./session";
@@ -44,8 +45,11 @@ export async function getSessionCustomerId(): Promise<number | null> {
   }
 }
 
-/** The signed-in customer, or null (not signed in, or the account was deleted). */
-export async function getSessionCustomer(): Promise<Customer | null> {
+/**
+ * The signed-in customer, or null (not signed in, or the account was deleted).
+ * Cached per request: the account layout and its page both ask.
+ */
+export const getSessionCustomer = cache(async (): Promise<Customer | null> => {
   const id = await getSessionCustomerId();
   return id ? getCommerce().getCustomer(id) : null;
-}
+});

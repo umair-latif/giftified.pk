@@ -9,13 +9,13 @@
  *  - secondary: white with an outline, the alternative action
  */
 const BASE =
-  "flex h-12 w-full items-center justify-center gap-2 rounded-full px-6 text-base font-semibold no-underline! focus-visible:ring-2 focus-visible:outline-none sm:w-fit sm:min-w-40";
+  "flex h-12 w-full items-center justify-center gap-2 rounded-full px-6 text-base font-semibold no-underline! transition-colors duration-150 focus-visible:ring-2 focus-visible:outline-none sm:w-fit sm:min-w-40";
 
 const VARIANTS = {
   primary:
     "bg-brand-600 hover:bg-brand-700 active:bg-brand-700 focus-visible:ring-brand-600/40 disabled:bg-brand-300 disabled:hover:bg-brand-300 aria-disabled:pointer-events-none aria-disabled:bg-zinc-300 text-white",
   secondary:
-    "text-brand-700 ring-brand-600 focus-visible:ring-brand-600/40 bg-white ring-1 hover:bg-zinc-50 active:bg-zinc-50 disabled:text-zinc-300 disabled:ring-zinc-200",
+    "text-brand-700 ring-brand-600 focus-visible:ring-brand-600/40 bg-white ring-1 hover:bg-brand-50 hover:text-brand-800 active:bg-brand-100 disabled:text-zinc-300 disabled:ring-zinc-200",
 } as const;
 
 export type ButtonVariant = keyof typeof VARIANTS;

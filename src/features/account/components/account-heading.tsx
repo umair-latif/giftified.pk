@@ -12,13 +12,14 @@ export function AccountHeading({
 }) {
   return (
     <div>
+      {/* Phones only: on desktop the account menu is always beside the page. */}
       <Link
         href="/account"
-        className="focus-visible:ring-brand-600/20 rounded text-sm text-zinc-600 underline focus-visible:ring-2 focus-visible:outline-none"
+        className="focus-visible:ring-brand-600/20 mb-1 inline-block rounded text-sm text-zinc-600 underline focus-visible:ring-2 focus-visible:outline-none lg:hidden"
       >
-        Your account
+        ← Your account
       </Link>
-      <PageTitle className="mt-1">{title}</PageTitle>
+      <PageTitle>{title}</PageTitle>
       {children && <p className="mt-1 text-sm text-zinc-600">{children}</p>}
     </div>
   );

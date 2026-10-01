@@ -96,6 +96,14 @@ export const UserIcon = (p: IconProps) => (
   </svg>
 );
 
+export const LogOutIcon = (p: IconProps) => (
+  <svg {...base} {...p}>
+    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+    <path d="M16 17l5-5-5-5" />
+    <path d="M21 12H9" />
+  </svg>
+);
+
 export const FacebookIcon = (p: IconProps) => (
   <svg {...base} {...p}>
     <path d="M14 8h3V4h-3a4 4 0 00-4 4v3H7v4h3v6h4v-6h3l1-4h-4V8z" />
