@@ -17,6 +17,7 @@ const DRAFT_PREFIX = "giftified:draft:";
 const DESIGN_PREFIX = "giftified:design:";
 const THUMB_PREFIX = "giftified:thumb:";
 const DRAFT_TEMPLATE_PREFIX = "giftified:draft-template:";
+const DRAFT_SAVED_PREFIX = "giftified:draft-saved:";
 
 const storageKey = (productId: ProductId, designKey?: string) =>
   designKey ? `${DESIGN_PREFIX}${designKey}` : `${DRAFT_PREFIX}${productId}`;
@@ -71,11 +72,57 @@ export function getDraftTemplate(productId: ProductId): string | undefined {
   }
 }
 
+/**
+ * The saved design (My designs, task 22) this draft continues: "Save to my
+ * designs" then updates it instead of adding a copy.
+ */
+export interface DraftSavedRef {
+  id: string;
+  name: string;
+}
+
+const savedRefKey = (productId: ProductId, designKey?: string) =>
+  `${DRAFT_SAVED_PREFIX}${designKey ? `item:${designKey}` : productId}`;
+
+/** For the product's draft, or for the cart design `designKey` when given. */
+export function setDraftSaved(
+  productId: ProductId,
+  ref: DraftSavedRef | null,
+  designKey?: string,
+) {
+  try {
+    const k = savedRefKey(productId, designKey);
+    if (ref) localStorage.setItem(k, JSON.stringify(ref));
+    else localStorage.removeItem(k);
+  } catch {
+    /* storage blocked: the next save makes a new copy */
+  }
+}
+
+export function getDraftSaved(
+  productId: ProductId,
+  designKey?: string,
+): DraftSavedRef | null {
+  try {
+    const v: unknown = JSON.parse(
+      localStorage.getItem(savedRefKey(productId, designKey)) ?? "null",
+    );
+    const r = v as Partial<DraftSavedRef> | null;
+    return r && typeof r.id === "string" && typeof r.name === "string"
+      ? { id: r.id, name: r.name }
+      : null;
+  } catch {
+    return null;
+  }
+}
+
 export function clearDraft(productId: ProductId, designKey?: string): void {
   try {
     localStorage.removeItem(storageKey(productId, designKey));
-    if (!designKey)
+    if (!designKey) {
       localStorage.removeItem(`${DRAFT_TEMPLATE_PREFIX}${productId}`);
+    }
+    localStorage.removeItem(savedRefKey(productId, designKey));
     if (designKey) localStorage.removeItem(`${THUMB_PREFIX}${designKey}`);
   } catch {
     /* ignore */
@@ -86,6 +133,7 @@ export function clearDraft(productId: ProductId, designKey?: string): void {
 export function deleteSavedDesign(designKey: string): void {
   try {
     localStorage.removeItem(`${DESIGN_PREFIX}${designKey}`);
+    localStorage.removeItem(`${DRAFT_SAVED_PREFIX}item:${designKey}`);
     localStorage.removeItem(`${THUMB_PREFIX}${designKey}`);
   } catch {
     /* ignore */

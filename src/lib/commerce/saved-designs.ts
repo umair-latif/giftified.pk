@@ -17,6 +17,7 @@ export const savedDesignSchema = z.object({
   name: z.string().trim().min(1).max(SAVED_DESIGN_NAME_MAX),
   source: z.enum(["account", "order"]),
   orderId: z.number().int().positive().optional(),
+  templateId: z.string().regex(SAFE_ID).optional(),
   hasThumbnail: z.boolean(),
   updatedAt: z.string().min(1),
 });
@@ -38,8 +39,12 @@ export function parseSavedDesigns(raw: unknown): SavedDesign[] {
     const r = savedDesignSchema.safeParse(item);
     if (!r.success || seen.has(r.data.id)) continue;
     seen.add(r.data.id);
-    const { orderId, ...rest } = r.data;
-    out.push(orderId !== undefined ? { ...rest, orderId } : rest);
+    const { orderId, templateId, ...rest } = r.data;
+    out.push({
+      ...rest,
+      ...(orderId !== undefined ? { orderId } : {}),
+      ...(templateId !== undefined ? { templateId } : {}),
+    });
   }
   return sortSavedDesigns(out).slice(0, MAX_SAVED_DESIGNS);
 }

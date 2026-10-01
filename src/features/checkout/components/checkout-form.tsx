@@ -142,6 +142,7 @@ export function CheckoutForm() {
         if (stale || !p) return;
         setSignedIn(true);
         setSaveToAccount(p.offerSave);
+        if (p.marketingOptIn) setMarketingOptIn(true);
         setValues((v) => ({
           ...v,
           fullName: v.fullName || p.fullName || "",

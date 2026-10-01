@@ -7,7 +7,8 @@ import type { ProductConfig } from "@/config/products";
 import { useCart } from "@/features/cart/cart";
 import { importTemplate } from "@/features/templates/import-template";
 import { DesignEditor } from "./design-editor";
-import { loadDraft } from "../draft";
+import { openSavedDesign } from "@/features/saved-designs/open-saved-design";
+import { getDraftSaved, loadDraft } from "../draft";
 import { buttonClass } from "@/components/ui/button";
 
 /**
@@ -18,9 +19,12 @@ export function EditorEntry({ product }: { product: ProductConfig }) {
   const params = useSearchParams();
   const itemId = params.get("item");
   const templateId = params.get("template");
+  const savedId = params.get("saved");
   const cart = useCart();
   const template = useTemplateStart(product, templateId);
+  const saved = useSavedStart(product, savedId);
   if (templateId) return <TemplateStart state={template} product={product} />;
+  if (savedId) return <SavedStart state={saved} product={product} />;
   if (!itemId) return <DesignEditor product={product} />;
   if (cart === null) return null; // reading the cart after mount
   const item = cart.find((i) => i.id === itemId && i.productId === product.id);
@@ -98,6 +102,91 @@ function TemplateStart({
             className={buttonClass("primary", "mt-4")}
           >
             Design your own
+          </Link>
+        </>
+      )}
+    </main>
+  );
+}
+
+type SavedState = "loading" | "error" | "signed-out";
+
+/**
+ * `?saved=<id>` (task 22): continue a design from My designs on this device,
+ * then drop the parameter so a refresh keeps the customer's work.
+ */
+function useSavedStart(
+  product: ProductConfig,
+  savedId: string | null,
+): SavedState {
+  const router = useRouter();
+  const [state, setState] = useState<SavedState>("loading");
+  const started = useRef<string | null>(null);
+  useEffect(() => {
+    if (!savedId || started.current === savedId) return;
+    started.current = savedId;
+    const home = `/design/${product.id}`;
+    const layers = loadDraft(product.id)?.fabric.objects;
+    const same = getDraftSaved(product.id)?.id === savedId;
+    if (
+      !same &&
+      Array.isArray(layers) &&
+      layers.length > 0 &&
+      !window.confirm(
+        "Open this saved design? The design you're working on now will be replaced.",
+      )
+    ) {
+      router.replace(home);
+      return;
+    }
+    openSavedDesign(savedId, product.id).then(
+      () => router.replace(home),
+      (err: unknown) =>
+        setState(
+          (err as { status?: number }).status === 401 ? "signed-out" : "error",
+        ),
+    );
+  }, [savedId, product.id, router]);
+  return state;
+}
+
+function SavedStart({
+  state,
+  product,
+}: {
+  state: SavedState;
+  product: ProductConfig;
+}) {
+  const link = buttonClass("primary", "mt-4");
+  return (
+    <main className="mx-auto max-w-md p-6 text-sm" data-testid="saved-start">
+      {state === "loading" ? (
+        <p className="text-zinc-500" role="status">
+          Opening your design…
+        </p>
+      ) : state === "signed-out" ? (
+        <>
+          <p className="text-zinc-700" role="alert">
+            Sign in to open your saved designs.
+          </p>
+          <Link href="/sign-in?next=/account/designs" className={link}>
+            Sign in
+          </Link>
+        </>
+      ) : (
+        <>
+          <p className="text-zinc-700" role="alert">
+            We couldn&apos;t open that design. Check your connection and try
+            again.
+          </p>
+          <Link href="/account/designs" className={link}>
+            Back to My designs
+          </Link>
+          <Link
+            href={`/design/${product.id}`}
+            className="mt-3 block text-zinc-600 underline"
+          >
+            Design something new
           </Link>
         </>
       )}

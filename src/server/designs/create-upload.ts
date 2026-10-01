@@ -7,7 +7,12 @@ import {
 } from "@/features/editor/assets/prepare-image";
 import { newId } from "@/lib/id";
 import { printQualityReport } from "@/lib/print-quality";
-import { assetKey, designKey, type ObjectStorage } from "@/lib/storage";
+import {
+  assetKey,
+  designKey,
+  designThumbKey,
+  type ObjectStorage,
+} from "@/lib/storage";
 import { isDesignDocument, type DesignDocument } from "@/types/design";
 
 /**
@@ -26,6 +31,8 @@ export const createDesignUploadSchema = z.object({
       }),
     )
     .max(20),
+  /** The client also uploads a small thumbnail (shown in My designs, task 22). */
+  thumbnail: z.boolean().optional(),
 });
 
 export type CreateDesignUploadInput = z.infer<typeof createDesignUploadSchema>;
@@ -33,6 +40,8 @@ export type CreateDesignUploadInput = z.infer<typeof createDesignUploadSchema>;
 export interface DesignUploadTicket {
   designId: string;
   uploads: { assetId: string; url: string; contentType: string }[];
+  /** PUT a WebP thumbnail here (only when asked for). */
+  thumbnailUrl?: string;
 }
 
 export class DesignUploadError extends Error {
@@ -105,5 +114,16 @@ export async function createDesignUpload(
       }),
     })),
   );
-  return { designId, uploads };
+  return {
+    designId,
+    uploads,
+    ...(parsed.data.thumbnail
+      ? {
+          thumbnailUrl: await storage.presignPut(designThumbKey(designId), {
+            contentType: "image/webp",
+            expiresInS: 30 * 60,
+          }),
+        }
+      : {}),
+  };
 }

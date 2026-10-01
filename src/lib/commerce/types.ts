@@ -106,6 +106,8 @@ export interface SavedDesign {
   source: "account" | "order";
   /** The order it came from (`source: "order"`). */
   orderId?: OrderId;
+  /** Started from this design product (task 26): reopening keeps its price. */
+  templateId?: string;
   /** A thumbnail.webp is stored beside the design. */
   hasThumbnail: boolean;
   /** ISO 8601. */
