@@ -4,6 +4,7 @@ import { beforeAll, describe, expect, it, vi } from "vitest";
 import { createCanvas } from "canvas";
 import sharp from "sharp";
 import { printPixelSize } from "@/lib/units";
+import { getProduct } from "@/config/products";
 import { renderPrintFile } from "@/server/print";
 import { readPngChunks, readPngDpi } from "@/server/print/png";
 import {
@@ -15,6 +16,34 @@ import type { DesignDocument } from "@/types/design";
 vi.mock("server-only", () => ({}));
 
 const PX_PER_MM = 300 / 25.4;
+
+it("renders the provisional t-shirt at full resolution with transparent garment background", async () => {
+  const product = getProduct("tshirt")!;
+  const file = await renderPrintFile({
+    schemaVersion: 1,
+    productId: "tshirt",
+    units: "mm",
+    printArea: product.printArea,
+    fabric: {
+      background: "#171717",
+      objects: [
+        {
+          type: "Rect",
+          left: 20,
+          top: 20,
+          width: 10,
+          height: 10,
+          fill: "#ff0000",
+        },
+      ],
+    },
+  });
+  expect(file).toMatchObject({ widthPx: 3543, heightPx: 4724, dpi: 300 });
+  expect(readPngDpi(file.png)?.x).toBeCloseTo(300, 1);
+  const { atMm } = await pixels(file.png);
+  expect(atMm(0, 0)[3]).toBe(0);
+  expect(atMm(20, 20)).toEqual([255, 0, 0, 255]);
+});
 
 const fixture = JSON.parse(
   readFileSync(

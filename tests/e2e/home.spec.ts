@@ -21,8 +21,10 @@ test("home page: hero, products, sections, no horizontal scroll", async ({
   await expect(mug.getByRole("link")).toHaveAttribute("href", "/products/mug");
 
   const tshirt = page.getByTestId("home-product-tshirt");
-  await expect(tshirt.getByText("Coming soon")).toBeVisible();
-  await expect(tshirt.getByRole("link")).toHaveCount(0);
+  await expect(tshirt.getByRole("link")).toHaveAttribute(
+    "href",
+    "/products/tshirt",
+  );
   await expect(
     page.getByTestId("home-product-hoodie").getByText("Coming soon"),
   ).toBeVisible();

@@ -4,11 +4,11 @@ Each product's print specs live in **one file**. Change the numbers there and
 everything else follows: the editor canvas, the safe-zone guide, the DPI checks,
 the preview, and the 300 DPI print files.
 
-| Product    | File                                                              |
-| ---------- | ----------------------------------------------------------------- |
-| Mug (11oz) | `src/config/products/mug.ts`                                      |
-| T-shirt    | `src/config/products/tshirt.ts` (added when the t-shirt launches) |
-| Hoodie     | `src/config/products/hoodie.ts` (added when the hoodie launches)  |
+| Product    | File                                                             |
+| ---------- | ---------------------------------------------------------------- |
+| Mug (11oz) | `src/config/products/mug.ts`                                     |
+| T-shirt    | `src/config/products/tshirt.ts` (provisional task 27 config)     |
+| Hoodie     | `src/config/products/hoodie.ts` (added when the hoodie launches) |
 
 ## What to ask the vendor, and where it goes
 
@@ -25,6 +25,29 @@ Always use **millimetres**. If the vendor gives inches, multiply by 25.4
 until the Gujrat vendor confirms.
 
 ## How to change them
+
+### Apparel confirmation checklist
+
+The t-shirt config uses task 27's **unconfirmed** 300 × 400 mm print area,
+10 mm safe margin and proposed garment colours. These enable development;
+they are not vendor specifications or a launch approval. Keep `vendorTodo`
+until the relevant founder/vendor confirmations are complete.
+
+- Vendor: printable width/height and safe margin in **mm**, distance down from
+  the **collar centre / neckline** to the top of the front print, and DTF file
+  requirements (including resolution, transparency, colour space and any bleed).
+- Founder, with vendor availability: actual colours and sizes, chest/length
+  size-chart measurements in inches, selling prices in PKR, actual garment
+  mockup photos, and confirmation of front-only launch scope.
+- There is **no assumed collar offset**, price or size-chart measurement.
+  Do not substitute zero for an unknown placement in production proofs.
+
+Task 27's first configuration slice registers the t-shirt with the existing
+editor and flat artwork preview. Garment mockups, colour/size selection,
+WooCommerce seed variations, apparel placement proofs and the size chart are
+follow-up work; registering the config alone does not complete task 27.
+
+### Updating confirmed dimensions
 
 1. Open the file (e.g. `src/config/products/mug.ts`) and edit the numbers.
 2. Delete the `vendorTodo` line once the values are confirmed.

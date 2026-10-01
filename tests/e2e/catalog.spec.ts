@@ -14,8 +14,8 @@ test("catalog → mug page → Design your own opens the editor", async ({
   );
   await noSideScroll(page);
 
-  // T-shirt and hoodie have no print config yet: "Coming soon", not links.
-  for (const id of ["tshirt", "hoodie"]) {
+  // Hoodie has no print config yet: "Coming soon", not a link.
+  for (const id of ["hoodie"]) {
     const card = page.getByTestId(`product-card-${id}`);
     await expect(card).toContainText("Coming soon");
     await expect(card).not.toHaveAttribute("href");
@@ -69,7 +69,7 @@ test("delivery estimate: Lahore costs Rs 200 and the city is remembered", async 
 test("no page for products that can't be designed yet, or unknown slugs", async ({
   page,
 }) => {
-  for (const path of ["/products/tshirt", "/products/nope"]) {
+  for (const path of ["/products/hoodie", "/products/nope"]) {
     await page.goto(path);
     await expect(
       page.getByRole("heading", { name: "We can’t find that page" }),

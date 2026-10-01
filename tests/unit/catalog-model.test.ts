@@ -69,7 +69,7 @@ describe("catalog cards", () => {
     const cards = buildCatalogCards([mug, tee], getProduct);
     expect(cards.map((c) => [c.productId, c.href])).toEqual([
       ["mug", "/products/custom-mug"],
-      ["tshirt", null],
+      ["tshirt", "/products/t-shirt"],
       ["hoodie", null],
     ]);
   });
@@ -102,8 +102,11 @@ describe("catalog cards", () => {
     });
     expect(teeCard).toMatchObject({
       name: "T-Shirt",
-      href: null,
-      swatches: [],
+      href: "/products/tshirt",
+      swatches: getProduct("tshirt")!.baseColors.map(({ name, hex }) => ({
+        name,
+        hex,
+      })),
     });
   });
 
@@ -152,8 +155,12 @@ describe("resolveSlug", () => {
     });
   });
   it("has no page for products without a print config, or unknown slugs", () => {
-    expect(resolveSlug("t-shirt", [tee], hasConfig)).toEqual({ kind: "none" });
-    expect(resolveSlug("tshirt", [], hasConfig)).toEqual({ kind: "none" });
+    expect(resolveSlug("hoodie", [], hasConfig)).toEqual({ kind: "none" });
+    expect(resolveSlug("tshirt", [], hasConfig)).toEqual({
+      kind: "found",
+      productId: "tshirt",
+      product: undefined,
+    });
     expect(resolveSlug("nope", [mug], hasConfig)).toEqual({ kind: "none" });
   });
 });

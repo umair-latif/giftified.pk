@@ -1,11 +1,13 @@
 import { mug } from "./mug";
+import { tshirt } from "./tshirt";
 import type { ProductConfig, ProductId } from "./types";
 
 export type { BaseColor, PrintArea, ProductConfig, ProductId } from "./types";
 
-/** Products the editor can open. T-shirt and hoodie join in later milestones. */
+/** Products the editor can open. Hoodie joins in a later milestone. */
 export const PRODUCTS: Partial<Record<ProductId, ProductConfig>> = {
   mug,
+  tshirt,
 };
 
 export function getProduct(id: string): ProductConfig | null {
