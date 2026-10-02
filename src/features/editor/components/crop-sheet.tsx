@@ -194,12 +194,17 @@ export function CropSheet({ target, onCancel, onApply }: Props) {
             <div
               aria-hidden
               data-testid="polaroid-border"
-              className="pointer-events-none absolute bg-white"
+              // A white RING: the photo stays visible in the middle.
+              className="pointer-events-none absolute box-border border-solid border-white"
               style={{
                 left: -frameW * POLAROID.side,
                 top: -frameW * POLAROID.top,
                 width: frameW * (1 + 2 * POLAROID.side),
                 height: frameH + frameW * (POLAROID.top + POLAROID.bottom),
+                borderLeftWidth: frameW * POLAROID.side,
+                borderRightWidth: frameW * POLAROID.side,
+                borderTopWidth: frameW * POLAROID.top,
+                borderBottomWidth: frameW * POLAROID.bottom,
               }}
             />
           )}

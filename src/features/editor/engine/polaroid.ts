@@ -59,14 +59,25 @@ export function installPolaroid(ImageClass: { prototype: unknown }): void {
   const render = proto._render;
   const shouldCache = proto.shouldCache;
   proto._render = function (this: Drawable, ctx) {
-    if (this.frameShape === "polaroid") {
-      const f = polaroidFrame(this.width, this.height);
-      ctx.save();
-      ctx.fillStyle = POLAROID.colour;
-      ctx.fillRect(f.x, f.y, f.w, f.h);
-      ctx.restore();
+    if (this.frameShape !== "polaroid") {
+      render.call(this, ctx);
+      return;
     }
+    const f = polaroidFrame(this.width, this.height);
+    // Canvas shadows apply per drawing call. Fabric turns the object's shadow
+    // on before _render, so the frame casts it (the whole card's shadow), but
+    // the photo must not cast a second one onto the frame it sits on.
+    ctx.save();
+    ctx.fillStyle = POLAROID.colour;
+    ctx.fillRect(f.x, f.y, f.w, f.h);
+    ctx.restore();
+    ctx.save();
+    ctx.shadowColor = "rgba(0,0,0,0)";
+    ctx.shadowBlur = 0;
+    ctx.shadowOffsetX = 0;
+    ctx.shadowOffsetY = 0;
     render.call(this, ctx);
+    ctx.restore();
   };
   // The cache canvas is only as big as the photo; the border sticks out of it.
   proto.shouldCache = function (this: Drawable) {
