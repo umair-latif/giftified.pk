@@ -66,7 +66,7 @@ export function EditorStage({
             aria-hidden
             draggable={false}
             unoptimized
-            className="pointer-events-none absolute inset-0 h-full w-full opacity-25 select-none"
+            className="pointer-events-none absolute inset-0 h-full w-full select-none"
             data-testid="garment-guide"
           />
         )}

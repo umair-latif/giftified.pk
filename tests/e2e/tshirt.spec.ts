@@ -14,7 +14,7 @@ test("t-shirt configuration opens a portrait editor and preserves its draft", as
     "src",
     "/mockups/tshirt-editor-front.webp",
   );
-  await expect(guide).toHaveCSS("opacity", "0.25");
+  await expect(guide).toHaveCSS("opacity", "1");
   await expect(guide).toHaveCSS("pointer-events", "none");
   const status = page.getByTestId("editor-status");
   await expect(status).toContainText("0 layers");
@@ -24,6 +24,12 @@ test("t-shirt configuration opens a portrait editor and preserves its draft", as
   const bounds = await host.boundingBox();
   expect(bounds).not.toBeNull();
   expect(bounds!.width / bounds!.height).toBeCloseTo(300 / 400, 2);
+  // The canvas sits exactly on the designable area marked on the photo
+  // (x 343-736, y 230-755 of 1080 px).
+  const photo = (await guide.boundingBox())!;
+  expect((bounds!.x - photo.x) / photo.width).toBeCloseTo(343 / 1080, 2);
+  expect((bounds!.y - photo.y) / photo.height).toBeCloseTo(230 / 1080, 2);
+  expect(bounds!.width / photo.width).toBeCloseTo(394 / 1080, 2);
   expect(
     await page.evaluate(() => document.documentElement.scrollWidth),
   ).toBeLessThanOrEqual(360);
