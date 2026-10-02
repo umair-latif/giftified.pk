@@ -49,7 +49,9 @@ follow-up work; registering the config alone does not complete task 27.
 
 The founder's front/back shirt illustrations are stored as
 `public/mockups/tshirt-editor-front.webp` and `tshirt-editor-back.webp`.
-The front illustration is a faded, non-interactive DOM background behind the
+The front image is a founder-supplied garment photo (the grey "designable area"
+marker was painted out; that rectangle, x 343-736 / y 230-755 of 1080 px, is where
+the canvas sits). It is a non-interactive DOM background behind the
 editor's chest canvas; it never enters Fabric JSON or print exports. The back
 asset is reserved for later back-print support. Screen placement fractions live
 in `features/editor/mockup/garment-guide.ts` and are illustrative, not physical
