@@ -173,3 +173,25 @@ test("unknown products 404", async ({ page }) => {
   const res = await page.goto("/design/sofa");
   expect(res?.status()).toBe(404);
 });
+
+test("a small element can be moved with its move handle without resizing it", async ({
+  page,
+}) => {
+  await openEditorWithText(page);
+  const { cx, cy, pxPerMm } = await canvasBox(page);
+  // Shrink it until it is only a few finger-widths across.
+  await pinch(page, cx, cy, { fromRadius: 24, toRadius: 4, degrees: 0 });
+  await page.waitForTimeout(600); // Fabric ignores the mouse right after touch
+  const before = await readout(page);
+  expect(before.w * pxPerMm).toBeLessThan(84);
+  // The handle sits just below the element (half its height + 30 px gap).
+  const handleX = cx;
+  const handleY = cy + (before.w * pxPerMm) / 4 + 30;
+  await page.mouse.move(handleX, handleY);
+  await page.mouse.down();
+  await page.mouse.move(handleX + 40, handleY + 10, { steps: 6 });
+  await page.mouse.up();
+  const after = await readout(page);
+  expect(after.x).toBeGreaterThan(before.x + 3);
+  expect(after.w).toBe(before.w); // moved, not resized
+});
