@@ -38,3 +38,27 @@ test("preview is a gallery of mockups (no flat design): front, left, right, life
     });
   }
 });
+
+test("t-shirt preview is a gallery of white-tee photos, torso on teal first", async ({
+  page,
+}) => {
+  await page.goto("/design/tshirt");
+  await page.getByRole("button", { name: "Text", exact: true }).tap();
+  await expect(page.getByTestId("editor-status")).toContainText("textbox");
+  await page.getByRole("link", { name: "Preview", exact: true }).tap();
+
+  await expect(page.getByTestId("preview-gallery")).toBeVisible();
+  const main = page.getByTestId("preview-mockup").getByRole("img");
+  await expect(main).toHaveAttribute("alt", /front/i);
+  await expect(page.getByTestId("preview-thumb-torso")).toHaveAttribute(
+    "aria-current",
+    "true",
+  );
+  for (const id of ["torso", "flatlay", "pointing", "folded", "studio"]) {
+    await page.getByTestId(`preview-thumb-${id}`).click();
+    await expect(main).toHaveAttribute("src", /^data:image\//);
+    await page.getByTestId("preview-mockup").screenshot({
+      path: `test-results/tshirt-mockup-${id}.png`,
+    });
+  }
+});
