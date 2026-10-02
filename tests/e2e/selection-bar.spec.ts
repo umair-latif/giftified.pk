@@ -220,6 +220,11 @@ test("crop & shape: pick a shape, it is remembered, and Replace keeps the frame"
   await bar(page).getByRole("button", { name: "Crop" }).click();
   await dialog.getByRole("radio", { name: "Polaroid" }).click();
   await expect(dialog.getByTestId("polaroid-border")).toBeVisible();
+  // A ring, not a white slab: the photo stays visible inside the border.
+  await expect(dialog.getByTestId("polaroid-border")).toHaveCSS(
+    "background-color",
+    "rgba(0, 0, 0, 0)",
+  );
   await dialog.getByRole("button", { name: "Done" }).click();
   await expect(status(page)).toHaveText(/357°/);
   await bar(page).getByRole("button", { name: "Crop" }).click();
