@@ -451,14 +451,14 @@ export function CheckoutForm() {
         </Field>
         <Field
           id="landmark"
-          label="Landmark"
+          label="Additional info"
           hint="optional"
           error={errors.landmark}
         >
           <input
             {...input("landmark")}
             autoComplete="address-line2"
-            placeholder="Near the mosque, school…"
+            placeholder="Landmark, floor, nearby mosque or school…"
           />
         </Field>
 
@@ -523,14 +523,14 @@ export function CheckoutForm() {
             </Field>
             <Field
               id="deliveryLandmark"
-              label="Delivery landmark"
+              label="Delivery additional info"
               hint="optional"
               error={errors.deliveryLandmark}
             >
               <input
                 {...input("deliveryLandmark")}
                 autoComplete="off"
-                placeholder="Near the mosque, school…"
+                placeholder="Landmark, floor, nearby mosque or school…"
               />
             </Field>
           </fieldset>

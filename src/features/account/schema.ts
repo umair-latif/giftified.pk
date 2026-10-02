@@ -35,7 +35,7 @@ export const addressSchema = z.object({
     8,
     200,
     "Please write your full address — house number, street and area.",
-    "That address is too long. Put extra details in Landmark.",
+    "That address is too long. Put extra details in Additional info.",
   ),
   landmark: z
     .string()
