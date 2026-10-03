@@ -200,8 +200,19 @@ export async function composeGarmentMockup(
     }
   }
   ctx.putImageData(img, 0, 0);
-  const url = canvas.toDataURL("image/webp", 0.85);
+  let out = canvas;
+  if (spec.crop) {
+    const { x, y, size, outPx } = spec.crop;
+    out = document.createElement("canvas");
+    out.width = outPx;
+    out.height = outPx;
+    const octx = out.getContext("2d");
+    if (!octx) throw new Error("Canvas not available");
+    octx.imageSmoothingQuality = "high";
+    octx.drawImage(canvas, x, y, size, size, 0, 0, outPx, outPx);
+  }
+  const url = out.toDataURL("image/webp", 0.85);
   return url.startsWith("data:image/webp")
     ? url
-    : canvas.toDataURL("image/jpeg", 0.85);
+    : out.toDataURL("image/jpeg", 0.85);
 }
