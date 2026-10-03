@@ -11,7 +11,9 @@ Preview mockups wrap the customer's design around a photo of the product
 | `public/mockups/mug-lifestyle.webp` | Lifestyle: pampas grass, eye level            | Canva  |
 | `public/mockups/mug-flatlay.webp`   | Flat lay on a desk with props, from above     | Canva  |
 
-| `public/mockups/tshirt-torso.webp` | T-shirt: torso on teal (default / main picture) | Founder-supplied |
+| `public/mockups/tshirt-front.webp` | T-shirt: the editor background without guides (default / main picture) | Founder-supplied |
+| `public/mockups/tshirt-railing.webp` | T-shirt: man leaning on a railing (drawn rectangle painted out) | Founder-supplied |
+| `public/mockups/tshirt-torso.webp` | T-shirt: torso on teal | Founder-supplied |
 | `public/mockups/tshirt-flatlay.webp` | T-shirt: folded on concrete, tulips | Founder-supplied |
 | `public/mockups/tshirt-pointing.webp` | T-shirt: man pointing at the shirt, teal | Founder-supplied |
 | `public/mockups/tshirt-folded.webp` | T-shirt: folded, angled, teal | Founder-supplied |
@@ -19,7 +21,7 @@ Preview mockups wrap the customer's design around a photo of the product
 
 T-shirt photos are white tees: each spec has a `quad` (top-left, top-right,
 bottom-left corners of the 300 x 400 mm print on the photo, photo pixels; sized
-for a ~500 mm body width). The design is multiplied by the photo's shading
+drawn by the founder on each photo; the folded and flat-lay shots are smaller so the print stays on the visible shirt). The design is multiplied by the photo's shading
 (`mockup/compose-garment.ts`). Screen-only; other colours are not recoloured yet.
 Check the licence/model release of the photos before launch.
 

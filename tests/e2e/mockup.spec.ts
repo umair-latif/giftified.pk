@@ -39,7 +39,7 @@ test("preview is a gallery of mockups (no flat design): front, left, right, life
   }
 });
 
-test("t-shirt preview is a gallery of white-tee photos, torso on teal first", async ({
+test("t-shirt preview is a gallery of white-tee photos, the editor shirt first", async ({
   page,
 }) => {
   await page.goto("/design/tshirt");
@@ -50,11 +50,19 @@ test("t-shirt preview is a gallery of white-tee photos, torso on teal first", as
   await expect(page.getByTestId("preview-gallery")).toBeVisible();
   const main = page.getByTestId("preview-mockup").getByRole("img");
   await expect(main).toHaveAttribute("alt", /front/i);
-  await expect(page.getByTestId("preview-thumb-torso")).toHaveAttribute(
+  await expect(page.getByTestId("preview-thumb-front")).toHaveAttribute(
     "aria-current",
     "true",
   );
-  for (const id of ["torso", "flatlay", "pointing", "folded", "studio"]) {
+  for (const id of [
+    "front",
+    "studio",
+    "torso",
+    "pointing",
+    "railing",
+    "folded",
+    "flatlay",
+  ]) {
     await page.getByTestId(`preview-thumb-${id}`).click();
     await expect(main).toHaveAttribute("src", /^data:image\//);
     await page.getByTestId("preview-mockup").screenshot({

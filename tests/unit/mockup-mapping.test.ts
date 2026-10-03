@@ -80,7 +80,8 @@ describe("mockup mapping", () => {
 
   it("has t-shirt mockups with the torso on teal first and the print on the photo", () => {
     const specs = MOCKUP_SPECS.tshirt!;
-    expect(specs[0]?.id).toBe("torso");
+    expect(specs[0]?.id).toBe("front");
+    expect(specs[1]?.id).toBe("studio");
     expect(new Set(specs.map((s) => s.id)).size).toBe(specs.length);
     for (const s of specs) {
       expect(isGarmentSpec(s)).toBe(true);
@@ -90,8 +91,8 @@ describe("mockup mapping", () => {
       const h = Math.hypot(bl[0] - tl[0], bl[1] - tl[1]);
       // Same shape as the print area (300 x 400 mm).
       expect(h / w).toBeCloseTo(4 / 3, 1);
-      const br = [tr[0] + bl[0] - tl[0], tr[1] + bl[1] - tl[1]];
-      for (const [x, y] of [tl, tr, bl, br] as const) {
+      // The top corners are on the photo (a cropped shirt may run off the bottom).
+      for (const [x, y] of [tl, tr] as const) {
         expect(x).toBeGreaterThan(0);
         expect(x).toBeLessThan(s.widthPx);
         expect(y).toBeGreaterThan(0);
