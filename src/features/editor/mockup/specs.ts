@@ -242,35 +242,5 @@ export const MOCKUP_SPECS: Partial<
       quad: { tl: [368, 760], tr: [762, 760], bl: [368, 1285] },
       credit: "Founder-supplied",
     },
-    {
-      id: "railing",
-      label: "Leaning",
-      src: "/mockups/tshirt-railing.webp",
-      widthPx: 1080,
-      heightPx: 1080,
-      // Slightly turned body: the rectangle is tilted ~3 degrees.
-      quad: { tl: [320, 185], tr: [586, 171], bl: [341, 538] },
-      credit: "Founder-supplied",
-    },
-    {
-      id: "folded",
-      label: "Folded",
-      src: "/mockups/tshirt-folded.webp",
-      widthPx: 1080,
-      heightPx: 1080,
-      // Folded shirt turned ~14 degrees clockwise. Kept smaller than the
-      // other views so the print stays inside the visible shirt.
-      quad: { tl: [390, 346], tr: [753, 439], bl: [266, 831] },
-      credit: "Founder-supplied",
-    },
-    {
-      id: "flatlay",
-      label: "Flat lay",
-      src: "/mockups/tshirt-flatlay.webp",
-      widthPx: 1080,
-      heightPx: 1080,
-      quad: { tl: [313, 365], tr: [727, 365], bl: [313, 917] },
-      credit: "Founder-supplied",
-    },
   ],
 };

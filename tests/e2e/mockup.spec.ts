@@ -54,15 +54,7 @@ test("t-shirt preview is a gallery of white-tee photos, the editor shirt first",
     "aria-current",
     "true",
   );
-  for (const id of [
-    "front",
-    "studio",
-    "torso",
-    "pointing",
-    "railing",
-    "folded",
-    "flatlay",
-  ]) {
+  for (const id of ["front", "studio", "torso", "pointing"]) {
     await page.getByTestId(`preview-thumb-${id}`).click();
     await expect(main).toHaveAttribute("src", /^data:image\//);
     await page.getByTestId("preview-mockup").screenshot({
