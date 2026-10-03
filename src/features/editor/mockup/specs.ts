@@ -200,16 +200,67 @@ export const MOCKUP_SPECS: Partial<
       credit: "Canva",
     },
   ],
-  // White tee photos supplied by the founder (1080 x 1080). The torso on teal
-  // is first: it is the product's main picture.
+  // White tee photos supplied by the founder (1080 x 1080). Each `quad` is the
+  // 300 x 400 mm print rectangle the founder drew on the photo. The first is
+  // the editor's own background (no guides), so the preview matches what the
+  // customer designed on.
   tshirt: [
     {
-      id: "torso",
+      id: "front",
       label: "Front",
+      src: "/mockups/tshirt-front.webp",
+      widthPx: 1080,
+      heightPx: 1080,
+      quad: { tl: [343, 230], tr: [737, 230], bl: [343, 755] },
+      credit: "Founder-supplied",
+    },
+    {
+      id: "studio",
+      label: "Studio",
+      src: "/mockups/tshirt-studio.webp",
+      widthPx: 1080,
+      heightPx: 1080,
+      quad: { tl: [343, 230], tr: [737, 230], bl: [343, 755] },
+      credit: "Founder-supplied",
+    },
+    {
+      id: "torso",
+      label: "Torso",
       src: "/mockups/tshirt-torso.webp",
       widthPx: 1080,
       heightPx: 1080,
-      quad: { tl: [396, 172], tr: [690, 172], bl: [396, 564] },
+      quad: { tl: [343, 230], tr: [737, 230], bl: [343, 755] },
+      credit: "Founder-supplied",
+    },
+    {
+      id: "pointing",
+      label: "Pointing",
+      src: "/mockups/tshirt-pointing.webp",
+      widthPx: 1080,
+      heightPx: 1080,
+      // The rectangle runs off the bottom of the photo (the shirt is cropped).
+      quad: { tl: [368, 760], tr: [762, 760], bl: [368, 1285] },
+      credit: "Founder-supplied",
+    },
+    {
+      id: "railing",
+      label: "Leaning",
+      src: "/mockups/tshirt-railing.webp",
+      widthPx: 1080,
+      heightPx: 1080,
+      // Slightly turned body: the rectangle is tilted ~3 degrees.
+      quad: { tl: [320, 185], tr: [586, 171], bl: [341, 538] },
+      credit: "Founder-supplied",
+    },
+    {
+      id: "folded",
+      label: "Folded",
+      src: "/mockups/tshirt-folded.webp",
+      widthPx: 1080,
+      heightPx: 1080,
+      // Folded shirt turned ~14 degrees clockwise. Kept smaller than the
+      // other views so the print stays inside the visible shirt.
+      quad: { tl: [390, 346], tr: [753, 439], bl: [266, 831] },
       credit: "Founder-supplied",
     },
     {
@@ -219,34 +270,6 @@ export const MOCKUP_SPECS: Partial<
       widthPx: 1080,
       heightPx: 1080,
       quad: { tl: [313, 365], tr: [727, 365], bl: [313, 917] },
-      credit: "Founder-supplied",
-    },
-    {
-      id: "pointing",
-      label: "Pointing",
-      src: "/mockups/tshirt-pointing.webp",
-      widthPx: 1080,
-      heightPx: 1080,
-      quad: { tl: [424, 668], tr: [706, 668], bl: [424, 1044] },
-      credit: "Founder-supplied",
-    },
-    {
-      id: "folded",
-      label: "Folded",
-      src: "/mockups/tshirt-folded.webp",
-      widthPx: 1080,
-      heightPx: 1080,
-      // Folded shirt turned ~14 degrees clockwise.
-      quad: { tl: [390, 346], tr: [753, 439], bl: [266, 831] },
-      credit: "Founder-supplied",
-    },
-    {
-      id: "studio",
-      label: "Studio",
-      src: "/mockups/tshirt-studio.webp",
-      widthPx: 1080,
-      heightPx: 1080,
-      quad: { tl: [393, 112], tr: [687, 112], bl: [393, 504] },
       credit: "Founder-supplied",
     },
   ],
