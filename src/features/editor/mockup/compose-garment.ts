@@ -55,7 +55,8 @@ function valueNoise(x: number, y: number, cell: number): number {
 
 /** Fine mottled fabric weave, roughly zero-mean with unit spread. */
 function fabricNoise(x: number, y: number): number {
-  const n = 0.85 * valueNoise(x, y, 1.7) + 0.15 * valueNoise(x + 91, y + 37, 3.6);
+  const n =
+    0.85 * valueNoise(x, y, 1.7) + 0.15 * valueNoise(x + 91, y + 37, 3.6);
   return (n - 0.5) * 4.2;
 }
 
