@@ -12,6 +12,9 @@ Photos (parked in `docs/tasks/assets/`, move back to `public/mockups/` when used
 - `tshirt-folded.webp`: folded shirt, angled on teal. The founder's rectangle was wider than the
   shirt (about 995 px), so the print must be clipped to the shirt and sized for the visible front only.
 
+- `tshirt-flatlay.webp`: folded on concrete with tulips. Parked by the founder: the print does not
+  look right on a folded shirt (only the top of the front shows). Previous quad: tl (313,365), tr (727,365), bl (313,917).
+
 Work:
 
 1. Warp the print along folds and the body curve (shading used as a height map), tuned per photo.
