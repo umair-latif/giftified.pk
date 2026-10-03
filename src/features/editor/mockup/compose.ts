@@ -9,7 +9,7 @@ import {
   type MockupSide,
   type WrapGeometry,
 } from "./mapping";
-import type { MockupSpec } from "./specs";
+import { isGarmentSpec, type ProductMockupSpec } from "./specs";
 
 function loadImage(src: string): Promise<HTMLImageElement> {
   const img = new Image();
@@ -54,8 +54,12 @@ function sample(
 export async function composeMockup(
   designSrc: string,
   product: ProductConfig,
-  spec: MockupSpec,
+  spec: ProductMockupSpec,
 ): Promise<string> {
+  if (isGarmentSpec(spec)) {
+    const { composeGarmentMockup } = await import("./compose-garment");
+    return composeGarmentMockup(designSrc, spec);
+  }
   const side: MockupSide = spec.side;
   const [photo, design] = await Promise.all([
     loadImage(spec.src),

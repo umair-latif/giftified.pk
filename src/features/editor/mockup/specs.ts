@@ -55,6 +55,35 @@ export interface MockupSpec {
 }
 
 /**
+ * A photographed flat garment (T-shirt). The design is a rectangle (the print
+ * area) laid on the chest: `tl`, `tr` and `bl` are the corners of that
+ * rectangle on the photo, in photo pixels, so a tilted or folded shirt works
+ * too. Screen-only: the size on the photo assumes a body width of about 500 mm.
+ *
+ * TODO(vendor): confirm the real garment width and the print's distance from
+ * the collar; until then the placement is a visual estimate (docs/ops/print-specs.md).
+ */
+export interface GarmentMockupSpec {
+  id: string;
+  label: string;
+  src: string;
+  widthPx: number;
+  heightPx: number;
+  /** Top-left, top-right and bottom-left corners of the print area on the photo. */
+  quad: { tl: Point; tr: Point; bl: Point };
+  credit: string;
+}
+
+export type Point = readonly [x: number, y: number];
+
+/** Any preview photo: the mug wrap or a flat garment. */
+export type ProductMockupSpec = MockupSpec | GarmentMockupSpec;
+
+export function isGarmentSpec(s: ProductMockupSpec): s is GarmentMockupSpec {
+  return "quad" in s;
+}
+
+/**
  * The Canva mug set (1080 x 1080). Photos are interchangeable: to change the
  * background, props or colours, replace the file and re-measure `body`, `sag`
  * and `handleAngleDeg` (docs/ops/mockup-assets.md); nothing else changes.
@@ -80,7 +109,9 @@ const STUDIO = {
  * images (the first one is its main picture): a side view with the handle
  * first, then the front and the other side, then the lifestyle shots.
  */
-export const MOCKUP_SPECS: Partial<Record<ProductId, readonly MockupSpec[]>> = {
+export const MOCKUP_SPECS: Partial<
+  Record<ProductId, readonly ProductMockupSpec[]>
+> = {
   mug: [
     {
       ...STUDIO,
@@ -167,6 +198,56 @@ export const MOCKUP_SPECS: Partial<Record<ProductId, readonly MockupSpec[]>> = {
         ],
       },
       credit: "Canva",
+    },
+  ],
+  // White tee photos supplied by the founder (1080 x 1080). The torso on teal
+  // is first: it is the product's main picture.
+  tshirt: [
+    {
+      id: "torso",
+      label: "Front",
+      src: "/mockups/tshirt-torso.webp",
+      widthPx: 1080,
+      heightPx: 1080,
+      quad: { tl: [396, 172], tr: [690, 172], bl: [396, 564] },
+      credit: "Founder-supplied",
+    },
+    {
+      id: "flatlay",
+      label: "Flat lay",
+      src: "/mockups/tshirt-flatlay.webp",
+      widthPx: 1080,
+      heightPx: 1080,
+      quad: { tl: [313, 365], tr: [727, 365], bl: [313, 917] },
+      credit: "Founder-supplied",
+    },
+    {
+      id: "pointing",
+      label: "Pointing",
+      src: "/mockups/tshirt-pointing.webp",
+      widthPx: 1080,
+      heightPx: 1080,
+      quad: { tl: [424, 668], tr: [706, 668], bl: [424, 1044] },
+      credit: "Founder-supplied",
+    },
+    {
+      id: "folded",
+      label: "Folded",
+      src: "/mockups/tshirt-folded.webp",
+      widthPx: 1080,
+      heightPx: 1080,
+      // Folded shirt turned ~14 degrees clockwise.
+      quad: { tl: [390, 346], tr: [753, 439], bl: [266, 831] },
+      credit: "Founder-supplied",
+    },
+    {
+      id: "studio",
+      label: "Studio",
+      src: "/mockups/tshirt-studio.webp",
+      widthPx: 1080,
+      heightPx: 1080,
+      quad: { tl: [393, 112], tr: [687, 112], bl: [393, 504] },
+      credit: "Founder-supplied",
     },
   ],
 };

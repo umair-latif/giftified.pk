@@ -13,12 +13,17 @@ import {
   verticalPxPerMm,
   type WrapGeometry,
 } from "@/features/editor/mockup/mapping";
-import { MOCKUP_SPECS } from "@/features/editor/mockup/specs";
+import { isGarmentSpec, MOCKUP_SPECS } from "@/features/editor/mockup/specs";
 
 const geo: WrapGeometry = {
   wrapMm: mug.printArea.widthMm,
   diameterMm: 82,
 };
+
+function mugSpecs() {
+  return MOCKUP_SPECS.mug!.flatMap((s) => (isGarmentSpec(s) ? [] : [s]));
+}
+const MUG_SPECS = mugSpecs();
 
 describe("mockup mapping", () => {
   it("prints an arc smaller than the full circle for the mug wrap", () => {
@@ -63,13 +68,35 @@ describe("mockup mapping", () => {
   });
 
   it("has mug mockups whose body sits inside their photo, with unique ids", () => {
-    const specs = MOCKUP_SPECS.mug!;
+    const specs = MUG_SPECS;
     expect(new Set(specs.map((s) => s.id)).size).toBe(specs.length);
     for (const s of specs) {
       expect(s.body.left).toBeGreaterThan(0);
       expect(s.body.right).toBeLessThan(s.widthPx);
       expect(s.body.top).toBeLessThan(s.body.bottom);
       expect(s.body.bottom).toBeLessThan(s.heightPx);
+    }
+  });
+
+  it("has t-shirt mockups with the torso on teal first and the print on the photo", () => {
+    const specs = MOCKUP_SPECS.tshirt!;
+    expect(specs[0]?.id).toBe("torso");
+    expect(new Set(specs.map((s) => s.id)).size).toBe(specs.length);
+    for (const s of specs) {
+      expect(isGarmentSpec(s)).toBe(true);
+      if (!isGarmentSpec(s)) continue;
+      const { tl, tr, bl } = s.quad;
+      const w = Math.hypot(tr[0] - tl[0], tr[1] - tl[1]);
+      const h = Math.hypot(bl[0] - tl[0], bl[1] - tl[1]);
+      // Same shape as the print area (300 x 400 mm).
+      expect(h / w).toBeCloseTo(4 / 3, 1);
+      const br = [tr[0] + bl[0] - tl[0], tr[1] + bl[1] - tl[1]];
+      for (const [x, y] of [tl, tr, bl, br] as const) {
+        expect(x).toBeGreaterThan(0);
+        expect(x).toBeLessThan(s.widthPx);
+        expect(y).toBeGreaterThan(0);
+        expect(y).toBeLessThan(s.heightPx);
+      }
     }
   });
 
@@ -123,7 +150,7 @@ describe("print band position", () => {
   });
 
   it("sizes the band against the mug height, not the diameter", () => {
-    const s = MOCKUP_SPECS.mug![0]!;
+    const s = MUG_SPECS[0]!;
     const pxPerMm = verticalPxPerMm(s.body, s.mugHeightMm);
     const bandPx = mug.printArea.heightMm * pxPerMm;
     const bodyPx = s.body.bottom - s.body.top;
@@ -177,7 +204,7 @@ describe("mockup outline", () => {
   });
 
   it("the flat-lay mockup has ordered outlines inside its photo", () => {
-    const flat = MOCKUP_SPECS.mug!.find((s) => s.id === "flatlay")!;
+    const flat = MUG_SPECS.find((s) => s.id === "flatlay")!;
     for (const line of [flat.outline!.top, flat.outline!.bottom]) {
       for (let i = 1; i < line.length; i++) {
         expect(line[i]![0]).toBeGreaterThan(line[i - 1]![0]);
