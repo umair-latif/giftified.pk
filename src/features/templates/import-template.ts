@@ -62,7 +62,7 @@ export async function downloadTemplatePhotos(
   }
   await Promise.all(
     Object.entries(assetUrls).map(async ([assetId, url]) => {
-      const photo = await (await fetch(url)).blob();
+      const photo = await (await fetch(url, { cache: "no-store" })).blob();
       const size = sizes.get(assetId) ?? { w: 1, h: 1 };
       await putAsset({
         id: assetId,
