@@ -75,11 +75,18 @@ export interface GarmentMockupSpec {
    */
   quad: { tl: Point; tr: Point; bl: Point; br?: Point };
   /**
-   * How the print follows the cloth: px the middle of each edge is displaced
-   * from the straight line between its corners. `top`/`bottom` move up/down
-   * (+y is down), `left`/`right` move sideways (+x is right).
+   * How the print follows the cloth: for each edge, px it sits off the straight
+   * line between its corners, sampled evenly along the edge (first and last are
+   * the corners, so 0) and smoothed between samples. `top`/`bottom` move up/down
+   * (+y is down), `left`/`right` move sideways (+x is right). Measured from a
+   * placeholder render, so folds and ripples are followed.
    */
-  bow?: { top?: number; bottom?: number; left?: number; right?: number };
+  edges?: {
+    top?: number[];
+    bottom?: number[];
+    left?: number[];
+    right?: number[];
+  };
   /** Per-photo overrides of the ink look (a smooth photo needs less, a grainy one more). */
   ink?: Partial<InkSettings>;
   /**
@@ -257,15 +264,33 @@ export const MOCKUP_SPECS: Partial<
       widthPx: 1080,
       heightPx: 1080,
       // Measured against the founder's reference render of this photo
-      // (98.7% overlap with the placeholder): slight perspective, the top edge
-      // bows up and the left edge in.
+      // (99.5% overlap with the placeholder): slight perspective, and the edges
+      // follow the cloth (top bows up, left bulges in, a fold on the right).
       quad: {
-        tl: [462.2, 401.5],
-        tr: [737.9, 407.7],
-        bl: [466, 769],
-        br: [724.5, 769.1],
+        tl: [466.3, 405.8],
+        tr: [735.0, 410.1],
+        bl: [469.4, 766.5],
+        br: [720.9, 766.0],
       },
-      bow: { top: -10.3, bottom: 0.3, left: 11.5, right: -3.4 },
+      edges: {
+        top: [
+          0.0, -6.0, -7.6, -8.8, -9.6, -10.7, -11.7, -12.2, -12.9, -13.1, -13.0,
+          -12.7, -12.7, -12.4, -12.2, -12.2, -11.7, -11.3, -10.7, -9.7, -8.6,
+          -7.6, -6.4, -3.4, 0.0,
+        ],
+        bottom: [
+          0.0, 3.2, 3.3, 3.4, 3.6, 3.8, 4.0, 4.1, 4.0, 3.9, 3.9, 3.9, 3.9, 4.1,
+          3.9, 3.8, 3.5, 3.5, 3.8, 3.8, 3.7, 3.7, 3.6, 3.7, 0.0,
+        ],
+        left: [
+          0.0, -2.0, -0.3, 2.3, 5.1, 4.7, 5.0, 5.3, 5.9, 6.6, 7.4, 7.9, 9.0,
+          10.5, 11.6, 11.8, 11.0, 9.5, 7.1, 4.5, 2.6, 0.8, -0.8, -1.9, 0.0,
+        ],
+        right: [
+          0.0, 4.8, 6.1, 5.7, 4.5, 3.1, 1.5, 0.6, -0.6, -2.6, -2.0, 2.4, 4.4,
+          2.9, 1.2, -0.1, -0.8, -1.2, -0.6, 0.1, 1.0, 2.5, 3.4, 5.8, 0.0,
+        ],
+      },
       // Fitted to the reference render (colour within ~2 levels, same grain):
       // crisp colour, light shading, fine weave.
       ink: {
@@ -273,6 +298,7 @@ export const MOCKUP_SPECS: Partial<
         grain: 0,
         opacity: 0.98,
         weave: 0.013,
+        warp: 0,
         ridgeDropout: 0.1,
       },
       credit: "Founder-supplied",

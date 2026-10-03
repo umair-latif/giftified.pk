@@ -1,5 +1,8 @@
 import { describe, expect, it } from "vitest";
-import { makeGarmentMap } from "@/features/editor/mockup/garment-map";
+import {
+  edgeOffset,
+  makeGarmentMap,
+} from "@/features/editor/mockup/garment-map";
 import { isGarmentSpec, MOCKUP_SPECS } from "@/features/editor/mockup/specs";
 
 const specs = (MOCKUP_SPECS.tshirt ?? []).filter(isGarmentSpec);
@@ -7,7 +10,7 @@ const specs = (MOCKUP_SPECS.tshirt ?? []).filter(isGarmentSpec);
 describe("garment map", () => {
   it("has the model photo with curved edges", () => {
     const model = specs.find((s) => s.id === "model");
-    expect(model?.bow?.top).toBeLessThan(0);
+    expect(model?.edges?.top?.length).toBeGreaterThan(8);
     expect(model?.quad.br).toBeDefined();
   });
 
@@ -40,11 +43,19 @@ describe("garment map", () => {
     }
   });
 
-  it("bows the top edge by the given px at its middle", () => {
+  it("follows the measured edge offsets", () => {
     const model = specs.find((s) => s.id === "model")!;
     const map = makeGarmentMap(model);
+    const top = model.edges!.top!;
+    // Halfway along the top edge: the straight line plus the sampled offset.
     const [, yMid] = map.forward(0.5, 0);
     const straight = (model.quad.tl[1] + model.quad.tr[1]) / 2;
-    expect(yMid - straight).toBeCloseTo(model.bow?.top ?? 0, 6);
+    expect(yMid - straight).toBeCloseTo(edgeOffset(top, 0.5), 6);
+    // The samples themselves are hit exactly.
+    const [, y3] = map.forward(3 / (top.length - 1), 0);
+    const line =
+      model.quad.tl[1] +
+      (3 / (top.length - 1)) * (model.quad.tr[1] - model.quad.tl[1]);
+    expect(y3 - line).toBeCloseTo(top[3]!, 6);
   });
 });

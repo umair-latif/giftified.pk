@@ -91,10 +91,11 @@ the vendor (see `docs/ops/print-specs.md`).
 ## Garment photos: print corners, curved edges, ink look
 
 - `quad` has the print rectangle's corners on the photo (`br` only when the photo
-  has perspective). `bow` is how far the middle of each edge sits off the straight
-  line (px), so the print follows the cloth. Measure both from a placeholder render:
-  segment the placeholder, then fit corners + bows by maximising overlap
-  (the model photo reaches 98.7%).
+  has perspective). `edges` lists, per edge, how far it sits off the straight line
+  between its corners (px, 25 samples along the edge), so the print follows ripples
+  and folds. Measure both from a placeholder render: find the placeholder's outline
+  against the clean photo, then fit corners and edge offsets to it (the model photo
+  reaches ~99.5% overlap), and check the result against the reference render.
 - `ink` overrides the default `INK` numbers per photo. The model photo's numbers are
   fitted to the founder's reference render (mean colour error ~3 levels, same grain
   strength); the defaults are a middle setting for photos without a reference.
