@@ -71,6 +71,12 @@ export interface GarmentMockupSpec {
   heightPx: number;
   /** Top-left, top-right and bottom-left corners of the print area on the photo. */
   quad: { tl: Point; tr: Point; bl: Point };
+  /**
+   * Show only a square part of the photo (a close-up of the print and fabric).
+   * `x`, `y`, `size` are in photo pixels; the result is `outPx` wide. Keep it
+   * square, like the photo, so the gallery frame does not change shape.
+   */
+  crop?: { x: number; y: number; size: number; outPx: number };
   credit: string;
 }
 
@@ -241,6 +247,17 @@ export const MOCKUP_SPECS: Partial<
       heightPx: 1080,
       // The rectangle runs off the bottom of the photo (the shirt is cropped).
       quad: { tl: [368, 760], tr: [762, 760], bl: [368, 1285] },
+      credit: "Founder-supplied",
+    },
+    {
+      id: "closeup",
+      label: "Close-up",
+      src: "/mockups/tshirt-studio.webp",
+      widthPx: 1080,
+      heightPx: 1080,
+      quad: { tl: [343, 230], tr: [737, 230], bl: [343, 755] },
+      // The chest at 1.5x: ink and fabric grain up close.
+      crop: { x: 300, y: 290, size: 480, outPx: 720 },
       credit: "Founder-supplied",
     },
   ],
