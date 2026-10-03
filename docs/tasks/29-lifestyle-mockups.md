@@ -23,3 +23,11 @@ Work:
 4. Add both specs back to `MOCKUP_SPECS.tshirt` (`mockup/specs.ts`), extend `tests/e2e/mockup.spec.ts`.
 
 Also see the shared fabric realism work (texture/shadow split, ink absorption) in `mockup/compose-garment.ts`.
+
+## Later: tune the ink look against the vendor's real prints
+
+Parked until launch, when a print partner is signed. Needs: close-up photos of the vendor's
+actual DTF prints (dark and bright ink on white cotton), and the same artwork on a real shirt.
+Then tune the `INK` numbers at the top of `mockup/compose-garment.ts` (shadow, grain, opacity,
+ridge dropout, warp) and re-measure the print rectangles on the vendor's shirt photos.
+Until then the settings are a visual estimate.
