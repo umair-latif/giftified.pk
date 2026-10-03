@@ -87,6 +87,13 @@ export interface GarmentMockupSpec {
     left?: number[];
     right?: number[];
   };
+  /**
+   * Optional exact print outline: a grey image the size of the photo (white =
+   * ink, soft 1 px edge), measured from a placeholder render. Keeps the corners
+   * sharp and follows folds the edge profiles cannot; the design is still
+   * mapped through `quad`/`edges`.
+   */
+  mask?: string;
   /** Per-photo overrides of the ink look (a smooth photo needs less, a grainy one more). */
   ink?: Partial<InkSettings>;
   /**
@@ -272,6 +279,7 @@ export const MOCKUP_SPECS: Partial<
         bl: [469.4, 766.5],
         br: [720.9, 766.0],
       },
+      mask: "/mockups/tshirt-model-mask.png",
       edges: {
         top: [
           0.0, -6.0, -7.6, -8.8, -9.6, -10.7, -11.7, -12.2, -12.9, -13.1, -13.0,
@@ -297,7 +305,7 @@ export const MOCKUP_SPECS: Partial<
         shadow: 0.3,
         grain: 0,
         opacity: 0.98,
-        weave: 0.013,
+        weave: 0.006,
         warp: 0,
         ridgeDropout: 0.1,
       },

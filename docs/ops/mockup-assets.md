@@ -100,3 +100,5 @@ the vendor (see `docs/ops/print-specs.md`).
   fitted to the founder's reference render (mean colour error ~3 levels, same grain
   strength); the defaults are a middle setting for photos without a reference.
 - When the vendor's real print photos exist, refit `INK` and `ink` against them.
+
+- Garment `mask` (optional): a photo-sized grey image (white = ink) measured from a placeholder render. Gives sharp corners and exact fold outlines (`public/mockups/tshirt-model-mask.png`); the design is still mapped through `quad`/`edges`.

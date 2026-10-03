@@ -55,7 +55,7 @@ function valueNoise(x: number, y: number, cell: number): number {
 
 /** Fine mottled fabric weave, roughly zero-mean with unit spread. */
 function fabricNoise(x: number, y: number): number {
-  const n = 0.6 * valueNoise(x, y, 1.7) + 0.4 * valueNoise(x + 91, y + 37, 3.6);
+  const n = 0.85 * valueNoise(x, y, 1.7) + 0.15 * valueNoise(x + 91, y + 37, 3.6);
   return (n - 0.5) * 4.2;
 }
 
@@ -134,6 +134,19 @@ export async function composeGarmentMockup(
   dctx.drawImage(design, 0, 0);
   const dd = dctx.getImageData(0, 0, dw, dh).data;
 
+  // Exact outline (sharp corners, folds) when the spec has one.
+  let maskData: Uint8ClampedArray | null = null;
+  if (spec.mask) {
+    const m = await loadImage(spec.mask);
+    const mc = document.createElement("canvas");
+    mc.width = W;
+    mc.height = H;
+    const mctx = mc.getContext("2d", { willReadFrequently: true });
+    if (!mctx) throw new Error("Canvas not available");
+    mctx.drawImage(m, 0, 0, W, H);
+    maskData = mctx.getImageData(0, 0, W, H).data;
+  }
+
   const map = makeGarmentMap(spec);
   const [bx0, by0, bx1, by1] = map.bounds;
   // Work area: the print plus a margin for the blurs and the fold warp.
@@ -182,13 +195,15 @@ export async function composeGarmentMockup(
         y + y0 + 0.5 - ink.warp * gy,
       );
       // Soft 1 px edge so a tilted rectangle is not jagged.
-      const cover = Math.min(
-        1,
-        u * lenX + 0.5,
-        (1 - u) * lenX + 0.5,
-        v * lenY + 0.5,
-        (1 - v) * lenY + 0.5,
-      );
+      const cover = maskData
+        ? maskData[((y + y0) * W + x + x0) * 4]! / 255
+        : Math.min(
+            1,
+            u * lenX + 0.5,
+            (1 - u) * lenX + 0.5,
+            v * lenY + 0.5,
+            (1 - v) * lenY + 0.5,
+          );
       if (cover <= 0) continue;
       const fx = Math.min(dw - 1, Math.max(0, u * dw - 0.5));
       const fy = Math.min(dh - 1, Math.max(0, v * dh - 0.5));
