@@ -12,6 +12,7 @@ Preview mockups wrap the customer's design around a photo of the product
 | `public/mockups/mug-flatlay.webp`   | Flat lay on a desk with props, from above     | Canva  |
 
 | `public/mockups/tshirt-front.webp` | T-shirt: the editor background without guides (default / main picture) | Founder-supplied |
+| `public/mockups/tshirt-model.webp` | T-shirt: model on grey (aligned to the founder's reference render, ±2 px) | Founder-supplied |
 | `public/mockups/tshirt-torso.webp` | T-shirt: torso on teal | Founder-supplied |
 | `public/mockups/tshirt-pointing.webp` | T-shirt: man pointing at the shirt, teal | Founder-supplied |
 | `public/mockups/tshirt-studio.webp` | T-shirt: torso on grey studio | Founder-supplied |
@@ -86,3 +87,15 @@ Never edit `body` or `sag` for vendor numbers; they describe the photo.
 `geometry.diameterMm` (83 mm) and `mugHeightMm` (96 mm) are Printful's approximate
 values, and the handle gap follows from them; all are assumptions. Confirm with
 the vendor (see `docs/ops/print-specs.md`).
+
+## Garment photos: print corners, curved edges, ink look
+
+- `quad` has the print rectangle's corners on the photo (`br` only when the photo
+  has perspective). `bow` is how far the middle of each edge sits off the straight
+  line (px), so the print follows the cloth. Measure both from a placeholder render:
+  segment the placeholder, then fit corners + bows by maximising overlap
+  (the model photo reaches 98.7%).
+- `ink` overrides the default `INK` numbers per photo. The model photo's numbers are
+  fitted to the founder's reference render (mean colour error ~3 levels, same grain
+  strength); the defaults are a middle setting for photos without a reference.
+- When the vendor's real print photos exist, refit `INK` and `ink` against them.

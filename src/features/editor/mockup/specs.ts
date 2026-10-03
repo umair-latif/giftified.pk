@@ -69,8 +69,19 @@ export interface GarmentMockupSpec {
   src: string;
   widthPx: number;
   heightPx: number;
-  /** Top-left, top-right and bottom-left corners of the print area on the photo. */
-  quad: { tl: Point; tr: Point; bl: Point };
+  /**
+   * Corners of the print area on the photo. `br` defaults to the parallelogram
+   * corner (tr + bl - tl); give it when the photo has perspective.
+   */
+  quad: { tl: Point; tr: Point; bl: Point; br?: Point };
+  /**
+   * How the print follows the cloth: px the middle of each edge is displaced
+   * from the straight line between its corners. `top`/`bottom` move up/down
+   * (+y is down), `left`/`right` move sideways (+x is right).
+   */
+  bow?: { top?: number; bottom?: number; left?: number; right?: number };
+  /** Per-photo overrides of the ink look (a smooth photo needs less, a grainy one more). */
+  ink?: Partial<InkSettings>;
   /**
    * Show only a square part of the photo (a close-up of the print and fabric).
    * `x`, `y`, `size` are in photo pixels; the result is `outPx` wide. Keep it
@@ -78,6 +89,16 @@ export interface GarmentMockupSpec {
    */
   crop?: { x: number; y: number; size: number; outPx: number };
   credit: string;
+}
+
+/** How the ink sits on the cloth (see INK in compose-garment.ts for what each does). */
+export interface InkSettings {
+  shadow: number;
+  grain: number;
+  weave: number;
+  opacity: number;
+  ridgeDropout: number;
+  warp: number;
 }
 
 export type Point = readonly [x: number, y: number];
@@ -227,6 +248,33 @@ export const MOCKUP_SPECS: Partial<
       widthPx: 1080,
       heightPx: 1080,
       quad: { tl: [343, 230], tr: [737, 230], bl: [343, 755] },
+      credit: "Founder-supplied",
+    },
+    {
+      id: "model",
+      label: "Model",
+      src: "/mockups/tshirt-model.webp",
+      widthPx: 1080,
+      heightPx: 1080,
+      // Measured against the founder's reference render of this photo
+      // (98.7% overlap with the placeholder): slight perspective, the top edge
+      // bows up and the left edge in.
+      quad: {
+        tl: [462.2, 401.5],
+        tr: [737.9, 407.7],
+        bl: [466, 769],
+        br: [724.5, 769.1],
+      },
+      bow: { top: -10.3, bottom: 0.3, left: 11.5, right: -3.4 },
+      // Fitted to the reference render (colour within ~2 levels, same grain):
+      // crisp colour, light shading, fine weave.
+      ink: {
+        shadow: 0.3,
+        grain: 0,
+        opacity: 0.98,
+        weave: 0.013,
+        ridgeDropout: 0.1,
+      },
       credit: "Founder-supplied",
     },
     {
