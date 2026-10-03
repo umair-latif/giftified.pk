@@ -229,7 +229,8 @@ export const MOCKUP_SPECS: Partial<
       src: "/mockups/tshirt-torso.webp",
       widthPx: 1080,
       heightPx: 1080,
-      quad: { tl: [343, 230], tr: [737, 230], bl: [343, 755] },
+      // The man leans slightly: the body axis is ~1.7 degrees off vertical.
+      quad: { tl: [335, 236], tr: [729, 224], bl: [351, 761] },
       credit: "Founder-supplied",
     },
     {
