@@ -53,7 +53,7 @@ test("a designer marks a customer's photo with a library sample and publishes; c
     buffer: await makePng(page, 1600, 1200),
   });
   await page.getByRole("button", { name: "Customer's photo" }).click();
-  const sheet = page.getByRole("dialog", { name: "Customer's photo" });
+  const sheet = page.getByRole("dialog", { name: "Placeholder images" });
   // Designers add photos to the library here; only library photos can be picked.
   await sheet.getByTestId("sample-input").setInputFiles({
     name: "sample.png",
@@ -61,7 +61,7 @@ test("a designer marks a customer's photo with a library sample and publishes; c
     buffer: await makePng(page, 900, 900),
   });
   await sheet
-    .getByRole("button", { name: /^Sample photo \d+$/ })
+    .getByRole("button", { name: /^Placeholder image \d+$/ })
     .first()
     .click();
   await expect(sheet).toHaveCount(0);

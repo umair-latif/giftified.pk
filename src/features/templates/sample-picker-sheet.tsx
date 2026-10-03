@@ -53,7 +53,7 @@ export function SamplePickerSheet({
       if (!res.ok) throw new Error();
       setSamples(((await res.json()) as { samples: Sample[] }).samples);
     } catch {
-      setError("Couldn't load the sample photos");
+      setError("Couldn't load the placeholder images");
       setSamples([]);
     }
   }, []);
@@ -114,7 +114,7 @@ export function SamplePickerSheet({
   async function remove(s: Sample) {
     if (
       !window.confirm(
-        "Remove this photo from the sample library? Designs that use it keep their copy.",
+        "Remove this placeholder image? Designs that use it keep their copy.",
       )
     )
       return;
@@ -129,11 +129,11 @@ export function SamplePickerSheet({
   }
 
   return (
-    <Sheet title="Customer's photo" onClose={onClose}>
+    <Sheet title="Placeholder images" onClose={onClose}>
       <div className="space-y-3 pt-1 pb-2 text-sm" data-testid="sample-picker">
         <p className="text-zinc-600">
-          Customers must replace this photo with their own before ordering. Pick
-          the sample they see until then.
+          Pick a placeholder for this photo. New placeholders: no real people,
+          logos or copyrighted images.
         </p>
         <input
           ref={fileInput}
@@ -141,7 +141,7 @@ export function SamplePickerSheet({
           accept={ACCEPTED_IMAGE_TYPES.join(",")}
           className="sr-only"
           tabIndex={-1}
-          aria-label="Add a sample photo"
+          aria-label="Add a placeholder image"
           data-testid="sample-input"
           onChange={(e) => {
             const file = e.target.files?.[0];
@@ -154,7 +154,7 @@ export function SamplePickerSheet({
         ) : (
           <ul
             className="grid grid-cols-3 gap-2 sm:grid-cols-4"
-            aria-label="Sample photos"
+            aria-label="Placeholder images"
           >
             <li>
               <button
@@ -163,7 +163,7 @@ export function SamplePickerSheet({
                 onClick={() => fileInput.current?.click()}
                 className="border-brand-300 text-brand-700 focus-visible:ring-brand-600/20 grid aspect-square w-full place-items-center rounded-xl border-2 border-dashed text-xs font-medium focus-visible:ring-2 focus-visible:outline-none disabled:opacity-50"
               >
-                + Add sample
+                + Add image
               </button>
             </li>
             {samples.map((s, i) => (
@@ -172,7 +172,7 @@ export function SamplePickerSheet({
                   type="button"
                   disabled={busy}
                   onClick={() => void pick(s)}
-                  aria-label={`Sample photo ${i + 1}`}
+                  aria-label={`Placeholder image ${i + 1}`}
                   aria-pressed={current?.sampleId === s.id}
                   className={`focus-visible:ring-brand-600/40 block aspect-square w-full overflow-hidden rounded-xl bg-zinc-100 focus-visible:ring-2 focus-visible:outline-none disabled:opacity-50 ${
                     current?.sampleId === s.id
@@ -193,7 +193,7 @@ export function SamplePickerSheet({
                   type="button"
                   disabled={busy}
                   onClick={() => void remove(s)}
-                  aria-label={`Remove sample photo ${i + 1}`}
+                  aria-label={`Remove placeholder image ${i + 1}`}
                   className="absolute top-1 right-1 grid size-7 place-items-center rounded-full bg-white/90 text-xs text-zinc-600 shadow ring-1 ring-zinc-200"
                 >
                   ✕
@@ -204,7 +204,7 @@ export function SamplePickerSheet({
         )}
         {samples?.length === 0 && !error && (
           <p className="text-xs text-zinc-500">
-            The library is empty. Add the first sample photo.
+            No placeholder images yet. Add the first one.
           </p>
         )}
         {error && (

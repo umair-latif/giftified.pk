@@ -14,7 +14,7 @@ on the site with that email.
 1. Open the editor for the product (for example `/design/mug`) while signed in.
 2. Design as usual: text, photos, frames, artwork.
 3. For each photo the **customer must swap for their own** (a family photo slot, say): tap it, then
-   **Customer's photo**, and pick a sample from the library. Need a new sample? Tap **+ Add sample**
+   **Customer's photo**, and pick one of the **Placeholder images**. Need a new one? Tap **+ Add image**
    in the same sheet. Only library photos can sit in a customer's photo.
 4. Every other photo or image (frames, splashes, Eid artwork, lines) is **part of the design**. It
    prints exactly as it is, from the full-size file you added, so use a sharp, large file. Very
@@ -28,16 +28,16 @@ on the site with that email.
 
 - **No customer's photo:** **Add to cart** (buys it exactly as you made it) and **Make it yours**
   (opens it in the editor, where they can change anything).
-- **With a customer's photo:** only **Make it yours**. They must replace each sample photo before they
+- **With a customer's photo:** only **Make it yours**. They must replace each placeholder image before they
   can order.
 
-## Sample photo library
+## Placeholder images
 
-- The samples are shown to customers on the product page and in the editor, but they are **never
+- Placeholders are shown to customers on the product page and in the editor, but they are **never
   printed**, so normal phone-size photos are fine.
-- Use only photos you are allowed to use commercially (AI-generated or licensed). No real customers.
+- No real people, logos or copyrighted images: use AI-generated or licensed pictures only.
 - Crop away white bars before adding them.
-- Removing a sample from the library doesn't break published designs: each design keeps its own copy.
+- Removing a placeholder image doesn't break published designs: each design keeps its own copy.
 
 ## Removing a design
 
