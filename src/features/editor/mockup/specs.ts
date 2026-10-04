@@ -256,6 +256,27 @@ export const MOCKUP_SPECS: Partial<
       credit: "Founder-supplied",
     },
     {
+      id: "window",
+      label: "Window light",
+      src: "/mockups/tshirt-window.webp",
+      widthPx: 1080,
+      heightPx: 1080,
+      // Front and back tee on orange with a window shadow baked into the photo;
+      // the print goes on the front (left) shirt, centred below the collar.
+      quad: { tl: [262, 372], tr: [462, 372], bl: [262, 639] },
+      credit: "Founder-supplied",
+    },
+    {
+      id: "torso",
+      label: "Torso",
+      src: "/mockups/tshirt-torso.webp",
+      widthPx: 1080,
+      heightPx: 1080,
+      // The man leans slightly: the body axis is ~1.7 degrees off vertical.
+      quad: { tl: [335, 236], tr: [729, 224], bl: [351, 761] },
+      credit: "Founder-supplied",
+    },
+    {
       id: "studio",
       label: "Studio",
       src: "/mockups/tshirt-studio.webp",
@@ -309,16 +330,6 @@ export const MOCKUP_SPECS: Partial<
         warp: 0,
         ridgeDropout: 0.1,
       },
-      credit: "Founder-supplied",
-    },
-    {
-      id: "torso",
-      label: "Torso",
-      src: "/mockups/tshirt-torso.webp",
-      widthPx: 1080,
-      heightPx: 1080,
-      // The man leans slightly: the body axis is ~1.7 degrees off vertical.
-      quad: { tl: [335, 236], tr: [729, 224], bl: [351, 761] },
       credit: "Founder-supplied",
     },
     {

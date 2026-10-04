@@ -102,3 +102,5 @@ the vendor (see `docs/ops/print-specs.md`).
 - When the vendor's real print photos exist, refit `INK` and `ink` against them.
 
 - Garment `mask` (optional): a photo-sized grey image (white = ink) measured from a placeholder render. Gives sharp corners and exact fold outlines (`public/mockups/tshirt-model-mask.png`); the design is still mapped through `quad`/`edges`.
+
+- `tshirt-window.webp`: front and back tee on orange with a window shadow baked in (print on the left shirt). Gallery order: front, window, torso, studio, model, pointing, closeup.
