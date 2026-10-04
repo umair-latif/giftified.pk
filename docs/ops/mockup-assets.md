@@ -12,9 +12,7 @@ Preview mockups wrap the customer's design around a photo of the product
 | `public/mockups/mug-flatlay.webp`   | Flat lay on a desk with props, from above     | Canva  |
 
 | `public/mockups/tshirt-front.webp` | T-shirt: the editor background without guides (default / main picture) | Founder-supplied |
-| `public/mockups/tshirt-model.webp` | T-shirt: model on grey (aligned to the founder's reference render, ±2 px) | Founder-supplied |
-| `public/mockups/tshirt-torso.webp` | T-shirt: torso on teal | Founder-supplied |
-| `public/mockups/tshirt-pointing.webp` | T-shirt: man pointing at the shirt, teal | Founder-supplied |
+| `public/mockups/tshirt-model.webp` | T-shirt: model on grey (aligned to the founder's reference render, ±2 px); NOT in the gallery, kept as `PARKED_TSHIRT_SPECS` (engine reference) | Founder-supplied |
 | `public/mockups/tshirt-studio.webp` | T-shirt: torso on grey studio | Founder-supplied |
 
 T-shirt photos are white tees: each spec has a `quad` (top-left, top-right,
@@ -103,4 +101,4 @@ the vendor (see `docs/ops/print-specs.md`).
 
 - Garment `mask` (optional): a photo-sized grey image (white = ink) measured from a placeholder render. Gives sharp corners and exact fold outlines (`public/mockups/tshirt-model-mask.png`); the design is still mapped through `quad`/`edges`.
 
-- `tshirt-window.webp`: front and back tee on orange with a window shadow baked in (print on the left shirt). Gallery order: front, window, torso, studio, model, pointing, closeup.
+- `tshirt-window.webp`: front and back tee on orange with a window shadow baked in (print on the left shirt). T-shirt gallery order: front, window, studio, closeup. Removed by the founder: model, torso on teal, pointing (torso and pointing photos are in `docs/tasks/assets/`).

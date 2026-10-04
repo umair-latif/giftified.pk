@@ -267,79 +267,12 @@ export const MOCKUP_SPECS: Partial<
       credit: "Founder-supplied",
     },
     {
-      id: "torso",
-      label: "Torso",
-      src: "/mockups/tshirt-torso.webp",
-      widthPx: 1080,
-      heightPx: 1080,
-      // The man leans slightly: the body axis is ~1.7 degrees off vertical.
-      quad: { tl: [335, 236], tr: [729, 224], bl: [351, 761] },
-      credit: "Founder-supplied",
-    },
-    {
       id: "studio",
       label: "Studio",
       src: "/mockups/tshirt-studio.webp",
       widthPx: 1080,
       heightPx: 1080,
       quad: { tl: [343, 230], tr: [737, 230], bl: [343, 755] },
-      credit: "Founder-supplied",
-    },
-    {
-      id: "model",
-      label: "Model",
-      src: "/mockups/tshirt-model.webp",
-      widthPx: 1080,
-      heightPx: 1080,
-      // Measured against the founder's reference render of this photo
-      // (99.5% overlap with the placeholder): slight perspective, and the edges
-      // follow the cloth (top bows up, left bulges in, a fold on the right).
-      quad: {
-        tl: [466.3, 405.8],
-        tr: [735.0, 410.1],
-        bl: [469.4, 766.5],
-        br: [720.9, 766.0],
-      },
-      mask: "/mockups/tshirt-model-mask.png",
-      edges: {
-        top: [
-          0.0, -6.0, -7.6, -8.8, -9.6, -10.7, -11.7, -12.2, -12.9, -13.1, -13.0,
-          -12.7, -12.7, -12.4, -12.2, -12.2, -11.7, -11.3, -10.7, -9.7, -8.6,
-          -7.6, -6.4, -3.4, 0.0,
-        ],
-        bottom: [
-          0.0, 3.2, 3.3, 3.4, 3.6, 3.8, 4.0, 4.1, 4.0, 3.9, 3.9, 3.9, 3.9, 4.1,
-          3.9, 3.8, 3.5, 3.5, 3.8, 3.8, 3.7, 3.7, 3.6, 3.7, 0.0,
-        ],
-        left: [
-          0.0, -2.0, -0.3, 2.3, 5.1, 4.7, 5.0, 5.3, 5.9, 6.6, 7.4, 7.9, 9.0,
-          10.5, 11.6, 11.8, 11.0, 9.5, 7.1, 4.5, 2.6, 0.8, -0.8, -1.9, 0.0,
-        ],
-        right: [
-          0.0, 4.8, 6.1, 5.7, 4.5, 3.1, 1.5, 0.6, -0.6, -2.6, -2.0, 2.4, 4.4,
-          2.9, 1.2, -0.1, -0.8, -1.2, -0.6, 0.1, 1.0, 2.5, 3.4, 5.8, 0.0,
-        ],
-      },
-      // Fitted to the reference render (colour within ~2 levels, same grain):
-      // crisp colour, light shading, fine weave.
-      ink: {
-        shadow: 0.3,
-        grain: 0,
-        opacity: 0.98,
-        weave: 0.006,
-        warp: 0,
-        ridgeDropout: 0.1,
-      },
-      credit: "Founder-supplied",
-    },
-    {
-      id: "pointing",
-      label: "Pointing",
-      src: "/mockups/tshirt-pointing.webp",
-      widthPx: 1080,
-      heightPx: 1080,
-      // The rectangle runs off the bottom of the photo (the shirt is cropped).
-      quad: { tl: [368, 760], tr: [762, 760], bl: [368, 1285] },
       credit: "Founder-supplied",
     },
     {
@@ -355,3 +288,59 @@ export const MOCKUP_SPECS: Partial<
     },
   ],
 };
+
+/**
+ * Calibrated T-shirt photos kept out of the preview gallery (founder's call):
+ * the model photo is the reference for the garment engine (edges, mask, ink).
+ * Torso-on-teal and pointing were removed; their photos are parked in
+ * docs/tasks/assets/ (see docs/tasks/29-lifestyle-mockups.md).
+ */
+export const PARKED_TSHIRT_SPECS: GarmentMockupSpec[] = [
+  {
+    id: "model",
+    label: "Model",
+    src: "/mockups/tshirt-model.webp",
+    widthPx: 1080,
+    heightPx: 1080,
+    // Measured against the founder's reference render of this photo
+    // (99.5% overlap with the placeholder): slight perspective, and the edges
+    // follow the cloth (top bows up, left bulges in, a fold on the right).
+    quad: {
+      tl: [466.3, 405.8],
+      tr: [735.0, 410.1],
+      bl: [469.4, 766.5],
+      br: [720.9, 766.0],
+    },
+    mask: "/mockups/tshirt-model-mask.png",
+    edges: {
+      top: [
+        0.0, -6.0, -7.6, -8.8, -9.6, -10.7, -11.7, -12.2, -12.9, -13.1, -13.0,
+        -12.7, -12.7, -12.4, -12.2, -12.2, -11.7, -11.3, -10.7, -9.7, -8.6,
+        -7.6, -6.4, -3.4, 0.0,
+      ],
+      bottom: [
+        0.0, 3.2, 3.3, 3.4, 3.6, 3.8, 4.0, 4.1, 4.0, 3.9, 3.9, 3.9, 3.9, 4.1,
+        3.9, 3.8, 3.5, 3.5, 3.8, 3.8, 3.7, 3.7, 3.6, 3.7, 0.0,
+      ],
+      left: [
+        0.0, -2.0, -0.3, 2.3, 5.1, 4.7, 5.0, 5.3, 5.9, 6.6, 7.4, 7.9, 9.0, 10.5,
+        11.6, 11.8, 11.0, 9.5, 7.1, 4.5, 2.6, 0.8, -0.8, -1.9, 0.0,
+      ],
+      right: [
+        0.0, 4.8, 6.1, 5.7, 4.5, 3.1, 1.5, 0.6, -0.6, -2.6, -2.0, 2.4, 4.4, 2.9,
+        1.2, -0.1, -0.8, -1.2, -0.6, 0.1, 1.0, 2.5, 3.4, 5.8, 0.0,
+      ],
+    },
+    // Fitted to the reference render (colour within ~2 levels, same grain):
+    // crisp colour, light shading, fine weave.
+    ink: {
+      shadow: 0.3,
+      grain: 0,
+      opacity: 0.98,
+      weave: 0.006,
+      warp: 0,
+      ridgeDropout: 0.1,
+    },
+    credit: "Founder-supplied",
+  },
+];
