@@ -31,3 +31,7 @@ actual DTF prints (dark and bright ink on white cotton), and the same artwork on
 Then tune the `INK` numbers at the top of `mockup/compose-garment.ts` (shadow, grain, opacity,
 ridge dropout, warp) and re-measure the print rectangles on the vendor's shirt photos.
 Until then the settings are a visual estimate.
+
+## Removed from the T-shirt gallery (Oct 2026)
+
+Torso on teal (`tshirt-torso.webp`, quad tl[335,236] tr[729,224] bl[351,761]) and the man pointing (`tshirt-pointing.webp`, quad tl[368,760] tr[762,760] bl[368,1285], print runs off the photo) are in `docs/tasks/assets/`. The model photo stays as `PARKED_TSHIRT_SPECS`.

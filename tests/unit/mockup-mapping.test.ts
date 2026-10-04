@@ -82,7 +82,12 @@ describe("mockup mapping", () => {
     const specs = MOCKUP_SPECS.tshirt!;
     expect(specs[0]?.id).toBe("front");
     expect(specs[1]?.id).toBe("window");
-    expect(specs[2]?.id).toBe("torso");
+    expect(specs.map((s) => s.id)).toEqual([
+      "front",
+      "window",
+      "studio",
+      "closeup",
+    ]);
     expect(new Set(specs.map((s) => s.id)).size).toBe(specs.length);
     for (const s of specs) {
       expect(isGarmentSpec(s)).toBe(true);

@@ -3,9 +3,9 @@ import {
   edgeOffset,
   makeGarmentMap,
 } from "@/features/editor/mockup/garment-map";
-import { isGarmentSpec, MOCKUP_SPECS } from "@/features/editor/mockup/specs";
+import { PARKED_TSHIRT_SPECS } from "@/features/editor/mockup/specs";
 
-const specs = (MOCKUP_SPECS.tshirt ?? []).filter(isGarmentSpec);
+const specs = PARKED_TSHIRT_SPECS;
 
 describe("garment map", () => {
   it("has the model photo with curved edges", () => {
