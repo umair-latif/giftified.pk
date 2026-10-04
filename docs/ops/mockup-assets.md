@@ -102,3 +102,5 @@ the vendor (see `docs/ops/print-specs.md`).
 - Garment `mask` (optional): a photo-sized grey image (white = ink) measured from a placeholder render. Gives sharp corners and exact fold outlines (`public/mockups/tshirt-model-mask.png`); the design is still mapped through `quad`/`edges`.
 
 - `tshirt-window.webp`: front and back tee on orange with a window shadow baked in (print on the left shirt). T-shirt gallery order: front, window, studio, closeup. Removed by the founder: model, torso on teal, pointing (torso and pointing photos are in `docs/tasks/assets/`).
+
+Planned: professional layer packs per photo and colour. Shot brief for the vendor: `mockup-shot-brief.md`; pack format: `mockup-layer-pack.md` (the `mockup:draft` script it mentions does not exist yet).
