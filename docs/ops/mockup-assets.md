@@ -12,6 +12,7 @@ Preview mockups wrap the customer's design around a photo of the product
 | `public/mockups/mug-flatlay.webp`   | Flat lay on a desk with props, from above     | Canva  |
 
 | `public/mockups/tshirt-front.webp` | T-shirt: the editor background without guides (default / main picture) | Founder-supplied |
+| `public/mockups/tshirt-model.webp` | T-shirt: model on grey (aligned to the founder's reference render, ±2 px) | Founder-supplied |
 | `public/mockups/tshirt-torso.webp` | T-shirt: torso on teal | Founder-supplied |
 | `public/mockups/tshirt-pointing.webp` | T-shirt: man pointing at the shirt, teal | Founder-supplied |
 | `public/mockups/tshirt-studio.webp` | T-shirt: torso on grey studio | Founder-supplied |
@@ -86,3 +87,18 @@ Never edit `body` or `sag` for vendor numbers; they describe the photo.
 `geometry.diameterMm` (83 mm) and `mugHeightMm` (96 mm) are Printful's approximate
 values, and the handle gap follows from them; all are assumptions. Confirm with
 the vendor (see `docs/ops/print-specs.md`).
+
+## Garment photos: print corners, curved edges, ink look
+
+- `quad` has the print rectangle's corners on the photo (`br` only when the photo
+  has perspective). `edges` lists, per edge, how far it sits off the straight line
+  between its corners (px, 25 samples along the edge), so the print follows ripples
+  and folds. Measure both from a placeholder render: find the placeholder's outline
+  against the clean photo, then fit corners and edge offsets to it (the model photo
+  reaches ~99.5% overlap), and check the result against the reference render.
+- `ink` overrides the default `INK` numbers per photo. The model photo's numbers are
+  fitted to the founder's reference render (mean colour error ~3 levels, same grain
+  strength); the defaults are a middle setting for photos without a reference.
+- When the vendor's real print photos exist, refit `INK` and `ink` against them.
+
+- Garment `mask` (optional): a photo-sized grey image (white = ink) measured from a placeholder render. Gives sharp corners and exact fold outlines (`public/mockups/tshirt-model-mask.png`); the design is still mapped through `quad`/`edges`.
