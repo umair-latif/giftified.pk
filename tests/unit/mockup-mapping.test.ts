@@ -78,10 +78,11 @@ describe("mockup mapping", () => {
     }
   });
 
-  it("has t-shirt mockups with the torso on teal first and the print on the photo", () => {
+  it("has t-shirt mockups with the editor shirt first, window light second and the print on the photo", () => {
     const specs = MOCKUP_SPECS.tshirt!;
     expect(specs[0]?.id).toBe("front");
-    expect(specs[1]?.id).toBe("studio");
+    expect(specs[1]?.id).toBe("window");
+    expect(specs[2]?.id).toBe("torso");
     expect(new Set(specs.map((s) => s.id)).size).toBe(specs.length);
     for (const s of specs) {
       expect(isGarmentSpec(s)).toBe(true);
