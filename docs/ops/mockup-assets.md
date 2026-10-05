@@ -102,3 +102,5 @@ the vendor (see `docs/ops/print-specs.md`).
 - Garment `mask` (optional): a photo-sized grey image (white = ink) measured from a placeholder render. Gives sharp corners and exact fold outlines (`public/mockups/tshirt-model-mask.png`); the design is still mapped through `quad`/`edges`.
 
 - `tshirt-window.webp`: front and back tee on orange with a window shadow baked in (print on the left shirt). T-shirt gallery order: front, window, studio, closeup. Removed by the founder: model, torso on teal, pointing (torso and pointing photos are in `docs/tasks/assets/`).
+
+- Garment `displace` (optional): half-size PNG, red/green = x/y shift in px (128 = none, 16 levels per px, about +-8 px). Drafted with `python3 scripts/mockup-draft.py <photo> <out.png> --box x0,y0,x1,y1`: MiDaS v2.1 small (ONNX, downloaded once to `.cache/`) estimates the broad shape, fold detail comes from the photo's brightness. Needs `numpy opencv-python onnxruntime`. Today's maps are estimates for the alpha; a retoucher's map from the real vendor photo replaces them (same file name, no code change). Without `displace` the engine falls back to a brightness-based warp.

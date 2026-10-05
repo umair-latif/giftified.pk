@@ -29,6 +29,9 @@ export const INK: InkSettings = {
   warp: 2.5,
 };
 
+/** Levels of the displacement map per pixel of shift. */
+const DISP_SCALE = 16;
+
 /** Deterministic hash -> [0, 1). */
 function hash(ix: number, iy: number): number {
   let h = Math.imul(ix, 374761393) + Math.imul(iy, 668265263);
@@ -148,6 +151,19 @@ export async function composeGarmentMockup(
     maskData = mctx.getImageData(0, 0, W, H).data;
   }
 
+  // Displacement map (see GarmentMockupSpec.displace).
+  let dispData: Uint8ClampedArray | null = null;
+  if (spec.displace) {
+    const m = await loadImage(spec.displace);
+    const dc2 = document.createElement("canvas");
+    dc2.width = W;
+    dc2.height = H;
+    const dctx2 = dc2.getContext("2d", { willReadFrequently: true });
+    if (!dctx2) throw new Error("Canvas not available");
+    dctx2.drawImage(m, 0, 0, W, H);
+    dispData = dctx2.getImageData(0, 0, W, H).data;
+  }
+
   const map = makeGarmentMap(spec);
   const [bx0, by0, bx1, by1] = map.bounds;
   // Work area: the print plus a margin for the blurs and the fold warp.
@@ -191,10 +207,14 @@ export async function composeGarmentMockup(
       // The ink follows the folds: look the design up a little uphill/downhill.
       const gx = (height[k + 1]! - height[k - 1]!) / 2;
       const gy = (height[k + rw]! - height[k - rw]!) / 2;
-      const [u, v] = map.inverse(
-        x + x0 + 0.5 - ink.warp * gx,
-        y + y0 + 0.5 - ink.warp * gy,
-      );
+      let sx = ink.warp * gx;
+      let sy = ink.warp * gy;
+      if (dispData) {
+        const di = ((y + y0) * W + x + x0) * 4;
+        sx = (dispData[di]! - 128) / DISP_SCALE;
+        sy = (dispData[di + 1]! - 128) / DISP_SCALE;
+      }
+      const [u, v] = map.inverse(x + x0 + 0.5 - sx, y + y0 + 0.5 - sy);
       // Soft 1 px edge so a tilted rectangle is not jagged.
       const cover = maskData
         ? maskData[((y + y0) * W + x + x0) * 4]! / 255
