@@ -103,4 +103,13 @@ the vendor (see `docs/ops/print-specs.md`).
 
 - `tshirt-window.webp`: front and back tee on orange with a window shadow baked in (print on the left shirt). T-shirt gallery order: front, window, studio, closeup. Removed by the founder: model, torso on teal, pointing (torso and pointing photos are in `docs/tasks/assets/`).
 
-- Garment `displace` (optional): half-size PNG, red/green = x/y shift in px (128 = none, 16 levels per px, about +-8 px). Drafted with `python3 scripts/mockup-draft.py <photo> <out.png> --box x0,y0,x1,y1`: MiDaS v2.1 small (ONNX, downloaded once to `.cache/`) estimates the broad shape, fold detail comes from the photo's brightness. Needs `numpy opencv-python onnxruntime`. Today's maps are estimates for the alpha; a retoucher's map from the real vendor photo replaces them (same file name, no code change). Without `displace` the engine falls back to a brightness-based warp.
+- Garment `displace`, `shadow`, `highlight` (all optional): half-size PNGs the engine scales to the photo.
+  `displace`: red/green = x/y shift in px (128 = none, 16 levels per px, about +-8 px).
+  `shadow`: multiplied into the ink (255 = lit). `highlight`: added to the ink (0-255 = up to 64 levels
+  times `ink.highlight`, default 0.15), mostly useful on dark garments.
+  Drafted with `python3 scripts/mockup-draft.py <photo> <out-prefix> --box x0,y0,x1,y1`, which writes
+  `<prefix>-displace.png`, `-shadow.png`, `-highlight.png`: MiDaS v2.1 small (ONNX, downloaded once to
+  `.cache/`) for the broad shape, the photo's brightness for fold detail, shadow and highlight.
+  Needs `numpy opencv-python onnxruntime`. Today's layers are estimates for the alpha; a retoucher's
+  layers from the real vendor photo replace them by file name, no code change. Without them the engine
+  measures shading and a rough warp from the photo itself.
