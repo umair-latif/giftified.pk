@@ -50,3 +50,6 @@ next-env.d.ts
 
 # print renderer sample output (pnpm print:sample)
 /out
+
+# local model cache for scripts/mockup-draft.py
+/.cache/

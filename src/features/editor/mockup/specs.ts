@@ -94,6 +94,25 @@ export interface GarmentMockupSpec {
    * mapped through `quad`/`edges`.
    */
   mask?: string;
+  /**
+   * Optional displacement map (photo-sized PNG): red = x shift, green = y shift,
+   * 128 = none, 16 levels per px (about +-8 px). Where the cloth bends, the ink
+   * bends with it. Drafted by `python3 scripts/mockup-draft.py` (depth estimate + fold
+   * detail); a retoucher can replace it. Without it the engine falls back to
+   * the photo's own brightness as a rough height map (`ink.warp`).
+   */
+  displace?: string;
+  /**
+   * Optional shadow layer (photo-sized grey PNG, multiplied into the ink):
+   * 255 = lit, lower = in shade (folds, body shading, window light).
+   * Replaces the shading the engine would measure from the photo.
+   */
+  shadow?: string;
+  /**
+   * Optional highlight layer (photo-sized grey PNG, added to the ink): light
+   * catching ridges and folds. Matters most on dark garments.
+   */
+  highlight?: string;
   /** Per-photo overrides of the ink look (a smooth photo needs less, a grainy one more). */
   ink?: Partial<InkSettings>;
   /**
@@ -113,6 +132,7 @@ export interface InkSettings {
   opacity: number;
   ridgeDropout: number;
   warp: number;
+  highlight: number;
 }
 
 export type Point = readonly [x: number, y: number];
@@ -193,6 +213,9 @@ export const MOCKUP_SPECS: Partial<
       mugHeightMm: 96,
       // Measured: base edge 22 px lower at the centre, rim front edge 13 px higher.
       sag: { rim: -13, base: 22 },
+      displace: "/mockups/tshirt-front-displace.png",
+      shadow: "/mockups/tshirt-front-shadow.png",
+      highlight: "/mockups/tshirt-front-highlight.png",
       credit: "Canva",
     },
     {
@@ -264,6 +287,9 @@ export const MOCKUP_SPECS: Partial<
       // Front and back tee on orange with a window shadow baked into the photo;
       // the print goes on the front (left) shirt, centred below the collar.
       quad: { tl: [262, 372], tr: [462, 372], bl: [262, 639] },
+      displace: "/mockups/tshirt-window-displace.png",
+      shadow: "/mockups/tshirt-window-shadow.png",
+      highlight: "/mockups/tshirt-window-highlight.png",
       credit: "Founder-supplied",
     },
     {
@@ -273,6 +299,9 @@ export const MOCKUP_SPECS: Partial<
       widthPx: 1080,
       heightPx: 1080,
       quad: { tl: [343, 230], tr: [737, 230], bl: [343, 755] },
+      displace: "/mockups/tshirt-studio-displace.png",
+      shadow: "/mockups/tshirt-studio-shadow.png",
+      highlight: "/mockups/tshirt-studio-highlight.png",
       credit: "Founder-supplied",
     },
     {
@@ -284,6 +313,9 @@ export const MOCKUP_SPECS: Partial<
       quad: { tl: [343, 230], tr: [737, 230], bl: [343, 755] },
       // The chest at 1.5x: ink and fabric grain up close.
       crop: { x: 300, y: 290, size: 480, outPx: 720 },
+      displace: "/mockups/tshirt-studio-displace.png",
+      shadow: "/mockups/tshirt-studio-shadow.png",
+      highlight: "/mockups/tshirt-studio-highlight.png",
       credit: "Founder-supplied",
     },
   ],

@@ -27,7 +27,12 @@ export const INK: InkSettings = {
   weave: 0.015,
   /** px the ink follows the folds (the shading is used as a height map). */
   warp: 2.5,
+  /** Strength of the highlight layer (1 = up to 64 levels of extra light). */
+  highlight: 0.15,
 };
+
+/** Levels of the displacement map per pixel of shift. */
+const DISP_SCALE = 16;
 
 /** Deterministic hash -> [0, 1). */
 function hash(ix: number, iy: number): number {
@@ -135,18 +140,25 @@ export async function composeGarmentMockup(
   dctx.drawImage(design, 0, 0);
   const dd = dctx.getImageData(0, 0, dw, dh).data;
 
-  // Exact outline (sharp corners, folds) when the spec has one.
-  let maskData: Uint8ClampedArray | null = null;
-  if (spec.mask) {
-    const m = await loadImage(spec.mask);
-    const mc = document.createElement("canvas");
-    mc.width = W;
-    mc.height = H;
-    const mctx = mc.getContext("2d", { willReadFrequently: true });
-    if (!mctx) throw new Error("Canvas not available");
-    mctx.drawImage(m, 0, 0, W, H);
-    maskData = mctx.getImageData(0, 0, W, H).data;
-  }
+  // Optional per-photo layers (see GarmentMockupSpec): exact outline, fold
+  // displacement, shadow and highlight. Each is an image scaled to the photo.
+  const layer = async (src?: string) => {
+    if (!src) return null;
+    const m = await loadImage(src);
+    const c = document.createElement("canvas");
+    c.width = W;
+    c.height = H;
+    const lctx = c.getContext("2d", { willReadFrequently: true });
+    if (!lctx) throw new Error("Canvas not available");
+    lctx.drawImage(m, 0, 0, W, H);
+    return lctx.getImageData(0, 0, W, H).data;
+  };
+  const [maskData, dispData, shadowData, lightData] = await Promise.all([
+    layer(spec.mask),
+    layer(spec.displace),
+    layer(spec.shadow),
+    layer(spec.highlight),
+  ]);
 
   const map = makeGarmentMap(spec);
   const [bx0, by0, bx1, by1] = map.bounds;
@@ -191,10 +203,14 @@ export async function composeGarmentMockup(
       // The ink follows the folds: look the design up a little uphill/downhill.
       const gx = (height[k + 1]! - height[k - 1]!) / 2;
       const gy = (height[k + rw]! - height[k - rw]!) / 2;
-      const [u, v] = map.inverse(
-        x + x0 + 0.5 - ink.warp * gx,
-        y + y0 + 0.5 - ink.warp * gy,
-      );
+      let sx = ink.warp * gx;
+      let sy = ink.warp * gy;
+      if (dispData) {
+        const di = ((y + y0) * W + x + x0) * 4;
+        sx = (dispData[di]! - 128) / DISP_SCALE;
+        sy = (dispData[di + 1]! - 128) / DISP_SCALE;
+      }
+      const [u, v] = map.inverse(x + x0 + 0.5 - sx, y + y0 + 0.5 - sy);
       // Soft 1 px edge so a tilted rectangle is not jagged.
       const cover = maskData
         ? maskData[((y + y0) * W + x + x0) * 4]! / 255
@@ -221,10 +237,13 @@ export async function composeGarmentMockup(
       if (alpha <= 0) continue;
 
       const grain = mid[k]! / Math.max(1, midSoft[k]!); // ~1: fine thread detail
-      const broad = Math.min(
-        1,
-        Math.max(0.15, 1 - ink.shadow * (1 - Math.min(1, low[k]! / white))),
-      );
+      const pi = ((y + y0) * W + x + x0) * 4;
+      // Broad shading: the shadow layer when there is one (255 = no shadow),
+      // otherwise the photo's own large-scale brightness.
+      const lit = shadowData
+        ? shadowData[pi]! / 255
+        : Math.min(1, low[k]! / white);
+      const broad = Math.min(1, Math.max(0.15, 1 - ink.shadow * (1 - lit)));
       const shade = Math.min(
         1,
         broad * Math.min(1.15, Math.max(0.7, 1 + ink.grain * (grain - 1))),
@@ -238,9 +257,12 @@ export async function composeGarmentMockup(
       const i = ((y + y0) * W + x + x0) * 4;
       // Fabric weave: fine light/dark mottling (not capped, the canvas clamps).
       const m = shade * (1 + ink.weave * fabricNoise(x + x0, y + y0));
-      px[i] = px[i]! * (1 - a) + mix(0) * m * a;
-      px[i + 1] = px[i + 1]! * (1 - a) + mix(1) * m * a;
-      px[i + 2] = px[i + 2]! * (1 - a) + mix(2) * m * a;
+      // Highlight layer: light catching the ridges adds to the ink (0-255 =
+      // 0-64 levels), most visible on dark ink and dark garments.
+      const glow = lightData ? (lightData[pi]! / 255) * 64 * ink.highlight : 0;
+      px[i] = px[i]! * (1 - a) + (mix(0) * m + glow) * a;
+      px[i + 1] = px[i + 1]! * (1 - a) + (mix(1) * m + glow) * a;
+      px[i + 2] = px[i + 2]! * (1 - a) + (mix(2) * m + glow) * a;
     }
   }
   ctx.putImageData(img, 0, 0);
