@@ -113,3 +113,5 @@ the vendor (see `docs/ops/print-specs.md`).
   Needs `numpy opencv-python onnxruntime`. Today's layers are estimates for the alpha; a retoucher's
   layers from the real vendor photo replace them by file name, no code change. Without them the engine
   measures shading and a rough warp from the photo itself.
+
+Layer details and how to swap in a designer's files: `mockup-layer-pack.md`; what to ask the vendor to shoot: `mockup-shot-brief.md`.
