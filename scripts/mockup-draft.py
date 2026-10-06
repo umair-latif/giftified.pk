@@ -59,7 +59,7 @@ def main():
     ap.add_argument("--box"); ap.add_argument("--body", type=float, default=3.0)
     ap.add_argument("--folds", type=float, default=2.5)
     ap.add_argument("--smooth", type=float, default=16, help="blur of the shift field in px")
-    ap.add_argument("--max-strain", type=float, default=0.02, dest="max_strain")
+    ap.add_argument("--max-strain", type=float, default=0.03, dest="max_strain")
     a = ap.parse_args()
     img = cv2.imread(a.photo)
     H, W = img.shape[:2]
@@ -77,7 +77,7 @@ def main():
     dx = bx + fx; dy = by + fy
     # A print must bend, not stretch: smooth the shift field, then scale it so no
     # part of the design is stretched or squeezed by more than --max-strain
-    # (0.02 = 2%). Folds then show mostly as shading, like real mockups.
+    # (0.03 = 3%). Folds then show mostly as shading, like real mockups.
     dx = cv2.GaussianBlur(dx, (0, 0), a.smooth); dy = cv2.GaussianBlur(dy, (0, 0), a.smooth)
     sxx, _ = grad(dx); _, syy = grad(dy)
     sxy, syx = grad(dx)[1], grad(dy)[0]
