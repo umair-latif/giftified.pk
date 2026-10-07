@@ -26,6 +26,16 @@ export interface TemplateMeta {
   id: string;
   name: string;
   productId: ProductId;
+  /**
+   * The one base colour this design is made and sold in (a `baseColors` id).
+   * Absent on older templates: treat as the product's first colour.
+   */
+  colourId?: string;
+  /**
+   * Shared by the same artwork published in other colours, so a product page
+   * can later list "same design in other colours". Set when publishing.
+   */
+  groupId?: string;
   occasions: OccasionSlug[];
   /** Only published templates are shown to customers. */
   published: boolean;
@@ -68,6 +78,9 @@ export interface ListTemplatesFilter {
 export interface SaveTemplateInput {
   name: string;
   productId: ProductId;
+  /** Required for published designs; must be one of the product's colours. */
+  colourId?: string;
+  groupId?: string;
   occasions: OccasionSlug[];
   published: boolean;
   createdBy?: string;
