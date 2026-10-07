@@ -214,7 +214,7 @@ test("Centre and Straighten live in the selection bar", async ({ page }) => {
   await expect(bar.getByRole("button", { name: "Straighten" })).toBeDisabled();
 });
 
-test("Colour fills the print area, prints with the design, and undoes", async ({
+test("Background colour fills the print area, prints with the design, and undoes", async ({
   page,
 }) => {
   await openEditorWithText(page);
@@ -222,7 +222,7 @@ test("Colour fills the print area, prints with the design, and undoes", async ({
   await expect(tools.getByRole("button", { name: "Layers" })).toHaveCount(0);
   await expect(tools.getByRole("button", { name: "3D" })).toHaveCount(0);
 
-  await tools.getByRole("button", { name: "Colour" }).tap();
+  await tools.getByRole("button", { name: "Background colour" }).tap();
   const panel = page.getByTestId("background-panel");
   await panel.getByRole("button", { name: "Banana" }).tap();
   await expect(panel.getByRole("button", { name: "Banana" })).toHaveAttribute(

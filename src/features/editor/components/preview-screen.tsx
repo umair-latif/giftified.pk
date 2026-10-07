@@ -11,7 +11,7 @@ import { SaveTemplateSheet } from "@/features/templates/save-template-sheet";
 import { useTemplateEditor } from "@/features/templates/use-template-editor";
 import { useProductColour } from "../colour";
 import { loadDraft, saveThumbnail } from "../draft";
-import { ColourPicker } from "./colour-picker";
+import { ColourPicker, garmentColourLabel } from "./colour-picker";
 import { DesignPreview, type PreviewResult } from "./design-preview";
 import { MissingItem } from "./editor-entry";
 import { buttonClass } from "@/components/ui/button";
@@ -127,6 +127,7 @@ export function PreviewScreen({ product }: { product: ProductConfig }) {
           <div className="mb-3 flex justify-center lg:justify-start">
             <ColourPicker
               colours={product.baseColors}
+              label={garmentColourLabel(product)}
               value={colourId}
               onChange={setColourId}
             />

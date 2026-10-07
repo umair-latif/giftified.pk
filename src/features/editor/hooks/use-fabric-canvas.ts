@@ -92,7 +92,7 @@ export function useFabricCanvas(
   const historyRef = useRef<CanvasHistory | null>(null);
   const [status, setStatus] = useState<EditorStatus>("loading");
   const [layerCount, setLayerCount] = useState(0);
-  /** Background colour layer's fill, or null (tool "Colour"). */
+  /** Background colour layer's fill, or null (tool "Background colour"). */
   const [background, setBackground] = useState<string | null>(null);
   const [selection, setSelection] = useState<SelectionInfo | null>(null);
   const [guides, setGuides] = useState<GuideState>(NO_GUIDES);

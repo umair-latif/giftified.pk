@@ -17,7 +17,7 @@ const TILE =
 const PICKED = "outline-ink outline-[3px] outline-offset-2";
 
 /**
- * Background (tool "Colour"): fills the whole print area with a solid colour.
+ * Background colour tool: fills the whole print area with a solid colour.
  * Each tap applies at once (one undo step) and the sheet stays open, so the
  * customer can try colours against the canvas above. Later background kinds
  * (gradients, patterns, textures) can sit next to this one.

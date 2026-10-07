@@ -25,7 +25,7 @@ export const TEXT_SWATCHES: readonly Swatch[] = [
 ];
 
 /**
- * Background colours (editor tool "Colour"): soft tints that keep text
+ * Background colours (editor tool "Background colour"): soft tints that keep text
  * readable, the brand brights, and a few deep shades. The whole print area is
  * filled, so these print as solid colour (full wrap on a mug).
  */

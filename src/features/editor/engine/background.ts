@@ -3,7 +3,7 @@ import type { PrintArea } from "@/config/products";
 import "./layer-props";
 
 /**
- * Background colour (editor tool "Colour"). It is an ordinary Fabric rect that
+ * Background colour (editor tool "Background colour"). It is an ordinary Fabric rect that
  * covers the whole print area (plus a little bleed) and always sits at the bottom, marked with
  * `role: "background"` (a saved layer prop). Being a real object means it is
  * saved, undone, previewed and printed like any other layer — the print

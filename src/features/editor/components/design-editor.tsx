@@ -20,7 +20,7 @@ import { SelectionBar } from "./selection-bar";
 import { TextSheet } from "./text-sheet";
 import { ACCEPTED_IMAGE_TYPES } from "../assets/prepare-image";
 import { EditorStage } from "./editor-stage";
-import { ColourPicker } from "./colour-picker";
+import { ColourPicker, garmentColourLabel } from "./colour-picker";
 import { useProductColour } from "../colour";
 import { PrintQualityBadge } from "./print-quality-badge";
 import { EditorToolbar } from "./editor-toolbar";
@@ -127,6 +127,7 @@ export function DesignEditor({
           {!item && (
             <ColourPicker
               colours={product.baseColors}
+              label={garmentColourLabel(product)}
               value={colourId}
               onChange={setColourId}
             />

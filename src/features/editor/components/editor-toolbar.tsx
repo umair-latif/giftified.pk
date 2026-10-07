@@ -4,14 +4,14 @@ interface Props {
   ready: boolean;
   onAddText: () => void;
   onAddImage: () => void;
-  /** Current background colour (null = none), shown on the Colour button. */
+  /** Current background colour (null = none), shown on its button. */
   background: string | null;
   onBackground: () => void;
 }
 
 /**
- * Bottom tool bar for adding things: Text, Image, Colour (background). Later
- * background kinds (gradients, patterns, textures) go next to Colour. Actions
+ * Bottom tool bar for adding things: Text, Image, Background colour. Later
+ * background kinds (gradients, patterns, textures) go next to it. Actions
  * on a selected item live in the SelectionBar above it.
  */
 export function EditorToolbar({
@@ -40,7 +40,7 @@ export function EditorToolbar({
           disabled={!ready}
         />
         <ToolButton
-          label="Colour"
+          label="Background colour"
           icon={<ColourDot colour={background} />}
           onClick={onBackground}
           disabled={!ready}
@@ -92,7 +92,7 @@ function ToolButton({
       >
         {icon}
       </span>
-      <span className="text-[11px]">{label}</span>
+      <span className="text-[11px] whitespace-nowrap">{label}</span>
     </button>
   );
 }
