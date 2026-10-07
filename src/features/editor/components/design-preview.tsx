@@ -186,7 +186,7 @@ export function DesignPreview({
             </div>
             {gallery.length > 1 && (
               <ul
-                className="flex gap-2 overflow-x-auto pb-1 lg:w-20 lg:shrink-0 lg:flex-col lg:overflow-visible lg:pb-0"
+                className="flex gap-2 overflow-x-auto pt-0.5 pr-1 pb-1.5 pl-0.5 lg:w-20 lg:shrink-0 lg:flex-col lg:overflow-visible lg:pb-0"
                 aria-label="Views"
               >
                 {gallery.map((g) => (
@@ -197,10 +197,10 @@ export function DesignPreview({
                       aria-label={g.spec.label}
                       aria-current={g.spec.id === shown?.spec.id}
                       data-testid={`preview-thumb-${g.spec.id}`}
-                      className={`focus-visible:ring-brand-600/60 block h-16 overflow-hidden rounded-lg bg-white ring-2 focus-visible:outline-none lg:h-auto lg:w-full ${
+                      className={`focus-visible:ring-brand-600/60 block h-16 overflow-hidden rounded-xl border-2 bg-white transition duration-150 focus-visible:ring-2 focus-visible:outline-none lg:h-auto lg:w-full ${
                         g.spec.id === shown?.spec.id
-                          ? "ring-brand-600"
-                          : "ring-zinc-200 hover:ring-zinc-300"
+                          ? "border-brand-600 ring-brand-600 translate-x-0.5 translate-y-0.5 ring-2"
+                          : "border-ink shadow-[3px_3px_0_var(--color-ink)] hover:-translate-y-px"
                       }`}
                       style={{
                         aspectRatio: `${g.spec.widthPx} / ${g.spec.heightPx}`,

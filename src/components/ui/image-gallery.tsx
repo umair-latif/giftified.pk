@@ -14,7 +14,7 @@ export interface GalleryItem {
 }
 
 const ARROW =
-  "focus-visible:ring-brand-600/40 absolute top-1/2 z-10 hidden size-11 -translate-y-1/2 place-items-center rounded-full bg-white/90 text-zinc-700 shadow ring-1 ring-zinc-200 hover:bg-white focus-visible:ring-2 focus-visible:outline-none disabled:hidden sm:grid";
+  "focus-visible:ring-brand-600/40 absolute top-1/2 z-10 hidden size-11 -translate-y-1/2 place-items-center border-ink text-ink rounded-full border-2 bg-white shadow-[3px_3px_0_var(--color-ink)] hover:bg-mint-100 active:translate-y-[calc(-50%+2px)] active:shadow-none focus-visible:ring-2 focus-visible:outline-none disabled:hidden sm:grid";
 
 /**
  * The one gallery for plain products and design products. The big picture is
@@ -113,10 +113,10 @@ export function ImageGallery({
                 aria-label={s.label}
                 aria-current={i === index}
                 data-testid={`${testId}-thumb-${i}`}
-                className={`focus-visible:ring-brand-600/60 relative block overflow-hidden focus-visible:ring-2 focus-visible:outline-none max-md:size-2.5 max-md:rounded-full max-md:after:absolute max-md:after:-inset-2 md:size-16 md:rounded-lg md:bg-white md:ring-2 ${
+                className={`focus-visible:ring-brand-600/60 relative block overflow-hidden focus-visible:ring-2 focus-visible:outline-none max-md:size-2.5 max-md:rounded-full max-md:after:absolute max-md:after:-inset-2 md:size-16 md:rounded-xl md:border-2 md:bg-white md:transition md:duration-150 ${
                   i === index
-                    ? "bg-brand-600 md:ring-brand-600"
-                    : "bg-zinc-300 hover:bg-zinc-400 md:ring-zinc-200 md:hover:ring-zinc-300"
+                    ? "bg-brand-600 md:border-brand-600 md:ring-brand-600 md:translate-x-0.5 md:translate-y-0.5 md:ring-2"
+                    : "md:border-ink bg-zinc-300 hover:bg-zinc-400 md:shadow-[3px_3px_0_var(--color-ink)] md:hover:-translate-y-px"
                 }`}
               >
                 <Image
