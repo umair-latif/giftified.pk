@@ -11,16 +11,17 @@ export const SITE = {
    * there is one, so COD customers see a local contact.
    */
   whatsapp: "4915209144535",
-  email: "brainmasala1@gmail.com",
+  /** TODO(founder): switch to an address on designbanana.pk once the domain has email. */
+  email: "designbanana.admin@gmail.com",
   /** Shown on /contact. Pakistan Standard Time. */
   hours: "7am – 6pm PKT, every day",
   /** Full profile URLs. Empty ones are hidden automatically. */
   social: {
-    instagram: "https://instagram.com/elyou.dgn",
-    tiktok: "https://tiktok.com/@elyou.designs",
-    // TODO(founder): placeholders so the links can be seen; put the real profile URLs here.
-    facebook: "https://facebook.com",
-    youtube: "https://youtube.com",
+    instagram: "https://instagram.com/designbananapk",
+    tiktok: "https://tiktok.com/@designbananapk",
+    // TODO(founder): add the profile URLs once the pages exist (hidden while empty).
+    facebook: "",
+    youtube: "",
   },
 } as const;
 
