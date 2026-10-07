@@ -14,6 +14,8 @@ interface Props {
   productId: "mug" | "tshirt" | "hoodie";
   colours: readonly BaseColor[];
   sizes: string[];
+  /** Shown when the design is made in one colour of a multi-colour product. */
+  lockedColour?: BaseColor;
   /** The design still has sample photos: the customer must add their own first. */
   needsPhoto: boolean;
 }
@@ -31,6 +33,7 @@ export function DesignBuyBox({
   productId,
   colours,
   sizes,
+  lockedColour,
   needsPhoto,
 }: Props) {
   const [colourId, setColourId] = useState(colours[0]?.id ?? "white");
@@ -64,6 +67,19 @@ export function DesignBuyBox({
 
   return (
     <div className="space-y-4" data-testid="design-buy-box">
+      {lockedColour && (
+        <p
+          className="text-ink flex items-center gap-2 text-sm"
+          data-testid="design-colour"
+        >
+          <span
+            className="size-4 rounded-full border border-zinc-300"
+            style={{ backgroundColor: lockedColour.hex }}
+            aria-hidden
+          />
+          Colour: <strong>{lockedColour.name}</strong>
+        </p>
+      )}
       {colours.length > 1 && (
         <fieldset className="space-y-1.5">
           <legend className="text-ink text-sm font-medium">Colour</legend>

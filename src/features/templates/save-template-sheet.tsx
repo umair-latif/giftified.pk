@@ -28,6 +28,8 @@ interface Props {
   asProduct?: boolean;
   /** The base product, so the price field can show what a plain one costs. */
   productId?: ProductId;
+  /** The garment colour the design was made on (published with it). */
+  colourId?: string;
 }
 
 /** Template editors only: name it, tag occasions, publish (or keep as a draft). */
@@ -36,6 +38,7 @@ export function SaveTemplateSheet({
   onClose,
   asProduct,
   productId,
+  colourId,
 }: Props) {
   const basePrice = useBasePrice(asProduct ? productId : undefined);
   const [name, setName] = useState("");
@@ -73,6 +76,7 @@ export function SaveTemplateSheet({
         {
           ...(id ? { id } : {}),
           name: name.trim(),
+          ...(colourId ? { colourId } : {}),
           occasions,
           published,
           ...(asProduct

@@ -1,4 +1,5 @@
 import type { ProductId } from "@/config/products";
+import { writeProductColour } from "@/features/editor/colour";
 import { putAsset } from "@/features/editor/assets/asset-store";
 import {
   saveDraft,
@@ -8,7 +9,7 @@ import {
 import { isDesignDocument, type DesignDocument } from "@/types/design";
 
 interface TemplateResponse {
-  meta: { id: string; productId: ProductId };
+  meta: { id: string; productId: ProductId; colourId?: string };
   design: unknown;
   assetUrls: Record<string, string>;
 }
@@ -37,6 +38,8 @@ export async function importTemplate(
   await downloadTemplatePhotos(data.design, data.assetUrls);
   const design: DesignDocument = data.design;
   if (!saveDraft(design)) throw new TemplateImportError("Couldn't start");
+  // Start on the garment colour the design was made for.
+  if (data.meta.colourId) writeProductColour(productId, data.meta.colourId);
   setDraftTemplate(productId, templateId);
   setDraftSaved(productId, null); // a new design, not a saved one
   return design;

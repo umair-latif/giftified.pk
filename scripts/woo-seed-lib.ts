@@ -23,12 +23,26 @@ export const MUG = {
 };
 
 /**
+ * T-shirt: variable product, Colour (global) × Size (local) = 10 variations.
+ * Price and sizes are PLACEHOLDERS until the founder confirms them with the
+ * vendor (docs/tasks/27-tshirt.md); change them in WP admin, not here, once live.
+ */
+export const TSHIRT = {
+  sku: "tshirt",
+  name: "Custom T-Shirt",
+  colours: ["White", "Black"],
+  sizes: ["S", "M", "L", "XL", "XXL"],
+  pricePkr: 1999,
+};
+
+/**
  * Colours as terms of the GLOBAL attribute "Colour" (pa_colour). The term
  * description holds the swatch hex; the storefront reads it (task 11), so the
  * founder can add a colour in WP admin → Products → Attributes without code.
  */
 export const COLOURS: readonly { name: string; hex: `#${string}` }[] = [
   { name: "White", hex: "#FFFFFF" },
+  { name: "Black", hex: "#171717" },
 ];
 
 /** Zone names list their cities — that's how the app matches a city to a rate. */
@@ -173,6 +187,66 @@ export async function seedWooCommerce(cfg: SeedConfig): Promise<void> {
   } else {
     log(`• Variation ${MUG.colour} already exists`);
   }
+
+  // 3c. T-shirt: variable product, global Colour + local Size, one variation per pair.
+  const shirts = await call<Json[]>("GET", `/products?sku=${TSHIRT.sku}`);
+  let shirt = shirts[0];
+  if (!shirt) {
+    shirt = await call<Json>("POST", "/products", {
+      name: TSHIRT.name,
+      type: "variable",
+      sku: TSHIRT.sku,
+      status: "publish",
+      attributes: [
+        {
+          id: colourAttr.id,
+          visible: true,
+          variation: true,
+          options: TSHIRT.colours,
+        },
+        { name: "Size", visible: true, variation: true, options: TSHIRT.sizes },
+      ],
+    });
+    log(`✓ Created product "${TSHIRT.name}" (SKU ${TSHIRT.sku})`);
+  } else {
+    log(
+      `• Product with SKU ${TSHIRT.sku} already exists (id ${String(shirt.id)})`,
+    );
+  }
+  const shirtId = String(shirt.id);
+  const shirtVars = await call<Json[]>(
+    "GET",
+    `/products/${shirtId}/variations`,
+  );
+  const have = new Set(
+    shirtVars.map((v) =>
+      ((v.attributes as { name?: string; option?: string }[] | undefined) ?? [])
+        .map((a) => `${(a.name ?? "").toLowerCase()}=${a.option ?? ""}`)
+        .sort()
+        .join("|"),
+    ),
+  );
+  let added = 0;
+  for (const colour of TSHIRT.colours) {
+    for (const size of TSHIRT.sizes) {
+      const key = [`colour=${colour}`, `size=${size}`].sort().join("|");
+      if (have.has(key)) continue;
+      await call("POST", `/products/${shirtId}/variations`, {
+        regular_price: String(TSHIRT.pricePkr),
+        status: "publish",
+        attributes: [
+          { id: colourAttr.id, name: "Colour", option: colour },
+          { name: "Size", option: size },
+        ],
+      });
+      added++;
+    }
+  }
+  log(
+    added
+      ? `✓ Added ${added} T-shirt variations at Rs ${TSHIRT.pricePkr} (placeholder price)`
+      : "• All T-shirt variations already exist",
+  );
 
   // 4. Shipping zones by city, each with a flat rate.
   const zones = await call<{ id: number; name: string }[]>(
