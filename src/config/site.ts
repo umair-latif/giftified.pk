@@ -19,9 +19,9 @@ export const SITE = {
   social: {
     instagram: "https://instagram.com/designbananapk",
     tiktok: "https://tiktok.com/@designbananapk",
-    // TODO(founder): add the profile URLs once the pages exist (hidden while empty).
-    facebook: "",
-    youtube: "",
+    // TODO(founder): placeholders so the icons show; put the real profile URLs here.
+    facebook: "https://facebook.com",
+    youtube: "https://youtube.com",
   },
 } as const;
 
