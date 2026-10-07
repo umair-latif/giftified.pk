@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { GalleryArrows } from "@/components/ui/image-gallery";
 import { useSwipe } from "@/components/ui/use-swipe";
 import type { ProductConfig } from "@/config/products";
@@ -53,6 +53,7 @@ export function DesignPreview({
 }) {
   const [state, setState] = useState<State>({ kind: "loading" });
   const [selected, setSelected] = useState<string>();
+  const strip = useRef<HTMLDivElement>(null);
   const [mockupFailed, setMockupFailed] = useState(false);
   // Mockups belong to the design image they were made from (`of`); a stale
   // set is ignored until the new one arrives.
@@ -154,13 +155,21 @@ export function DesignPreview({
     : [];
   const shown = gallery.find((g) => g.spec.id === selected) ?? gallery[0];
   const shownIndex = shown ? gallery.indexOf(shown) : 0;
-  const step = (d: number) => {
-    const next = gallery[shownIndex + d];
-    if (next) setSelected(next.spec.id);
+  // Same behaviour as the product gallery: a scroll-snap strip (native swipe
+  // on touch, drag with a mouse); arrows and thumbnails scroll it, and the
+  // scroll position decides which view is current.
+  const goTo = (i: number) => {
+    const el = strip.current;
+    const target = gallery[i];
+    if (!el || !target) return;
+    el.scrollTo({ left: i * el.clientWidth, behavior: "smooth" });
+    setSelected(target.spec.id);
   };
+  const step = (d: number) => goTo(shownIndex + d);
   const swipe = useSwipe(
     () => step(-1),
     () => step(1),
+    "mouse",
   );
   const showFlat = !useGallery || state.kind !== "ready";
   const first = specs?.[0];
@@ -175,23 +184,43 @@ export function DesignPreview({
             aria-label="Preview gallery"
             data-testid="preview-gallery"
           >
-            <div className="relative w-full lg:min-w-0 lg:flex-1" {...swipe}>
+            <div className="relative w-full lg:min-w-0 lg:flex-1">
               <div
-                className={`card relative w-full touch-pan-y overflow-hidden select-none ${gallery.length > 1 ? "cursor-grab active:cursor-grabbing" : ""}`}
+                ref={strip}
+                {...swipe}
+                onScroll={(e) => {
+                  const el = e.currentTarget;
+                  const i = Math.round(
+                    el.scrollLeft / Math.max(el.clientWidth, 1),
+                  );
+                  const at = gallery[i];
+                  if (at && at.spec.id !== shown?.spec.id)
+                    setSelected(at.spec.id);
+                }}
+                className={`card flex w-full snap-x snap-mandatory [scrollbar-width:none] overflow-x-auto overscroll-x-contain select-none [&::-webkit-scrollbar]:hidden ${gallery.length > 1 ? "cursor-grab active:cursor-grabbing" : ""}`}
                 style={{
-                  aspectRatio: `${(shown?.spec ?? first).widthPx} / ${(shown?.spec ?? first).heightPx}`,
+                  aspectRatio: `${first.widthPx} / ${first.heightPx}`,
                 }}
                 data-testid="preview-mockup"
               >
-                {shown ? (
-                  // eslint-disable-next-line @next/next/no-img-element -- local data URL
-                  <img
-                    src={shown.src}
-                    alt={`Your ${product.name}, ${shown.spec.label.toLowerCase()} view`}
-                    className="absolute inset-0 size-full"
-                  />
+                {gallery.length > 0 ? (
+                  gallery.map((g) => (
+                    <div
+                      key={g.spec.id}
+                      className="relative h-full w-full shrink-0 snap-center"
+                      aria-hidden={g !== shown}
+                    >
+                      {/* eslint-disable-next-line @next/next/no-img-element -- local data URL */}
+                      <img
+                        src={g.src}
+                        alt={`Your ${product.name}, ${g.spec.label.toLowerCase()} view`}
+                        draggable={false}
+                        className="absolute inset-0 size-full object-contain"
+                      />
+                    </div>
+                  ))
                 ) : (
-                  <span className="absolute inset-0 grid place-items-center text-xs text-zinc-400">
+                  <span className="grid w-full place-items-center text-xs text-zinc-400">
                     Rendering preview…
                   </span>
                 )}
@@ -213,7 +242,7 @@ export function DesignPreview({
                   <li key={g.spec.id} className="shrink-0 lg:w-full">
                     <button
                       type="button"
-                      onClick={() => setSelected(g.spec.id)}
+                      onClick={() => goTo(gallery.indexOf(g))}
                       aria-label={g.spec.label}
                       aria-current={g.spec.id === shown?.spec.id}
                       data-testid={`preview-thumb-${g.spec.id}`}
