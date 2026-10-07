@@ -80,6 +80,10 @@ export default async function DesignProductPage({
       url: `${appBaseUrl()}/designs/${info.slug}`,
     },
   };
+  // One colour per design: the one it was made in (older designs: the first).
+  const designColours = cfg.baseColors.filter(
+    (c) => c.id === (meta.colourId ?? cfg.baseColors[0]?.id),
+  );
 
   return (
     <Page width="wide">
@@ -135,7 +139,10 @@ export default async function DesignProductPage({
           <DesignBuyBox
             templateId={meta.id}
             productId={info.baseProductId}
-            colours={cfg.baseColors}
+            colours={designColours}
+            {...(designColours.length === 1 && cfg.baseColors.length > 1
+              ? { lockedColour: designColours[0] }
+              : {})}
             sizes={sizesOf(base)}
             needsPhoto={needsPhoto}
           />

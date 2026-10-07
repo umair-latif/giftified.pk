@@ -57,10 +57,9 @@ test("black t-shirt: black garment in the editor, black photos in the preview, B
   await page.getByRole("button", { name: "Text", exact: true }).tap();
   await expect(page.getByTestId("editor-status")).toContainText("textbox");
   await page.getByRole("link", { name: "Preview", exact: true }).tap();
-  await expect(page.getByTestId("colour-black")).toHaveAttribute(
-    "aria-checked",
-    "true",
-  );
+  // Colour is chosen while designing; the preview only shows it.
+  await expect(page.getByTestId("colour-picker")).toHaveCount(0);
+  await expect(page.getByTestId("preview-colour")).toContainText("Black");
   await expect(page.getByTestId("preview-thumb-front-black")).toBeVisible();
   await expect(page.getByTestId("preview-thumb-studio")).toHaveCount(0);
   const main = page.getByTestId("preview-mockup").getByRole("img");
