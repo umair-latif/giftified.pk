@@ -81,6 +81,12 @@ export async function publishTemplateProduct(
     throw new TemplateError("Enter a price in whole rupees", 400);
   if (!description) throw new TemplateError("Add a short description", 400);
 
+  // One colour per design: it must be one the product is sold in.
+  const colours = getProduct(input.productId)?.baseColors ?? [];
+  const colourId = input.colourId ?? colours[0]?.id;
+  if (colourId && !colours.some((c) => c.id === colourId))
+    throw new TemplateError("Choose a colour this product comes in", 400);
+
   // Reserved by `createTemplateUploads` when artwork photos were uploaded first.
   const id = input.id ?? (deps.makeId ?? newId)();
   // Check the design first: a bad one must not leave a shop product behind.
@@ -96,6 +102,8 @@ export async function publishTemplateProduct(
   const meta = await saveTemplate(
     {
       ...input,
+      ...(colourId ? { colourId } : {}),
+      groupId: input.groupId ?? id,
       name,
       id,
       product: {
