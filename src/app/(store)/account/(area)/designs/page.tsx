@@ -16,7 +16,7 @@ export default async function SavedDesignsPage() {
   return (
     <>
       <AccountHeading title="My designs">
-        Tap a design to keep working on it, on this phone or any other. Designs
+        Tap a design to keep working on it, on this device or any other. Designs
         from orders you place while signed in are added here too.
       </AccountHeading>
       <DesignsSection customerId={customerId} />

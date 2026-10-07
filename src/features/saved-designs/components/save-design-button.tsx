@@ -159,7 +159,7 @@ export function SaveDesignButton({
           <div className="space-y-4" data-testid="save-design">
             <p className="text-sm text-zinc-700">
               Sign up to keep designs in your account and open them on any
-              phone. Until then, this design stays on this device.
+              device. Until then, this design stays on this device.
             </p>
             <div className="flex flex-col gap-3 sm:flex-row">
               <Link
