@@ -12,8 +12,10 @@ export function Disclosure({
   className = "",
   summaryClassName = "font-medium",
   bodyClassName = "",
+  testId,
 }: {
   id?: string;
+  testId?: string;
   summary: ReactNode;
   children: ReactNode;
   /** Extra classes on the <details> (e.g. a standalone card frame). */
@@ -22,7 +24,7 @@ export function Disclosure({
   bodyClassName?: string;
 }) {
   return (
-    <details id={id} className={`group ${className}`}>
+    <details id={id} className={`group ${className}`} data-testid={testId}>
       <summary
         className={`text-ink hover:bg-mint-100 active:bg-mint-100 focus-visible:ring-brand-600/20 flex min-h-12 cursor-pointer list-none items-center gap-3 px-4 py-3 focus-visible:ring-2 focus-visible:outline-none [&::-webkit-details-marker]:hidden ${summaryClassName}`}
       >

@@ -1,12 +1,14 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
+import { Disclosure } from "@/components/ui/disclosure";
 import type { ProductConfig } from "@/config/products";
 import { DeliveryEstimate } from "./delivery-estimate";
 
 /**
- * "Details about the product": always open (no accordion). Full width under
- * the gallery and the buy panel; on large screens the description sits left,
- * the facts and the delivery estimate right.
+ * "Details about the product": a card that opens and closes (closed at first,
+ * so the page leads with the product and Start designing). Full width under
+ * the gallery and the buy panel; when open, on large screens the description
+ * sits left, the facts and the delivery estimate right.
  */
 export function ProductDetails({
   cfg,
@@ -22,15 +24,19 @@ export function ProductDetails({
   className?: string;
 }) {
   return (
-    <section
-      aria-labelledby="product-details"
-      className={`card p-4 lg:p-6 ${className}`}
-      data-testid="product-details"
+    <Disclosure
+      id="details"
+      className={`card overflow-hidden ${className}`}
+      summaryClassName="lg:px-6 lg:py-4"
+      bodyClassName="lg:px-6 lg:pb-6"
+      summary={
+        <h2 className="font-display text-ink text-lg">
+          Details about the product
+        </h2>
+      }
+      testId="product-details"
     >
-      <h2 id="product-details" className="font-display text-ink text-lg">
-        Details about the product
-      </h2>
-      <div className="mt-3 grid gap-5 lg:grid-cols-2 lg:gap-10">
+      <div className="grid gap-5 pt-1 lg:grid-cols-2 lg:gap-10">
         {descriptionHtml ? (
           <div
             className="text-ink min-w-0 space-y-2 text-sm break-words [&_img]:h-auto [&_img]:max-w-full [&_li]:ml-5 [&_li]:list-disc"
@@ -62,6 +68,6 @@ export function ProductDetails({
           <DeliveryEstimate />
         </div>
       </div>
-    </section>
+    </Disclosure>
   );
 }
