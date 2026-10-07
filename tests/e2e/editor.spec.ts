@@ -195,3 +195,21 @@ test("a small element can be moved with its move handle without resizing it", as
   expect(after.x).toBeGreaterThan(before.x + 3);
   expect(after.w).toBe(before.w); // moved, not resized
 });
+
+test("the gesture tip shows once, until it is closed", async ({ page }) => {
+  await page.goto("/design/mug");
+  const tip = page.getByTestId("editor-tip");
+  await expect(tip).toContainText("Two fingers");
+  await tip.getByRole("button", { name: "Got it" }).tap();
+  await expect(tip).toBeHidden();
+  await page.reload();
+  await expect(page.getByTestId("editor-status")).toBeVisible();
+  await expect(tip).toBeHidden();
+});
+
+test("Centre and Straighten live in the selection bar", async ({ page }) => {
+  await openEditorWithText(page);
+  const bar = page.getByTestId("selection-bar");
+  await expect(bar.getByRole("button", { name: "Centre" })).toBeVisible();
+  await expect(bar.getByRole("button", { name: "Straighten" })).toBeDisabled();
+});

@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { chipClass } from "@/components/ui/button";
 import { CopyIcon, CropIcon, TrashIcon } from "@/components/ui/icons";
 import { FONTS, fontForFamily, hasFace } from "@/config/fonts";
 import { loadPickerFonts } from "../fonts/load-fonts";
@@ -11,6 +12,10 @@ interface Props {
   onTextStyle: (style: Partial<TextStyle>) => void;
   onCrop: () => void;
   onReplace: () => void;
+  onCentre: () => void;
+  onStraighten: () => void;
+  /** Already level: Straighten has nothing to do. */
+  straight: boolean;
   onCopy: () => void;
   onDelete: () => void;
   onMore: () => void;
@@ -20,7 +25,8 @@ interface Props {
 
 /**
  * Context bar shown above the main toolbar while something is selected.
- * Text: font, colour, bold / italic / underline. Photo: crop & shape, replace. Both: copy, delete.
+ * Text: font, colour, bold / italic / underline. Photo: crop & shape, replace.
+ * Both: copy, delete; plus a small Centre / Straighten row just above.
  */
 export function SelectionBar({
   kind,
@@ -28,6 +34,9 @@ export function SelectionBar({
   onTextStyle,
   onCrop,
   onReplace,
+  onCentre,
+  onStraighten,
+  straight,
   onCopy,
   onDelete,
   onMore,
@@ -65,6 +74,30 @@ export function SelectionBar({
       data-testid="selection-bar"
       className="fixed inset-x-0 bottom-[calc(3.5rem+1px+env(safe-area-inset-bottom))] z-10 border-t border-zinc-200 bg-white lg:relative lg:inset-x-auto lg:bottom-auto lg:rounded-2xl lg:border lg:shadow-sm"
     >
+      {/* Position: its own small row just above the tools (phone: floating
+          over the page; desktop: the top of the panel). */}
+      <div
+        className="pointer-events-none absolute inset-x-0 bottom-full flex justify-center gap-2 pb-2 lg:pointer-events-auto lg:static lg:justify-start lg:border-b lg:border-zinc-200 lg:px-1.5 lg:py-2"
+        data-testid="position-row"
+      >
+        <button
+          type="button"
+          onClick={onCentre}
+          className={`${chipClass} pointer-events-auto`}
+        >
+          <CentreIcon />
+          Centre
+        </button>
+        <button
+          type="button"
+          onClick={onStraighten}
+          disabled={straight}
+          className={`${chipClass} pointer-events-auto`}
+        >
+          <StraightenIcon />
+          Straighten
+        </button>
+      </div>
       <div
         className="mx-auto flex h-12 max-w-md items-center gap-0.5 overflow-x-auto px-1.5 lg:h-auto lg:max-w-none lg:flex-wrap lg:overflow-visible lg:py-1.5"
         data-testid="selection-bar-row"
@@ -216,11 +249,13 @@ function Action({
   label,
   onClick,
   danger,
+  disabled,
   children,
 }: {
   label: string;
   onClick: () => void;
   danger?: boolean;
+  disabled?: boolean;
   children: ReactNode;
 }) {
   return (
@@ -228,7 +263,8 @@ function Action({
       type="button"
       aria-label={label}
       onClick={onClick}
-      className={`focus-visible:ring-brand-600/20 flex h-11 w-11 shrink-0 flex-col items-center justify-center gap-0.5 rounded-md text-[10px] leading-none font-medium hover:bg-zinc-100 focus-visible:ring-2 focus-visible:outline-none active:bg-zinc-100 ${
+      disabled={disabled}
+      className={`focus-visible:ring-brand-600/20 flex h-11 min-w-11 shrink-0 flex-col items-center justify-center gap-0.5 rounded-md px-0.5 text-[10px] leading-none font-medium hover:bg-zinc-100 focus-visible:ring-2 focus-visible:outline-none active:bg-zinc-100 disabled:opacity-35 disabled:hover:bg-transparent ${
         danger ? "text-red-600" : "text-zinc-700"
       }`}
     >
@@ -252,6 +288,45 @@ function ReplaceIcon() {
       aria-hidden
     >
       <path d="M4 8h13l-3-3M20 16H7l3 3" />
+    </svg>
+  );
+}
+
+function CentreIcon() {
+  return (
+    <svg
+      width={16}
+      height={16}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={2}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden
+    >
+      <path d="M12 3v4M12 17v4M3 12h4M17 12h4" />
+      <circle cx="12" cy="12" r="3" />
+    </svg>
+  );
+}
+
+/** A tilted line coming level. */
+function StraightenIcon() {
+  return (
+    <svg
+      width={16}
+      height={16}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={2}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden
+    >
+      <path d="M3 18h18" />
+      <path d="M5 13l12-6" strokeDasharray="2 3" />
     </svg>
   );
 }
