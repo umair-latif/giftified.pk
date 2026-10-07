@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { pageWidthClass } from "@/components/ui/page";
+import { WordmarkOnDark } from "@/components/ui/wordmark";
 import {
   FacebookIcon,
   InstagramIcon,
@@ -51,8 +52,8 @@ export function SiteFooter() {
       <div className={pageWidthClass("wide")}>
         <div className="grid grid-cols-2 gap-x-4 gap-y-6 md:grid-cols-[1.6fr_1fr_1fr_1fr] md:gap-x-8">
           <div className="col-span-2 md:col-span-1">
-            <p className="font-display text-lg text-white">
-              Giftified<span className="text-mint-300">.pk</span>
+            <p>
+              <WordmarkOnDark />
             </p>
             <p className="text-brand-100 mt-1">{SITE.tagline}</p>
             {wa && (

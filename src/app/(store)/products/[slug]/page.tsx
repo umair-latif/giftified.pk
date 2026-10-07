@@ -54,7 +54,7 @@ export async function generateMetadata({
     description,
     alternates: { canonical: `/products/${m.product?.slug ?? m.productId}` },
     openGraph: {
-      title: `${name} · Giftified.pk`,
+      title: `${name} · DesignBanana`,
       description,
       type: "website",
       ...(image ? { images: [{ url: image.src, alt: image.alt }] } : {}),

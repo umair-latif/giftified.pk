@@ -1,30 +1,36 @@
-# Brand (first version — can change)
+# Brand: DesignBanana (v7 theme)
 
-Source: the founder's brand sheet (Giftified.pk Brand Identity Guidelines). Colours were
-sampled from the swatches in the image; the hex codes printed on the sheet don't match them.
-Tokens live in `src/app/globals.css` (`@theme`), fonts in `src/app/fonts.ts`.
+Branch `feat/designbanana-theme`. The previous Giftified brand (teal `#2B8496`, Poppins/Nunito) is
+on `main`; to go back, don't merge this branch. Brand decision and name history: the claude.ai
+project note `brand/designbanana-brand-decision.md`; visual boards in the "DesignBanana Brand Sheet"
+canvas. Tokens live in `src/app/globals.css` (`@theme`), fonts in `src/app/fonts.ts`.
 
-| Role              | Token                   | Hex       | Use                                        |
-| ----------------- | ----------------------- | --------- | ------------------------------------------ |
-| Personalized Teal | `brand-500`             | `#2B8496` | Logo, accents                              |
-| Button teal       | `brand-600` / `-700`    | `#237585` | Buttons (white text 5.3:1), pressed `-700` |
-| Creative Mint     | `mint-300` / `mint-500` | `#9DDFBC` | Backgrounds, highlights; `.pk` in the logo |
-| Seasonal Magenta  | `magenta`               | `#C5448A` | Occasion badges, sales                     |
-| Joyful Yellow     | `sunny`                 | `#FED847` | Highlights (never text on white)           |
-| Text Dark Gray    | `ink`                   | `#484847` | Secondary headings                         |
-| Cream             | `cream`                 | `#FBF8EC` | Page background                            |
+| Role          | Token                | Hex       | Use                                                 |
+| ------------- | -------------------- | --------- | --------------------------------------------------- |
+| Teal          | `brand-500`          | `#14B8A6` | Big shapes: hero, banners, step numbers             |
+| Deep teal     | `brand-600` / `-700` | `#0F766E` | Buttons (white text 5.5:1), links; pressed `-700`   |
+| Mint paper    | `cream`, `mint-*`    | `#F3FBF9` | Page background; mint tints for image wells         |
+| Pink          | `magenta`            | `#FF3D8B` | "banana" in the logo, badges, stickers (black text) |
+| Banana yellow | `sunny`              | `#FFE135` | Hero button, highlights, "New" badges (black text)  |
+| Ink           | `ink`                | `#121212` | Text, outlines, hard shadows                        |
 
-Accessibility: text on teal must use `brand-600` or darker; `brand-500` with white is 4.3:1
-(too low for small text). Mint and yellow are backgrounds, not text colours.
+Accessibility: pink and yellow always take **black** text (white on pink is 3.3:1). White text only
+on `brand-600` or darker. `brand-500` is a background colour; text on it is `ink`.
 
-**Fonts:** Poppins (400/500/600) for text; Nunito ExtraBold for headings (`font-display`) as a free
-stand-in for Halyard Rounded, which is a commercial font. Both are OFL, self-hosted, Latin subset.
-These are site fonts only; the editor/print fonts are a separate list (`src/config/fonts.ts`).
+**Fonts:** Space Grotesk (400/500/600) for text; Bagel Fat One for the logo and headings
+(`font-display`, one weight only, so headings never ask for bold — `font-synthesis: none`). Small UI
+headings with `font-semibold` (editor header, sheet titles) stay in Space Grotesk. Both OFL,
+self-hosted, Latin subset. Editor/print fonts are a separate list (`src/config/fonts.ts`).
 
-**Logo:** text wordmark (`components/ui/wordmark.tsx`) until an SVG logo (with the Urdu
-"تحفہ" + gift box) is supplied. Put it in `public/brand/` as SVG.
+**Logo:** founder's PNG in `public/brand/designbanana-logo.png` (2×, 352×72), used by
+`components/ui/wordmark.tsx`. Footer (dark teal) uses the text version `WordmarkOnDark`. Replace
+with the SVG when it arrives.
 
-**Photography:** mint/teal/yellow backgrounds, real people, kraft-paper gift boxes (see sheet).
+**Style:** funky touches (3 px black outline + hard 4–6 px black shadow) only on browsing moments
+(home hero, its button and image). Editor, checkout and forms stay calm.
+
+**Not renamed yet (later PR):** legal operator name on /terms, vendor PDF, emails (sender domain),
+storage keys and print font names (`giftified:*`, "Giftified …" — internal, must not change).
 
 ## UI standards (task 25)
 

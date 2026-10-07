@@ -5,7 +5,7 @@ import { DraftNotice, InfoPage, InfoSection } from "@/features/info/info-page";
 export const metadata: Metadata = {
   title: "Privacy",
   description:
-    "What Giftified.pk stores about you and your order, who can see it, and how long we keep it.",
+    "What DesignBanana stores about you and your order, who can see it, and how long we keep it.",
 };
 
 /**

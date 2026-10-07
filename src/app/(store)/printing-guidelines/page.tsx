@@ -5,7 +5,7 @@ import { DraftNotice, InfoPage, InfoSection } from "@/features/info/info-page";
 export const metadata: Metadata = {
   title: "Printing guidelines",
   description:
-    "What Giftified.pk will and won't print: our prohibited content policy for custom designs.",
+    "What DesignBanana will and won't print: our prohibited content policy for custom designs.",
 };
 
 /** Prohibited content policy (founder's text, 29 Sep 2026). Linked from the footer, terms and checkout. */

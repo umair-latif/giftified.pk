@@ -32,7 +32,7 @@ test("home page: hero, products, sections, no horizontal scroll", async ({
   for (const name of [
     "How it works",
     "Gifts for every occasion",
-    "Why Giftified",
+    "Why DesignBanana",
   ])
     await expect(page.getByRole("heading", { level: 2, name })).toBeVisible();
   await expect(

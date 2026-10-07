@@ -7,7 +7,7 @@ import { buttonClass } from "@/components/ui/button";
 export const metadata: Metadata = {
   title: "Contact us",
   description:
-    "Reach Giftified.pk on WhatsApp or email about your custom mug, t-shirt or hoodie order.",
+    "Reach DesignBanana on WhatsApp or email about your custom mug, t-shirt or hoodie order.",
 };
 
 export default function ContactPage() {

@@ -17,7 +17,7 @@ export function WhyGiftified() {
       <Container width="wide">
         <div className="bg-brand-50 rounded-2xl p-5">
           <h2 id="home-why" className="text-brand-900 text-2xl">
-            Why Giftified
+            Why DesignBanana
           </h2>
           <ul className="mt-3 space-y-2">
             {WHY_GIFTIFIED.map((claim) => (

@@ -1,8 +1,27 @@
-/** Text logo until the SVG logo arrives: teal "Giftified" + mint ".pk" (docs/brand.md). */
+import Image from "next/image";
+
+/**
+ * DesignBanana logo (founder's PNG, `public/brand/`; docs/brand.md).
+ * Drawn at 36 px high from a 2× file. Swap for the SVG when it arrives.
+ */
 export function Wordmark() {
   return (
-    <span className="font-display text-brand-500 text-xl tracking-tight">
-      Giftified<span className="text-mint-500">.pk</span>
+    <Image
+      src="/brand/designbanana-logo.png"
+      alt="DesignBanana"
+      width={176}
+      height={36}
+      priority
+      className="h-9 w-auto"
+    />
+  );
+}
+
+/** Text version for dark backgrounds (footer): white "design", pink "banana". */
+export function WordmarkOnDark() {
+  return (
+    <span className="font-display text-xl text-white">
+      design<span className="text-magenta">banana</span>
     </span>
   );
 }

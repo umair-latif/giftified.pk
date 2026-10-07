@@ -55,7 +55,7 @@ export function DesignTile({
           />
         )}
         {reduced && (
-          <span className="bg-magenta absolute top-2 left-2 rounded-full px-2 py-0.5 text-[11px] font-semibold text-white">
+          <span className="bg-magenta absolute top-2 left-2 rounded-full px-2 py-0.5 text-[11px] font-semibold text-ink">
             Sale
           </span>
         )}

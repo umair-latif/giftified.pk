@@ -171,7 +171,7 @@ export function productJsonLd(
     ...(product.images.length
       ? { image: product.images.map((i) => i.src) }
       : {}),
-    brand: { "@type": "Brand", name: "Giftified.pk" },
+    brand: { "@type": "Brand", name: "DesignBanana" },
     offers: {
       "@type": "Offer",
       price: fromPrice(product),

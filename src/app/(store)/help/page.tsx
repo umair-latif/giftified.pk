@@ -9,7 +9,7 @@ import { mmToPx, PRINT_DPI } from "@/lib/units";
 export const metadata: Metadata = {
   title: "Help & FAQ",
   description:
-    "Delivery, Cash on Delivery, photo quality, order tracking, reprints and cancellations at Giftified.pk.",
+    "Delivery, Cash on Delivery, photo quality, order tracking, reprints and cancellations at DesignBanana.",
 };
 
 const { warnBelow, blockBelow } = DEFAULT_DPI_THRESHOLDS;

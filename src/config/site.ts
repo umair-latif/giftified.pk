@@ -3,8 +3,8 @@
  * Founder-owned: these are the real published details, edit them here.
  */
 export const SITE = {
-  name: "Giftified.pk",
-  tagline: "Design it on your phone. Cash on Delivery across Pakistan.",
+  name: "DesignBanana",
+  tagline: "Design it on your phone. We'll make it real.",
   /**
    * E.164 without "+", for https://wa.me/<number>. Empty = hide WhatsApp links.
    * TODO(founder): this is a German number; swap it for a Pakistani one when

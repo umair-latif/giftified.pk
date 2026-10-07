@@ -6,7 +6,7 @@ import { Page, PageTitle } from "@/components/ui/page";
 export const metadata: Metadata = {
   title: "Track your order",
   description:
-    "Check your Giftified.pk order with your order number and mobile number.",
+    "Check your DesignBanana order with your order number and mobile number.",
 };
 
 /** Guest order lookup: recent orders on this phone, then number + mobile. */
