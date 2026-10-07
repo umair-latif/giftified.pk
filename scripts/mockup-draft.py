@@ -58,6 +58,8 @@ def main():
     ap.add_argument("photo"); ap.add_argument("prefix")
     ap.add_argument("--box"); ap.add_argument("--body", type=float, default=3.0)
     ap.add_argument("--folds", type=float, default=2.5)
+    ap.add_argument("--smooth", type=float, default=16, help="blur of the shift field in px")
+    ap.add_argument("--max-strain", type=float, default=0.03, dest="max_strain")
     a = ap.parse_args()
     img = cv2.imread(a.photo)
     H, W = img.shape[:2]
@@ -72,7 +74,18 @@ def main():
     rel = (cv2.GaussianBlur(L, (0, 0), 2.5) - cv2.GaussianBlur(L, (0, 0), 12)) / (cv2.GaussianBlur(L, (0, 0), 30) + 0.05)
     rel = np.clip(rel, -0.1, 0.1)
     fx, fy = to_px(*grad(cv2.GaussianBlur(rel, (0, 0), 2)), a.folds, np.ones_like(d, bool))
-    dx = np.clip(bx + fx, -7.9, 7.9); dy = np.clip(by + fy, -7.9, 7.9)
+    dx = bx + fx; dy = by + fy
+    # A print must bend, not stretch: smooth the shift field, then scale it so no
+    # part of the design is stretched or squeezed by more than --max-strain
+    # (0.03 = 3%). Folds then show mostly as shading, like real mockups.
+    dx = cv2.GaussianBlur(dx, (0, 0), a.smooth); dy = cv2.GaussianBlur(dy, (0, 0), a.smooth)
+    sxx, _ = grad(dx); _, syy = grad(dy)
+    sxy, syx = grad(dx)[1], grad(dy)[0]
+    strain = np.maximum.reduce([np.abs(sxx), np.abs(syy), np.abs(sxy) + np.abs(syx)])
+    reg = np.zeros_like(dx, bool); reg[box[1]:box[3], box[0]:box[2]] = True
+    k = min(1.0, a.max_strain / max(np.percentile(strain[reg], 99), 1e-6))
+    dx = np.clip(dx * k, -7.9, 7.9); dy = np.clip(dy * k, -7.9, 7.9)
+    print(f"strain p99 {np.percentile(strain[reg], 99):.3f} -> scaled x{k:.2f}", file=sys.stderr)
     out = np.dstack([np.full_like(dx, 128), 128 + dy * SCALE, 128 + dx * SCALE])  # BGR: B=128, G=y, R=x
     def save(name, img):
         # Smooth maps: half size is plenty and keeps downloads small (the engine
