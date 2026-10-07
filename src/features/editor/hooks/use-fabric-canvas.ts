@@ -1,5 +1,6 @@
 "use client";
 
+import { isDarkHex } from "../colour-utils";
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { FabricObject } from "fabric";
 import { fontForFamily } from "@/config/fonts";
@@ -79,7 +80,12 @@ type Engine = typeof import("../engine");
 /**
  * @param designKey edit a saved cart design instead of the product's draft.
  */
-export function useFabricCanvas(product: ProductConfig, designKey?: string) {
+export function useFabricCanvas(
+  product: ProductConfig,
+  designKey?: string,
+  /** Garment colour: new text starts white on a dark garment. */
+  colourId?: string,
+) {
   const hostRef = useRef<HTMLDivElement>(null);
   const engineRef = useRef<Engine | null>(null);
   const designRef = useRef<DesignCanvas | null>(null);
@@ -313,9 +319,14 @@ export function useFabricCanvas(product: ProductConfig, designKey?: string) {
     if (dc && engine) fn(engine, dc);
   }, []);
 
+  const textFill = isDarkHex(
+    product.baseColors.find((c) => c.id === colourId)?.hex ?? "#ffffff",
+  )
+    ? "#ffffff"
+    : undefined;
   const addText = useCallback(
-    () => run((e, dc) => e.addText(dc.canvas, dc.area)),
-    [run],
+    () => run((e, dc) => e.addText(dc.canvas, dc.area, { fill: textFill })),
+    [run, textFill],
   );
   const deleteSelected = useCallback(
     () => run((e, dc) => e.deleteSelected(dc.canvas)),
