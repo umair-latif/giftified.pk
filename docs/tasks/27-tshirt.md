@@ -25,7 +25,7 @@ builds the parts that are **shared by all apparel**, so the hoodie (task 28) is 
 
 1. **`src/config/products/tshirt.ts`** (a small dedicated PR per CLAUDE.md, or the first commit of this branch):
    `id: "tshirt"`, `name`, `subtitle`, `printArea` in mm (placeholder 300 × 400 mm, safe margin 10 mm),
-   `printDpi: PRINT_DPI`, `baseColors` (start with White, Black, Navy, Red, Heather Grey; the founder confirms the
+   `printDpi: PRINT_DPI`, `baseColors` (White and Black only at launch; the founder confirms the
    real range), `wooSku: null`, `vendorTodo`. Register it in `PRODUCTS`. Do **not** add `edgeLabels` (mug only).
 2. **Editor.** The canvas is the print area, so it already works. Check: safe-zone guide, DPI checks (they read
    the config), a colour swatch row that changes the garment shown behind the canvas (the mug has one colour, so
