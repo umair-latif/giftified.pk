@@ -364,7 +364,7 @@ export function CheckoutForm() {
                   : state === "placeholder"
                     ? "there is still a sample photo — tap it and choose Replace to add yours."
                     : state === "missing"
-                      ? "this design is no longer on this phone — remove it and design it again."
+                      ? "this design is no longer on this device — remove it and design it again."
                       : "no longer available in this colour or size."}{" "}
                 <Link
                   href={

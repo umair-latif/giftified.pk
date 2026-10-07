@@ -189,7 +189,7 @@ describe("uploadDesignForOrder (phone side)", () => {
     ).rejects.toThrow(DesignUploadFailed);
     await expect(
       uploadDesignForOrder("mug", deps({ getAsset: async () => null }).d),
-    ).rejects.toThrow(/no longer on this phone/);
+    ).rejects.toThrow(/no longer on this device/);
   });
 });
 

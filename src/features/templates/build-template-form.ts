@@ -109,7 +109,7 @@ export async function uploadTemplatePhotos(
   const assets = await Promise.all(
     toUpload.map(async (id) => {
       const asset = await getAsset(id);
-      if (!asset) throw new PublishError("A photo is no longer on this phone");
+      if (!asset) throw new PublishError("A photo is no longer on this device");
       return { id, asset };
     }),
   );

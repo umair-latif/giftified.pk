@@ -44,7 +44,7 @@ export async function uploadCartDesign(
   const design = loadDraft(productId, designKey);
   if (!design)
     throw new DesignUploadFailed(
-      "A design in your cart is no longer on this phone. Please remove it and design it again.",
+      "A design in your cart is no longer on this device. Please remove it and design it again.",
     );
   return uploadDesign(design, {
     thumbnail: dataUrlToBlob(loadThumbnail(designKey)),
@@ -94,7 +94,7 @@ export async function uploadDesign(
   const lost = assets.find((a) => !a.asset);
   if (lost) {
     throw new DesignUploadFailed(
-      "A photo in your design is no longer on this phone. Please add it again.",
+      "A photo in your design is no longer on this device. Please add it again.",
     );
   }
 
