@@ -108,12 +108,15 @@ export function TextColourPicker({ value, onChange }: Props) {
 }
 
 /** Colour code field: shows the current colour's code; Enter or Apply sets a typed one. */
-function HexField({
+export function HexField({
   value,
   onApply,
+  id = "colour-hex",
 }: {
   value: string;
   onApply: (hex: string) => void;
+  /** Unique per page when two pickers can exist. */
+  id?: string;
 }) {
   const [draft, setDraft] = useState(() => hexDigits(value));
   const [touched, setTouched] = useState(false);
@@ -138,7 +141,7 @@ function HexField({
         className="size-9 shrink-0 rounded-full ring-1 ring-zinc-300"
         style={{ backgroundColor: parsed ?? value }}
       />
-      <label htmlFor="colour-hex" className="sr-only">
+      <label htmlFor={id} className="sr-only">
         Colour code
       </label>
       <div
@@ -148,7 +151,7 @@ function HexField({
       >
         <span className="text-zinc-400">#</span>
         <input
-          id="colour-hex"
+          id={id}
           value={draft}
           onChange={(e) => {
             setDraft(
@@ -162,7 +165,7 @@ function HexField({
           spellCheck={false}
           enterKeyHint="done"
           aria-invalid={invalid}
-          aria-describedby={invalid ? "colour-hex-error" : undefined}
+          aria-describedby={invalid ? `${id}-error` : undefined}
           className="h-full w-full min-w-0 bg-transparent px-1 uppercase outline-none"
         />
       </div>
@@ -173,7 +176,7 @@ function HexField({
         Apply
       </button>
       {invalid && (
-        <p id="colour-hex-error" role="alert" className="sr-only">
+        <p id={`${id}-error`} role="alert" className="sr-only">
           Use a 6-digit colour code like 1D4ED8.
         </p>
       )}

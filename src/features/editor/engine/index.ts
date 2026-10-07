@@ -4,6 +4,11 @@
  */
 export { createDesignCanvas, type DesignCanvas } from "./create-canvas";
 export { applyTouchControls } from "./controls";
+export {
+  backgroundColour,
+  isBackground,
+  setBackgroundColour,
+} from "./background";
 export { addText, type AddTextOptions } from "./text";
 export { attachTwoFingerGestures } from "./gestures";
 export { attachTextAutoWidth } from "./text-fit";

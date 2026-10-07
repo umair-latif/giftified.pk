@@ -74,9 +74,11 @@ export function DesignPreview({
       ? designFontFaces(migrateDesignFonts(draft.fabric))
       : [];
     const run = async () => {
-      const layers =
-        (draft?.fabric.objects as unknown[] | undefined)?.length ?? 0;
-      if (!draft || layers === 0) return { kind: "empty" } as const;
+      const objects =
+        (draft?.fabric.objects as { role?: unknown }[] | undefined) ?? [];
+      if (!draft || objects.length === 0) return { kind: "empty" } as const;
+      // A background colour is printed but isn't a layer the customer added.
+      const layers = objects.filter((o) => o.role !== "background").length;
       const [{ renderDesignToDataUrl }, fontsReady] = await Promise.all([
         import("../engine"),
         loadFaces(faces),

@@ -1,6 +1,7 @@
 import { Control, controlsUtils, Point } from "fabric";
 import type { FabricObject } from "fabric";
 import "./layer-props";
+import { isBackground, lockBackground } from "./background";
 import { SNAP_ANGLE_STEP, SNAP_ANGLE_THRESHOLD } from "./snap";
 
 /** An element whose shorter side is below this many screen px gets a move handle. */
@@ -95,6 +96,8 @@ const moveControl = new Control({
  * must be re-applied after loading a draft or an undo/redo restore.
  */
 export function applyTouchControls(obj: FabricObject): void {
+  // The background colour layer is never touched (lock isn't serialised).
+  if (isBackground(obj)) return lockBackground(obj);
   obj.set({
     transparentCorners: false,
     cornerStyle: "circle",

@@ -14,6 +14,7 @@ import {
 import { SamplePickerSheet } from "@/features/templates/sample-picker-sheet";
 import { useTemplateEditor } from "@/features/templates/use-template-editor";
 import { CropSheet } from "./crop-sheet";
+import { BackgroundSheet } from "./background-sheet";
 import { EditorTip } from "./editor-tip";
 import { SelectionBar } from "./selection-bar";
 import { TextSheet } from "./text-sheet";
@@ -45,6 +46,7 @@ export function DesignEditor({
   const [textSheetOpen, setTextSheetOpen] = useState(false);
   const isDesigner = useTemplateEditor();
   const [samplesOpen, setSamplesOpen] = useState(false);
+  const [backgroundOpen, setBackgroundOpen] = useState(false);
   const selectionKind = !ed.selection
     ? null
     : ed.selection.text
@@ -162,6 +164,11 @@ export function DesignEditor({
               replacing.current = false;
               fileInput.current?.click();
             }}
+            background={ed.background}
+            onBackground={() => {
+              ed.deselect();
+              setBackgroundOpen(true);
+            }}
           />
           {selectionKind && (
             <SelectionBar
@@ -232,6 +239,13 @@ export function DesignEditor({
         </aside>
       </main>
 
+      {backgroundOpen && (
+        <BackgroundSheet
+          value={ed.background}
+          onChange={ed.setBackgroundColour}
+          onClose={() => setBackgroundOpen(false)}
+        />
+      )}
       {samplesOpen && ed.selection && (
         <SamplePickerSheet
           current={ed.selection.customerPhoto}
