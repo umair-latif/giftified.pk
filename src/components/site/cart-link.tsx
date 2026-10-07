@@ -19,7 +19,7 @@ export function CartLink() {
       <BagIcon />
       {count > 0 && (
         <span
-          className="bg-magenta absolute top-1 right-0.5 grid h-5 min-w-5 place-items-center rounded-full px-1 text-xs font-semibold text-white"
+          className="bg-magenta absolute top-1 right-0.5 grid h-5 min-w-5 place-items-center rounded-full px-1 text-xs font-semibold text-ink"
           data-testid="cart-count"
         >
           {count > 99 ? "99+" : count}

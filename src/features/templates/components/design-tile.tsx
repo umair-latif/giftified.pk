@@ -5,7 +5,7 @@ import type { DesignPrice } from "../load-design-prices";
 
 /**
  * One design card, the same size everywhere (template grids on product and
- * occasion pages, "New templates" on the home page).
+ * occasion pages, "New designs" shelf on the home page).
  *
  * Uniform grid: the picture area is a fixed square, the title always reserves
  * two lines (longer titles are cut with "…", full text in the tooltip), the
@@ -19,6 +19,7 @@ export function DesignTile({
   image,
   price,
   testId,
+  variant = "card",
 }: {
   href: string;
   name: string;
@@ -27,17 +28,34 @@ export function DesignTile({
   image: { src: string; kind: "mockup" | "art" } | null;
   price?: DesignPrice;
   testId?: string;
+  /**
+   * "card": the outlined card (product and occasion pages).
+   * "shelf": no frame, just the picture (thin outline) with its name and
+   * price underneath — the home page's "New designs" marketplace shelf.
+   */
+  variant?: "card" | "shelf";
 }) {
   const reduced =
     price?.regularPricePkr != null && price.regularPricePkr > price.pricePkr;
+  const shelf = variant === "shelf";
   return (
     <Link
       href={href}
       title={name}
       data-testid={testId}
-      className="hover:bg-mint-100 active:bg-mint-100 focus-visible:ring-brand-600/40 flex h-full flex-col rounded-2xl bg-white p-2 shadow-sm ring-1 ring-zinc-200 focus-visible:ring-2 focus-visible:outline-none"
+      className={
+        shelf
+          ? "group focus-visible:ring-ink/40 flex h-full flex-col rounded-xl focus-visible:ring-2 focus-visible:outline-none"
+          : "hover:bg-mint-100 active:bg-mint-100 focus-visible:ring-brand-600/40 card card-pop flex h-full flex-col p-2 focus-visible:ring-2 focus-visible:outline-none"
+      }
     >
-      <div className="bg-cream relative aspect-square overflow-hidden rounded-xl">
+      <div
+        className={`relative aspect-square overflow-hidden rounded-xl ${
+          shelf
+            ? "border-ink border-2 bg-white transition duration-150 group-hover:-translate-y-0.5 group-hover:shadow-[3px_3px_0_var(--color-ink)]"
+            : "bg-cream"
+        }`}
+      >
         {image && (
           <Image
             src={image.src}
@@ -55,7 +73,7 @@ export function DesignTile({
           />
         )}
         {reduced && (
-          <span className="bg-magenta absolute top-2 left-2 rounded-full px-2 py-0.5 text-[11px] font-semibold text-white">
+          <span className="bg-magenta text-ink absolute top-2 left-2 rounded-full px-2 py-0.5 text-[11px] font-semibold">
             Sale
           </span>
         )}
@@ -63,7 +81,11 @@ export function DesignTile({
       <p className="text-ink mt-2 line-clamp-2 min-h-[2.5em] px-1 text-sm leading-tight font-medium">
         {name}
       </p>
-      <p className="truncate px-1 text-xs text-zinc-500">{subtitle}</p>
+      <p
+        className={`truncate px-1 text-xs ${shelf ? "text-zinc-800" : "text-zinc-500"}`}
+      >
+        {subtitle}
+      </p>
       <div className="mt-auto min-h-6 px-1 pt-1 pb-1 text-sm text-zinc-900">
         {price && (
           <PriceTag

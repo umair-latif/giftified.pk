@@ -75,3 +75,20 @@ test("black t-shirt: black garment in the editor, black photos in the preview, B
   await expect(page).toHaveURL(/\/cart$/);
   await expect(page.getByTestId("cart-line")).toContainText("Black");
 });
+
+test("the shirt colour and the background colour have different names", async ({
+  page,
+}) => {
+  await page.goto("/design/tshirt");
+  await expect(page.getByTestId("colour-picker")).toContainText(
+    "Shirt colour:",
+  );
+  await expect(
+    page.getByRole("radiogroup", { name: "Shirt colour" }),
+  ).toBeVisible();
+  await expect(
+    page
+      .getByRole("navigation", { name: "Editor tools" })
+      .getByRole("button", { name: "Background colour" }),
+  ).toBeVisible();
+});

@@ -32,7 +32,7 @@ test("home page: hero, products, sections, no horizontal scroll", async ({
   for (const name of [
     "How it works",
     "Gifts for every occasion",
-    "Why Giftified",
+    "Why DesignBanana",
   ])
     await expect(page.getByRole("heading", { level: 2, name })).toBeVisible();
   await expect(
@@ -53,14 +53,14 @@ test("Start designing goes to /products", async ({ page }) => {
   await expect(page).toHaveURL(/\/products$/);
 });
 
-test("how it works: no 3D promise; templates, easy customising and instant preview", async ({
+test("how it works: no 3D promise; ready-made designs, easy customising and instant preview", async ({
   page,
 }) => {
   await page.goto("/");
   const how = page.getByRole("region", { name: "How it works" });
   await expect(how).toBeVisible();
   await expect(how).not.toContainText("3D");
-  await expect(how).toContainText("template");
+  await expect(how).toContainText("ready-made design");
   await expect(how).toContainText("See it right away");
   await expect(page.getByTestId("home-template")).toHaveCount(0); // none yet
 });

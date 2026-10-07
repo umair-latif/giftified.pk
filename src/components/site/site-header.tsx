@@ -14,7 +14,7 @@ export function SiteHeader() {
       <div className="mx-auto flex h-14 max-w-5xl items-center gap-1 pr-1 pl-4">
         <Link
           href="/"
-          aria-label="Giftified.pk home"
+          aria-label="DesignBanana home"
           className="focus-visible:ring-brand-600/20 mr-auto rounded focus-visible:ring-2 focus-visible:outline-none"
         >
           <Wordmark />

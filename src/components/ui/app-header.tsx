@@ -53,7 +53,7 @@ export function AppHeader({
           (next.href ? (
             <Link
               href={next.href}
-              className="bg-brand-600 hover:bg-brand-700 active:bg-brand-700 focus-visible:ring-brand-600/40 ml-1 flex h-9 shrink-0 items-center gap-0.5 rounded-full pr-2 pl-3.5 text-sm font-medium text-white focus-visible:ring-2 focus-visible:outline-none lg:h-11 lg:gap-1 lg:pr-3 lg:pl-5 lg:text-base"
+              className="bg-brand-600 hover:bg-brand-700 active:bg-brand-700 focus-visible:ring-brand-600/40 border-ink ml-1 flex h-9 shrink-0 items-center gap-0.5 rounded-xl border-2 pr-2 pl-3.5 text-sm font-medium text-white focus-visible:ring-2 focus-visible:outline-none lg:h-11 lg:gap-1 lg:pr-3 lg:pl-5 lg:text-base"
             >
               {next.label}
               <ArrowRightIcon width={18} height={18} />
@@ -61,7 +61,7 @@ export function AppHeader({
           ) : (
             <span
               aria-disabled
-              className="bg-brand-300 ml-1 flex h-9 shrink-0 items-center gap-0.5 rounded-full pr-2 pl-3.5 text-sm font-medium text-white"
+              className="bg-brand-300 border-ink ml-1 flex h-9 shrink-0 items-center gap-0.5 rounded-xl border-2 pr-2 pl-3.5 text-sm font-medium text-white"
             >
               {next.label}
               <ArrowRightIcon width={18} height={18} />

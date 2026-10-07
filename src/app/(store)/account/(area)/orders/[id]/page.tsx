@@ -32,7 +32,7 @@ export default async function AccountOrderPage(
       <AccountHeading title={`Order #${order.id}`}>
         Placed {formatDate(order.createdAt)}
       </AccountHeading>
-      <section className="rounded-2xl bg-white p-4 ring-1 ring-zinc-200">
+      <section className="card p-4">
         <OrderTimeline steps={view.timeline} maskedPhone={view.maskedPhone} />
       </section>
       <OrderSummary view={view} />

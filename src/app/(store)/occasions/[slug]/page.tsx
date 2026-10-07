@@ -48,10 +48,7 @@ export default async function OccasionPage({
         {templates.length > 0 ? (
           <TemplateGrid templates={templates} productNames={productNames} />
         ) : (
-          <div
-            className="rounded-2xl bg-white p-5 text-sm ring-1 ring-zinc-200"
-            data-testid="no-templates"
-          >
+          <div className="card p-5 text-sm" data-testid="no-templates">
             <p className="text-ink">{labelOf(slug)} designs are on the way.</p>
             <Link href="/products" className={buttonClass("primary", "mt-4")}>
               Design your own

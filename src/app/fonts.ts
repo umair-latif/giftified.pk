@@ -1,25 +1,27 @@
 import localFont from "next/font/local";
 
 /**
- * Brand fonts (self-hosted, OFL): Poppins for text, Nunito ExtraBold for
- * headings — a free stand-in for the brand sheet's Halyard Rounded
- * (commercial). Latin subset only, ~40 KB total. See docs/brand.md.
+ * Brand fonts (self-hosted, OFL): Space Grotesk for text, Bagel Fat One for
+ * the logo and headings. Latin subset only, ~64 KB total. See docs/brand.md.
+ * These are site fonts only; the editor/print fonts are `src/config/fonts.ts`.
  */
-export const poppins = localFont({
+export const spaceGrotesk = localFont({
   src: [
-    { path: "./fonts/poppins-latin-400-normal.woff2", weight: "400" },
-    { path: "./fonts/poppins-latin-500-normal.woff2", weight: "500" },
-    { path: "./fonts/poppins-latin-600-normal.woff2", weight: "600" },
+    { path: "./fonts/space-grotesk-latin-400-normal.woff2", weight: "400" },
+    { path: "./fonts/space-grotesk-latin-500-normal.woff2", weight: "500" },
+    { path: "./fonts/space-grotesk-latin-600-normal.woff2", weight: "600" },
   ],
-  variable: "--font-poppins",
+  variable: "--font-space-grotesk",
   display: "swap",
   fallback: ["system-ui", "Roboto", "Arial", "sans-serif"],
 });
 
-export const nunito = localFont({
-  src: [{ path: "./fonts/nunito-latin-800-normal.woff2", weight: "800" }],
-  variable: "--font-nunito",
+/** One weight only (400): headings must not ask for bold, or browsers fake it. */
+export const bagelFatOne = localFont({
+  src: [
+    { path: "./fonts/bagel-fat-one-latin-400-normal.woff2", weight: "400" },
+  ],
+  variable: "--font-bagel",
   display: "swap",
-  preload: false,
   fallback: ["system-ui", "Roboto", "Arial", "sans-serif"],
 });

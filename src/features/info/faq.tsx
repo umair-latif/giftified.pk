@@ -15,7 +15,7 @@ export interface FaqItem {
  */
 export function Faq({ items }: { items: readonly FaqItem[] }) {
   return (
-    <div className="divide-y divide-zinc-200 overflow-hidden rounded-2xl bg-white ring-1 ring-zinc-200">
+    <div className="card divide-y divide-zinc-200 overflow-hidden">
       {items.map((item) => (
         <Disclosure
           key={item.id}

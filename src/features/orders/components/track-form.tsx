@@ -20,11 +20,7 @@ export function TrackForm() {
   const values = state.status === "error" ? state.values : undefined;
 
   return (
-    <form
-      action={action}
-      className="flex flex-col gap-4 rounded-2xl bg-white p-4 ring-1 ring-zinc-200"
-      noValidate
-    >
+    <form action={action} className="card flex flex-col gap-4 p-4" noValidate>
       <Field
         id="track-order"
         label="Order number"

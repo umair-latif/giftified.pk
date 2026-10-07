@@ -59,7 +59,7 @@ export async function saveToMyDesigns(
   );
   if (assets.some((a) => !a.asset))
     throw new SaveDesignFailed(
-      "A photo in your design is no longer on this phone. Please add it again.",
+      "A photo in your design is no longer on this device. Please add it again.",
     );
 
   const startRes = await d.fetch("/api/account/designs", {

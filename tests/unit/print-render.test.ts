@@ -336,3 +336,43 @@ describe("renderPrintFile — images from originals", () => {
     );
   });
 });
+
+it("prints a background-colour layer (editor tool Colour) edge to edge", async () => {
+  const product = getProduct("mug")!;
+  const { widthMm, heightMm } = product.printArea;
+  const file = await renderPrintFile({
+    schemaVersion: 1,
+    productId: "mug",
+    units: "mm",
+    printArea: product.printArea,
+    fabric: {
+      objects: [
+        {
+          type: "Rect",
+          role: "background",
+          originX: "left",
+          originY: "top",
+          // As the editor makes it: 1 mm bleed on every side.
+          left: -1,
+          top: -1,
+          width: widthMm + 2,
+          height: heightMm + 2,
+          strokeWidth: 0,
+          fill: "#ffe135",
+        },
+      ],
+    },
+  });
+  const { at, info } = await pixels(file.png);
+  // Every corner pixel, including the very last row and column, fully covered.
+  const w = info.width - 1;
+  const h = info.height - 1;
+  for (const [x, y] of [
+    [0, 0],
+    [w, 0],
+    [0, h],
+    [w, h],
+    [w / 2, h / 2],
+  ] as const)
+    expect(at(x, y)).toEqual([0xff, 0xe1, 0x35, 255]);
+});

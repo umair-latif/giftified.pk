@@ -54,7 +54,7 @@ export async function generateMetadata({
     description,
     alternates: { canonical: `/products/${m.product?.slug ?? m.productId}` },
     openGraph: {
-      title: `${name} · Giftified.pk`,
+      title: `${name} · DesignBanana`,
       description,
       type: "website",
       ...(image ? { images: [{ url: image.src, alt: image.alt }] } : {}),
@@ -101,7 +101,7 @@ export default async function ProductPage({
         ) : (
           <ProductArt
             productId={productId}
-            className="aspect-square overflow-hidden rounded-3xl ring-1 ring-zinc-200"
+            className="card aspect-square overflow-hidden"
           />
         )}
         <div className="min-w-0 space-y-4">
@@ -123,7 +123,7 @@ export default async function ProductPage({
           {/* First card, always: Design your own. */}
           <section
             aria-labelledby="design-own"
-            className="border-brand-200 space-y-3 rounded-3xl border-2 bg-white p-4 shadow-sm"
+            className="card card-pop space-y-3 p-4"
             data-testid="design-your-own"
           >
             <h2 id="design-own" className="font-display text-ink text-xl">

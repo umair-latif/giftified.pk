@@ -24,7 +24,7 @@ const entry = (id: number) => ({
   createdAt: "2026-09-28T10:00:00.000Z",
 });
 
-describe("recent orders on this phone", () => {
+describe("recent orders on this device", () => {
   it("saves newest first, de-duplicates and keeps at most 20", () => {
     const s = memoryStorage();
     for (let id = 1; id <= 25; id++) saveRecentOrder(entry(id), s);

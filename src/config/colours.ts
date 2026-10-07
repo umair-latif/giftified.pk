@@ -23,3 +23,27 @@ export const TEXT_SWATCHES: readonly Swatch[] = [
   { name: "Pink", hex: "#db2777" },
   { name: "Brown", hex: "#78350f" },
 ];
+
+/**
+ * Background colours (editor tool "Background colour"): soft tints that keep text
+ * readable, the brand brights, and a few deep shades. The whole print area is
+ * filled, so these print as solid colour (full wrap on a mug).
+ */
+export const BACKGROUND_SWATCHES: readonly Swatch[] = [
+  { name: "Cream", hex: "#fdf6e3" },
+  { name: "Blush", hex: "#fce7f3" },
+  { name: "Peach", hex: "#ffedd5" },
+  { name: "Lemon", hex: "#fef9c3" },
+  { name: "Mint", hex: "#dcfce7" },
+  { name: "Sky", hex: "#e0f2fe" },
+  { name: "Lavender", hex: "#ede9fe" },
+  { name: "Grey", hex: "#e5e7eb" },
+  { name: "Banana", hex: "#ffe135" },
+  { name: "Pink", hex: "#ff3d8b" },
+  { name: "Teal", hex: "#14b8a6" },
+  { name: "Orange", hex: "#f97316" },
+  { name: "Red", hex: "#dc2626" },
+  { name: "Green", hex: "#15803d" },
+  { name: "Navy", hex: "#1e3a8a" },
+  { name: "Black", hex: "#111827" },
+];

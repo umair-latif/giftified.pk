@@ -11,11 +11,11 @@ then update the page that renders it (each entry names the file).
 | What      | Value                                      |
 | --------- | ------------------------------------------ |
 | WhatsApp  | `+49 15209144535`                          |
-| Email     | `brainmasala1@gmail.com`                   |
-| Instagram | `@elyou.dgn` → https://instagram.com/elyou.dgn |
-| TikTok    | `@elyou.designs` → https://tiktok.com/@elyou.designs |
-| Facebook  | TODO(founder) — given as `#` (no URL yet); hidden until filled in |
-| YouTube   | TODO(founder) — given as `#` (no URL yet); hidden until filled in |
+| Email     | `designbanana.admin@gmail.com` (for now; move to `@designbanana.pk` later) |
+| Instagram | `@designbananapk` → https://instagram.com/designbananapk |
+| TikTok    | `@designbananapk` → https://tiktok.com/@designbananapk |
+| Facebook  | TODO(founder) — placeholder https://facebook.com until the page exists |
+| YouTube   | TODO(founder) — placeholder https://youtube.com until the channel exists |
 | Hours     | 7am – 6pm PKT, every day                   |
 
 **TODO(founder): the WhatsApp number is German (+49), not Pakistani.** It is published as-is for

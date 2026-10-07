@@ -186,7 +186,7 @@ test.describe("with a placed order", () => {
     await expect(page.getByTestId("order-number")).toHaveText(`#${orderId}`);
   });
 
-  test("/track lists recent orders opened on this phone", async ({ page }) => {
+  test("/track lists recent orders opened on this device", async ({ page }) => {
     await page.goto(statusUrl);
     await expect(page.getByTestId("order-number")).toBeVisible();
     await page.goto("/track");

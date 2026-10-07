@@ -11,15 +11,16 @@ import {
   type CropTarget,
   type SelectionInfo,
 } from "../hooks/use-fabric-canvas";
-import { SaveDesignButton } from "@/features/saved-designs/components/save-design-button";
 import { SamplePickerSheet } from "@/features/templates/sample-picker-sheet";
 import { useTemplateEditor } from "@/features/templates/use-template-editor";
 import { CropSheet } from "./crop-sheet";
+import { BackgroundSheet } from "./background-sheet";
+import { EditorTip } from "./editor-tip";
 import { SelectionBar } from "./selection-bar";
 import { TextSheet } from "./text-sheet";
 import { ACCEPTED_IMAGE_TYPES } from "../assets/prepare-image";
 import { EditorStage } from "./editor-stage";
-import { ColourPicker } from "./colour-picker";
+import { ColourPicker, garmentColourLabel } from "./colour-picker";
 import { useProductColour } from "../colour";
 import { PrintQualityBadge } from "./print-quality-badge";
 import { EditorToolbar } from "./editor-toolbar";
@@ -50,6 +51,7 @@ export function DesignEditor({
   const [textSheetOpen, setTextSheetOpen] = useState(false);
   const isDesigner = useTemplateEditor();
   const [samplesOpen, setSamplesOpen] = useState(false);
+  const [backgroundOpen, setBackgroundOpen] = useState(false);
   const selectionKind = !ed.selection
     ? null
     : ed.selection.text
@@ -70,7 +72,7 @@ export function DesignEditor({
 
   return (
     <div
-      className={`bg-cream flex min-h-dvh flex-col ${selectionKind ? "pb-36" : "pb-24"} lg:pb-8`}
+      className={`bg-cream flex min-h-dvh flex-col ${selectionKind ? "pb-48" : "pb-24"} lg:pb-8`}
     >
       <AppHeader
         title={item ? "Edit design" : "Design"}
@@ -125,6 +127,7 @@ export function DesignEditor({
           {!item && (
             <ColourPicker
               colours={product.baseColors}
+              label={garmentColourLabel(product)}
               value={colourId}
               onChange={setColourId}
             />
@@ -175,6 +178,11 @@ export function DesignEditor({
               replacing.current = false;
               fileInput.current?.click();
             }}
+            background={ed.background}
+            onBackground={() => {
+              ed.deselect();
+              setBackgroundOpen(true);
+            }}
           />
           {selectionKind && (
             <SelectionBar
@@ -186,6 +194,9 @@ export function DesignEditor({
                 replacing.current = true;
                 fileInput.current?.click();
               }}
+              onCentre={ed.centre}
+              onStraighten={ed.straighten}
+              straight={!!ed.selection && isStraight(ed.selection)}
               onCopy={ed.copySelected}
               onDelete={ed.deleteSelected}
               customerPhoto={
@@ -238,33 +249,17 @@ export function DesignEditor({
             )
           )}
 
-          {ed.selection && (
-            <div className="flex gap-2">
-              <Chip onClick={ed.centre}>Centre</Chip>
-              <Chip onClick={ed.straighten} disabled={isStraight(ed.selection)}>
-                Straighten
-              </Chip>
-            </div>
-          )}
-
-          <SaveDesignButton
-            product={product}
-            getDesign={ed.getDesign}
-            disabled={!ready || ed.layerCount === 0}
-            {...(item
-              ? {
-                  designKey: item.designKey,
-                  returnTo: `/design/${product.id}?item=${encodeURIComponent(item.id)}`,
-                }
-              : {})}
-          />
-          <p className="text-[11px] text-zinc-400">
-            Drag to move — it snaps to the centre lines · two fingers to resize
-            and rotate (snaps level at 0°) · double-tap text to edit
-          </p>
+          <EditorTip />
         </aside>
       </main>
 
+      {backgroundOpen && (
+        <BackgroundSheet
+          value={ed.background}
+          onChange={ed.setBackgroundColour}
+          onClose={() => setBackgroundOpen(false)}
+        />
+      )}
       {samplesOpen && ed.selection && (
         <SamplePickerSheet
           current={ed.selection.customerPhoto}
@@ -321,27 +316,6 @@ function IconButton({
       onClick={onClick}
       disabled={disabled}
       className="focus-visible:ring-brand-600/20 grid size-11 shrink-0 place-items-center rounded-full text-zinc-700 hover:bg-zinc-100 focus-visible:ring-2 focus-visible:outline-none active:bg-zinc-100 disabled:text-zinc-300 disabled:hover:bg-transparent lg:size-12"
-    >
-      {children}
-    </button>
-  );
-}
-
-function Chip({
-  onClick,
-  disabled,
-  children,
-}: {
-  onClick: () => void;
-  disabled?: boolean;
-  children: React.ReactNode;
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      disabled={disabled}
-      className="focus-visible:ring-brand-600/20 h-9 rounded-full border border-zinc-300 bg-white px-3 text-xs font-medium text-zinc-700 hover:bg-zinc-100 focus-visible:ring-2 focus-visible:outline-none active:bg-zinc-100 disabled:border-zinc-200 disabled:text-zinc-300 disabled:hover:bg-white"
     >
       {children}
     </button>

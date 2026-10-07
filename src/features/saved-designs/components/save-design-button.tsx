@@ -1,7 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState, useSyncExternalStore } from "react";
+import { createPortal } from "react-dom";
+import { buttonClass, chipClass } from "@/components/ui/button";
+import { BookmarkIcon } from "@/components/ui/icons";
+import { Sheet } from "@/components/ui/sheet";
 import type { ProductConfig } from "@/config/products";
 import { useSignedIn } from "@/features/auth/signed-in";
 import {
@@ -18,14 +22,15 @@ type State =
   | { kind: "saved"; name: string }
   | { kind: "error"; message: string; signedOut?: boolean };
 
-const chip =
-  "focus-visible:ring-brand-600/20 inline-flex h-9 items-center rounded-full border border-zinc-300 bg-white px-3 text-xs font-medium text-zinc-700 hover:bg-zinc-100 focus-visible:ring-2 focus-visible:outline-none active:bg-zinc-100 disabled:border-zinc-200 disabled:text-zinc-300 disabled:hover:bg-white";
+/** How long the "Saved as …" notice stays up. */
+const NOTICE_MS = 6000;
 
 /**
- * "Save to my designs" (task 22). Signed out: a link to sign in that comes
- * back to this editor (the draft is kept on the phone meanwhile). Signed in:
- * uploads the design and photos to the account; saving again updates the
- * same saved design.
+ * "Save" (task 22): a small button for the Preview screen's top bar.
+ * Signed out: opens a short sheet (why, and that the work stays on this
+ * device meanwhile — drafts autosave) with Sign up / Sign in, both coming back
+ * here. Signed in: uploads the design and photos to the account (saving again
+ * updates the same saved design) and shows a short "Saved as …" notice.
  */
 export function SaveDesignButton({
   product,
@@ -38,24 +43,21 @@ export function SaveDesignButton({
   getDesign: () => DesignDocument | null;
   /** The cart design being edited, when not the product's draft. */
   designKey?: string;
-  /** Where sign-in comes back to (defaults to the product's editor). */
-  returnTo?: string;
+  /** Where sign-in / sign-up come back to. */
+  returnTo: string;
   disabled?: boolean;
 }) {
   const signedIn = useSignedIn();
   const [state, setState] = useState<State>({ kind: "idle" });
-  const here = returnTo ?? `/design/${product.id}`;
+  const [askOpen, setAskOpen] = useState(false);
+  const next = encodeURIComponent(returnTo);
 
-  if (!signedIn)
-    return (
-      <Link
-        href={`/sign-in?next=${encodeURIComponent(here)}`}
-        className={chip}
-        data-testid="save-design-sign-in"
-      >
-        Save to my designs
-      </Link>
-    );
+  // The "Saved" notice clears itself.
+  useEffect(() => {
+    if (state.kind !== "saved") return;
+    const t = setTimeout(() => setState({ kind: "idle" }), NOTICE_MS);
+    return () => clearTimeout(t);
+  }, [state]);
 
   async function save() {
     const design = getDesign();
@@ -96,46 +98,110 @@ export function SaveDesignButton({
     }
   }
 
-  return (
-    <div className="flex flex-col gap-1" data-testid="save-design">
-      <div>
-        <button
-          type="button"
-          onClick={() => void save()}
-          disabled={disabled || state.kind === "saving"}
-          className={chip}
-          data-testid="save-design-button"
-        >
-          {state.kind === "saving"
-            ? `Saving${state.progress ? ` (${state.progress})` : ""}…`
-            : "Save to my designs"}
-        </button>
-      </div>
-      <p className="text-xs" role="status" aria-live="polite">
-        {state.kind === "saved" && (
-          <span className="text-emerald-700" data-testid="save-design-done">
-            Saved as “{state.name}”.{" "}
-            <Link href="/account/designs" className="font-medium underline">
-              My designs
-            </Link>
-          </span>
-        )}
-        {state.kind === "error" && (
-          <span className="text-red-700">
-            {state.message}{" "}
-            {state.signedOut && (
-              <Link
-                href={`/sign-in?next=${encodeURIComponent(here)}`}
-                className="font-medium underline"
-              >
-                Sign in
-              </Link>
-            )}
-          </span>
-        )}
-      </p>
-    </div>
+  const saving = state.kind === "saving";
+  // The button sits in the sticky (blurred) top bar, which would trap
+  // fixed-position children, so the notice and sheet render on <body>.
+  const mounted = useSyncExternalStore(
+    noop,
+    () => true,
+    () => false,
   );
+  const layer = (
+    <>
+      {/* Result notice, just under the top bar. */}
+      <div
+        role="status"
+        aria-live="polite"
+        className="pointer-events-none fixed inset-x-0 top-[calc(4rem+env(safe-area-inset-top))] z-30 flex justify-center px-4 lg:top-[calc(4.5rem+env(safe-area-inset-top))]"
+      >
+        {(state.kind === "saved" ||
+          state.kind === "error" ||
+          (saving && state.progress)) && (
+          <p
+            className={`card card-pop pointer-events-auto max-w-sm px-3 py-2 text-sm ${
+              state.kind === "error" ? "text-red-700" : "text-ink"
+            }`}
+            data-testid={
+              state.kind === "saved" ? "save-design-done" : undefined
+            }
+          >
+            {state.kind === "saved" && (
+              <>
+                Saved as “{state.name}”.{" "}
+                <Link
+                  href="/account/designs"
+                  className="text-brand-700 font-semibold underline"
+                >
+                  My designs
+                </Link>
+              </>
+            )}
+            {saving && `Saving ${state.progress}…`}
+            {state.kind === "error" && (
+              <>
+                {state.message}{" "}
+                {state.signedOut && (
+                  <Link
+                    href={`/sign-in?next=${next}`}
+                    className="font-semibold underline"
+                  >
+                    Sign in
+                  </Link>
+                )}
+              </>
+            )}
+          </p>
+        )}
+      </div>
+
+      {askOpen && (
+        <Sheet title="Save your design" onClose={() => setAskOpen(false)}>
+          <div className="space-y-4" data-testid="save-design">
+            <p className="text-sm text-zinc-700">
+              Sign up to keep designs in your account and open them on any
+              device. Until then, this design stays on this device.
+            </p>
+            <div className="flex flex-col gap-3 sm:flex-row">
+              <Link
+                href={`/sign-up?next=${next}`}
+                className={buttonClass("primary")}
+                data-testid="save-design-sign-up"
+              >
+                Sign up
+              </Link>
+              <Link
+                href={`/sign-in?next=${next}`}
+                className={buttonClass("secondary")}
+                data-testid="save-design-sign-in-link"
+              >
+                I have an account
+              </Link>
+            </div>
+          </div>
+        </Sheet>
+      )}
+    </>
+  );
+  return (
+    <>
+      <button
+        type="button"
+        onClick={() => (signedIn ? void save() : setAskOpen(true))}
+        disabled={signedIn && (disabled || saving)}
+        className={chipClass}
+        data-testid={signedIn ? "save-design-button" : "save-design-sign-in"}
+        aria-haspopup={signedIn ? undefined : "dialog"}
+      >
+        <BookmarkIcon width={16} height={16} />
+        {saving ? "Saving…" : "Save"}
+      </button>
+      {mounted && createPortal(layer, document.body)}
+    </>
+  );
+}
+
+function noop() {
+  return () => {};
 }
 
 /** "Custom Mug · 30 Sep" — the customer can rename it in My designs. */

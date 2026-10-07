@@ -8,14 +8,25 @@ test.beforeEach(({ page }) => {
 });
 test.afterEach(() => expect(pageErrors).toEqual([]));
 
-test("signed out, Save to my designs asks to sign in and comes back", async ({
+test("signed out, Save on Preview offers sign up / sign in and comes back", async ({
   page,
 }) => {
   await openEditorWithText(page);
-  const link = page.getByTestId("save-design-sign-in");
-  await expect(link).toHaveAttribute(
+  await page.getByRole("link", { name: "Preview", exact: true }).tap();
+  await expect(page).toHaveURL(/\/design\/mug\/preview$/);
+  const back = encodeURIComponent("/design/mug/preview");
+  await page.getByTestId("save-design-sign-in").tap();
+  // A short sheet explains why; both links come back to the preview.
+  await expect(page.getByTestId("save-design")).toContainText(
+    "stays on this device",
+  );
+  await expect(page.getByTestId("save-design-sign-up")).toHaveAttribute(
     "href",
-    `/sign-in?next=${encodeURIComponent("/design/mug")}`,
+    `/sign-up?next=${back}`,
+  );
+  await expect(page.getByTestId("save-design-sign-in-link")).toHaveAttribute(
+    "href",
+    `/sign-in?next=${back}`,
   );
 });
 
@@ -32,6 +43,7 @@ test("save a design, find it in My designs on another device, rename and delete 
   await expect(page).toHaveURL(/\/account$/);
 
   await openEditorWithText(page);
+  await page.getByRole("link", { name: "Preview", exact: true }).tap();
   await page.getByTestId("save-design-button").tap();
   await expect(page.getByTestId("save-design-done")).toContainText("Saved as");
   // Saving again updates the same design (no copy).

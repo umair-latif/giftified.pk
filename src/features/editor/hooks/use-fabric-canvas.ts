@@ -92,6 +92,8 @@ export function useFabricCanvas(
   const historyRef = useRef<CanvasHistory | null>(null);
   const [status, setStatus] = useState<EditorStatus>("loading");
   const [layerCount, setLayerCount] = useState(0);
+  /** Background colour layer's fill, or null (tool "Background colour"). */
+  const [background, setBackground] = useState<string | null>(null);
   const [selection, setSelection] = useState<SelectionInfo | null>(null);
   const [guides, setGuides] = useState<GuideState>(NO_GUIDES);
   const [canUndo, setCanUndo] = useState(false);
@@ -167,7 +169,9 @@ export function useFabricCanvas(
         cancelAnimationFrame(frame);
         frame = requestAnimationFrame(() => {
           const objects = canvas.getObjects();
-          setLayerCount(objects.length);
+          // The background is not a "layer" the customer adds or picks.
+          setLayerCount(objects.filter((o) => !engine.isBackground(o)).length);
+          setBackground(engine.backgroundColour(canvas));
           setSelection(describe(engine, canvas.getActiveObject()));
           setPlaceholders(
             objects.filter(
@@ -327,6 +331,13 @@ export function useFabricCanvas(
   const addText = useCallback(
     () => run((e, dc) => e.addText(dc.canvas, dc.area, { fill: textFill })),
     [run, textFill],
+  );
+  const setBackgroundColour = useCallback(
+    (colour: string | null) =>
+      run((e, dc) =>
+        e.setBackgroundColour(dc.canvas, product.printArea, colour),
+      ),
+    [run, product.printArea],
   );
   const deleteSelected = useCallback(
     () => run((e, dc) => e.deleteSelected(dc.canvas)),
@@ -513,6 +524,8 @@ export function useFabricCanvas(
     hostRef,
     status,
     layerCount,
+    background,
+    setBackgroundColour,
     placeholders,
     selection,
     guides,

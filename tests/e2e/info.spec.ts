@@ -1,23 +1,23 @@
 import { expect, test } from "@playwright/test";
 
 const PAGES = [
-  { path: "/help", heading: "Help & FAQ", title: "Help & FAQ · Giftified.pk" },
+  { path: "/help", heading: "Help & FAQ", title: "Help & FAQ · DesignBanana" },
   {
     path: "/contact",
     heading: "Contact us",
-    title: "Contact us · Giftified.pk",
+    title: "Contact us · DesignBanana",
   },
   {
     path: "/about",
-    heading: "About Giftified.pk",
-    title: "About us · Giftified.pk",
+    heading: "About DesignBanana",
+    title: "About us · DesignBanana",
   },
-  { path: "/privacy", heading: "Privacy", title: "Privacy · Giftified.pk" },
-  { path: "/terms", heading: "Terms of sale", title: "Terms · Giftified.pk" },
+  { path: "/privacy", heading: "Privacy", title: "Privacy · DesignBanana" },
+  { path: "/terms", heading: "Terms of sale", title: "Terms · DesignBanana" },
   {
     path: "/printing-guidelines",
     heading: "Printing guidelines",
-    title: "Printing guidelines · Giftified.pk",
+    title: "Printing guidelines · DesignBanana",
   },
 ] as const;
 

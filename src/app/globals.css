@@ -1,47 +1,74 @@
 @import "tailwindcss";
 
 /*
- * Brand tokens (docs/brand.md). Colours sampled from the brand sheet;
- * brand-600 is the button colour (white text 5.3:1, WCAG AA).
+ * Brand tokens (docs/brand.md): DesignBanana v7 theme — Giftified teal with
+ * pink, banana yellow and near-black. brand-600 is the button colour
+ * (white text 5.5:1, WCAG AA).
  */
 @theme {
-  --font-sans: var(--font-poppins), system-ui, Roboto, Arial, sans-serif;
+  --font-sans: var(--font-space-grotesk), system-ui, Roboto, Arial, sans-serif;
   --font-display:
-    var(--font-nunito), var(--font-poppins), system-ui, sans-serif;
+    var(--font-bagel), var(--font-space-grotesk), system-ui, sans-serif;
 
-  /* Personalized Teal (logo = 500) */
-  --color-brand-50: #eef7f8;
-  --color-brand-100: #d5ecef;
-  --color-brand-200: #b0dbe2;
-  --color-brand-300: #8cc7d1;
-  --color-brand-400: #5aaab8;
-  --color-brand-500: #2b8496;
-  --color-brand-600: #237585;
-  --color-brand-700: #1f6b7a;
-  --color-brand-800: #1b5e6b;
-  --color-brand-900: #154a54;
+  /* Teal (big shapes = 500, buttons/links = 600) */
+  --color-brand-50: #f0fdfa;
+  --color-brand-100: #ccfbf1;
+  --color-brand-200: #99f6e4;
+  --color-brand-300: #5eead4;
+  --color-brand-400: #2dd4bf;
+  --color-brand-500: #14b8a6;
+  --color-brand-600: #0f766e;
+  --color-brand-700: #115e59;
+  --color-brand-800: #134e4a;
+  --color-brand-900: #0b3b37;
 
-  /* Creative Mint */
-  --color-mint-100: #e3f6ec;
-  --color-mint-300: #9ddfbc;
-  --color-mint-500: #6fcb9c;
+  /* Mint paper */
+  --color-mint-100: #ddf4ef;
+  --color-mint-300: #9fe3d3;
+  --color-mint-500: #5ccdb6;
 
-  /* Secondary */
-  --color-magenta: #c5448a;
-  --color-sunny: #fed847;
-  --color-ink: #484847;
-  --color-cream: #fbf8ec;
+  /* Secondary: pink and yellow take black text, never white */
+  --color-magenta: #ff3d8b;
+  --color-sunny: #ffe135;
+  --color-ink: #121212;
+  --color-cream: #f3fbf9;
+}
+
+/*
+ * Cards (docs/brand.md): every card on the site is white with the same 3px
+ * black outline and 16px corners. `card-pop` adds the 4px hard shadow and is
+ * for cards you can tap (product cards, design tiles); info cards stay flat.
+ */
+@utility card {
+  background-color: #fff;
+  border: 3px solid var(--color-ink);
+  border-radius: var(--radius-2xl);
+}
+
+@utility card-pop {
+  box-shadow: 4px 4px 0 var(--color-ink);
 }
 
 body {
   background: var(--color-cream);
-  color: #1f1f1e;
+  color: var(--color-ink);
   font-family: var(--font-sans);
   -webkit-tap-highlight-color: transparent;
 }
 
+/* Bagel Fat One has one weight; never let the browser fake a bold or italic. */
 h1,
 h2,
 .font-display {
   font-family: var(--font-display);
+  font-weight: 400;
+  font-synthesis: none;
+}
+
+/* Small UI headings (editor header, sheet titles, form sections) stay in the
+   text font so the editor and forms remain calm. */
+h1.font-semibold,
+h2.font-semibold {
+  font-family: var(--font-sans);
+  font-weight: 600;
 }

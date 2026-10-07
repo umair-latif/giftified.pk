@@ -26,6 +26,12 @@ export const ArrowRightIcon = (p: IconProps) => (
   </svg>
 );
 
+export const BookmarkIcon = (p: IconProps) => (
+  <svg {...base} {...p}>
+    <path d="M6 3h12v18l-6-4-6 4z" />
+  </svg>
+);
+
 export const UndoIcon = (p: IconProps) => (
   <svg {...base} {...p}>
     <path d="M9 14L4 9l5-5" />

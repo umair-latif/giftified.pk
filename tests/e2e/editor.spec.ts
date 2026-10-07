@@ -195,3 +195,85 @@ test("a small element can be moved with its move handle without resizing it", as
   expect(after.x).toBeGreaterThan(before.x + 3);
   expect(after.w).toBe(before.w); // moved, not resized
 });
+
+test("the gesture tip shows once, until it is closed", async ({ page }) => {
+  await page.goto("/design/mug");
+  const tip = page.getByTestId("editor-tip");
+  await expect(tip).toContainText("Two fingers");
+  await tip.getByRole("button", { name: "Got it" }).tap();
+  await expect(tip).toBeHidden();
+  await page.reload();
+  await expect(page.getByTestId("editor-status")).toBeVisible();
+  await expect(tip).toBeHidden();
+});
+
+test("Centre and Straighten live in the selection bar", async ({ page }) => {
+  await openEditorWithText(page);
+  const bar = page.getByTestId("selection-bar");
+  await expect(bar.getByRole("button", { name: "Centre" })).toBeVisible();
+  await expect(bar.getByRole("button", { name: "Straighten" })).toBeDisabled();
+});
+
+test("Background colour fills the print area, prints with the design, and undoes", async ({
+  page,
+}) => {
+  await openEditorWithText(page);
+  const tools = page.getByRole("navigation", { name: "Editor tools" });
+  await expect(tools.getByRole("button", { name: "Layers" })).toHaveCount(0);
+  await expect(tools.getByRole("button", { name: "3D" })).toHaveCount(0);
+
+  await tools.getByRole("button", { name: "Background colour" }).tap();
+  const panel = page.getByTestId("background-panel");
+  await panel.getByRole("button", { name: "Banana" }).tap();
+  await expect(panel.getByRole("button", { name: "Banana" })).toHaveAttribute(
+    "aria-pressed",
+    "true",
+  );
+  // Still one text layer: the background isn't counted or selectable.
+  await page.keyboard.press("Escape");
+  await expect(status(page)).toContainText("1 layer");
+
+  // A canvas pixel near a corner (no text there) shows the colour.
+  const { x, y } = await canvasBox(page);
+  await expect
+    .poll(() =>
+      page.evaluate(() => {
+        const c = document.querySelector<HTMLCanvasElement>(
+          "canvas.lower-canvas",
+        )!;
+        return [...c.getContext("2d")!.getImageData(3, 3, 1, 1).data];
+      }),
+    )
+    .toEqual([0xff, 0xe1, 0x35, 255]);
+
+  // Saved in the draft as the bottom layer, so it reaches preview and print.
+  await expect
+    .poll(() =>
+      page.evaluate(() => {
+        const raw = localStorage.getItem("giftified:draft:mug");
+        const objects = (
+          JSON.parse(raw ?? "{}") as {
+            fabric?: { objects?: { role?: string; fill?: string }[] };
+          }
+        ).fabric?.objects;
+        return objects?.[0]?.role === "background" ? objects[0].fill : null;
+      }),
+    )
+    .toBe("#ffe135");
+
+  // Tapping where only the background is selects nothing.
+  await page.touchscreen.tap(x + 6, y + 6);
+  await expect(status(page)).toContainText("1 layer");
+
+  // One undo step removes it.
+  await page.getByRole("button", { name: "Undo" }).tap();
+  await expect
+    .poll(() =>
+      page.evaluate(() =>
+        (localStorage.getItem("giftified:draft:mug") ?? "").includes(
+          '"role":"background"',
+        ),
+      ),
+    )
+    .toBe(false);
+});

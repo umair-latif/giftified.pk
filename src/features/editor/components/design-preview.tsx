@@ -1,7 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { GalleryArrows } from "@/components/ui/image-gallery";
+import { useSwipe } from "@/components/ui/use-swipe";
 import type { ProductConfig } from "@/config/products";
 import {
   printQualityReport,
@@ -54,6 +56,7 @@ export function DesignPreview({
 }) {
   const [state, setState] = useState<State>({ kind: "loading" });
   const [selected, setSelected] = useState<string>();
+  const strip = useRef<HTMLDivElement>(null);
   const [mockupFailed, setMockupFailed] = useState(false);
   // Mockups belong to the design image they were made from (`of`); a stale
   // set is ignored until the new one arrives.
@@ -83,9 +86,11 @@ export function DesignPreview({
       ? designFontFaces(migrateDesignFonts(draft.fabric))
       : [];
     const run = async () => {
-      const layers =
-        (draft?.fabric.objects as unknown[] | undefined)?.length ?? 0;
-      if (!draft || layers === 0) return { kind: "empty" } as const;
+      const objects =
+        (draft?.fabric.objects as { role?: unknown }[] | undefined) ?? [];
+      if (!draft || objects.length === 0) return { kind: "empty" } as const;
+      // A background colour is printed but isn't a layer the customer added.
+      const layers = objects.filter((o) => o.role !== "background").length;
       const [{ renderDesignToDataUrl }, fontsReady] = await Promise.all([
         import("../engine"),
         loadFaces(faces),
@@ -164,6 +169,23 @@ export function DesignPreview({
     : [];
   // Selected by label, so the same view stays chosen when the colour changes.
   const shown = gallery.find((g) => g.spec.label === selected) ?? gallery[0];
+  const shownIndex = shown ? gallery.indexOf(shown) : 0;
+  // Same behaviour as the product gallery: a scroll-snap strip (native swipe
+  // on touch, drag with a mouse); arrows and thumbnails scroll it, and the
+  // scroll position decides which view is current.
+  const goTo = (i: number) => {
+    const el = strip.current;
+    const target = gallery[i];
+    if (!el || !target) return;
+    el.scrollTo({ left: i * el.clientWidth, behavior: "smooth" });
+    setSelected(target.spec.label);
+  };
+  const step = (d: number) => goTo(shownIndex + d);
+  const swipe = useSwipe(
+    () => step(-1),
+    () => step(1),
+    "mouse",
+  );
   const showFlat = !useGallery || state.kind !== "ready";
   const first = specs?.[0];
 
@@ -177,43 +199,72 @@ export function DesignPreview({
             aria-label="Preview gallery"
             data-testid="preview-gallery"
           >
-            <div
-              className="relative w-full overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-zinc-200 lg:min-w-0 lg:flex-1"
-              style={{
-                aspectRatio: `${(shown?.spec ?? first).widthPx} / ${(shown?.spec ?? first).heightPx}`,
-              }}
-              data-testid="preview-mockup"
-            >
-              {shown ? (
-                // eslint-disable-next-line @next/next/no-img-element -- local data URL
-                <img
-                  src={shown.src}
-                  alt={`Your ${product.name}, ${shown.spec.label.toLowerCase()} view`}
-                  className="absolute inset-0 size-full"
-                />
-              ) : (
-                <span className="absolute inset-0 grid place-items-center text-xs text-zinc-400">
-                  Rendering preview…
-                </span>
-              )}
+            <div className="relative w-full lg:min-w-0 lg:flex-1">
+              <div
+                ref={strip}
+                {...swipe}
+                onScroll={(e) => {
+                  const el = e.currentTarget;
+                  const i = Math.round(
+                    el.scrollLeft / Math.max(el.clientWidth, 1),
+                  );
+                  const at = gallery[i];
+                  if (at && at.spec.id !== shown?.spec.id)
+                    setSelected(at.spec.label);
+                }}
+                className={`card flex w-full snap-x snap-mandatory [scrollbar-width:none] overflow-x-auto overscroll-x-contain select-none [&::-webkit-scrollbar]:hidden ${gallery.length > 1 ? "cursor-grab active:cursor-grabbing" : ""}`}
+                style={{
+                  aspectRatio: `${first.widthPx} / ${first.heightPx}`,
+                }}
+                data-testid="preview-mockup"
+              >
+                {gallery.length > 0 ? (
+                  gallery.map((g) => (
+                    <div
+                      key={g.spec.id}
+                      className="relative h-full w-full shrink-0 snap-center"
+                      aria-hidden={g !== shown}
+                    >
+                      {/* eslint-disable-next-line @next/next/no-img-element -- local data URL */}
+                      <img
+                        src={g.src}
+                        alt={`Your ${product.name}, ${g.spec.label.toLowerCase()} view`}
+                        draggable={false}
+                        className="absolute inset-0 size-full object-contain"
+                      />
+                    </div>
+                  ))
+                ) : (
+                  <span className="grid w-full place-items-center text-xs text-zinc-400">
+                    Rendering preview…
+                  </span>
+                )}
+              </div>
+              <GalleryArrows
+                index={shownIndex}
+                count={gallery.length}
+                onPrev={() => step(-1)}
+                onNext={() => step(1)}
+                testId="preview"
+              />
             </div>
             {gallery.length > 1 && (
               <ul
-                className="flex gap-2 overflow-x-auto pb-1 lg:w-20 lg:shrink-0 lg:flex-col lg:overflow-visible lg:pb-0"
+                className="flex gap-2 overflow-x-auto pt-0.5 pr-1 pb-1.5 pl-0.5 lg:w-20 lg:shrink-0 lg:flex-col lg:overflow-visible lg:pb-0"
                 aria-label="Views"
               >
                 {gallery.map((g) => (
                   <li key={g.spec.id} className="shrink-0 lg:w-full">
                     <button
                       type="button"
-                      onClick={() => setSelected(g.spec.label)}
+                      onClick={() => goTo(gallery.indexOf(g))}
                       aria-label={g.spec.label}
                       aria-current={g.spec.id === shown?.spec.id}
                       data-testid={`preview-thumb-${g.spec.id}`}
-                      className={`focus-visible:ring-brand-600/60 block h-16 overflow-hidden rounded-lg bg-white ring-2 focus-visible:outline-none lg:h-auto lg:w-full ${
+                      className={`focus-visible:ring-brand-600/60 block h-16 overflow-hidden rounded-xl border-2 bg-white transition duration-150 focus-visible:ring-2 focus-visible:outline-none lg:h-auto lg:w-full ${
                         g.spec.id === shown?.spec.id
-                          ? "ring-brand-600"
-                          : "ring-zinc-200 hover:ring-zinc-300"
+                          ? "border-brand-600 ring-brand-600 translate-x-0.5 translate-y-0.5 ring-2"
+                          : "border-ink shadow-[3px_3px_0_var(--color-ink)] hover:-translate-y-px"
                       }`}
                       style={{
                         aspectRatio: `${g.spec.widthPx} / ${g.spec.heightPx}`,
@@ -274,7 +325,7 @@ export function DesignPreview({
         )}
       </div>
       <div className="flex flex-col gap-3 lg:sticky lg:top-24">
-        <dl className="grid grid-cols-2 gap-y-1 rounded-2xl bg-white p-3 text-xs ring-1 ring-zinc-200">
+        <dl className="card grid grid-cols-2 gap-y-1 p-3 text-xs">
           <dt className="text-zinc-500">Product</dt>
           <dd className="text-right text-zinc-900">{product.subtitle}</dd>
           <dt className="text-zinc-500">Print size</dt>

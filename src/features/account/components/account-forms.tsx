@@ -22,8 +22,7 @@ import { DELETE_CONFIRM_WORD, type FormState } from "../schema";
 import { buttonClass } from "@/components/ui/button";
 
 const idle: FormState = { status: "idle" };
-const card =
-  "flex flex-col gap-4 rounded-2xl bg-white p-4 ring-1 ring-zinc-200";
+const card = "card flex flex-col gap-4 p-4";
 /** Inside a card already (mobile account home): no frame of its own. */
 const plain = "flex flex-col gap-4";
 const frame = (framed: boolean) => (framed ? card : plain);
@@ -291,7 +290,7 @@ export function DeleteAccountForm({ framed = true }: { framed?: boolean }) {
         <button
           type="button"
           onClick={() => setOpen(true)}
-          className="h-12 rounded-full border border-red-200 bg-white font-semibold text-red-700 hover:bg-red-50"
+          className="border-ink h-12 rounded-2xl border-[3px] bg-white font-semibold text-red-700 hover:bg-red-50"
           data-testid="delete-account-start"
         >
           Delete my account
@@ -317,7 +316,7 @@ export function DeleteAccountForm({ framed = true }: { framed?: boolean }) {
           <button
             type="submit"
             disabled={pending}
-            className="h-12 rounded-full bg-red-700 font-semibold text-white hover:bg-red-800 disabled:opacity-60"
+            className="border-ink h-12 rounded-2xl border-[3px] bg-red-700 font-semibold text-white hover:bg-red-800 disabled:opacity-60"
             data-testid="delete-account-confirm"
           >
             {pending ? "Deleting…" : "Delete my account for good"}

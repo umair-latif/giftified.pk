@@ -7,10 +7,12 @@ import { AppHeader } from "@/components/ui/app-header";
 import { StepBar } from "@/components/ui/step-bar";
 import type { ProductConfig } from "@/config/products";
 import { addDraftToCart, useCart } from "@/features/cart/cart";
+import { SaveDesignButton } from "@/features/saved-designs/components/save-design-button";
 import { SaveTemplateSheet } from "@/features/templates/save-template-sheet";
 import { useTemplateEditor } from "@/features/templates/use-template-editor";
 import { useProductColour } from "../colour";
 import { loadDraft, saveThumbnail } from "../draft";
+import { garmentColourLabel } from "./colour-picker";
 import { DesignPreview, type PreviewResult } from "./design-preview";
 import { MissingItem } from "./editor-entry";
 import { buttonClass } from "@/components/ui/button";
@@ -109,6 +111,19 @@ export function PreviewScreen({ product }: { product: ProductConfig }) {
         title={item ? "Preview changes" : "Preview"}
         backHref={editHref}
         backLabel="Back to editor"
+        actions={
+          <div className="mr-2 lg:mr-0">
+            <SaveDesignButton
+              product={product}
+              getDesign={() =>
+                loadDraft(product.id, item ? item.designKey : undefined)
+              }
+              disabled={!result}
+              returnTo={`/design/${product.id}/preview${item ? `?item=${encodeURIComponent(item.id)}` : ""}`}
+              {...(item ? { designKey: item.designKey } : {})}
+            />
+          </div>
+        }
       />
       <StepBar current="Preview" />
       <main className="mx-auto max-w-md px-4 lg:max-w-[76rem] lg:px-6">
@@ -122,7 +137,7 @@ export function PreviewScreen({ product }: { product: ProductConfig }) {
               style={{ backgroundColor: colourHex }}
               aria-hidden
             />
-            {product.name} colour: <strong>{colourName}</strong>
+            {garmentColourLabel(product)}: <strong>{colourName}</strong>
             {!item && (
               <Link
                 href={editHref}

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { pageWidthClass } from "@/components/ui/page";
+import { WordmarkOnDark } from "@/components/ui/wordmark";
 import {
   FacebookIcon,
   InstagramIcon,
@@ -51,14 +52,14 @@ export function SiteFooter() {
       <div className={pageWidthClass("wide")}>
         <div className="grid grid-cols-2 gap-x-4 gap-y-6 md:grid-cols-[1.6fr_1fr_1fr_1fr] md:gap-x-8">
           <div className="col-span-2 md:col-span-1">
-            <p className="font-display text-lg text-white">
-              Giftified<span className="text-mint-300">.pk</span>
+            <p>
+              <WordmarkOnDark />
             </p>
             <p className="text-brand-100 mt-1">{SITE.tagline}</p>
             {wa && (
               <a
                 href={wa}
-                className="bg-mint-300 text-brand-900 hover:bg-mint-500 focus-visible:ring-mint-300/60 mt-4 inline-flex h-11 items-center rounded-full px-5 font-medium focus-visible:ring-2 focus-visible:outline-none"
+                className="bg-sunny text-ink border-ink focus-visible:ring-sunny/60 mt-4 inline-flex h-11 items-center rounded-2xl border-[3px] px-5 font-semibold hover:bg-[#ffd814] focus-visible:ring-2 focus-visible:outline-none"
               >
                 Chat on WhatsApp
               </a>
