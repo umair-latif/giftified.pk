@@ -51,7 +51,8 @@ test("product page: gallery left, title and Start designing right, details full 
   for (const box of [title, start])
     expect(box!.x).toBeGreaterThan(image!.x + image!.width - 1);
   expect(title!.y).toBeLessThan(start!.y);
-  // Details: always open, below both columns, spanning their full width.
+  // Details: closed at first, below both columns, spanning their full width.
+  await expect(page.getByTestId("product-details")).not.toHaveAttribute("open");
   expect(details!.y).toBeGreaterThan(image!.y + image!.height - 1);
   expect(details!.x).toBeLessThanOrEqual(image!.x + 1);
   expect(details!.x + details!.width).toBeGreaterThanOrEqual(

@@ -11,6 +11,7 @@ import {
   slugFor,
   swatches,
 } from "@/features/catalog/catalog-model";
+import { DeliveryEstimate } from "@/features/catalog/components/delivery-estimate";
 import { ProductDetails } from "@/features/catalog/components/product-details";
 import { ProductArt } from "@/features/catalog/components/product-art";
 import { ProductGallery } from "@/features/catalog/components/product-gallery";
@@ -140,6 +141,13 @@ export default async function ProductPage({
               >
                 Start designing
               </Link>
+            </section>
+            <section
+              aria-label="Delivery estimate"
+              className="card p-4"
+              data-testid="delivery-estimate"
+            >
+              <DeliveryEstimate />
             </section>
           </div>
         </div>
