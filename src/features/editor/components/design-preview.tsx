@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import type { ProductConfig } from "@/config/products";
 import {
   printQualityReport,
@@ -9,7 +9,7 @@ import {
 } from "@/lib/print-quality";
 import { resolveAssetRefs } from "../assets/resolve";
 import { loadDraft } from "../draft";
-import { MOCKUP_SPECS } from "../mockup/specs";
+import { MOCKUP_SPECS, specsForColour } from "../mockup/specs";
 import { loadFaces, whenFacesLoaded } from "../fonts/load-fonts";
 import { designFontFaces, migrateDesignFonts } from "../fonts/migrate";
 
@@ -38,10 +38,13 @@ export interface PreviewResult {
 export function DesignPreview({
   product,
   designKey,
+  colourId,
   onReady,
   sideAction,
 }: {
   product: ProductConfig;
+  /** Garment colour to show (a `baseColors` id); the first colour by default. */
+  colourId?: string;
   /** Preview a saved cart design instead of the product's draft. */
   designKey?: string;
   /** Called once the design has rendered, or with null when there is nothing to order. */
@@ -58,9 +61,18 @@ export function DesignPreview({
     of: string;
     byId: Record<string, string>;
   } | null>(null);
-  const specs = MOCKUP_SPECS[product.id];
+  const colour =
+    product.baseColors.find((c) => c.id === colourId) ?? product.baseColors[0];
+  // Photos of this colour only (mug photos apply to every colour).
+  const specs = useMemo(
+    () =>
+      MOCKUP_SPECS[product.id]
+        ? specsForColour(product.id, colour?.id ?? "white")
+        : undefined,
+    [product.id, colour?.id],
+  );
   const { widthMm, heightMm } = product.printArea;
-  const base = product.baseColors[0]?.hex ?? "#ffffff";
+  const base = colour?.hex ?? "#ffffff";
 
   useEffect(() => {
     let cancelled = false;
@@ -150,7 +162,8 @@ export function DesignPreview({
         return src ? [{ spec: s, src }] : [];
       })
     : [];
-  const shown = gallery.find((g) => g.spec.id === selected) ?? gallery[0];
+  // Selected by label, so the same view stays chosen when the colour changes.
+  const shown = gallery.find((g) => g.spec.label === selected) ?? gallery[0];
   const showFlat = !useGallery || state.kind !== "ready";
   const first = specs?.[0];
 
@@ -193,7 +206,7 @@ export function DesignPreview({
                   <li key={g.spec.id} className="shrink-0 lg:w-full">
                     <button
                       type="button"
-                      onClick={() => setSelected(g.spec.id)}
+                      onClick={() => setSelected(g.spec.label)}
                       aria-label={g.spec.label}
                       aria-current={g.spec.id === shown?.spec.id}
                       data-testid={`preview-thumb-${g.spec.id}`}

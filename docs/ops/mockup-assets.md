@@ -117,3 +117,12 @@ the vendor (see `docs/ops/print-specs.md`).
 Layer details and how to swap in a designer's files: `mockup-layer-pack.md`; what to ask the vendor to shoot: `mockup-shot-brief.md`.
 
 The drafted `displace` is smoothed and capped so no part of the print is stretched or squeezed by more than 3% (`--max-strain`): folds should read as shading, not as a warped design. A designer's `displace` should follow the same rule: gentle bends only, no visible stretching.
+
+**Colours (T-shirt: white and black).** Each colour has its own photos: a garment spec has `colour` (default
+white) and the preview shows only the photos of the colour the customer picked (`specsForColour`). The black
+photos today (`tshirt-front-black.webp`, `tshirt-window-black.webp`, `tshirt-editor-front-black.webp`) are
+stand-ins made from the white ones with `python3 scripts/mockup-recolour.py <white> <out> [--bg white|colour]`
+(they reuse the white photos' displace/shadow/highlight layers, which line up pixel for pixel). Replace them
+by file name with the vendor's real black photos and layers. A new colour needs an editor photo
+(`TSHIRT_EDITOR_GUIDE.srcByColour`), one or more preview photos with `colour` set, and its entry in
+`src/config/products/*.ts` (small dedicated PR).

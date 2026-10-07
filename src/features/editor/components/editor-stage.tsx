@@ -4,6 +4,7 @@ import type { ProductConfig } from "@/config/products";
 import type { GuideState } from "../engine/guides";
 import type { EditorStatus } from "../hooks/use-fabric-canvas";
 import { TSHIRT_EDITOR_GUIDE } from "../mockup/garment-guide";
+import { isDarkHex } from "../colour-utils";
 
 interface Props {
   product: ProductConfig;
@@ -11,6 +12,8 @@ interface Props {
   status: EditorStatus;
   guides: GuideState;
   busy?: boolean;
+  /** Garment colour (a product `baseColors` id). */
+  colourId?: string;
 }
 
 /**
@@ -25,9 +28,13 @@ export function EditorStage({
   status,
   guides,
   busy = false,
+  colourId,
 }: Props) {
   const { widthMm, heightMm, safeMarginMm } = product.printArea;
-  const base = product.baseColors[0]?.hex ?? "#ffffff";
+  const colour =
+    product.baseColors.find((c) => c.id === colourId) ?? product.baseColors[0];
+  const base = colour?.hex ?? "#ffffff";
+  const dark = isDarkHex(base);
   const garment = product.id === "tshirt" ? TSHIRT_EDITOR_GUIDE : null;
   const insetX = `${(safeMarginMm / widthMm) * 100}%`;
   const insetY = `${(safeMarginMm / heightMm) * 100}%`;
@@ -59,7 +66,7 @@ export function EditorStage({
       >
         {garment && (
           <Image
-            src={garment.src}
+            src={(colourId && garment.srcByColour[colourId]) || garment.src}
             width={garment.widthPx}
             height={garment.heightPx}
             alt=""
@@ -74,7 +81,11 @@ export function EditorStage({
           className={`${garment ? "absolute" : "relative w-full"} overflow-hidden rounded-md shadow-sm ring-1 ring-zinc-300`}
           style={{
             aspectRatio: `${widthMm} / ${heightMm}`,
-            backgroundColor: garment ? "rgba(255,255,255,0.35)" : base,
+            backgroundColor: garment
+              ? dark
+                ? "rgba(255,255,255,0.08)"
+                : "rgba(255,255,255,0.35)"
+              : base,
             ...(garment
               ? {
                   left: garment.printLeft,

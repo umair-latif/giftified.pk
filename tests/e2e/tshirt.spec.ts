@@ -40,3 +40,39 @@ test("t-shirt configuration opens a portrait editor and preserves its draft", as
   await expect(page.getByText("300 × 400 mm · 300 DPI")).toBeVisible();
   expect(errors).toEqual([]);
 });
+
+test("black t-shirt: black garment in the editor, black photos in the preview, Black in the cart", async ({
+  page,
+}) => {
+  await page.goto("/design/tshirt");
+  await expect(page.getByTestId("colour-white")).toHaveAttribute(
+    "aria-checked",
+    "true",
+  );
+  await page.getByTestId("colour-black").tap();
+  await expect(page.getByTestId("garment-guide")).toHaveAttribute(
+    "src",
+    "/mockups/tshirt-editor-front-black.webp",
+  );
+  await page.getByRole("button", { name: "Text", exact: true }).tap();
+  await expect(page.getByTestId("editor-status")).toContainText("textbox");
+  await page.getByRole("link", { name: "Preview", exact: true }).tap();
+  await expect(page.getByTestId("colour-black")).toHaveAttribute(
+    "aria-checked",
+    "true",
+  );
+  await expect(page.getByTestId("preview-thumb-front-black")).toBeVisible();
+  await expect(page.getByTestId("preview-thumb-studio")).toHaveCount(0);
+  const main = page.getByTestId("preview-mockup").getByRole("img");
+  await expect(main).toHaveAttribute("src", /^data:image\//);
+  await page.getByTestId("preview-mockup").screenshot({
+    path: "test-results/tshirt-black-preview.png",
+  });
+  await page
+    .getByRole("button", { name: "Add to cart" })
+    .filter({ visible: true })
+    .first()
+    .tap();
+  await expect(page).toHaveURL(/\/cart$/);
+  await expect(page.getByTestId("cart-line")).toContainText("Black");
+});

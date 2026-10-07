@@ -82,9 +82,12 @@ describe("mockup mapping", () => {
     const specs = MOCKUP_SPECS.tshirt!;
     expect(specs[0]?.id).toBe("front");
     expect(specs[1]?.id).toBe("window");
+    // White photos first; black stand-ins follow (see colour.test.ts).
     expect(specs.map((s) => s.id)).toEqual([
       "front",
       "window",
+      "front-black",
+      "window-black",
       "studio",
       "closeup",
     ]);
