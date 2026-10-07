@@ -5,6 +5,7 @@ import { Page, PageTitle } from "@/components/ui/page";
 import { PriceTag } from "@/components/ui/price-tag";
 import { getProduct } from "@/config/products";
 import { sizes as sizesOf } from "@/features/catalog/catalog-model";
+import { DeliveryEstimate } from "@/features/catalog/components/delivery-estimate";
 import { ProductDetails } from "@/features/catalog/components/product-details";
 import { loadCatalog } from "@/features/catalog/load-catalog";
 import { DesignGallery } from "@/features/templates/components/design-gallery";
@@ -146,6 +147,13 @@ export default async function DesignProductPage({
             sizes={sizesOf(base)}
             needsPhoto={needsPhoto}
           />
+          <section
+            aria-label="Delivery estimate"
+            className="card p-4"
+            data-testid="delivery-estimate"
+          >
+            <DeliveryEstimate />
+          </section>
         </div>
       </div>
 

@@ -2,13 +2,13 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 import { Disclosure } from "@/components/ui/disclosure";
 import type { ProductConfig } from "@/config/products";
-import { DeliveryEstimate } from "./delivery-estimate";
 
 /**
  * "Details about the product": a card that opens and closes (closed at first,
  * so the page leads with the product and Start designing). Full width under
  * the gallery and the buy panel; when open, on large screens the description
- * sits left, the facts and the delivery estimate right.
+ * sits left, the facts right. The delivery estimate is NOT in here: it sits
+ * under the buy panel so it stays visible while the details are closed.
  */
 export function ProductDetails({
   cfg,
@@ -65,7 +65,6 @@ export function ProductDetails({
               .
             </dd>
           </dl>
-          <DeliveryEstimate />
         </div>
       </div>
     </Disclosure>

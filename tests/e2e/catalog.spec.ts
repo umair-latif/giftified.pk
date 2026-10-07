@@ -52,6 +52,9 @@ test("delivery estimate: Lahore costs Rs 200 and the city is remembered", async 
   await page.getByText("Details about the product").tap();
   await expect(details).toHaveAttribute("open", "");
   await expect(page.getByText(/228 × 89 mm · printed at/)).toBeVisible();
+  // The delivery estimate is outside the details, visible either way.
+  await page.getByText("Details about the product").tap();
+  await expect(details).not.toHaveAttribute("open");
 
   const city = page.getByLabel("Delivery estimate — your city");
   await city.fill("lah");
