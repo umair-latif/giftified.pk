@@ -24,7 +24,7 @@ export function ProductDetails({
   return (
     <section
       aria-labelledby="product-details"
-      className={`rounded-2xl bg-white p-4 ring-1 ring-zinc-200 lg:p-6 ${className}`}
+      className={`card p-4 lg:p-6 ${className}`}
       data-testid="product-details"
     >
       <h2 id="product-details" className="font-display text-ink text-lg">

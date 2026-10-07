@@ -68,7 +68,7 @@ export function CouponBox({
         <button
           type="submit"
           disabled={!typed.trim()}
-          className="text-brand-700 ring-brand-600 h-11 rounded-full bg-white px-4 text-sm font-semibold ring-1 hover:bg-zinc-50 focus-visible:ring-2 focus-visible:outline-none disabled:text-zinc-300 disabled:ring-zinc-200"
+          className="text-ink border-ink hover:bg-mint-100 h-11 rounded-2xl border-[3px] bg-white px-4 text-sm font-semibold focus-visible:ring-2 focus-visible:outline-none disabled:text-zinc-300 disabled:ring-zinc-200"
         >
           Apply
         </button>

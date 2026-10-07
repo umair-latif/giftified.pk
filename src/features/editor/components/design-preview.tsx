@@ -165,7 +165,7 @@ export function DesignPreview({
             data-testid="preview-gallery"
           >
             <div
-              className="relative w-full overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-zinc-200 lg:min-w-0 lg:flex-1"
+              className="card relative w-full overflow-hidden lg:min-w-0 lg:flex-1"
               style={{
                 aspectRatio: `${(shown?.spec ?? first).widthPx} / ${(shown?.spec ?? first).heightPx}`,
               }}
@@ -261,7 +261,7 @@ export function DesignPreview({
         )}
       </div>
       <div className="flex flex-col gap-3 lg:sticky lg:top-24">
-        <dl className="grid grid-cols-2 gap-y-1 rounded-2xl bg-white p-3 text-xs ring-1 ring-zinc-200">
+        <dl className="card grid grid-cols-2 gap-y-1 p-3 text-xs">
           <dt className="text-zinc-500">Product</dt>
           <dd className="text-right text-zinc-900">{product.subtitle}</dd>
           <dt className="text-zinc-500">Print size</dt>

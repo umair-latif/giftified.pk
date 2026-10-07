@@ -1,13 +1,10 @@
 import Image from "next/image";
 import Link from "next/link";
+import { buttonClass } from "@/components/ui/button";
 import { Container } from "@/components/ui/page";
 
 /** TODO(founder): replace with a real product photo (WebP, ≤ 100 KB, ~1600×1000). */
 const HERO_IMAGE = "/home/hero-placeholder.webp";
-
-/** The hero's one funky button: banana yellow, black outline, hard shadow (docs/brand.md). */
-const HERO_BUTTON =
-  "bg-sunny text-ink border-ink mt-5 flex h-12 w-full items-center justify-center rounded-full border-[3px] px-6 text-base font-semibold shadow-[4px_4px_0_var(--color-ink)] transition-transform duration-150 hover:-translate-y-px focus-visible:ring-2 focus-visible:ring-ink/40 focus-visible:outline-none active:translate-x-0.5 active:translate-y-0.5 active:shadow-[2px_2px_0_var(--color-ink)] sm:w-fit sm:min-w-40";
 
 export function Hero() {
   return (
@@ -23,7 +20,7 @@ export function Hero() {
           <p className="text-ink mt-3 text-base font-medium">
             Pay cash on delivery across Pakistan
           </p>
-          <Link href="/products" className={HERO_BUTTON}>
+          <Link href="/products" className={buttonClass("sunny", "mt-5")}>
             Start designing
           </Link>
         </div>

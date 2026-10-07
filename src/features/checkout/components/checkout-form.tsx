@@ -324,10 +324,7 @@ export function CheckoutForm() {
   if (items === null) return null;
   if (items.length === 0)
     return (
-      <div
-        className="rounded-2xl bg-white p-5 text-center ring-1 ring-zinc-200"
-        data-testid="checkout-empty"
-      >
+      <div className="card p-5 text-center" data-testid="checkout-empty">
         <p className="text-zinc-700">Your cart is empty.</p>
         <Link href="/products" className={buttonClass("primary", "mt-4")}>
           Browse products
@@ -480,7 +477,7 @@ export function CheckoutForm() {
         </CheckboxRow>
         {deliveryDifferent && (
           <fieldset
-            className="flex flex-col gap-4 rounded-2xl bg-white p-4 ring-1 ring-zinc-200"
+            className="card flex flex-col gap-4 p-4"
             data-testid="delivery-block"
           >
             <legend className="px-1 text-sm font-semibold text-zinc-900">
@@ -542,7 +539,7 @@ export function CheckoutForm() {
           quote={quote}
           className="order-first lg:order-none"
         />
-        <div className="rounded-2xl bg-white p-4 text-sm ring-1 ring-zinc-200">
+        <div className="card p-4 text-sm">
           <CouponBox
             {...(quote?.couponCode ? { appliedCode: quote.couponCode } : {})}
             discountPkr={quote?.discountPkr ?? 0}
@@ -556,7 +553,7 @@ export function CheckoutForm() {
             }}
           />
         </div>
-        <dl className="grid grid-cols-2 gap-y-1 rounded-2xl bg-white p-4 text-sm ring-1 ring-zinc-200">
+        <dl className="card grid grid-cols-2 gap-y-1 p-4 text-sm">
           <dt className="text-zinc-500">Items</dt>
           <dd className="text-right" data-testid="subtotal">
             {quote ? formatPkr(quote.subtotalPkr) : "…"}
@@ -654,7 +651,7 @@ function OrderSummary({
   return (
     <section
       aria-labelledby="summary-heading"
-      className={`rounded-2xl bg-white p-4 ring-1 ring-zinc-200 ${className}`}
+      className={`card p-4 ${className}`}
     >
       <div className="flex items-baseline justify-between">
         <h2 id="summary-heading" className="font-semibold text-zinc-900">

@@ -23,7 +23,7 @@ export function ForgotPasswordForm() {
   if (state.status === "sent")
     return (
       <p
-        className="rounded-lg bg-white p-4 text-sm text-zinc-700 ring-1 ring-zinc-200"
+        className="card p-4 text-sm text-zinc-700"
         role="status"
         data-testid="reset-sent"
       >

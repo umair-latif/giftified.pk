@@ -34,6 +34,21 @@
   --color-cream: #f3fbf9;
 }
 
+/*
+ * Cards (docs/brand.md): every card on the site is white with the same 3px
+ * black outline and 16px corners. `card-pop` adds the 4px hard shadow and is
+ * for cards you can tap (product cards, design tiles); info cards stay flat.
+ */
+@utility card {
+  background-color: #fff;
+  border: 3px solid var(--color-ink);
+  border-radius: var(--radius-2xl);
+}
+
+@utility card-pop {
+  box-shadow: 4px 4px 0 var(--color-ink);
+}
+
 body {
   background: var(--color-cream);
   color: var(--color-ink);

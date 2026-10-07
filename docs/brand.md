@@ -26,8 +26,10 @@ self-hosted, Latin subset. Editor/print fonts are a separate list (`src/config/f
 `components/ui/wordmark.tsx`. Footer (dark teal) uses the text version `WordmarkOnDark`. Replace
 with the SVG when it arrives.
 
-**Style:** funky touches (3 px black outline + hard 4–6 px black shadow) only on browsing moments
-(home hero, its button and image). Editor, checkout and forms stay calm.
+**Style:** one outline everywhere: **3 px black** on cards and buttons, 2 px on inputs and small
+controls. Hard black shadows (4 px, 6 px on the hero image) only on things you tap: buttons, product
+cards and design tiles. Info cards stay flat. The editor canvas and toolbars stay calm. The occasion
+tiles keep their solid pink/yellow look with no outline.
 
 **Not renamed yet (later PR):** legal operator name on /terms, vendor PDF, emails (sender domain),
 storage keys and print font names (`giftified:*`, "Giftified …" — internal, must not change).
@@ -36,11 +38,16 @@ storage keys and print font names (`giftified:*`, "Giftified …" — internal, 
 
 One pattern per idea, so new pages don't pick a random existing one.
 
-- **Primary button:** `bg-brand-600` (hover/active `-700`), white text, `rounded-full`, **`h-12`**
-  (the compact header "Next" pill is the one exception, `h-9`). **Disabled = same pill, desaturated:**
-  `disabled:bg-brand-300 disabled:hover:bg-brand-300` (never grey, never just `opacity`).
-- **Content card:** `rounded-2xl bg-white ring-1 ring-zinc-200` (use `ring-1`, not `border`, for the
-  hairline). Accordions use the same frame. Alert banners (`rounded-lg`) and inputs are not cards.
+- **Buttons:** always `buttonClass()` (`components/ui/button.tsx`): `rounded-2xl`, **`h-12`**, 3 px
+  black outline, 4 px hard shadow that presses in on tap. `primary` = deep teal + white text,
+  `secondary` = white, `sunny` = banana yellow (on coloured backgrounds: hero, footer). The compact
+  header "Next" button is the one exception (`h-9`, 2 px outline). **Disabled = same button,
+  desaturated:** `bg-brand-300`, no shadow (never grey, never just `opacity`).
+- **Content card:** the `card` utility (`globals.css`): white, 3 px black outline, `rounded-2xl`.
+  Add `card-pop` (4 px hard shadow) only when the whole card is a link. "Coming soon" cards add
+  `border-dashed!`. Accordions use the same frame. Alert banners (`rounded-lg`) are not cards.
+- **Inputs:** `inputClass()` (`features/checkout/components/field.tsx`): `h-12 rounded-xl border-2
+border-ink`, red when invalid.
 - **Accordion:** `components/ui/disclosure.tsx` (FAQ, product Details). Don't hand-roll `<details>`.
 - **Text colour:** body `text-ink`, headings `text-brand-900`. `text-zinc-500/600` is the deliberate
   _muted_ tier (captions, help text, meta). Transactional pages (cart, checkout, order, track) share

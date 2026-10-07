@@ -39,7 +39,7 @@ export function SavedDesignCard({
 
   return (
     <li
-      className="flex flex-col overflow-hidden rounded-2xl bg-white ring-1 ring-zinc-200"
+      className="card flex flex-col overflow-hidden"
       data-testid="saved-design"
     >
       <Link
@@ -77,12 +77,12 @@ export function SavedDesignCard({
               onChange={(e) => setName(e.target.value)}
               maxLength={SAVED_DESIGN_NAME_MAX}
               autoFocus
-              className="text-ink focus:ring-brand-600/20 h-11 min-w-0 flex-1 rounded-lg border border-zinc-300 px-3 text-sm focus:ring-2 focus:outline-none"
+              className="text-ink focus:ring-brand-600/20 border-ink h-11 min-w-0 flex-1 rounded-xl border-2 px-3 text-sm focus:ring-2 focus:outline-none"
             />
             <button
               type="submit"
               disabled={pending || !name.trim()}
-              className="bg-brand-600 hover:bg-brand-700 active:bg-brand-700 disabled:bg-brand-300 disabled:hover:bg-brand-300 h-11 rounded-full px-4 text-sm font-semibold text-white"
+              className="bg-brand-600 hover:bg-brand-700 active:bg-brand-700 disabled:bg-brand-300 disabled:hover:bg-brand-300 border-ink h-11 rounded-xl border-2 px-4 text-sm font-semibold text-white"
             >
               Save
             </button>
@@ -111,7 +111,7 @@ export function SavedDesignCard({
                 type="button"
                 disabled={pending}
                 onClick={() => run(() => deleteSavedDesignAction(design.id))}
-                className="h-11 flex-1 rounded-full bg-red-700 text-sm font-semibold text-white hover:bg-red-800 disabled:opacity-60"
+                className="border-ink h-11 flex-1 rounded-xl border-2 bg-red-700 text-sm font-semibold text-white hover:bg-red-800 disabled:opacity-60"
                 data-testid="saved-design-confirm-delete"
               >
                 {pending ? "Deleting…" : "Delete"}
@@ -119,7 +119,7 @@ export function SavedDesignCard({
               <button
                 type="button"
                 onClick={() => setMode("view")}
-                className="text-ink h-11 flex-1 rounded-full border border-zinc-300 bg-white text-sm font-medium hover:bg-zinc-50"
+                className="text-ink border-ink h-11 flex-1 rounded-xl border-2 bg-white text-sm font-medium hover:bg-zinc-50"
               >
                 Keep it
               </button>
@@ -129,7 +129,7 @@ export function SavedDesignCard({
           <div className="mt-auto flex flex-wrap gap-2">
             <Link
               href={`/design/${design.productId}?saved=${encodeURIComponent(design.id)}`}
-              className="bg-brand-600 hover:bg-brand-700 active:bg-brand-700 inline-flex h-11 items-center rounded-full px-4 text-sm font-semibold text-white"
+              className="bg-brand-600 hover:bg-brand-700 active:bg-brand-700 border-ink inline-flex h-11 items-center rounded-xl border-2 px-4 text-sm font-semibold text-white"
               data-testid="saved-design-open"
             >
               Open
@@ -138,7 +138,7 @@ export function SavedDesignCard({
               <button
                 type="button"
                 onClick={() => setMode("rename")}
-                className="text-ink h-11 rounded-full border border-zinc-300 bg-white px-4 text-sm font-medium hover:bg-zinc-50"
+                className="text-ink border-ink h-11 rounded-xl border-2 bg-white px-4 text-sm font-medium hover:bg-zinc-50"
               >
                 Rename
               </button>
@@ -149,7 +149,7 @@ export function SavedDesignCard({
                   setName(design.name);
                   setMode("view");
                 }}
-                className="text-ink h-11 rounded-full border border-zinc-300 bg-white px-4 text-sm font-medium hover:bg-zinc-50"
+                className="text-ink border-ink h-11 rounded-xl border-2 bg-white px-4 text-sm font-medium hover:bg-zinc-50"
               >
                 Cancel
               </button>
@@ -157,7 +157,7 @@ export function SavedDesignCard({
             <button
               type="button"
               onClick={() => setMode("confirm-delete")}
-              className="h-11 rounded-full px-3 text-sm font-medium text-red-700 hover:bg-red-50"
+              className="border-ink h-11 rounded-xl border-2 px-3 text-sm font-medium text-red-700 hover:bg-red-50"
               data-testid="saved-design-delete"
             >
               Delete

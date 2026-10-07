@@ -5,7 +5,7 @@ import type { DesignPrice } from "../load-design-prices";
 
 /**
  * One design card, the same size everywhere (template grids on product and
- * occasion pages, "New templates" on the home page).
+ * occasion pages, "New designs" on the home page).
  *
  * Uniform grid: the picture area is a fixed square, the title always reserves
  * two lines (longer titles are cut with "…", full text in the tooltip), the
@@ -35,7 +35,7 @@ export function DesignTile({
       href={href}
       title={name}
       data-testid={testId}
-      className="hover:bg-mint-100 active:bg-mint-100 focus-visible:ring-brand-600/40 flex h-full flex-col rounded-2xl bg-white p-2 shadow-sm ring-1 ring-zinc-200 focus-visible:ring-2 focus-visible:outline-none"
+      className="hover:bg-mint-100 active:bg-mint-100 focus-visible:ring-brand-600/40 card card-pop flex h-full flex-col p-2 focus-visible:ring-2 focus-visible:outline-none"
     >
       <div className="bg-cream relative aspect-square overflow-hidden rounded-xl">
         {image && (
@@ -55,7 +55,7 @@ export function DesignTile({
           />
         )}
         {reduced && (
-          <span className="bg-magenta absolute top-2 left-2 rounded-full px-2 py-0.5 text-[11px] font-semibold text-ink">
+          <span className="bg-magenta text-ink absolute top-2 left-2 rounded-full px-2 py-0.5 text-[11px] font-semibold">
             Sale
           </span>
         )}

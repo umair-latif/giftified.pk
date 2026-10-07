@@ -20,7 +20,7 @@ import {
  * card on the mobile account home, so both always show the same thing.
  */
 
-export const card = "rounded-2xl bg-white ring-1 ring-zinc-200";
+export const card = "card";
 const rowLink =
   "focus-visible:ring-brand-600/20 flex items-center justify-between gap-3 px-4 py-3 transition-colors hover:bg-mint-100 focus-visible:ring-2 focus-visible:outline-none focus-visible:ring-inset active:bg-mint-100";
 

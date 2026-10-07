@@ -41,7 +41,7 @@ export function RecentOrders() {
       <h2 id="recent-orders" className="font-display text-ink text-lg">
         Your recent orders on this phone
       </h2>
-      <ul className="mt-2 divide-y divide-zinc-200 overflow-hidden rounded-2xl bg-white ring-1 ring-zinc-200">
+      <ul className="card mt-2 divide-y divide-zinc-200 overflow-hidden">
         {orders.map((o) => (
           <li key={o.id}>
             <Link

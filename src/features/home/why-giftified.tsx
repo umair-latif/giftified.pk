@@ -15,7 +15,7 @@ export function WhyGiftified() {
   return (
     <section aria-labelledby="home-why" className="pt-10">
       <Container width="wide">
-        <div className="bg-brand-50 rounded-2xl p-5">
+        <div className="card bg-mint-100! p-5">
           <h2 id="home-why" className="text-brand-900 text-2xl">
             Why DesignBanana
           </h2>

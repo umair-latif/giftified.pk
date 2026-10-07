@@ -57,14 +57,14 @@ export function ProductCard({
   return card.href ? (
     <Link
       href={card.href}
-      className="focus-visible:ring-brand-600/40 flex gap-3 rounded-2xl bg-white p-2 shadow-sm ring-1 ring-zinc-200 hover:bg-zinc-50 focus-visible:ring-2 focus-visible:outline-none active:bg-zinc-50 sm:block"
+      className="focus-visible:ring-brand-600/40 card card-pop hover:bg-mint-100 active:bg-mint-100 flex gap-3 p-2 focus-visible:ring-2 focus-visible:outline-none sm:block"
       data-testid={`product-card-${card.productId}`}
     >
       {body}
     </Link>
   ) : (
     <div
-      className="flex gap-3 rounded-2xl bg-white p-2 opacity-80 ring-1 ring-zinc-200 sm:block"
+      className="card flex gap-3 border-dashed! p-2 opacity-80 sm:block"
       aria-disabled="true"
       data-testid={`product-card-${card.productId}`}
     >

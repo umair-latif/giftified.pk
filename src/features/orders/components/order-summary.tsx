@@ -4,10 +4,7 @@ import type { OrderView } from "../order-view";
 /** Lines, delivery and total of one order (order status page and account order page). */
 export function OrderSummary({ view }: { view: OrderView }) {
   return (
-    <section
-      aria-label="Order summary"
-      className="rounded-2xl bg-white p-4 ring-1 ring-zinc-200"
-    >
+    <section aria-label="Order summary" className="card p-4">
       <ul className="divide-y divide-zinc-100">
         {view.lines.map((line, i) => (
           <li

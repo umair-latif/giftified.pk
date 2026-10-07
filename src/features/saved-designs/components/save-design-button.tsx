@@ -19,7 +19,7 @@ type State =
   | { kind: "error"; message: string; signedOut?: boolean };
 
 const chip =
-  "focus-visible:ring-brand-600/20 inline-flex h-9 items-center rounded-full border border-zinc-300 bg-white px-3 text-xs font-medium text-zinc-700 hover:bg-zinc-100 focus-visible:ring-2 focus-visible:outline-none active:bg-zinc-100 disabled:border-zinc-200 disabled:text-zinc-300 disabled:hover:bg-white";
+  "focus-visible:ring-brand-600/20 inline-flex h-9 items-center rounded-xl border-2 border-ink bg-white px-3 text-xs font-medium text-zinc-700 hover:bg-zinc-100 focus-visible:ring-2 focus-visible:outline-none active:bg-zinc-100 disabled:border-zinc-200 disabled:text-zinc-300 disabled:hover:bg-white";
 
 /**
  * "Save to my designs" (task 22). Signed out: a link to sign in that comes

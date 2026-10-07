@@ -117,5 +117,4 @@ export function SubmitButton({
   );
 }
 
-export const formClass =
-  "flex flex-col gap-4 rounded-lg bg-white p-4 ring-1 ring-zinc-200";
+export const formClass = "card flex flex-col gap-4 p-4";

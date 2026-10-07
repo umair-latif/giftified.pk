@@ -44,9 +44,7 @@ export function ImageGallery({
   }, []);
 
   if (items.length === 0)
-    return (
-      <div className="bg-cream aspect-square rounded-3xl ring-1 ring-zinc-200" />
-    );
+    return <div className="card bg-cream! aspect-square" />;
 
   return (
     <div className="min-w-0 space-y-3" data-testid={`${testId}-gallery`}>
@@ -58,7 +56,7 @@ export function ImageGallery({
             const i = Math.round(el.scrollLeft / Math.max(el.clientWidth, 1));
             setIndex((cur) => (cur === i ? cur : i));
           }}
-          className="flex snap-x snap-mandatory [scrollbar-width:none] overflow-x-auto overscroll-x-contain rounded-3xl bg-white ring-1 ring-zinc-200 [&::-webkit-scrollbar]:hidden"
+          className="card flex snap-x snap-mandatory [scrollbar-width:none] overflow-x-auto overscroll-x-contain [&::-webkit-scrollbar]:hidden"
         >
           {items.map((s, i) => (
             <div

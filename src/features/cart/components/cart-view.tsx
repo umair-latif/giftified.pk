@@ -72,10 +72,7 @@ export function CartView() {
 
   if (cart.length === 0)
     return (
-      <div
-        className="mt-6 rounded-2xl bg-white p-5 text-sm ring-1 ring-zinc-200"
-        data-testid="cart-empty"
-      >
+      <div className="card mt-6 p-5 text-sm" data-testid="cart-empty">
         <p className="text-zinc-700">Your cart is empty.</p>
         <p className="mt-1 text-zinc-500">
           Design a mug with your photo and a message — it takes a minute.
@@ -103,10 +100,7 @@ export function CartView() {
 
       {/* Summary column (from lg); on phones the wrapper dissolves and everything stacks. */}
       <div className="contents lg:sticky lg:top-20 lg:flex lg:flex-col lg:gap-4">
-        <section
-          aria-label="Order summary"
-          className="rounded-2xl bg-white p-4 text-sm ring-1 ring-zinc-200"
-        >
+        <section aria-label="Order summary" className="card p-4 text-sm">
           <label
             htmlFor="city"
             className="mb-1 block font-medium text-zinc-900"
@@ -214,10 +208,7 @@ function CartLine({
     item.colourId;
 
   return (
-    <li
-      className="flex gap-3 rounded-2xl bg-white p-3 ring-1 ring-zinc-200"
-      data-testid="cart-line"
-    >
+    <li className="card flex gap-3 p-3" data-testid="cart-line">
       <div className="grid h-16 w-24 shrink-0 place-items-center overflow-hidden rounded bg-zinc-50 ring-1 ring-zinc-200">
         {thumb ? (
           // eslint-disable-next-line @next/next/no-img-element -- local data URL

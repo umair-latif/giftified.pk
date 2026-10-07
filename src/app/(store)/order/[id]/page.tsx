@@ -34,7 +34,7 @@ export default async function OrderStatusPage(props: PageProps<"/order/[id]">) {
   return (
     <Page width="content" className="flex flex-col gap-4">
       <RememberOrder id={view.id} t={t} createdAt={view.createdAt} />
-      <section className="rounded-2xl bg-white p-4 ring-1 ring-zinc-200">
+      <section className="card p-4">
         <PageTitle>{justPlaced ? "Thank you!" : "Your order"}</PageTitle>
         <p className="mt-1 text-sm text-zinc-500">
           Order number{" "}

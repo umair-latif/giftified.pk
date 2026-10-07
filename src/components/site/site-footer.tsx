@@ -59,7 +59,7 @@ export function SiteFooter() {
             {wa && (
               <a
                 href={wa}
-                className="bg-mint-300 text-brand-900 hover:bg-mint-500 focus-visible:ring-mint-300/60 mt-4 inline-flex h-11 items-center rounded-full px-5 font-medium focus-visible:ring-2 focus-visible:outline-none"
+                className="bg-sunny text-ink border-ink focus-visible:ring-sunny/60 mt-4 inline-flex h-11 items-center rounded-2xl border-[3px] px-5 font-semibold hover:bg-[#ffd814] focus-visible:ring-2 focus-visible:outline-none"
               >
                 Chat on WhatsApp
               </a>
