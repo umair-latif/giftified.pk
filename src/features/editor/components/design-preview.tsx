@@ -2,6 +2,8 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { GalleryArrows } from "@/components/ui/image-gallery";
+import { useSwipe } from "@/components/ui/use-swipe";
 import type { ProductConfig } from "@/config/products";
 import {
   printQualityReport,
@@ -151,6 +153,15 @@ export function DesignPreview({
       })
     : [];
   const shown = gallery.find((g) => g.spec.id === selected) ?? gallery[0];
+  const shownIndex = shown ? gallery.indexOf(shown) : 0;
+  const step = (d: number) => {
+    const next = gallery[shownIndex + d];
+    if (next) setSelected(next.spec.id);
+  };
+  const swipe = useSwipe(
+    () => step(-1),
+    () => step(1),
+  );
   const showFlat = !useGallery || state.kind !== "ready";
   const first = specs?.[0];
 
@@ -164,25 +175,34 @@ export function DesignPreview({
             aria-label="Preview gallery"
             data-testid="preview-gallery"
           >
-            <div
-              className="card relative w-full overflow-hidden lg:min-w-0 lg:flex-1"
-              style={{
-                aspectRatio: `${(shown?.spec ?? first).widthPx} / ${(shown?.spec ?? first).heightPx}`,
-              }}
-              data-testid="preview-mockup"
-            >
-              {shown ? (
-                // eslint-disable-next-line @next/next/no-img-element -- local data URL
-                <img
-                  src={shown.src}
-                  alt={`Your ${product.name}, ${shown.spec.label.toLowerCase()} view`}
-                  className="absolute inset-0 size-full"
-                />
-              ) : (
-                <span className="absolute inset-0 grid place-items-center text-xs text-zinc-400">
-                  Rendering preview…
-                </span>
-              )}
+            <div className="relative w-full lg:min-w-0 lg:flex-1" {...swipe}>
+              <div
+                className={`card relative w-full touch-pan-y overflow-hidden select-none ${gallery.length > 1 ? "cursor-grab active:cursor-grabbing" : ""}`}
+                style={{
+                  aspectRatio: `${(shown?.spec ?? first).widthPx} / ${(shown?.spec ?? first).heightPx}`,
+                }}
+                data-testid="preview-mockup"
+              >
+                {shown ? (
+                  // eslint-disable-next-line @next/next/no-img-element -- local data URL
+                  <img
+                    src={shown.src}
+                    alt={`Your ${product.name}, ${shown.spec.label.toLowerCase()} view`}
+                    className="absolute inset-0 size-full"
+                  />
+                ) : (
+                  <span className="absolute inset-0 grid place-items-center text-xs text-zinc-400">
+                    Rendering preview…
+                  </span>
+                )}
+              </div>
+              <GalleryArrows
+                index={shownIndex}
+                count={gallery.length}
+                onPrev={() => step(-1)}
+                onNext={() => step(1)}
+                testId="preview"
+              />
             </div>
             {gallery.length > 1 && (
               <ul

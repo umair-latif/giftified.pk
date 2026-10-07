@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { useCallback, useRef, useState } from "react";
 import { ArrowLeftIcon, ArrowRightIcon } from "@/components/ui/icons";
+import { useSwipe } from "@/components/ui/use-swipe";
 
 export interface GalleryItem {
   src: string;
@@ -14,11 +15,56 @@ export interface GalleryItem {
 }
 
 const ARROW =
-  "focus-visible:ring-brand-600/40 absolute top-1/2 z-10 hidden size-11 -translate-y-1/2 place-items-center border-ink text-ink rounded-full border-2 bg-white shadow-[3px_3px_0_var(--color-ink)] hover:bg-mint-100 active:translate-y-[calc(-50%+2px)] active:shadow-none focus-visible:ring-2 focus-visible:outline-none disabled:hidden sm:grid";
+  "focus-visible:ring-brand-600/40 absolute top-1/2 z-10 grid size-11 -translate-y-1/2 place-items-center border-ink text-ink rounded-full border-2 bg-white shadow-[3px_3px_0_var(--color-ink)] hover:bg-mint-100 active:translate-y-[calc(-50%+2px)] active:shadow-none focus-visible:ring-2 focus-visible:outline-none disabled:hidden";
+
+/**
+ * Previous / next buttons laid over a picture (any screen size). Put them in a
+ * `relative` box next to the picture. Hidden at the first / last picture.
+ */
+export function GalleryArrows({
+  index,
+  count,
+  onPrev,
+  onNext,
+  testId,
+}: {
+  index: number;
+  count: number;
+  onPrev: () => void;
+  onNext: () => void;
+  testId: string;
+}) {
+  if (count < 2) return null;
+  return (
+    <>
+      <button
+        type="button"
+        aria-label="Previous picture"
+        disabled={index <= 0}
+        onClick={onPrev}
+        className={`${ARROW} left-2`}
+        data-testid={`${testId}-prev`}
+      >
+        <ArrowLeftIcon />
+      </button>
+      <button
+        type="button"
+        aria-label="Next picture"
+        disabled={index >= count - 1}
+        onClick={onNext}
+        className={`${ARROW} right-2`}
+        data-testid={`${testId}-next`}
+      >
+        <ArrowRightIcon />
+      </button>
+    </>
+  );
+}
 
 /**
  * The one gallery for plain products and design products. The big picture is
- * a swipeable strip (scroll-snap: swipe on a phone, arrows from `sm` up);
+ * a swipeable strip (scroll-snap on touch, drag with a mouse) with arrows on
+ * top at every size;
  * below it, dots on a phone (every picture is reachable by swiping) and
  * thumbnails from `md` up. `testId` prefixes the data-testids
  * (`<id>-gallery`, `<id>-thumb-<n>`, `<id>-prev`, `<id>-next`).
@@ -43,6 +89,13 @@ export function ImageGallery({
     el.scrollTo({ left: i * el.clientWidth, behavior: "smooth" });
   }, []);
 
+  const last = items.length - 1;
+  const swipe = useSwipe(
+    () => goTo(Math.max(index - 1, 0)),
+    () => goTo(Math.min(index + 1, last)),
+    "mouse",
+  );
+
   if (items.length === 0)
     return <div className="card bg-cream! aspect-square" />;
 
@@ -51,12 +104,13 @@ export function ImageGallery({
       <div className="relative">
         <div
           ref={strip}
+          {...swipe}
           onScroll={(e) => {
             const el = e.currentTarget;
             const i = Math.round(el.scrollLeft / Math.max(el.clientWidth, 1));
             setIndex((cur) => (cur === i ? cur : i));
           }}
-          className="card flex snap-x snap-mandatory [scrollbar-width:none] overflow-x-auto overscroll-x-contain [&::-webkit-scrollbar]:hidden"
+          className={`card flex snap-x snap-mandatory [scrollbar-width:none] overflow-x-auto overscroll-x-contain select-none [&::-webkit-scrollbar]:hidden ${items.length > 1 ? "cursor-grab active:cursor-grabbing" : ""}`}
         >
           {items.map((s, i) => (
             <div
@@ -75,30 +129,13 @@ export function ImageGallery({
             </div>
           ))}
         </div>
-        {items.length > 1 && (
-          <>
-            <button
-              type="button"
-              aria-label="Previous picture"
-              disabled={index === 0}
-              onClick={() => goTo(index - 1)}
-              className={`${ARROW} left-2`}
-              data-testid={`${testId}-prev`}
-            >
-              <ArrowLeftIcon />
-            </button>
-            <button
-              type="button"
-              aria-label="Next picture"
-              disabled={index >= items.length - 1}
-              onClick={() => goTo(index + 1)}
-              className={`${ARROW} right-2`}
-              data-testid={`${testId}-next`}
-            >
-              <ArrowRightIcon />
-            </button>
-          </>
-        )}
+        <GalleryArrows
+          index={index}
+          count={items.length}
+          onPrev={() => goTo(index - 1)}
+          onNext={() => goTo(index + 1)}
+          testId={testId}
+        />
       </div>
       {items.length > 1 && (
         <ul
