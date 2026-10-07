@@ -21,7 +21,7 @@ export default async function AccountLayout({
       width="wide"
       className="lg:grid lg:grid-cols-[15rem_minmax(0,1fr)] lg:items-start lg:gap-10"
     >
-      <aside className="sticky top-24 hidden flex-col gap-4 lg:flex">
+      <aside className="sticky top-28 hidden flex-col gap-4 lg:flex">
         <div className="px-3">
           <p className="text-brand-900 font-display text-lg">
             {name || "Your account"}

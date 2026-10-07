@@ -99,7 +99,7 @@ export function CartView() {
       </ul>
 
       {/* Summary column (from lg); on phones the wrapper dissolves and everything stacks. */}
-      <div className="contents lg:sticky lg:top-20 lg:flex lg:flex-col lg:gap-4">
+      <div className="contents lg:sticky lg:top-24 lg:flex lg:flex-col lg:gap-4">
         <section aria-label="Order summary" className="card p-4 text-sm">
           <label
             htmlFor="city"
