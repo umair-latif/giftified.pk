@@ -533,7 +533,7 @@ export function CheckoutForm() {
           </fieldset>
         )}
       </div>
-      <div className="contents lg:sticky lg:top-20 lg:flex lg:flex-col lg:gap-4">
+      <div className="contents lg:sticky lg:top-24 lg:flex lg:flex-col lg:gap-4">
         <OrderSummary
           items={items}
           quote={quote}

@@ -110,6 +110,18 @@ export const LogOutIcon = (p: IconProps) => (
   </svg>
 );
 
+export const MenuIcon = (p: IconProps) => (
+  <svg {...base} {...p}>
+    <path d="M4 7h16M4 12h16M4 17h16" />
+  </svg>
+);
+
+export const CloseIcon = (p: IconProps) => (
+  <svg {...base} {...p}>
+    <path d="M6 6l12 12M18 6L6 18" />
+  </svg>
+);
+
 export const FacebookIcon = (p: IconProps) => (
   <svg {...base} {...p}>
     <path d="M14 8h3V4h-3a4 4 0 00-4 4v3H7v4h3v6h4v-6h3l1-4h-4V8z" />
