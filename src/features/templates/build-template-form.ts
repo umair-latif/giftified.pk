@@ -7,6 +7,8 @@ export interface TemplateFormMeta {
   /** Reserved by `uploadTemplatePhotos` when the design has artwork photos. */
   id?: string;
   name: string;
+  /** The one colour this design is made and sold in. */
+  colourId?: string;
   occasions: OccasionSlug[];
   published: boolean;
   /** Publishing as a product (task 26). */

@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { AppHeader } from "@/components/ui/app-header";
@@ -10,7 +11,6 @@ import { SaveTemplateSheet } from "@/features/templates/save-template-sheet";
 import { useTemplateEditor } from "@/features/templates/use-template-editor";
 import { useProductColour } from "../colour";
 import { loadDraft, saveThumbnail } from "../draft";
-import { ColourPicker } from "./colour-picker";
 import { DesignPreview, type PreviewResult } from "./design-preview";
 import { MissingItem } from "./editor-entry";
 import { buttonClass } from "@/components/ui/button";
@@ -27,7 +27,7 @@ export function PreviewScreen({ product }: { product: ProductConfig }) {
   const [result, setResult] = useState<PreviewResult | null | undefined>();
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string>();
-  const [pickedColour, setColourId] = useProductColour(product);
+  const [pickedColour] = useProductColour(product);
   const canPublish = useTemplateEditor();
   const [publishOpen, setPublishOpen] = useState(false);
 
@@ -39,6 +39,9 @@ export function PreviewScreen({ product }: { product: ProductConfig }) {
 
   // A cart line keeps its colour; a new design uses the picked one.
   const colourId = item?.colourId ?? pickedColour;
+  const colour = product.baseColors.find((c) => c.id === colourId);
+  const colourName = colour?.name;
+  const colourHex = colour?.hex;
   const editHref = `/design/${product.id}${item ? `?item=${encodeURIComponent(item.id)}` : ""}`;
   const blocked = result?.quality.status === "block";
   const canSubmit = !!result && !blocked && !busy;
@@ -109,14 +112,26 @@ export function PreviewScreen({ product }: { product: ProductConfig }) {
       />
       <StepBar current="Preview" />
       <main className="mx-auto max-w-md px-4 lg:max-w-[76rem] lg:px-6">
-        {!item && (
-          <div className="mb-3 flex justify-center lg:justify-start">
-            <ColourPicker
-              colours={product.baseColors}
-              value={colourId}
-              onChange={setColourId}
+        {product.baseColors.length > 1 && colourName && (
+          <p
+            className="text-ink mb-3 flex items-center justify-center gap-2 text-sm lg:justify-start"
+            data-testid="preview-colour"
+          >
+            <span
+              className="size-4 rounded-full border border-zinc-300"
+              style={{ backgroundColor: colourHex }}
+              aria-hidden
             />
-          </div>
+            {product.name} colour: <strong>{colourName}</strong>
+            {!item && (
+              <Link
+                href={editHref}
+                className="text-brand-700 underline underline-offset-2"
+              >
+                Change in editor
+              </Link>
+            )}
+          </p>
         )}
         <DesignPreview
           product={product}
@@ -140,6 +155,7 @@ export function PreviewScreen({ product }: { product: ProductConfig }) {
         <SaveTemplateSheet
           asProduct
           productId={product.id}
+          colourId={colourId}
           getDesign={async () => {
             const design = loadDraft(product.id);
             if (!design) return null;
