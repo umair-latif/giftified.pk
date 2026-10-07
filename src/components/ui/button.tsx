@@ -32,3 +32,11 @@ export function buttonClass(
 ): string {
   return `${BASE} ${VARIANTS[variant]}${extra ? ` ${extra}` : ""}`;
 }
+
+/**
+ * Small secondary action (editor chips, "Save design"): 36 px high, as wide as
+ * its label, 2 px outline and a 2 px hard shadow, so it reads as a button
+ * without competing with the main one.
+ */
+export const chipClass =
+  "border-ink text-ink focus-visible:ring-brand-600/40 inline-flex h-9 w-fit shrink-0 items-center gap-1.5 rounded-xl border-2 bg-white px-3 text-xs font-semibold no-underline! shadow-[2px_2px_0_var(--color-ink)] transition duration-150 hover:bg-mint-100 focus-visible:ring-2 focus-visible:outline-none active:translate-x-px active:translate-y-px active:shadow-none disabled:border-zinc-300 disabled:text-zinc-400 disabled:shadow-none disabled:hover:bg-white";

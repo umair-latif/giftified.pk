@@ -4,6 +4,7 @@ import { useRef, useState } from "react";
 import type { ProductConfig } from "@/config/products";
 import type { CartItem } from "@/types/cart";
 import { AppHeader } from "@/components/ui/app-header";
+import { chipClass } from "@/components/ui/button";
 import { RedoIcon, UndoIcon } from "@/components/ui/icons";
 import { StepBar } from "@/components/ui/step-bar";
 import {
@@ -328,7 +329,7 @@ function Chip({
       type="button"
       onClick={onClick}
       disabled={disabled}
-      className="focus-visible:ring-brand-600/20 h-9 rounded-full border border-zinc-300 bg-white px-3 text-xs font-medium text-zinc-700 hover:bg-zinc-100 focus-visible:ring-2 focus-visible:outline-none active:bg-zinc-100 disabled:border-zinc-200 disabled:text-zinc-300 disabled:hover:bg-white"
+      className={chipClass}
     >
       {children}
     </button>

@@ -2,6 +2,8 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import { chipClass } from "@/components/ui/button";
+import { BookmarkIcon } from "@/components/ui/icons";
 import type { ProductConfig } from "@/config/products";
 import { useSignedIn } from "@/features/auth/signed-in";
 import {
@@ -18,12 +20,10 @@ type State =
   | { kind: "saved"; name: string }
   | { kind: "error"; message: string; signedOut?: boolean };
 
-const chip =
-  "focus-visible:ring-brand-600/20 inline-flex h-9 items-center rounded-xl border-2 border-ink bg-white px-3 text-xs font-medium text-zinc-700 hover:bg-zinc-100 focus-visible:ring-2 focus-visible:outline-none active:bg-zinc-100 disabled:border-zinc-200 disabled:text-zinc-300 disabled:hover:bg-white";
-
 /**
- * "Save to my designs" (task 22). Signed out: a link to sign in that comes
- * back to this editor (the draft is kept on the phone meanwhile). Signed in:
+ * "Save design" (task 22), a small button. Signed out: the button goes to
+ * sign-in (coming back to this editor) with a one-line hint that says why and
+ * that the work is safe on this phone meanwhile (drafts autosave). Signed in:
  * uploads the design and photos to the account; saving again updates the
  * same saved design.
  */
@@ -46,15 +46,30 @@ export function SaveDesignButton({
   const [state, setState] = useState<State>({ kind: "idle" });
   const here = returnTo ?? `/design/${product.id}`;
 
+  const next = encodeURIComponent(here);
+
   if (!signedIn)
     return (
-      <Link
-        href={`/sign-in?next=${encodeURIComponent(here)}`}
-        className={chip}
-        data-testid="save-design-sign-in"
-      >
-        Save to my designs
-      </Link>
+      <div className="flex items-center gap-3" data-testid="save-design">
+        <Link
+          href={`/sign-in?next=${next}`}
+          className={chipClass}
+          data-testid="save-design-sign-in"
+        >
+          <BookmarkIcon width={16} height={16} />
+          Save design
+        </Link>
+        <p className="text-xs leading-snug text-zinc-600">
+          <Link
+            href={`/sign-up?next=${next}`}
+            className="text-brand-700 font-semibold underline"
+            data-testid="save-design-sign-up"
+          >
+            Sign up
+          </Link>{" "}
+          to keep designs in your account. Until then, it stays on this device.
+        </p>
+      </div>
     );
 
   async function save() {
@@ -97,21 +112,20 @@ export function SaveDesignButton({
   }
 
   return (
-    <div className="flex flex-col gap-1" data-testid="save-design">
-      <div>
-        <button
-          type="button"
-          onClick={() => void save()}
-          disabled={disabled || state.kind === "saving"}
-          className={chip}
-          data-testid="save-design-button"
-        >
-          {state.kind === "saving"
-            ? `Saving${state.progress ? ` (${state.progress})` : ""}…`
-            : "Save to my designs"}
-        </button>
-      </div>
-      <p className="text-xs" role="status" aria-live="polite">
+    <div className="flex items-center gap-3" data-testid="save-design">
+      <button
+        type="button"
+        onClick={() => void save()}
+        disabled={disabled || state.kind === "saving"}
+        className={chipClass}
+        data-testid="save-design-button"
+      >
+        <BookmarkIcon width={16} height={16} />
+        {state.kind === "saving"
+          ? `Saving${state.progress ? ` (${state.progress})` : ""}…`
+          : "Save design"}
+      </button>
+      <p className="text-xs leading-snug" role="status" aria-live="polite">
         {state.kind === "saved" && (
           <span className="text-emerald-700" data-testid="save-design-done">
             Saved as “{state.name}”.{" "}
@@ -125,7 +139,7 @@ export function SaveDesignButton({
             {state.message}{" "}
             {state.signedOut && (
               <Link
-                href={`/sign-in?next=${encodeURIComponent(here)}`}
+                href={`/sign-in?next=${next}`}
                 className="font-medium underline"
               >
                 Sign in

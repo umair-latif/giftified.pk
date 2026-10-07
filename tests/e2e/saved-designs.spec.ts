@@ -8,7 +8,7 @@ test.beforeEach(({ page }) => {
 });
 test.afterEach(() => expect(pageErrors).toEqual([]));
 
-test("signed out, Save to my designs asks to sign in and comes back", async ({
+test("signed out, Save design asks to sign in (or sign up) and comes back", async ({
   page,
 }) => {
   await openEditorWithText(page);
@@ -16,6 +16,15 @@ test("signed out, Save to my designs asks to sign in and comes back", async ({
   await expect(link).toHaveAttribute(
     "href",
     `/sign-in?next=${encodeURIComponent("/design/mug")}`,
+  );
+  await expect(link).toHaveText("Save design");
+  // A one-line hint explains why, with a sign-up link that also comes back.
+  await expect(page.getByTestId("save-design-sign-up")).toHaveAttribute(
+    "href",
+    `/sign-up?next=${encodeURIComponent("/design/mug")}`,
+  );
+  await expect(page.getByTestId("save-design")).toContainText(
+    "stays on this device",
   );
 });
 

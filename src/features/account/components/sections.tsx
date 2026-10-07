@@ -138,7 +138,7 @@ export async function DesignsSection({ customerId }: { customerId: number }) {
         <div data-testid="saved-designs-empty">
           <p className="text-ink">No saved designs yet.</p>
           <p className="mt-1 text-sm text-zinc-600">
-            In the editor, tap <strong>Save to my designs</strong>.
+            In the editor, tap <strong>Save design</strong>.
           </p>
           <Link href="/design/mug" className={buttonClass("primary", "mt-3")}>
             Start designing
