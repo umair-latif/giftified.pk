@@ -20,6 +20,8 @@ import { SelectionBar } from "./selection-bar";
 import { TextSheet } from "./text-sheet";
 import { ACCEPTED_IMAGE_TYPES } from "../assets/prepare-image";
 import { EditorStage } from "./editor-stage";
+import { ColourPicker } from "./colour-picker";
+import { useProductColour } from "../colour";
 import { PrintQualityBadge } from "./print-quality-badge";
 import { EditorToolbar } from "./editor-toolbar";
 
@@ -36,7 +38,10 @@ export function DesignEditor({
   product: ProductConfig;
   item?: CartItem;
 }) {
-  const ed = useFabricCanvas(product, item?.designKey);
+  // A cart line keeps its colour; a new design uses the picked one.
+  const [pickedColour, setColourId] = useProductColour(product);
+  const colourId = item?.colourId ?? pickedColour;
+  const ed = useFabricCanvas(product, item?.designKey, colourId);
   const { widthMm, heightMm } = product.printArea;
   const ready = ed.status === "ready" && !ed.busy;
   const fileInput = useRef<HTMLInputElement>(null);
@@ -112,12 +117,20 @@ export function DesignEditor({
             {product.subtitle} · print area {widthMm} × {heightMm} mm
           </p>
           <EditorStage
+            colourId={colourId}
             product={product}
             hostRef={ed.hostRef}
             status={ed.status}
             guides={ed.guides}
             busy={ed.busy}
           />
+          {!item && (
+            <ColourPicker
+              colours={product.baseColors}
+              value={colourId}
+              onChange={setColourId}
+            />
+          )}
           <input
             ref={fileInput}
             type="file"

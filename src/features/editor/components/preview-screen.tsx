@@ -9,7 +9,9 @@ import { addDraftToCart, useCart } from "@/features/cart/cart";
 import { SaveDesignButton } from "@/features/saved-designs/components/save-design-button";
 import { SaveTemplateSheet } from "@/features/templates/save-template-sheet";
 import { useTemplateEditor } from "@/features/templates/use-template-editor";
+import { useProductColour } from "../colour";
 import { loadDraft, saveThumbnail } from "../draft";
+import { ColourPicker } from "./colour-picker";
 import { DesignPreview, type PreviewResult } from "./design-preview";
 import { MissingItem } from "./editor-entry";
 import { buttonClass } from "@/components/ui/button";
@@ -26,6 +28,7 @@ export function PreviewScreen({ product }: { product: ProductConfig }) {
   const [result, setResult] = useState<PreviewResult | null | undefined>();
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string>();
+  const [pickedColour, setColourId] = useProductColour(product);
   const canPublish = useTemplateEditor();
   const [publishOpen, setPublishOpen] = useState(false);
 
@@ -35,6 +38,8 @@ export function PreviewScreen({ product }: { product: ProductConfig }) {
   if (itemId && cart === null) return null;
   if (item === null) return <MissingItem />;
 
+  // A cart line keeps its colour; a new design uses the picked one.
+  const colourId = item?.colourId ?? pickedColour;
   const editHref = `/design/${product.id}${item ? `?item=${encodeURIComponent(item.id)}` : ""}`;
   const blocked = result?.quality.status === "block";
   const canSubmit = !!result && !blocked && !busy;
@@ -50,7 +55,7 @@ export function PreviewScreen({ product }: { product: ProductConfig }) {
       } else {
         addDraftToCart({
           productId: product.id,
-          colourId: product.baseColors[0]?.id ?? "white",
+          colourId,
           ...(thumbnail ? { thumbnail } : {}),
         });
       }
@@ -118,8 +123,18 @@ export function PreviewScreen({ product }: { product: ProductConfig }) {
       />
       <StepBar current="Preview" />
       <main className="mx-auto max-w-md px-4 lg:max-w-[76rem] lg:px-6">
+        {!item && (
+          <div className="mb-3 flex justify-center lg:justify-start">
+            <ColourPicker
+              colours={product.baseColors}
+              value={colourId}
+              onChange={setColourId}
+            />
+          </div>
+        )}
         <DesignPreview
           product={product}
+          colourId={colourId}
           {...(item ? { designKey: item.designKey } : {})}
           onReady={setResult}
           sideAction={action}
@@ -145,12 +160,12 @@ export function PreviewScreen({ product }: { product: ProductConfig }) {
             const flat = await makeThumbnail(result.src, 800);
             // Product images: the design on the product (every mockup view),
             // then the flat artwork.
-            const [{ MOCKUP_SPECS }, { composeMockup }] = await Promise.all([
+            const [{ specsForColour }, { composeMockup }] = await Promise.all([
               import("../mockup/specs"),
               import("../mockup/compose"),
             ]);
             const images = await Promise.all(
-              (MOCKUP_SPECS[product.id] ?? []).map(async (spec) => ({
+              specsForColour(product.id, colourId).map(async (spec) => ({
                 label: spec.label,
                 dataUrl: await composeMockup(result.src, product, spec),
               })),

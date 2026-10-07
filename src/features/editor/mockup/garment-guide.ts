@@ -8,6 +8,10 @@
  */
 export const TSHIRT_EDITOR_GUIDE = {
   src: "/mockups/tshirt-editor-front.webp",
+  /** Editor photo per garment colour (same geometry). */
+  srcByColour: {
+    black: "/mockups/tshirt-editor-front-black.webp",
+  } as Record<string, string>,
   widthPx: 1080,
   heightPx: 1080,
   printLeft: "31.76%",

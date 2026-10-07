@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { GalleryArrows } from "@/components/ui/image-gallery";
 import { useSwipe } from "@/components/ui/use-swipe";
 import type { ProductConfig } from "@/config/products";
@@ -11,7 +11,7 @@ import {
 } from "@/lib/print-quality";
 import { resolveAssetRefs } from "../assets/resolve";
 import { loadDraft } from "../draft";
-import { MOCKUP_SPECS } from "../mockup/specs";
+import { MOCKUP_SPECS, specsForColour } from "../mockup/specs";
 import { loadFaces, whenFacesLoaded } from "../fonts/load-fonts";
 import { designFontFaces, migrateDesignFonts } from "../fonts/migrate";
 
@@ -40,10 +40,13 @@ export interface PreviewResult {
 export function DesignPreview({
   product,
   designKey,
+  colourId,
   onReady,
   sideAction,
 }: {
   product: ProductConfig;
+  /** Garment colour to show (a `baseColors` id); the first colour by default. */
+  colourId?: string;
   /** Preview a saved cart design instead of the product's draft. */
   designKey?: string;
   /** Called once the design has rendered, or with null when there is nothing to order. */
@@ -61,9 +64,18 @@ export function DesignPreview({
     of: string;
     byId: Record<string, string>;
   } | null>(null);
-  const specs = MOCKUP_SPECS[product.id];
+  const colour =
+    product.baseColors.find((c) => c.id === colourId) ?? product.baseColors[0];
+  // Photos of this colour only (mug photos apply to every colour).
+  const specs = useMemo(
+    () =>
+      MOCKUP_SPECS[product.id]
+        ? specsForColour(product.id, colour?.id ?? "white")
+        : undefined,
+    [product.id, colour?.id],
+  );
   const { widthMm, heightMm } = product.printArea;
-  const base = product.baseColors[0]?.hex ?? "#ffffff";
+  const base = colour?.hex ?? "#ffffff";
 
   useEffect(() => {
     let cancelled = false;
@@ -155,7 +167,8 @@ export function DesignPreview({
         return src ? [{ spec: s, src }] : [];
       })
     : [];
-  const shown = gallery.find((g) => g.spec.id === selected) ?? gallery[0];
+  // Selected by label, so the same view stays chosen when the colour changes.
+  const shown = gallery.find((g) => g.spec.label === selected) ?? gallery[0];
   const shownIndex = shown ? gallery.indexOf(shown) : 0;
   // Same behaviour as the product gallery: a scroll-snap strip (native swipe
   // on touch, drag with a mouse); arrows and thumbnails scroll it, and the
@@ -165,7 +178,7 @@ export function DesignPreview({
     const target = gallery[i];
     if (!el || !target) return;
     el.scrollTo({ left: i * el.clientWidth, behavior: "smooth" });
-    setSelected(target.spec.id);
+    setSelected(target.spec.label);
   };
   const step = (d: number) => goTo(shownIndex + d);
   const swipe = useSwipe(
@@ -197,7 +210,7 @@ export function DesignPreview({
                   );
                   const at = gallery[i];
                   if (at && at.spec.id !== shown?.spec.id)
-                    setSelected(at.spec.id);
+                    setSelected(at.spec.label);
                 }}
                 className={`card flex w-full snap-x snap-mandatory [scrollbar-width:none] overflow-x-auto overscroll-x-contain select-none [&::-webkit-scrollbar]:hidden ${gallery.length > 1 ? "cursor-grab active:cursor-grabbing" : ""}`}
                 style={{

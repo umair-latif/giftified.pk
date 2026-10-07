@@ -121,6 +121,11 @@ export interface GarmentMockupSpec {
    * square, like the photo, so the gallery frame does not change shape.
    */
   crop?: { x: number; y: number; size: number; outPx: number };
+  /**
+   * Garment colour this photo shows (a product `baseColors` id). The preview
+   * only uses photos of the colour the customer picked. Defaults to "white".
+   */
+  colour?: string;
   credit: string;
 }
 
@@ -293,6 +298,37 @@ export const MOCKUP_SPECS: Partial<
       credit: "Founder-supplied",
     },
     {
+      id: "front-black",
+      label: "Front",
+      colour: "black",
+      src: "/mockups/tshirt-front-black.webp",
+      widthPx: 1080,
+      heightPx: 1080,
+      quad: { tl: [343, 230], tr: [737, 230], bl: [343, 755] },
+      displace: "/mockups/tshirt-front-displace.png",
+      shadow: "/mockups/tshirt-front-shadow.png",
+      highlight: "/mockups/tshirt-front-highlight.png",
+      // Stand-in made from the white photo (scripts/mockup-recolour.py).
+      // TODO(vendor): replace with the real black T-shirt photos and layers.
+      ink: { highlight: 0.25 },
+      credit: "Founder-supplied (recoloured)",
+    },
+    {
+      id: "window-black",
+      label: "Window light",
+      colour: "black",
+      src: "/mockups/tshirt-window-black.webp",
+      widthPx: 1080,
+      heightPx: 1080,
+      quad: { tl: [262, 372], tr: [462, 372], bl: [262, 639] },
+      displace: "/mockups/tshirt-window-displace.png",
+      shadow: "/mockups/tshirt-window-shadow.png",
+      highlight: "/mockups/tshirt-window-highlight.png",
+      // TODO(vendor): replace with the real black T-shirt photos and layers.
+      ink: { highlight: 0.25 },
+      credit: "Founder-supplied (recoloured)",
+    },
+    {
       id: "studio",
       label: "Studio",
       src: "/mockups/tshirt-studio.webp",
@@ -376,3 +412,16 @@ export const PARKED_TSHIRT_SPECS: GarmentMockupSpec[] = [
     credit: "Founder-supplied",
   },
 ];
+
+/**
+ * The preview photos for the colour the customer picked. Garment photos show
+ * one colour each (`colour`, default white); mug photos apply to every colour.
+ */
+export function specsForColour(
+  productId: keyof typeof MOCKUP_SPECS,
+  colourId: string,
+): ProductMockupSpec[] {
+  return (MOCKUP_SPECS[productId] ?? []).filter(
+    (s) => !isGarmentSpec(s) || (s.colour ?? "white") === colourId,
+  );
+}

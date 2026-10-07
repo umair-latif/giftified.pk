@@ -54,6 +54,35 @@ describe("publishing a design as a product", () => {
     expect(await getTemplate("Abc123xyz", {}, storage)).not.toBeNull();
   });
 
+  it("stores one colour per design (default first) plus a group id, and rejects unknown colours", async () => {
+    const deps = (id: string) => ({
+      commerce: createMockCommerce(),
+      storage: createMemoryStorage().storage,
+      thumbnailUrl: () => "x",
+      imageUrl: () => "x",
+      makeId: () => id,
+    });
+    const shirt = {
+      ...input,
+      productId: "tshirt" as const,
+      design: {
+        ...base,
+        productId: "tshirt" as const,
+        printArea: { ...base.printArea, widthMm: 300, heightMm: 400 },
+      },
+    };
+    const a = await publishTemplateProduct(shirt, deps("t1"));
+    expect(a.meta).toMatchObject({ colourId: "white", groupId: "t1" });
+    const b = await publishTemplateProduct(
+      { ...shirt, colourId: "black", groupId: "t1" },
+      deps("t2"),
+    );
+    expect(b.meta).toMatchObject({ colourId: "black", groupId: "t1" });
+    await expect(
+      publishTemplateProduct({ ...shirt, colourId: "pink" }, deps("t3")),
+    ).rejects.toThrow(/colour/);
+  });
+
   it("keeps an unpublished design as a draft product", async () => {
     const commerce = createMockCommerce();
     const { storage } = createMemoryStorage();

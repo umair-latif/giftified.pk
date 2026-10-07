@@ -23,6 +23,13 @@ const metaSchema = z.object({
     .optional(),
   name: z.string().min(1).max(80),
   productId: z.enum(["mug", "tshirt", "hoodie"]),
+  /** The one colour this design is made and sold in; defaults to the product's first. */
+  colourId: z.string().min(1).max(40).optional(),
+  /** Same artwork in another colour: pass the first design's `groupId`. */
+  groupId: z
+    .string()
+    .regex(/^[A-Za-z0-9][A-Za-z0-9_-]{0,63}$/)
+    .optional(),
   occasions: z.array(z.enum(OCCASION_SLUGS)).max(OCCASION_SLUGS.length),
   published: z.boolean(),
   /** Labels of the `image:<n>` files (product images), in order. */
