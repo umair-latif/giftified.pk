@@ -9,7 +9,12 @@ import {
   wooProductSchema,
   wooVariationSchema,
 } from "@/lib/commerce/woo-schemas";
-import { MUG, ZONES, seedWooCommerce } from "../../scripts/woo-seed-lib";
+import {
+  MUG,
+  TSHIRT,
+  ZONES,
+  seedWooCommerce,
+} from "../../scripts/woo-seed-lib";
 
 /** Tiny in-memory WooCommerce: just the endpoints the seed script uses. */
 function fakeWoo() {
@@ -191,6 +196,23 @@ describe("woo:seed", () => {
     expect(wc.zones).toHaveLength(ZONES.length + 1);
   });
 
+  it("seeds the T-shirt as Colour x Size variations the app maps to variants", async () => {
+    const wc = fakeWoo();
+    await seedWooCommerce({ ...base, fetch: wc.fetch });
+    const product = wooProductSchema.parse(
+      wc.products.find((p) => p.sku === "tshirt"),
+    );
+    const vars = wc.variations
+      .get(product.id)!
+      .map((v) => wooVariationSchema.parse(v));
+    const mapped = mapProduct(product, vars);
+    expect(mapped?.productId).toBe("tshirt");
+    expect(mapped?.variants).toHaveLength(10);
+    const black = mapped!.variants.filter((v) => v.colourId === "black");
+    expect(black.map((v) => v.size)).toEqual(TSHIRT.sizes);
+    expect(black.every((v) => v.pricePkr === TSHIRT.pricePkr)).toBe(true);
+  });
+
   it("is safe to run twice: the second run creates nothing new", async () => {
     const wc = fakeWoo();
     await seedWooCommerce({ ...base, fetch: wc.fetch });
@@ -198,7 +220,10 @@ describe("woo:seed", () => {
     await seedWooCommerce({ ...base, fetch: wc.fetch });
     const after = wc.writes.filter((w) => w.startsWith("POST")).length;
     expect(after).toBe(before);
-    expect(wc.products).toHaveLength(1);
+    expect(wc.products).toHaveLength(2);
+    expect(wc.variations.get(wc.products[1]!.id as number)).toHaveLength(
+      TSHIRT.colours.length * TSHIRT.sizes.length,
+    );
   });
 
   it("registers both order webhooks once when given the app URL", async () => {
