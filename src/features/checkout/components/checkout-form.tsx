@@ -26,6 +26,7 @@ import { CityPicker } from "./city-picker";
 import { CheckboxRow, Consents } from "./consents";
 import { Field, errorId, inputClass } from "./field";
 import { buttonClass } from "@/components/ui/button";
+import { startNavProgress } from "@/components/ui/nav-progress";
 
 const CITY_KEY = "giftified:city";
 const FIELDS = [
@@ -290,6 +291,7 @@ export function CheckoutForm() {
         setPlaced(true);
         clearCart();
         writeCoupon("");
+        startNavProgress();
         router.push(r.statusUrl);
         return; // stay disabled while the order page loads
       }
