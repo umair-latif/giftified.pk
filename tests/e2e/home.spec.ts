@@ -13,9 +13,12 @@ test("home page: hero, products, sections, no horizontal scroll", async ({
       name: "Design it yourself. See it before you buy.",
     }),
   ).toBeVisible();
-  await expect(page.getByTestId("hero-trust")).toContainText(
-    "Cash on delivery across Pakistan",
-  );
+  // Payment and the confirmation call are explained in How it works and on
+  // product pages, not in the hero.
+  await expect(page.getByTestId("hero-trust")).toHaveCount(0);
+  await expect(
+    page.getByRole("region", { name: "How it works" }),
+  ).toContainText("Pay cash when it arrives");
   await expect(page).toHaveTitle("DesignBanana – Kuch khaas banao");
   await expect(page.getByRole("contentinfo")).toContainText("Kuch khaas banao");
 
