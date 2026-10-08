@@ -38,7 +38,7 @@ export function AppHeader({
           <Link
             href={backHref}
             aria-label={backLabel}
-            className="focus-visible:ring-brand-600/20 grid size-11 shrink-0 place-items-center rounded-full text-zinc-700 hover:bg-zinc-100 focus-visible:ring-2 focus-visible:outline-none active:bg-zinc-100 lg:size-12"
+            className="border-ink text-ink focus-visible:ring-brand-600/40 hover:bg-mint-100 mr-1.5 ml-1 grid size-10 shrink-0 place-items-center rounded-full border-2 bg-white shadow-[2px_2px_0_var(--color-ink)] transition duration-150 focus-visible:ring-2 focus-visible:outline-none active:translate-x-px active:translate-y-px active:shadow-none lg:size-11"
           >
             <ArrowLeftIcon />
           </Link>

@@ -182,7 +182,7 @@ export function SelectionBar({
         )}
         {kind === "image" && (
           <>
-            <Action label="Crop" onClick={onCrop}>
+            <Action label="Crop & frames" onClick={onCrop}>
               <CropIcon width={20} height={20} />
             </Action>
             <Action label="Replace" onClick={onReplace}>
