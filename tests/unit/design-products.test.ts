@@ -621,6 +621,82 @@ describe("WooCommerce coupons and categories", () => {
   });
 });
 
+describe("design product categories made by hand", () => {
+  it("reuses a category whose name exists under another slug (term_exists)", async () => {
+    const calls: { method: string; path: string; body: unknown }[] = [];
+    const fetch: typeof globalThis.fetch = async (u, init) => {
+      const url = new URL(String(u));
+      const method = init?.method ?? "GET";
+      const body = init?.body ? JSON.parse(String(init.body)) : undefined;
+      calls.push({
+        method,
+        path: url.pathname.replace("/wp-json/wc/v3", ""),
+        body,
+      });
+      if (url.pathname.endsWith("/products/categories")) {
+        if (method === "POST")
+          // What the founder's German WordPress sent back.
+          return Response.json(
+            {
+              code: "term_exists",
+              message:
+                "Ein Begriff mit dem angegebenen Namen existiert bereits bei diesem übergeordneten Begriff.",
+              data: { status: 400, resource_id: 42 },
+            },
+            { status: 400 },
+          );
+        if (url.searchParams.get("search"))
+          return Response.json(
+            [
+              { id: 41, slug: "ready-made", name: "Ready-made" },
+              {
+                id: 42,
+                slug: "t-shirt-designs",
+                name: "Ready-made Custom T-Shirt",
+              },
+            ],
+            { headers: { "x-wp-totalpages": "1" } },
+          );
+        return Response.json([], { headers: { "x-wp-totalpages": "1" } });
+      }
+      if (method === "GET")
+        return Response.json([], { headers: { "x-wp-totalpages": "1" } });
+      return Response.json({
+        id: 778,
+        name: "n",
+        slug: "s",
+        sku: "design-t2",
+        type: "simple",
+        status: "draft",
+        price: "1",
+        stock_status: "instock",
+      });
+    };
+    const client = createWooCommerceClient({
+      url: "https://shop.test",
+      consumerKey: "k",
+      consumerSecret: "s",
+      webhookSecret: "w",
+      fetch,
+    });
+    const created = await client.createDesignProduct({
+      templateId: "t2",
+      baseProductId: "tshirt",
+      name: "n",
+      description: "d",
+      pricePkr: 100,
+      categories: ["Ready-made Custom T-Shirt"],
+    });
+    expect(created.wooProductId).toBe(778);
+    const product = calls.find(
+      (c) => c.method === "POST" && c.path === "/products",
+    )!;
+    expect((product.body as { categories: unknown }).categories).toEqual([
+      { id: 42 },
+    ]);
+  });
+});
+
 describe("product images (mockups)", () => {
   it("stores the images with the template and hands WooCommerce their URLs in order", async () => {
     const commerce = createMockCommerce();

@@ -70,6 +70,17 @@ export interface WooConfig {
   now?: () => number;
 }
 
+/** WordPress sends names HTML-escaped ("Mugs &amp; Cups") and compares them case-insensitively. */
+function sameCategoryName(a: string, b: string): boolean {
+  const norm = (x: string) =>
+    x
+      .replace(/&amp;/g, "&")
+      .replace(/&#0?39;|&#8217;/g, "'")
+      .trim()
+      .toLowerCase();
+  return norm(a) === norm(b);
+}
+
 export class WooCommerceError extends Error {
   constructor(
     message: string,
@@ -331,10 +342,25 @@ export function createWooCommerceClient(config: WooConfig): CommerceClient {
         ids.push(hit.id);
         continue;
       }
-      const { json } = await request("POST", "/products/categories", {
-        body: { name },
-      });
-      ids.push(wooCategorySchema.parse(json).id);
+      try {
+        const { json } = await request("POST", "/products/categories", {
+          body: { name },
+        });
+        ids.push(wooCategorySchema.parse(json).id);
+      } catch (err) {
+        // A category with this name already exists under another slug (made
+        // or renamed by hand in WP admin): WordPress refuses a second one with
+        // `term_exists`. Use the existing one, found by its name.
+        if (!(err instanceof WooCommerceError) || err.code !== "term_exists")
+          throw err;
+        const same = (
+          await get("/products/categories", z.array(wooCategorySchema), {
+            query: { search: name },
+          })
+        ).find((c) => sameCategoryName(c.name, name));
+        if (!same) throw err;
+        ids.push(same.id);
+      }
     }
     return ids;
   }
