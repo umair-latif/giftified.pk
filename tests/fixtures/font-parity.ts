@@ -34,7 +34,7 @@ export const PARITY_CASES: ParityCase[] = FONTS.flatMap((font) =>
   font.faces.map((face) => ({
     key: `${font.id}/${face.weight}/${face.style}`,
     fontId: font.id,
-    label: font.id === "urdu" ? "Urdu" : font.label,
+    label: font.scripts.includes("arabic") ? `Urdu ${font.dir}` : font.label,
     family: font.family,
     weight: face.weight,
     style: face.style,

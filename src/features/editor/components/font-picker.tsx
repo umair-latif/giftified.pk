@@ -16,12 +16,13 @@ const ARABIC_SCRIPT = /[؀-ۿݐ-ݿﭐ-﷿ﹰ-﻿]/;
 
 /**
  * What a font's row shows: the customer's own text (first line), so they see
- * their words in each font. Urdu only draws Urdu letters, so it shows a sample
- * until the text has some.
+ * their words in each font. Urdu fonts show an Urdu sample until the text has
+ * Urdu letters (that's what they're for; Nastaliq has no Latin at all).
  */
 export function previewText(font: FontOption, text: string): string {
   const line = (text.split("\n").find((l) => l.trim()) ?? "").trim();
-  if (font.id === "urdu" && !ARABIC_SCRIPT.test(line)) return "اردو میں لکھیں";
+  if (font.scripts[0] === "arabic" && !ARABIC_SCRIPT.test(line))
+    return "اردو میں لکھیں";
   if (!line) return "Your text";
   return line.length > PREVIEW_CHARS
     ? `${line.slice(0, PREVIEW_CHARS).trimEnd()}…`
@@ -136,7 +137,12 @@ export function FontPicker({ text, onChange }: Props) {
                     <span
                       data-testid="font-preview"
                       dir="auto"
-                      className="text-ink min-w-0 flex-1 truncate text-xl leading-snug"
+                      className={`text-ink min-w-0 flex-1 truncate text-xl ${
+                        // Nastaliq's tall letters need room or the row clips them.
+                        f.scripts[0] === "arabic"
+                          ? "py-1 leading-[2]"
+                          : "leading-snug"
+                      }`}
                       style={{
                         fontFamily: f.family,
                         fontWeight: face.weight,

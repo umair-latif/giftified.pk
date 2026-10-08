@@ -109,9 +109,39 @@
     "lineWidths": [58.1559, 45.8499],
     "height": 17.0856
   },
+  "signature/normal/normal": {
+    "lines": ["Happy Birthday", "Ayesha! 0123 Eid", "Mubarak"],
+    "lineWidths": [42.7419, 41.0339, 23.492],
+    "height": 26.2612
+  },
+  "brush/normal/normal": {
+    "lines": ["Happy Birthday", "Ayesha! 0123 Eid", "Mubarak"],
+    "lineWidths": [45.1779, 49.5179, 26.173],
+    "height": 26.2612
+  },
   "urdu/normal/normal": {
     "lines": ["سالگرہ مبارک عائشہ، عید", "مبارک ہو۔ ۰۱۲۳ خوش", "رہو"],
     "lineWidths": [55.153, 58.7089, 8.372],
     "height": 26.2612
+  },
+  "urdu-naskh/normal/normal": {
+    "lines": ["سالگرہ مبارک عائشہ،", "عید مبارک ہو۔ ۰۱۲۳", "خوش رہو"],
+    "lineWidths": [51.4779, 48.8109, 24.269],
+    "height": 26.2612
+  },
+  "urdu-naskh/bold/normal": {
+    "lines": ["سالگرہ مبارک عائشہ،", "عید مبارک ہو۔ ۰۱۲۳", "خوش رہو"],
+    "lineWidths": [53.0949, 50.6239, 24.913],
+    "height": 26.2612
+  },
+  "urdu-kufi/normal/normal": {
+    "lines": ["سالگرہ مبارک", "عائشہ، عید مبارک", "ہو۔ ۰۱۲۳ خوش رہو"],
+    "lineWidths": [40.5929, 53.8439, 56.6439],
+    "height": 26.2612
+  },
+  "urdu-kufi/bold/normal": {
+    "lines": ["سالگرہ مبارک", "عائشہ، عید", "مبارک ہو۔ ۰۱۲۳", "خوش رہو"],
+    "lineWidths": [45.9619, 39.1299, 49.5319, 31.4019],
+    "height": 35.4368
   }
 }
