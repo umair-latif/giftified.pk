@@ -5,6 +5,7 @@ import { getCommerce } from "@/lib/commerce";
 import { WooCommerceError } from "@/lib/commerce/woocommerce";
 import { getStorage } from "@/lib/storage";
 import { appBaseUrl } from "@/server/files/links";
+import { shopProductErrorMessage } from "@/server/templates/shop-error";
 import {
   OCCASION_SLUGS,
   TemplateError,
@@ -116,10 +117,7 @@ export async function POST(req: Request): Promise<Response> {
     if (err instanceof WooCommerceError) {
       console.error("[templates] shop product failed", err);
       return Response.json(
-        {
-          error:
-            "The shop couldn't create the product. Nothing was saved; please try again.",
-        },
+        { error: shopProductErrorMessage(err) },
         { status: 502 },
       );
     }

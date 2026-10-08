@@ -189,4 +189,5 @@ export type WooCoupon = z.infer<typeof wooCouponSchema>;
 export const wooCategorySchema = z.object({
   id: z.number(),
   slug: z.string().default(""),
+  name: z.string().default(""),
 });
