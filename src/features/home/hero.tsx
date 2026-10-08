@@ -9,7 +9,7 @@ import { SITE } from "@/config/site";
  * photo of the same design. TODO(founder): replace with a real photo of a
  * printed mug next to a phone showing the designer (WebP, ≤ 100 KB, 1600×1000).
  */
-const HERO_IMAGE = "/home/hero-designer-preview.webp";
+const HERO_IMAGE = "/home/hero-steps.webp";
 
 /** The same three steps as the step bar in the editor (Design → Preview → Order). */
 const HERO_STEPS = [
@@ -78,7 +78,7 @@ export function Hero() {
         </div>
         <Image
           src={HERO_IMAGE}
-          alt="A mug design being made in the DesignBanana designer on a phone, and the preview photo of the same mug"
+          alt="Three steps: a mug design made in the DesignBanana designer on a phone, the preview photo of that mug, and the mug delivered in a box"
           width={1600}
           height={1000}
           preload
