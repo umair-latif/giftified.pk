@@ -5,6 +5,12 @@
 export const SITE = {
   name: "DesignBanana",
   /**
+   * Pre-launch "working pitch" phase (founder, 8 Oct 2026): products, photos
+   * and prices are placeholders and orders are not shipped. Shows the thin
+   * preview banner on shop pages. Set to false on launch day.
+   */
+  preview: true,
+  /**
    * The one tagline (brand decision, 8 Oct 2026): sentence case, "khaas" with a
    * double a, no exclamation mark. Browser title, hero label, footer next to the logo.
    */

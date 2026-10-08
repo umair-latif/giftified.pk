@@ -4,6 +4,9 @@ test("home page: hero, products, sections, no horizontal scroll", async ({
   page,
 }) => {
   await page.goto("/");
+  await expect(page.getByTestId("preview-banner")).toContainText(
+    "aren't shipped yet",
+  );
   await expect(
     page.getByRole("heading", {
       level: 1,
