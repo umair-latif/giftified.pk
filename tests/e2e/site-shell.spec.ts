@@ -21,9 +21,16 @@ test("site header shows the cart count and the footer links", async ({
   await page.goto("/");
   await expect(page.getByTestId("cart-count")).toHaveText("2");
   await expect(page.getByTestId("cart-link")).toHaveAttribute("href", "/cart");
+  // Phones: Track sits in the menu and the footer (not the header).
   await expect(
-    page.getByRole("link", { name: "Track your order" }).first(),
+    page
+      .getByRole("contentinfo")
+      .getByRole("link", { name: "Track your order" }),
   ).toBeVisible();
+  const info = page.getByRole("contentinfo");
+  await expect(info).toContainText("Kuch khaas banao");
+  await expect(info.getByTestId("made-in")).toContainText("Made with");
+  await expect(info.getByRole("img", { name: "Pakistan" })).toBeVisible();
   const footer = page.getByRole("navigation", { name: "Footer" });
   for (const name of ["Help & FAQ", "Contact", "Privacy", "Terms"])
     await expect(footer.getByRole("link", { name })).toBeVisible();
