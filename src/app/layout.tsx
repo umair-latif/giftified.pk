@@ -1,10 +1,11 @@
 import type { Metadata, Viewport } from "next";
 import { bagelFatOne, spaceGrotesk } from "./fonts";
 import "./globals.css";
+import { SITE } from "@/config/site";
 
 export const metadata: Metadata = {
   title: {
-    default: "DesignBanana — Custom mugs & T-shirts, designed on your phone",
+    default: `${SITE.name} · ${SITE.tagline} · Custom mugs & T-shirts`,
     template: "%s · DesignBanana",
   },
   description:

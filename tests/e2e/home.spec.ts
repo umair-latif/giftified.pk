@@ -11,6 +11,8 @@ test("home page: hero, products, sections, no horizontal scroll", async ({
     }),
   ).toBeVisible();
   await expect(page.getByText(/pay cash when it arrives/)).toBeVisible();
+  await expect(page).toHaveTitle(/Kuch khaas banao/);
+  await expect(page.getByRole("contentinfo")).toContainText("Kuch khaas banao");
 
   const start = page.getByRole("link", { name: "Start designing" });
   await expect(start).toHaveAttribute("href", "/products");

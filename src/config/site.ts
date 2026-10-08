@@ -4,7 +4,8 @@
  */
 export const SITE = {
   name: "DesignBanana",
-  tagline: "Design it on your phone. We'll make it real.",
+  /** Brand tagline (brand doc, 8 Oct 2026): footer, hero label, page title. */
+  tagline: "Kuch khaas banao",
   /**
    * E.164 without "+", for https://wa.me/<number>. Empty = hide WhatsApp links.
    * TODO(founder): this is a German number; swap it for a Pakistani one when
