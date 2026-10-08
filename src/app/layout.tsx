@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { bagelFatOne, spaceGrotesk } from "./fonts";
+import { NavProgress } from "@/components/ui/nav-progress";
 import "./globals.css";
 import { SITE } from "@/config/site";
 
@@ -27,7 +28,10 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       lang="en"
       className={`h-full antialiased ${spaceGrotesk.variable} ${bagelFatOne.variable}`}
     >
-      <body className="min-h-full">{children}</body>
+      <body className="min-h-full">
+        <NavProgress />
+        {children}
+      </body>
     </html>
   );
 }

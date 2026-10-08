@@ -5,6 +5,7 @@ import { useState } from "react";
 import type { OrderLineInput } from "@/types/order";
 import { orderAgain } from "../order-again";
 import { buttonClass } from "@/components/ui/button";
+import { startNavProgress } from "@/components/ui/nav-progress";
 
 type Line = Pick<
   OrderLineInput,
@@ -32,6 +33,7 @@ export function OrderAgainButton({
           setError(undefined);
           try {
             await orderAgain(orderId, lines);
+            startNavProgress();
             router.push("/cart");
           } catch (err) {
             setError(

@@ -17,6 +17,7 @@ import { SizePicker, sizeOptionsFor } from "./size-picker";
 import { DesignPreview, type PreviewResult } from "./design-preview";
 import { MissingItem } from "./editor-entry";
 import { buttonClass } from "@/components/ui/button";
+import { startNavProgress } from "@/components/ui/nav-progress";
 
 /**
  * Preview step. New design → **Add to cart** (snapshot the draft into a cart
@@ -80,6 +81,7 @@ export function PreviewScreen({
           ...(thumbnail ? { thumbnail } : {}),
         });
       }
+      startNavProgress();
       router.push("/cart");
     } catch (err) {
       setError(
