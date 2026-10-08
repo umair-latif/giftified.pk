@@ -12,7 +12,7 @@ export const metadata: Metadata = {
   metadataBase: new URL(appBaseUrl()),
   title: "Products",
   description:
-    "Custom mugs, t-shirts and hoodies with your photos and words. Design on your phone, pay cash on delivery across Pakistan.",
+    "Custom mugs, t-shirts and hoodies with your photos and words. Design it yourself, preview it, pay cash on delivery across Pakistan.",
   alternates: { canonical: "/products" },
 };
 

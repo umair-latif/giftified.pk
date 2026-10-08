@@ -9,7 +9,7 @@ export const metadata: Metadata = {
     template: "%s · DesignBanana",
   },
   description:
-    "Put your photos, names and words on a custom mug or T-shirt. Design it on your phone, see it before you order, and pay cash on delivery across Pakistan.",
+    "Put your photos, names and words on a custom mug or T-shirt. Design it yourself, see it on the product before you order, and pay cash on delivery across Pakistan.",
 };
 
 export const viewport: Viewport = {
