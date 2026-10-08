@@ -20,7 +20,7 @@ export function Hero() {
       >
         <div>
           <p className="border-ink text-ink mb-3 w-fit rounded-full border-2 bg-white px-3 py-0.5 text-sm font-semibold">
-            {SITE.slogan}
+            {SITE.tagline}
           </p>
           <h1 className="text-ink text-[2rem] leading-none sm:text-5xl">
             Design it yourself. See it before you buy.

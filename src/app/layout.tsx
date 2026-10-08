@@ -5,7 +5,7 @@ import { SITE } from "@/config/site";
 
 export const metadata: Metadata = {
   title: {
-    default: `${SITE.name} · ${SITE.tagline} · Custom mugs & T-shirts`,
+    default: `${SITE.name} – ${SITE.tagline}`,
     template: "%s · DesignBanana",
   },
   description:

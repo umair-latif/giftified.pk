@@ -13,7 +13,7 @@ test("home page: hero, products, sections, no horizontal scroll", async ({
   await expect(page.getByTestId("hero-trust")).toContainText(
     "Cash on delivery across Pakistan",
   );
-  await expect(page).toHaveTitle(/DesignBanana · Design it on your phone/);
+  await expect(page).toHaveTitle("DesignBanana – Kuch khaas banao");
   await expect(page.getByRole("contentinfo")).toContainText("Kuch khaas banao");
 
   const start = page.getByRole("link", { name: "Start designing" });
@@ -66,8 +66,8 @@ test("how it works: no 3D promise; ready-made designs, easy customising and inst
   await expect(how).not.toContainText("3D");
   await expect(how).toContainText("ready-made design");
   await expect(how).toContainText("everyday scenes");
-  // The footer tagline says "on your phone"; the steps themselves must not.
-  await expect(how).not.toContainText("on your phone");
+  // Brand rule: the site works on any device, so no "on your phone" copy.
+  await expect(page.getByText(/on your phone/i)).toHaveCount(0);
   await expect(page.getByTestId("home-template")).toHaveCount(0); // none yet
 });
 

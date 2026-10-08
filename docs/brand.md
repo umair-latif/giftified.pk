@@ -26,6 +26,12 @@ self-hosted, Latin subset. Editor/print fonts are a separate list (`src/config/f
 `components/ui/wordmark.tsx`. Footer (dark teal) uses the text version `WordmarkOnDark`. Replace
 with the SVG when it arrives.
 
+**Name and tagline:** **DesignBanana** (one word, two capitals) and the tagline **Kuch khaas banao**
+(sentence case, "khaas" with a double a, no exclamation mark), kept in `SITE.tagline`. Browser title on
+the home page: `DesignBanana – Kuch khaas banao`; other pages: `<Page> · DesignBanana`. The tagline also
+sits under the logo in the footer and as the label above the home headline. No English tagline, and no
+"on your phone" in copy: the site is phone-first but works on any device.
+
 **Style:** one outline everywhere: **3 px black** on cards and buttons, 2 px on inputs and small
 controls. Hard black shadows (4 px, 6 px on the hero image) only on things you tap: buttons, product
 cards and design tiles. Info cards stay flat. The editor canvas and toolbars stay calm. The occasion

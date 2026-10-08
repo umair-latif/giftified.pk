@@ -4,9 +4,11 @@
  */
 export const SITE = {
   name: "DesignBanana",
-  tagline: "Design it on your phone. We'll make it real.",
-  /** Short Roman Urdu slogan (hero badge, footer copyright line). */
-  slogan: "Kuch khaas banao",
+  /**
+   * The one tagline (brand decision, 8 Oct 2026): sentence case, "khaas" with a
+   * double a, no exclamation mark. Browser title, hero label, footer next to the logo.
+   */
+  tagline: "Kuch khaas banao",
   /**
    * E.164 without "+", for https://wa.me/<number>. Empty = hide WhatsApp links.
    * TODO(founder): this is a German number; swap it for a Pakistani one when
