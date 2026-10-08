@@ -20,7 +20,7 @@ async function makePng(page: Page, width: number, height: number) {
 test("a designer marks a customer's photo with a library sample and publishes; customers must replace it", async ({
   page,
 }) => {
-  // Guests get no "Customer's photo" switch.
+  // Guests get no "Placeholder" button.
   await page.goto("/design/mug");
   await expect(
     page.getByRole("button", { name: "Image", exact: true }),
@@ -32,7 +32,7 @@ test("a designer marks a customer's photo with a library sample and publishes; c
   });
   await expect(page.getByRole("button", { name: "Replace" })).toBeVisible();
   await expect(
-    page.getByRole("button", { name: "Customer's photo" }),
+    page.getByRole("button", { name: "Placeholder", exact: true }),
   ).toHaveCount(0);
   await expect(
     page.getByRole("button", { name: "Save as template" }),
@@ -52,8 +52,8 @@ test("a designer marks a customer's photo with a library sample and publishes; c
     mimeType: "image/png",
     buffer: await makePng(page, 1600, 1200),
   });
-  await page.getByRole("button", { name: "Customer's photo" }).click();
-  const sheet = page.getByRole("dialog", { name: "Customer's photo" });
+  await page.getByRole("button", { name: "Placeholder", exact: true }).click();
+  const sheet = page.getByRole("dialog", { name: "Placeholder images" });
   // Designers add photos to the library here; only library photos can be picked.
   await sheet.getByTestId("sample-input").setInputFiles({
     name: "sample.png",
@@ -61,12 +61,12 @@ test("a designer marks a customer's photo with a library sample and publishes; c
     buffer: await makePng(page, 900, 900),
   });
   await sheet
-    .getByRole("button", { name: /^Sample photo \d+$/ })
+    .getByRole("button", { name: /^Placeholder image \d+$/ })
     .first()
     .click();
   await expect(sheet).toHaveCount(0);
   await expect(page.getByTestId("editor-status")).toContainText(
-    "(customer's photo)",
+    "(placeholder)",
   );
 
   await page.getByRole("link", { name: /Preview/ }).click();

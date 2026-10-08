@@ -1,5 +1,6 @@
 "use client";
 
+import { EdgeLabels } from "./edge-labels";
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { GalleryArrows } from "@/components/ui/image-gallery";
@@ -318,11 +319,7 @@ export function DesignPreview({
           )}
         </div>
         {product.edgeLabels && showFlat && (
-          <div className="-mt-2 flex justify-between text-[10px] tracking-wide text-zinc-400 uppercase">
-            <span>← {product.edgeLabels.left}</span>
-            <span>Front</span>
-            <span>{product.edgeLabels.right} →</span>
-          </div>
+          <EdgeLabels labels={product.edgeLabels} className="-mt-2" />
         )}
       </div>
       <div className="flex flex-col gap-3 lg:sticky lg:top-24">

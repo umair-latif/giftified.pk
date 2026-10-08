@@ -293,7 +293,7 @@ export function DesignEditor({
 
 function describe(s: SelectionInfo): string {
   const angle = Math.round(s.angle) % 360;
-  return `${s.kind}${s.customerPhoto ? " (customer's photo)" : ""} · centre ${fmt(s.centerXMm)}, ${fmt(s.centerYMm)} mm · ${fmt(s.widthMm)} × ${fmt(s.heightMm)} mm · ${angle}°`;
+  return `${s.kind}${s.customerPhoto ? " (placeholder)" : ""} · centre ${fmt(s.centerXMm)}, ${fmt(s.centerYMm)} mm · ${fmt(s.widthMm)} × ${fmt(s.heightMm)} mm · ${angle}°`;
 }
 
 function isStraight(s: SelectionInfo): boolean {

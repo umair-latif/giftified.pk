@@ -1,3 +1,4 @@
+import { EdgeLabels } from "./edge-labels";
 import type { Ref } from "react";
 import Image from "next/image";
 import type { ProductConfig } from "@/config/products";
@@ -140,11 +141,7 @@ export function EditorStage({
         </div>
       </div>
       {product.edgeLabels && (
-        <div className="mt-1 flex justify-between text-[10px] tracking-wide text-zinc-400 uppercase">
-          <span>← {product.edgeLabels.left}</span>
-          <span>Front</span>
-          <span>{product.edgeLabels.right} →</span>
-        </div>
+        <EdgeLabels labels={product.edgeLabels} className="mt-1" />
       )}
     </div>
   );
