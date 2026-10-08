@@ -9,7 +9,7 @@ import { SITE } from "@/config/site";
  * browser bars removed and the step labels added. 1600×1000 WebP, ≤ 100 KB.
  * Change the file name when replacing it, so cached copies don't linger.
  */
-const HERO_IMAGE = "/home/hero-steps-v2.webp";
+const HERO_IMAGE = "/home/hero-steps-v3.webp";
 
 export function Hero() {
   return (
@@ -44,7 +44,7 @@ export function Hero() {
         </div>
         <Image
           src={HERO_IMAGE}
-          alt="Three steps: a mug design made in the DesignBanana designer on a phone, the preview of that mug, and the printed mug delivered in its box"
+          alt="How it works: pick a mug in the DesignBanana shop on a phone, design it with your photo and words, see the preview, and get the printed mug delivered in its box"
           width={1600}
           height={1000}
           preload
