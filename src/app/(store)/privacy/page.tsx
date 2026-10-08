@@ -33,7 +33,7 @@ export default function PrivacyPage() {
             photos and text you upload for it, so we can print it.
           </li>
           <li>
-            <strong>On your phone only:</strong> your cart and unfinished
+            <strong>On your device only:</strong> your cart and unfinished
             designs are saved in your browser so you don&rsquo;t lose them.
           </li>
         </ul>

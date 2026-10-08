@@ -55,7 +55,7 @@ export function SiteFooter() {
             <p>
               <WordmarkOnDark />
             </p>
-            <p className="text-brand-100 mt-1">{SITE.tagline}</p>
+            <p className="mt-1 font-semibold text-white">{SITE.tagline}</p>
             {wa && (
               <a
                 href={wa}
@@ -115,8 +115,7 @@ export function SiteFooter() {
         )}
         <div className="text-brand-200 mt-6 border-t border-white/15 pt-5 text-center text-xs leading-relaxed">
           <p>
-            © {new Date().getFullYear()} {SITE.name} ·{" "}
-            <span className="text-white">{SITE.slogan}</span>
+            © {new Date().getFullYear()} {SITE.name}
           </p>
           <p className="mt-1" data-testid="made-in">
             Made with <span aria-label="love">💚</span> in <PakistanFlag />
