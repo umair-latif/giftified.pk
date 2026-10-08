@@ -157,11 +157,11 @@ export async function requestPasswordReset(
     const link = `${deps.baseUrl}/reset-password?token=${encodeURIComponent(token)}`;
     await deps.email.send({
       to: customer.email,
-      subject: "Reset your Giftified.pk password",
+      subject: "Reset your DesignBanana.pk password",
       text: [
         `Hi${customer.firstName ? ` ${customer.firstName}` : ""},`,
         "",
-        "Someone asked to reset the password for your Giftified.pk account.",
+        "Someone asked to reset the password for your DesignBanana.pk account.",
         "Open this link within 1 hour to choose a new one:",
         link,
         "",

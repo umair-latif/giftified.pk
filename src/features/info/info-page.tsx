@@ -63,17 +63,3 @@ export function Todo({ children }: { children: ReactNode }) {
     </mark>
   );
 }
-
-/** Banner for the legal drafts (privacy, terms) until someone qualified reviews them. */
-export function DraftNotice() {
-  return (
-    <p
-      role="note"
-      className="border-magenta/40 bg-magenta/5 rounded-lg border p-3 text-sm text-zinc-800"
-    >
-      <strong>Draft.</strong> This page is a plain-language draft and has not
-      been reviewed by a lawyer yet.{" "}
-      {/* TODO(founder): have a qualified person review this page, then remove this notice. */}
-    </p>
-  );
-}
