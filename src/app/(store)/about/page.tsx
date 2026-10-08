@@ -1,30 +1,30 @@
+import { PRINT_DPI } from "@/lib/units";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { InfoPage, InfoSection } from "@/features/info/info-page";
-import { PRINT_DPI } from "@/lib/units";
 
 export const metadata: Metadata = {
   title: "About us",
   description:
-    "DesignBanana lets you design custom mugs, t-shirts and hoodies on your phone, printed by partners in Gujrat and Sialkot and paid for with Cash on Delivery.",
+    "DesignBanana lets you design custom mugs, t-shirts and hoodies online, printed by partners in Gujrat and Sialkot and paid for with Cash on Delivery.",
 };
 
 export default function AboutPage() {
   return (
     <InfoPage
       title="About DesignBanana"
-      intro="Your photo, your words — on a mug, tee or hoodie. Designed on your phone, paid for in cash on delivery."
+      intro="Your photo, your words — on a mug, tee or hoodie. Designed by you, paid for in cash on delivery."
     >
       <InfoSection title="Our story">
         <p>
-          DesignBanana started from a simple frustration: ordering a personalised
-          gift in Pakistan usually meant sending a photo to someone on WhatsApp
-          and hoping the result looked like what you had in mind.
+          DesignBanana started from a simple frustration: ordering a
+          personalised gift in Pakistan usually meant sending a photo to someone
+          on WhatsApp and hoping the result looked like what you had in mind.
         </p>
         <p>
           We wanted personalised gifts in Pakistan to be simple: design
-          something on your phone in a few minutes, see how it will look, and
-          pay only when it reaches your door.
+          something yourself in a few minutes, see how it will look, and pay
+          only when it reaches your door.
         </p>
       </InfoSection>
 
@@ -35,9 +35,9 @@ export default function AboutPage() {
           belt, which has long experience in printing and textiles.
         </p>
         <p>
-          For each order we prepare a {PRINT_DPI} DPI print file from your
-          design and a production sheet with the exact size and position of your
-          print, so what you designed is what gets printed.
+          For each order we prepare a full-size, print-quality file ({PRINT_DPI}{" "}
+          DPI) from your design and a production sheet with the exact size and
+          position of your print, so what you designed is what gets printed.
         </p>
         <p>
           Our partners only receive what they need to print: your design, the

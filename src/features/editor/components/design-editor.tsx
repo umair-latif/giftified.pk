@@ -2,6 +2,7 @@
 
 import { useRef, useState } from "react";
 import type { ProductConfig } from "@/config/products";
+import { formatCm } from "@/lib/units";
 import type { CartItem } from "@/types/cart";
 import { AppHeader } from "@/components/ui/app-header";
 import { RedoIcon, UndoIcon } from "@/components/ui/icons";
@@ -114,7 +115,8 @@ export function DesignEditor({
         <div className="flex min-w-0 flex-col gap-3 lg:pb-8">
           <p className="text-xs text-zinc-500">
             <span className="font-medium text-zinc-700">{product.name}</span> ·{" "}
-            {product.subtitle} · print area {widthMm} × {heightMm} mm
+            {product.subtitle} · print area {formatCm(widthMm)} ×{" "}
+            {formatCm(heightMm)} cm
           </p>
           <EditorStage
             colourId={colourId}

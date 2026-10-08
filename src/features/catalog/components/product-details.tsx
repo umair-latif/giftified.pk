@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { Disclosure } from "@/components/ui/disclosure";
+import { formatCm } from "@/lib/units";
 import type { ProductConfig } from "@/config/products";
 
 /**
@@ -49,8 +50,8 @@ export function ProductDetails({
           <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-2 text-sm">
             <dt className="text-zinc-500">Print area</dt>
             <dd>
-              {cfg.printArea.widthMm} × {cfg.printArea.heightMm} mm · printed at{" "}
-              {cfg.printDpi} DPI
+              Up to {formatCm(cfg.printArea.widthMm)} ×{" "}
+              {formatCm(cfg.printArea.heightMm)} cm
             </dd>
             {extraFacts}
             <dt className="text-zinc-500">Reprints</dt>

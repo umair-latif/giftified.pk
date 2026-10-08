@@ -3,23 +3,18 @@ import { Container } from "@/components/ui/page";
 /** Brand sheet style: outlined cards with a big coloured number badge. */
 const STEPS: { title: string; text: string; badge: string }[] = [
   {
-    title: "Pick a product or a design",
-    text: "Start blank, or from a ready-made design for Eid, birthdays and more.",
-    badge: "bg-brand-500",
-  },
-  {
-    title: "Make it yours",
-    text: "Add your photos, names and words. Simple tools, made for your phone.",
+    title: "Design",
+    text: "Start blank or from a ready-made design for Eid, birthdays and more. Add your photos, names and words with simple tools that work on any phone or computer.",
     badge: "bg-sunny",
   },
   {
-    title: "See it before you order",
-    text: "The preview shows your design on the mug or shirt, so there are no surprises.",
+    title: "Preview",
+    text: "We turn your design into real-looking photos of your mug or shirt, up close and in everyday scenes. Not happy? Go back and change anything.",
     badge: "bg-magenta",
   },
   {
-    title: "Pay when it arrives",
-    text: "Cash on delivery anywhere in Pakistan. We call you to confirm before we print.",
+    title: "Order",
+    text: "Pay cash when it arrives, anywhere in Pakistan. More ways to pay are on the way. We call you to confirm before we print.",
     badge: "bg-mint-300",
   },
 ];
@@ -31,7 +26,7 @@ export function HowItWorks() {
         <h2 id="home-how" className="text-brand-900 text-2xl">
           How it works
         </h2>
-        <ol className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        <ol className="mt-4 grid gap-3 md:grid-cols-3">
           {STEPS.map((step, i) => (
             <li key={step.title} className="card flex items-center gap-4 p-4">
               <span

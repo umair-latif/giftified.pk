@@ -7,10 +7,14 @@ test("home page: hero, products, sections, no horizontal scroll", async ({
   await expect(
     page.getByRole("heading", {
       level: 1,
-      name: "Design it on your phone. We'll make it real.",
+      name: "Design it yourself. See it before you buy.",
     }),
   ).toBeVisible();
-  await expect(page.getByText(/pay cash when it arrives/)).toBeVisible();
+  await expect(page.getByTestId("hero-trust")).toContainText(
+    "Cash on delivery across Pakistan",
+  );
+  await expect(page).toHaveTitle(/Kuch khaas banao/);
+  await expect(page.getByRole("contentinfo")).toContainText("Kuch khaas banao");
 
   const start = page.getByRole("link", { name: "Start designing" });
   await expect(start).toHaveAttribute("href", "/products");
@@ -59,7 +63,8 @@ test("how it works: no 3D promise; ready-made designs, easy customising and inst
   await expect(how).toBeVisible();
   await expect(how).not.toContainText("3D");
   await expect(how).toContainText("ready-made design");
-  await expect(how).toContainText("See it before you order");
+  await expect(how).toContainText("everyday scenes");
+  await expect(page.getByText(/on your phone/)).toHaveCount(0);
   await expect(page.getByTestId("home-template")).toHaveCount(0); // none yet
 });
 

@@ -48,10 +48,10 @@ test("delivery estimate: Lahore costs Rs 200 and the city is remembered", async 
   // Details start closed; tapping the heading opens them.
   const details = page.getByTestId("product-details");
   await expect(details).not.toHaveAttribute("open");
-  await expect(page.getByText(/228 × 89 mm · printed at/)).toBeHidden();
+  await expect(page.getByText("Up to 22.8 × 8.9 cm")).toBeHidden();
   await page.getByText("Details about the product").tap();
   await expect(details).toHaveAttribute("open", "");
-  await expect(page.getByText(/228 × 89 mm · printed at/)).toBeVisible();
+  await expect(page.getByText("Up to 22.8 × 8.9 cm")).toBeVisible();
   // The delivery estimate is outside the details, visible either way.
   await page.getByText("Details about the product").tap();
   await expect(details).not.toHaveAttribute("open");
