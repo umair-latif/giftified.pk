@@ -355,6 +355,30 @@ export const MOCKUP_SPECS: Partial<
       credit: "Founder-supplied",
     },
   ],
+  // Founder's hoodie photo on pink (1080 x 1080, same shot as the editor
+  // background). `quad` is the 300 x 220 mm box the founder marked.
+  hoodie: [
+    {
+      id: "front",
+      label: "Front",
+      src: "/mockups/hoodie-front.webp",
+      widthPx: 1080,
+      heightPx: 1080,
+      quad: { tl: [320, 365], tr: [725, 365], bl: [320, 662] },
+      credit: "Founder-supplied",
+    },
+    {
+      id: "front-grey",
+      label: "Front",
+      colour: "grey",
+      src: "/mockups/hoodie-front-grey.webp",
+      widthPx: 1080,
+      heightPx: 1080,
+      quad: { tl: [320, 365], tr: [725, 365], bl: [320, 662] },
+      // Recoloured from the white photo. TODO(vendor): real grey hoodie photos.
+      credit: "Founder-supplied (recoloured)",
+    },
+  ],
 };
 
 /**

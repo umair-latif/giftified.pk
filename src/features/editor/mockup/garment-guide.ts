@@ -18,3 +18,28 @@ export const TSHIRT_EDITOR_GUIDE = {
   printTop: "21.3%",
   printWidth: "36.48%",
 } as const;
+
+/**
+ * Hoodie editor photo: the founder's photo cut out and zoomed to the chest
+ * (square crop x 92-952, y 83-943 of the 1080 x 1080 photo), so the 300 x 220 mm
+ * print area the founder marked (x 320-725, y 365-662) is large on a phone.
+ * Screen-only geometry, like the T-shirt's. TODO(vendor): calibrate.
+ */
+export const HOODIE_EDITOR_GUIDE = {
+  src: "/mockups/hoodie-editor-front.webp",
+  srcByColour: {
+    grey: "/mockups/hoodie-editor-front-grey.webp",
+  } as Record<string, string>,
+  widthPx: 1080,
+  heightPx: 1080,
+  printLeft: "26.51%",
+  printTop: "32.79%",
+  printWidth: "47.09%",
+} as const;
+
+/** The editor garment photo for a product, or null to show the plain print area (mug). */
+export function editorGuideFor(productId: string) {
+  if (productId === "tshirt") return TSHIRT_EDITOR_GUIDE;
+  if (productId === "hoodie") return HOODIE_EDITOR_GUIDE;
+  return null;
+}
