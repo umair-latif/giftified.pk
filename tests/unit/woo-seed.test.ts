@@ -10,6 +10,7 @@ import {
   wooVariationSchema,
 } from "@/lib/commerce/woo-schemas";
 import {
+  HOODIE,
   MUG,
   TSHIRT,
   ZONES,
@@ -232,6 +233,26 @@ describe("woo:seed", () => {
     expect(black.every((v) => v.pricePkr === TSHIRT.pricePkr)).toBe(true);
   });
 
+  it("seeds the hoodie as a draft in White and Heather Grey", async () => {
+    const wc = fakeWoo();
+    await seedWooCommerce({ ...base, fetch: wc.fetch });
+    const raw = wc.products.find((p) => p.sku === "hoodie")!;
+    expect(raw.status).toBe("draft");
+    // Mapped as it will be once the founder publishes it (drafts stay hidden).
+    const product = wooProductSchema.parse({ ...raw, status: "publish" });
+    const vars = wc.variations
+      .get(product.id)!
+      .map((v) => wooVariationSchema.parse(v));
+    const mapped = mapProduct(product, vars);
+    expect(mapped?.productId).toBe("hoodie");
+    expect(new Set(mapped!.variants.map((v) => v.colourId))).toEqual(
+      new Set(["white", "grey"]),
+    );
+    expect(mapped!.variants).toHaveLength(
+      HOODIE.colours.length * HOODIE.sizes.length,
+    );
+  });
+
   it("is safe to run twice: the second run creates nothing new", async () => {
     const wc = fakeWoo();
     await seedWooCommerce({ ...base, fetch: wc.fetch });
@@ -239,7 +260,7 @@ describe("woo:seed", () => {
     await seedWooCommerce({ ...base, fetch: wc.fetch });
     const after = wc.writes.filter((w) => w.startsWith("POST")).length;
     expect(after).toBe(before);
-    expect(wc.products).toHaveLength(2);
+    expect(wc.products).toHaveLength(3);
     expect(wc.variations.get(wc.products[1]!.id as number)).toHaveLength(
       TSHIRT.colours.length * TSHIRT.sizes.length,
     );
