@@ -15,16 +15,16 @@ function CardBody({ card }: { card: HomeProductCard }) {
         sizes="(min-width: 640px) 200px, 112px"
         className="bg-mint-100 size-28 shrink-0 rounded-xl object-cover sm:size-auto sm:w-full"
       />
-      <span className="flex min-w-0 flex-col justify-center">
+      <span className="flex min-w-0 flex-1 flex-col justify-center sm:justify-start">
         <span className="font-display text-brand-900 text-lg">{card.name}</span>
-        <span className="text-ink text-sm">{card.note}</span>
+        <span className="text-ink line-clamp-2 text-sm">{card.note}</span>
         {card.href ? (
           card.fromPricePkr !== null && (
             <PriceTag
               from
               pkr={card.fromPricePkr}
               regularPkr={card.fromRegularPricePkr}
-              className="text-brand-700 mt-1 text-sm"
+              className="text-brand-700 mt-1 text-sm sm:mt-auto sm:pt-1"
             />
           )
         ) : (
@@ -51,19 +51,20 @@ export function ProductsSection({ cards }: { cards: HomeProductCard[] }) {
           {cards.map((card) => (
             <li
               key={card.productId}
+              className="flex"
               data-testid={`home-product-${card.productId}`}
             >
               {card.href ? (
                 <Link
                   href={card.href}
-                  className="hover:bg-mint-100 active:bg-mint-100 focus-visible:ring-brand-600/20 card card-pop flex gap-4 p-3 focus-visible:ring-2 focus-visible:outline-none sm:flex-col"
+                  className="hover:bg-mint-100 active:bg-mint-100 focus-visible:ring-brand-600/20 card card-pop flex w-full gap-4 p-3 focus-visible:ring-2 focus-visible:outline-none sm:flex-col"
                 >
                   <CardBody card={card} />
                 </Link>
               ) : (
                 <div
                   aria-disabled="true"
-                  className="card flex gap-4 border-dashed! p-3 opacity-80 sm:flex-col"
+                  className="card flex w-full gap-4 border-dashed! p-3 opacity-80 sm:flex-col"
                 >
                   <CardBody card={card} />
                 </div>
