@@ -53,7 +53,9 @@ This sets the country to Pakistan and the currency to PKR, turns on **Cash on De
 creates the global **Colour** attribute (White `#FFFFFF`, Black `#171717`), the **Custom Mug**
 (SKU `mug`, colour White, Rs 1499), the **Custom T-Shirt** (SKU `tshirt`, Colour White/Black ×
 Size S–XXL = 10 variations, **placeholder** Rs 1999 until the vendor price is agreed; change the
-price and sizes in WP admin), and creates city shipping
+price and sizes in WP admin), the **Custom Hoodie** as a **draft** (SKU `hoodie`, Colour
+White/Heather Grey × Size S–XXL, placeholder Rs 3499; publish it in WP admin once the vendor has
+confirmed the print size), and creates city shipping
 zones: Lahore, Karachi, Islamabad/Rawalpindi, Gujrat/Sialkot/Jhelum, and Rest of Pakistan.
 It's safe to run again: it only adds what's missing.
 
