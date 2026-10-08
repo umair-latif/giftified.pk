@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { DraftNotice, InfoPage, InfoSection } from "@/features/info/info-page";
+import { InfoPage, InfoSection } from "@/features/info/info-page";
 
 export const metadata: Metadata = {
   title: "Printing guidelines",
@@ -15,7 +15,6 @@ export default function PrintingGuidelinesPage() {
       title="Printing guidelines"
       intro="Custom prints and prohibited content policy."
     >
-      <DraftNotice />
 
       <InfoSection id="policy" title="Our policy">
         <p>

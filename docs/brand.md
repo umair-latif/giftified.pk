@@ -37,8 +37,11 @@ controls. Hard black shadows (4 px, 6 px on the hero image) only on things you t
 cards and design tiles. Info cards stay flat. The editor canvas and toolbars stay calm. The occasion
 tiles keep their solid pink/yellow look with no outline.
 
-**Not renamed yet (later PR):** legal operator name on /terms, vendor PDF, emails (sender domain),
-storage keys and print font names (`giftified:*`, "Giftified …" — internal, must not change).
+**Customer-facing name:** "DesignBanana" / "DesignBanana.pk" on every page, email and the vendor PDF
+(no "Giftified" anywhere a customer or vendor reads it). No legal-registration or street-address text
+until the business is registered; partner workshops are described as "in and around Gujrat and
+Jhelum". Internal names stay: storage keys and print font names (`giftified:*`, "Giftified …") must
+not change. The email sender name comes from `EMAIL_FROM` on the host.
 
 ## UI standards (task 25)
 

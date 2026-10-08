@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { DraftNotice, InfoPage, InfoSection } from "@/features/info/info-page";
+import { InfoPage, InfoSection } from "@/features/info/info-page";
 
 export const metadata: Metadata = {
   title: "Privacy",
@@ -19,7 +19,6 @@ export default function PrivacyPage() {
       title="Privacy"
       intro="In plain words: what we keep, why, and who sees it."
     >
-      <DraftNotice />
 
       <InfoSection id="what-we-store" title="What we collect">
         <ul>

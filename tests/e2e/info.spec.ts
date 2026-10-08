@@ -70,3 +70,24 @@ test.describe("without JavaScript", () => {
     await expect(answer).toBeHidden();
   });
 });
+
+test("customer pages: DesignBanana name only, no draft or registration notices", async ({
+  page,
+}) => {
+  for (const path of [
+    "/",
+    "/about",
+    "/contact",
+    "/help",
+    "/terms",
+    "/privacy",
+    "/printing-guidelines",
+  ]) {
+    await page.goto(path);
+    const body = page.locator("body");
+    await expect(body, path).not.toContainText(/giftified/i);
+    await expect(body, path).not.toContainText(/sialkot/i);
+    await expect(body, path).not.toContainText(/registration pending/i);
+    await expect(body, path).not.toContainText(/not been reviewed/i);
+  }
+});

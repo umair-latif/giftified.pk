@@ -85,7 +85,7 @@ describe("buildVendorProof", () => {
     expect(pdf.length).toBeLessThan(2 * 1024 * 1024);
     const text = pdfText(pdf);
     for (const s of [
-      "Giftified.pk — Production Proof",
+      "DesignBanana.pk — Production Proof",
       "ORDER #5123",
       "QTY 2",
       "Custom Mug",

@@ -80,7 +80,7 @@ export default function ContactPage() {
         </p>
         <p>
           We are an online-only shop &ndash; there is no walk-in counter. Your
-          order is printed by our partner workshops in Gujrat and Sialkot and
+          order is printed by our partner workshops in and around Gujrat and Jhelum and
           sent straight to you by courier.
         </p>
       </InfoSection>

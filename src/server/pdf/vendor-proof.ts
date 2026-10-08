@@ -180,9 +180,9 @@ export const buildVendorProof: BuildVendorProof = async (input) => {
   const created = new Date(input.createdAt);
   const stamp = Number.isNaN(created.getTime()) ? new Date(0) : created;
   doc.setTitle(`Production proof - order ${input.orderId}`);
-  doc.setAuthor("Giftified.pk");
-  doc.setCreator("Giftified.pk");
-  doc.setProducer("Giftified.pk");
+  doc.setAuthor("DesignBanana.pk");
+  doc.setCreator("DesignBanana.pk");
+  doc.setProducer("DesignBanana.pk");
   // Deterministic output: same input → same bytes.
   doc.setCreationDate(stamp);
   doc.setModificationDate(stamp);
@@ -197,7 +197,7 @@ export const buildVendorProof: BuildVendorProof = async (input) => {
   const product = getProduct(input.productId);
 
   // ---- 1. Header ---------------------------------------------------------
-  s.text("Giftified.pk — Production Proof", M, 20, { size: 15, bold: true });
+  s.text("DesignBanana.pk — Production Proof", M, 20, { size: 15, bold: true });
   s.text(formatPkDate(input.createdAt), PAGE_W - M, 20, {
     size: 11,
     color: MUTED,
@@ -303,7 +303,7 @@ export const buildVendorProof: BuildVendorProof = async (input) => {
   ) {
     y += 6;
     s.text(
-      `CHECK: attached PNG is ${real.width} × ${real.height} px, expected ${px.width} × ${px.height} px. Do not print - contact Giftified.pk.`,
+      `CHECK: attached PNG is ${real.width} × ${real.height} px, expected ${px.width} × ${px.height} px. Do not print - contact DesignBanana.pk.`,
       ix,
       y,
       { size: 10, bold: true, color: WARN },
@@ -399,7 +399,7 @@ export const buildVendorProof: BuildVendorProof = async (input) => {
     });
   }
   s.text(
-    `Giftified.pk · Order #${input.orderId} · The full-resolution PNG is sent with this proof. Questions go to Giftified.pk, not the customer.`,
+    `DesignBanana.pk · Order #${input.orderId} · The full-resolution PNG is sent with this proof. Questions go to DesignBanana.pk, not the customer.`,
     M,
     PAGE_H - M + 2,
     { size: 7.5, color: MUTED },

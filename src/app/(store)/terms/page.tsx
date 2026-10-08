@@ -1,27 +1,26 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { DraftNotice, InfoPage, InfoSection } from "@/features/info/info-page";
+import { InfoPage, InfoSection } from "@/features/info/info-page";
 
 export const metadata: Metadata = {
   title: "Terms",
   description:
-    "The terms for ordering custom products from Giftified.pk: orders, Cash on Delivery, reprints and content rules.",
+    "The terms for ordering custom products from DesignBanana.pk: orders, Cash on Delivery, reprints and content rules.",
 };
 
 export default function TermsPage() {
   return (
     <InfoPage
       title="Terms of sale"
-      intro="The rules for ordering from Giftified.pk, in plain words."
+      intro="The rules for ordering from DesignBanana.pk, in plain words."
     >
-      <DraftNotice />
 
       <InfoSection id="who" title="Who we are">
         <p>
-          Giftified.pk sells custom-printed products that you design on this
-          website. Giftified.pk is operated by{" "}
-          <strong>Giftified (registration pending), Gujrat, Pakistan</strong>.
-          {/* TODO(founder): add the registration number (NTN/SECP) once issued. */}
+          DesignBanana.pk sells custom-printed products that you design on
+          this website. We are an online-only shop in Pakistan: our partner
+          workshops in and around Gujrat and Jhelum print your order, and a
+          courier delivers it to you.
         </p>
       </InfoSection>
 
@@ -106,7 +105,6 @@ export default function TermsPage() {
         <p>
           If something goes wrong with an order, the most we will do is reprint
           the item or refund what you paid for it.
-          {/* TODO(founder): liability limit to be reviewed by a qualified person. */}
         </p>
       </InfoSection>
 

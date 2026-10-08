@@ -6,7 +6,7 @@ import { InfoPage, InfoSection } from "@/features/info/info-page";
 export const metadata: Metadata = {
   title: "About us",
   description:
-    "DesignBanana lets you design custom mugs, t-shirts and hoodies online, printed by partners in Gujrat and Sialkot and paid for with Cash on Delivery.",
+    "DesignBanana lets you design custom mugs, t-shirts and hoodies online, printed by partner workshops in and around Gujrat and Jhelum, and paid for with Cash on Delivery.",
 };
 
 export default function AboutPage() {
@@ -28,11 +28,10 @@ export default function AboutPage() {
         </p>
       </InfoSection>
 
-      <InfoSection title="Made in Gujrat and Sialkot">
+      <InfoSection title="Printed around Gujrat and Jhelum">
         <p>
           We don&rsquo;t keep a warehouse full of stock. Every item is printed
-          to order by our partner workshops in the Gujrat and Sialkot industrial
-          belt, which has long experience in printing and textiles.
+          to order by our partner workshops in and around Gujrat and Jhelum.
         </p>
         <p>
           For each order we prepare a full-size, print-quality file ({PRINT_DPI}{" "}
