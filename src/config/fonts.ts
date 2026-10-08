@@ -32,7 +32,17 @@ export interface FontFaceFile {
 }
 
 export type FontId =
-  "sans" | "serif" | "mono" | "playful" | "elegant" | "handwritten" | "urdu";
+  | "sans"
+  | "serif"
+  | "mono"
+  | "playful"
+  | "elegant"
+  | "handwritten"
+  | "signature"
+  | "brush"
+  | "urdu"
+  | "urdu-naskh"
+  | "urdu-kufi";
 
 export interface FontOption {
   /** Stable key. */
@@ -134,6 +144,31 @@ export const FONTS: readonly FontOption[] = [
     aliases: ["caveat", "cursive"],
   },
   {
+    id: "signature",
+    name: "Giftified Great Vibes",
+    family: "'Giftified Great Vibes', cursive",
+    label: "Signature",
+    scripts: ["latin"],
+    dir: "great-vibes",
+    // Great Vibes (OFL, google/fonts), Latin subset. One design only: a script
+    // this thin has no bold or italic.
+    faces: [{ weight: "normal", style: "normal", file: "GreatVibes-Regular" }],
+    aliases: ["great vibes"],
+  },
+  {
+    id: "brush",
+    name: "Giftified Kaushan",
+    family: "'Giftified Kaushan', cursive",
+    label: "Brush",
+    scripts: ["latin"],
+    dir: "kaushan-script",
+    // Kaushan Script (OFL, google/fonts), Latin subset. Regular only.
+    faces: [
+      { weight: "normal", style: "normal", file: "KaushanScript-Regular" },
+    ],
+    aliases: ["kaushan script"],
+  },
+  {
     id: "urdu",
     name: "Giftified Nastaliq",
     family: "'Giftified Nastaliq', serif",
@@ -145,6 +180,36 @@ export const FONTS: readonly FontOption[] = [
       { weight: "normal", style: "normal", file: "NotoNastaliqUrdu-Regular" },
     ],
     aliases: ["noto nastaliq urdu"],
+  },
+  {
+    id: "urdu-naskh",
+    name: "Giftified Naskh",
+    family: "'Giftified Naskh', serif",
+    label: "نسخ",
+    scripts: ["arabic", "latin"],
+    dir: "noto-naskh-arabic",
+    // Noto Naskh Arabic (OFL), static 400/700 cut from the variable font and
+    // subset to the Arabic block + Latin, so mixed Urdu/English text never
+    // falls back to another font. No italic design.
+    faces: [
+      { weight: "normal", style: "normal", file: "NotoNaskhArabic-Regular" },
+      { weight: "bold", style: "normal", file: "NotoNaskhArabic-Bold" },
+    ],
+    aliases: ["noto naskh arabic", "noto naskh"],
+  },
+  {
+    id: "urdu-kufi",
+    name: "Giftified Kufi",
+    family: "'Giftified Kufi', sans-serif",
+    label: "کوفی",
+    scripts: ["arabic", "latin"],
+    dir: "noto-kufi-arabic",
+    // Noto Kufi Arabic (OFL), same treatment as Naskh. No italic design.
+    faces: [
+      { weight: "normal", style: "normal", file: "NotoKufiArabic-Regular" },
+      { weight: "bold", style: "normal", file: "NotoKufiArabic-Bold" },
+    ],
+    aliases: ["noto kufi arabic", "noto kufi"],
   },
 ];
 

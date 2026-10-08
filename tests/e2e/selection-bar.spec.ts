@@ -1,4 +1,5 @@
 import { expect, test, type Page } from "@playwright/test";
+import { FONTS } from "@/config/fonts";
 import {
   canvasBox,
   centreText,
@@ -128,7 +129,7 @@ test("font panel: shows the text in every font, in the face it would get", async
   const panel = page.getByTestId("font-panel");
   await expect(panel).toBeVisible();
   const options = panel.getByTestId("font-option");
-  await expect(options).toHaveCount(7);
+  await expect(options).toHaveCount(FONTS.length);
   // The current font is marked.
   await expect(
     panel.getByRole("button", { name: "Sans", exact: true }),
@@ -138,7 +139,7 @@ test("font panel: shows the text in every font, in the face it would get", async
   const families = await previews.evaluateAll((els) =>
     els.map((el) => getComputedStyle(el).fontFamily),
   );
-  expect(new Set(families).size).toBe(7);
+  expect(new Set(families).size).toBe(FONTS.length);
   const elegant = panel
     .getByRole("button", { name: "Elegant", exact: true })
     .getByTestId("font-preview");

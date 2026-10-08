@@ -22,5 +22,13 @@ describe("previewText", () => {
   it("Urdu shows a sample until the text has Urdu letters", () => {
     expect(previewText(font("urdu"), "Ali")).toBe("اردو میں لکھیں");
     expect(previewText(font("urdu"), "عید مبارک")).toBe("عید مبارک");
+    for (const id of ["urdu-naskh", "urdu-kufi"]) {
+      expect(previewText(font(id), "Ali")).toBe("اردو میں لکھیں");
+      expect(previewText(font(id), "سالگرہ مبارک")).toBe("سالگرہ مبارک");
+    }
+  });
+  it("Latin scripts show the customer's text as typed", () => {
+    expect(previewText(font("signature"), "Ayesha")).toBe("Ayesha");
+    expect(previewText(font("brush"), "Ayesha")).toBe("Ayesha");
   });
 });
