@@ -4,7 +4,7 @@ import Image from "next/image";
 import type { ProductConfig } from "@/config/products";
 import type { GuideState } from "../engine/guides";
 import type { EditorStatus } from "../hooks/use-fabric-canvas";
-import { TSHIRT_EDITOR_GUIDE } from "../mockup/garment-guide";
+import { editorGuideFor } from "../mockup/garment-guide";
 import { isDarkHex } from "../colour-utils";
 
 interface Props {
@@ -36,7 +36,7 @@ export function EditorStage({
     product.baseColors.find((c) => c.id === colourId) ?? product.baseColors[0];
   const base = colour?.hex ?? "#ffffff";
   const dark = isDarkHex(base);
-  const garment = product.id === "tshirt" ? TSHIRT_EDITOR_GUIDE : null;
+  const garment = editorGuideFor(product.id);
   const insetX = `${(safeMarginMm / widthMm) * 100}%`;
   const insetY = `${(safeMarginMm / heightMm) * 100}%`;
   const line = (active: boolean) =>

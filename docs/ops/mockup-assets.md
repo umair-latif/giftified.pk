@@ -12,6 +12,9 @@ Preview mockups wrap the customer's design around a photo of the product
 | `public/mockups/mug-flatlay.webp`   | Flat lay on a desk with props, from above     | Canva  |
 
 | `public/mockups/tshirt-front.webp` | T-shirt: the editor background without guides (default / main picture) | Founder-supplied |
+| `public/mockups/hoodie-front.webp` | Hoodie: white, on pink (preview). Print box x 320-725, y 365-662 = 300 x 220 mm | Founder-supplied |
+| `public/mockups/hoodie-front-grey.webp` | Hoodie: heather grey stand-in recoloured from the white photo (`scripts/mockup-hoodie.py`) | Founder-supplied (recoloured) |
+| `public/mockups/hoodie-editor-front.webp`, `hoodie-editor-front-grey.webp` | Hoodie: editor background, cut out and zoomed to the chest | Founder-supplied |
 | `public/mockups/tshirt-model.webp` | T-shirt: model on grey (aligned to the founder's reference render, ±2 px); NOT in the gallery, kept as `PARKED_TSHIRT_SPECS` (engine reference) | Founder-supplied |
 | `public/mockups/tshirt-studio.webp` | T-shirt: torso on grey studio | Founder-supplied |
 
