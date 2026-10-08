@@ -22,15 +22,18 @@ const product = (over: Partial<CatalogProduct> = {}): CatalogProduct => ({
 });
 
 describe("home product cards", () => {
-  it("links configured products; hoodie is coming soon", async () => {
+  it("links configured products; one without a print config is coming soon", async () => {
     const catalog = await createMockCommerce().listProducts();
-    const cards = buildHomeProductCards(catalog, hasConfig);
+    const cards = buildHomeProductCards(
+      catalog,
+      (id) => id !== "hoodie" && hasConfig(id),
+    );
     expect(cards.map((c) => c.productId)).toEqual(["mug", "tshirt", "hoodie"]);
     const [mug, tshirt, hoodie] = cards;
     expect(mug).toMatchObject({ href: "/products/mug", fromPricePkr: 1499 });
     expect(tshirt).toMatchObject({
       href: "/products/tshirt",
-      fromPricePkr: null,
+      fromPricePkr: 1999,
     });
     expect(hoodie?.href).toBeNull();
   });

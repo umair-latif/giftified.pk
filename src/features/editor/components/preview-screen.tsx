@@ -13,6 +13,7 @@ import { useTemplateEditor } from "@/features/templates/use-template-editor";
 import { useProductColour } from "../colour";
 import { loadDraft, saveThumbnail } from "../draft";
 import { garmentColourLabel } from "./colour-picker";
+import { SizePicker, sizeOptionsFor } from "./size-picker";
 import { DesignPreview, type PreviewResult } from "./design-preview";
 import { MissingItem } from "./editor-entry";
 import { buttonClass } from "@/components/ui/button";
@@ -22,7 +23,14 @@ import { buttonClass } from "@/components/ui/button";
  * line). Cart item (`?item=`) → **Save changes** (its design already saved as
  * it was edited; this refreshes the cart thumbnail).
  */
-export function PreviewScreen({ product }: { product: ProductConfig }) {
+export function PreviewScreen({
+  product,
+  variants = [],
+}: {
+  product: ProductConfig;
+  /** The store's colour/size variants (apparel sizes). */
+  variants?: readonly { colourId: string; size?: string; inStock: boolean }[];
+}) {
   const router = useRouter();
   const itemId = useSearchParams().get("item");
   const cart = useCart();
@@ -32,6 +40,7 @@ export function PreviewScreen({ product }: { product: ProductConfig }) {
   const [pickedColour] = useProductColour(product);
   const canPublish = useTemplateEditor();
   const [publishOpen, setPublishOpen] = useState(false);
+  const [pickedSize, setSize] = useState<string>();
 
   const item = itemId
     ? (cart?.find((i) => i.id === itemId && i.productId === product.id) ?? null)
@@ -46,7 +55,14 @@ export function PreviewScreen({ product }: { product: ProductConfig }) {
   const colourHex = colour?.hex;
   const editHref = `/design/${product.id}${item ? `?item=${encodeURIComponent(item.id)}` : ""}`;
   const blocked = result?.quality.status === "block";
-  const canSubmit = !!result && !blocked && !busy;
+  // New apparel designs need a size before they can go in the cart.
+  const sizeOptions = item ? [] : sizeOptionsFor(variants, colourId);
+  const size = sizeOptions.find((o) => o.size === pickedSize && o.inStock)
+    ? pickedSize
+    : undefined;
+  const needsSize = sizeOptions.length > 0 && !size;
+  const canPublishNow = !!result && !blocked && !busy;
+  const canSubmit = canPublishNow && !needsSize;
 
   async function submit() {
     if (!result) return;
@@ -60,6 +76,7 @@ export function PreviewScreen({ product }: { product: ProductConfig }) {
         addDraftToCart({
           productId: product.id,
           colourId,
+          ...(size ? { size } : {}),
           ...(thumbnail ? { thumbnail } : {}),
         });
       }
@@ -80,7 +97,7 @@ export function PreviewScreen({ product }: { product: ProductConfig }) {
       <button
         type="button"
         onClick={() => setPublishOpen(true)}
-        disabled={!canSubmit}
+        disabled={!canPublishNow}
         className={primaryClass}
       >
         Publish as product
@@ -106,7 +123,9 @@ export function PreviewScreen({ product }: { product: ProductConfig }) {
   );
 
   return (
-    <div className="bg-cream min-h-dvh pb-28 lg:pb-10">
+    <div
+      className={`bg-cream min-h-dvh lg:pb-10 ${publishing ? "pb-48" : "pb-28"}`}
+    >
       <AppHeader
         title={item ? "Preview changes" : "Preview"}
         backHref={editHref}
@@ -148,6 +167,11 @@ export function PreviewScreen({ product }: { product: ProductConfig }) {
             )}
           </p>
         )}
+        {sizeOptions.length > 0 && (
+          <div className="mb-3 flex justify-center lg:justify-start">
+            <SizePicker options={sizeOptions} value={size} onChange={setSize} />
+          </div>
+        )}
         <DesignPreview
           product={product}
           colourId={colourId}
@@ -155,6 +179,11 @@ export function PreviewScreen({ product }: { product: ProductConfig }) {
           onReady={setResult}
           sideAction={action}
         />
+        {needsSize && result && !blocked && (
+          <p className="mt-3 text-sm text-zinc-700" role="status">
+            Choose your size to add it to your cart.
+          </p>
+        )}
         {blocked && (
           <p className="mt-3 text-sm text-red-700" role="alert">
             A photo is too blurry to print. Go back and make it smaller.

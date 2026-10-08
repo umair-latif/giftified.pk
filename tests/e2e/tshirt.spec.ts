@@ -67,13 +67,19 @@ test("black t-shirt: black garment in the editor, black photos in the preview, B
   await page.getByTestId("preview-mockup").screenshot({
     path: "test-results/tshirt-black-preview.png",
   });
-  await page
+  const add = page
     .getByRole("button", { name: "Add to cart" })
     .filter({ visible: true })
-    .first()
-    .tap();
+    .first();
+  // A size is needed first; sold-out sizes can't be picked.
+  await expect(add).toBeDisabled();
+  await expect(page.getByTestId("size-XXL")).toBeDisabled();
+  await page.getByTestId("size-L").tap();
+  await expect(add).toBeEnabled();
+  await add.tap();
   await expect(page).toHaveURL(/\/cart$/);
   await expect(page.getByTestId("cart-line")).toContainText("Black");
+  await expect(page.getByTestId("cart-line")).toContainText("L");
 });
 
 test("the shirt colour and the background colour have different names", async ({

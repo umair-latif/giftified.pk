@@ -63,10 +63,13 @@ const tee: CatalogProduct = {
   ],
 };
 const hasConfig = (id: string) => getProduct(id) !== null;
+/** A product that has no print config yet (the hoodie was one before task 28). */
+const noHoodie = (id: string) => (id === "hoodie" ? null : getProduct(id));
+const hasConfigNoHoodie = (id: string) => noHoodie(id) !== null;
 
 describe("catalog cards", () => {
   it("lists mug, tee and hoodie; only products with a print config link anywhere", () => {
-    const cards = buildCatalogCards([mug, tee], getProduct);
+    const cards = buildCatalogCards([mug, tee], noHoodie);
     expect(cards.map((c) => [c.productId, c.href])).toEqual([
       ["mug", "/products/custom-mug"],
       ["tshirt", "/products/t-shirt"],
@@ -155,7 +158,9 @@ describe("resolveSlug", () => {
     });
   });
   it("has no page for products without a print config, or unknown slugs", () => {
-    expect(resolveSlug("hoodie", [], hasConfig)).toEqual({ kind: "none" });
+    expect(resolveSlug("hoodie", [], hasConfigNoHoodie)).toEqual({
+      kind: "none",
+    });
     expect(resolveSlug("tshirt", [], hasConfig)).toEqual({
       kind: "found",
       productId: "tshirt",
