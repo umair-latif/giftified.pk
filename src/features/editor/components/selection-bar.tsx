@@ -1,9 +1,9 @@
 import type { ReactNode } from "react";
 import { chipClass } from "@/components/ui/button";
 import { CopyIcon, CropIcon, TrashIcon } from "@/components/ui/icons";
-import { FONTS, fontForFamily, hasFace } from "@/config/fonts";
-import { loadPickerFonts } from "../fonts/load-fonts";
+import { fontForFamily, hasFace } from "@/config/fonts";
 import type { TextStyle } from "../engine/text-style";
+import { FontPicker } from "./font-picker";
 import { TextColourPicker } from "./text-colour-picker";
 
 interface Props {
@@ -109,40 +109,19 @@ export function SelectionBar({
               aria-label="More"
               aria-haspopup="dialog"
               onClick={onMore}
-              className="focus-visible:ring-brand-600/20 grid size-9 shrink-0 place-items-center rounded-md text-base font-semibold text-zinc-700 italic hover:bg-zinc-100 focus-visible:ring-2 focus-visible:outline-none active:bg-zinc-100"
+              className="focus-visible:ring-brand-600/20 grid size-9 shrink-0 place-items-center rounded-md text-zinc-700 hover:bg-zinc-100 focus-visible:ring-2 focus-visible:outline-none active:bg-zinc-100"
             >
-              Aa
+              {/* Words, alignment, outline. Not "Aa": that is the font button. */}
+              <svg aria-hidden viewBox="0 0 24 24" width={22} height={22}>
+                <circle cx="5" cy="12" r="2" fill="currentColor" />
+                <circle cx="12" cy="12" r="2" fill="currentColor" />
+                <circle cx="19" cy="12" r="2" fill="currentColor" />
+              </svg>
             </button>
-            <label className="sr-only" htmlFor="font-select">
-              Font
-            </label>
-            <select
-              id="font-select"
-              value={
-                FONTS.some((f) => f.family === text.fontFamily)
-                  ? text.fontFamily
-                  : ""
-              }
-              onFocus={() =>
-                void loadPickerFonts(text.fontWeight, text.fontStyle)
-              }
-              onChange={(e) => onTextStyle({ fontFamily: e.target.value })}
-              className="h-9 w-14 shrink-0 rounded-md border border-zinc-300 bg-white px-1 text-sm text-zinc-800 lg:w-28"
-              style={{ fontFamily: text.fontFamily }}
-            >
-              {!FONTS.some((f) => f.family === text.fontFamily) && (
-                <option value="">Custom</option>
-              )}
-              {FONTS.map((f) => (
-                <option
-                  key={f.family}
-                  value={f.family}
-                  style={{ fontFamily: f.family }}
-                >
-                  {f.label}
-                </option>
-              ))}
-            </select>
+            <FontPicker
+              text={text}
+              onChange={(fontFamily) => onTextStyle({ fontFamily })}
+            />
             <TextColourPicker
               value={text.fill}
               onChange={(fill) => onTextStyle({ fill })}

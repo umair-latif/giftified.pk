@@ -15,6 +15,15 @@ test.beforeEach(({ page }) => {
 test.afterEach(() => expect(pageErrors).toEqual([]));
 
 const bar = (page: Page) => page.getByTestId("selection-bar");
+const fontButton = (page: Page) => bar(page).getByTestId("font-button");
+async function pickFont(page: Page, label: string) {
+  await fontButton(page).click();
+  await page
+    .getByTestId("font-panel")
+    .getByRole("button", { name: label, exact: true })
+    .click();
+  await expect(page.getByTestId("font-panel")).toHaveCount(0);
+}
 
 async function makePng(
   page: Page,
@@ -59,7 +68,6 @@ test("text: font, bold, italic, underline — each is one undo step", async ({
   const bold = bar(page).getByRole("button", { name: "Bold" });
   const italic = bar(page).getByRole("button", { name: "Italic" });
   const underline = bar(page).getByRole("button", { name: "Underline" });
-  const font = bar(page).getByLabel("Font");
 
   // New text starts bold (see engine/text.ts).
   await expect(bold).toHaveAttribute("aria-pressed", "true");
@@ -71,15 +79,15 @@ test("text: font, bold, italic, underline — each is one undo step", async ({
   await expect(italic).toHaveAttribute("aria-pressed", "true");
   await underline.click();
   await expect(underline).toHaveAttribute("aria-pressed", "true");
-  await font.selectOption({ label: "Serif" });
-  await expect(font).toHaveValue(/Giftified Serif/);
+  await pickFont(page, "Serif");
+  await expect(fontButton(page)).toHaveAccessibleName("Font: Serif");
 
   // Undo restores the last change first; the restore clears the selection, so reselect.
   const { cx, cy } = await canvasBox(page);
   await page.getByRole("button", { name: "Undo" }).click();
   await expect(page.getByRole("button", { name: "Redo" })).toBeEnabled();
   await page.mouse.click(cx, cy);
-  await expect(bar(page).getByLabel("Font")).toHaveValue(/Giftified Sans/);
+  await expect(fontButton(page)).toHaveAccessibleName("Font: Sans");
   await expect(
     bar(page).getByRole("button", { name: "Underline" }),
   ).toHaveAttribute("aria-pressed", "true");
@@ -91,26 +99,74 @@ test("text: fonts without a real bold/italic face disable (and drop) those style
   await openEditorWithText(page);
   const bold = bar(page).getByRole("button", { name: "Bold" });
   const italic = bar(page).getByRole("button", { name: "Italic" });
-  const font = bar(page).getByLabel("Font");
 
   await italic.click();
   await expect(italic).toHaveAttribute("aria-pressed", "true");
   // Caveat has bold but no italic: italic is dropped and disabled.
-  await font.selectOption({ label: "Handwritten" });
+  await pickFont(page, "Handwritten");
   await expect(italic).toHaveAttribute("aria-pressed", "false");
   await expect(italic).toBeDisabled();
   await expect(bold).toBeEnabled();
   await expect(bold).toHaveAttribute("aria-pressed", "true");
   // Urdu (Nastaliq) has neither.
-  await font.selectOption({ label: "اردو" });
+  await pickFont(page, "اردو");
   await expect(bold).toHaveAttribute("aria-pressed", "false");
   await expect(bold).toBeDisabled();
   await expect(italic).toBeDisabled();
   // Back to a font with every face: both toggles work again.
-  await font.selectOption({ label: "Elegant" });
+  await pickFont(page, "Elegant");
   await expect(bold).toBeEnabled();
   await italic.click();
   await expect(italic).toHaveAttribute("aria-pressed", "true");
+});
+
+test("font panel: shows the text in every font, in the face it would get", async ({
+  page,
+}) => {
+  await openEditorWithText(page);
+  await fontButton(page).click();
+  const panel = page.getByTestId("font-panel");
+  await expect(panel).toBeVisible();
+  const options = panel.getByTestId("font-option");
+  await expect(options).toHaveCount(7);
+  // The current font is marked.
+  await expect(
+    panel.getByRole("button", { name: "Sans", exact: true }),
+  ).toHaveAttribute("aria-pressed", "true");
+  // Each row draws the customer's text in its own font; Urdu shows a sample.
+  const previews = panel.getByTestId("font-preview");
+  const families = await previews.evaluateAll((els) =>
+    els.map((el) => getComputedStyle(el).fontFamily),
+  );
+  expect(new Set(families).size).toBe(7);
+  const elegant = panel
+    .getByRole("button", { name: "Elegant", exact: true })
+    .getByTestId("font-preview");
+  // New text starts as "Your text" (engine/text.ts): the row shows it.
+  await expect(elegant).toHaveText("Your text");
+  await expect(
+    panel
+      .getByRole("button", { name: "اردو", exact: true })
+      .getByTestId("font-preview"),
+  ).toHaveText("اردو میں لکھیں");
+  // New text is bold, so the Handwritten preview is bold too.
+  await expect(
+    panel
+      .getByRole("button", { name: "Handwritten", exact: true })
+      .getByTestId("font-preview"),
+  ).toHaveCSS("font-weight", "700");
+  // The fonts really load (not a fallback).
+  await expect
+    .poll(() =>
+      page.evaluate(() =>
+        document.fonts.check("bold 20px 'Giftified Playfair'"),
+      ),
+    )
+    .toBe(true);
+  // Escape closes without changing anything.
+  await page.keyboard.press("Escape");
+  await expect(panel).toHaveCount(0);
+  await expect(fontButton(page)).toHaveAccessibleName("Font: Sans");
 });
 
 test("copy makes a second layer 5 mm down-right, delete removes the selection", async ({
