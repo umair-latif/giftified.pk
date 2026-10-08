@@ -2,17 +2,18 @@ import Image from "next/image";
 
 /**
  * DesignBanana logo (founder's PNG, `public/brand/`; docs/brand.md).
- * Drawn at 36 px high from a 2× file. Swap for the SVG when it arrives.
+ * 40 px high on a phone, 44 px from `sm`, 48 px from `lg`; the file is 3× the
+ * largest size so it stays sharp. Swap for the SVG when it arrives.
  */
 export function Wordmark() {
   return (
     <Image
       src="/brand/designbanana-logo.png"
       alt="DesignBanana"
-      width={176}
-      height={36}
+      width={239}
+      height={48}
       priority
-      className="h-9 w-auto"
+      className="h-10 w-auto sm:h-11 lg:h-12"
     />
   );
 }

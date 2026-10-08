@@ -9,7 +9,8 @@ import { MobileMenu } from "./mobile-menu";
  * Header for the shop pages (home, catalog, product, cart, checkout, info).
  * The editor keeps its focused AppHeader. 64 px high (80 px from `lg`), with
  * the same thick ink line as the home page's bands. Phones get a menu (burger)
- * on the left; from `sm` up the links sit in the header.
+ * on the left (it also holds Track your order); from `sm` up the links sit in
+ * the header.
  */
 export function SiteHeader() {
   return (
@@ -35,10 +36,11 @@ export function SiteHeader() {
         >
           Help
         </Link>
+        {/* Phones: Track lives in the menu, so the bigger logo has room. */}
         <Link
           href="/track"
           aria-label="Track your order"
-          className="text-ink hover:bg-mint-100 active:bg-mint-100 focus-visible:ring-brand-600/20 grid size-11 place-items-center rounded-full focus-visible:ring-2 focus-visible:outline-none"
+          className="text-ink hover:bg-mint-100 active:bg-mint-100 focus-visible:ring-brand-600/20 hidden size-11 place-items-center rounded-full focus-visible:ring-2 focus-visible:outline-none sm:grid"
         >
           <TruckIcon />
         </Link>

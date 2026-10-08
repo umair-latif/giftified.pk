@@ -55,6 +55,8 @@ border-ink`, red when invalid.
 - **Touch targets:** two named tiers. **Primary 44 px** (buttons, header actions, tab/toolbar buttons,
   standalone controls). **Secondary 36 px** only for dense in-row controls: the selection bar's text
   tools, quantity steppers, colour swatches, sheet close, and the editor's Centre/Straighten chips.
+  Link lists are tighter on purpose: footer links 32 px, phone-menu rows 40 px (stacked text links,
+  full-width rows).
 - **Warnings (photo quality):** amber-50 background, `amber-900` text, `amber-200` ring (as
   `print-quality-badge.tsx`). Never `amber-700/800` text.
 - **Danger:** text `red-700`; blocking banners `red-800` on `red-50` with `red-200` ring; fills/dots `red-700`.

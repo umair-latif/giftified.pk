@@ -64,24 +64,6 @@ export function SiteFooter() {
                 Chat on WhatsApp
               </a>
             )}
-            {socials.length > 0 && (
-              <ul className="mt-3 flex gap-1" aria-label="Social media">
-                {socials.map(({ key, label, Icon, url }) => (
-                  <li key={key}>
-                    <a
-                      href={url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      aria-label={label}
-                      data-testid={`social-${key}`}
-                      className="focus-visible:ring-mint-300/60 inline-flex size-11 items-center justify-center rounded-full hover:bg-white/10 hover:text-white focus-visible:ring-2 focus-visible:outline-none"
-                    >
-                      <Icon />
-                    </a>
-                  </li>
-                ))}
-              </ul>
-            )}
           </div>
           <nav aria-label="Footer" className="contents">
             {GROUPS.map((g) => (
@@ -99,7 +81,7 @@ export function SiteFooter() {
                     <li key={l.href}>
                       <Link
                         href={l.href}
-                        className="focus-visible:ring-mint-300/60 inline-flex min-h-11 items-center rounded hover:text-white focus-visible:ring-2 focus-visible:outline-none"
+                        className="focus-visible:ring-mint-300/60 inline-flex min-h-8 items-center rounded hover:text-white focus-visible:ring-2 focus-visible:outline-none"
                       >
                         {l.label}
                       </Link>
@@ -110,11 +92,65 @@ export function SiteFooter() {
             ))}
           </nav>
         </div>
-        <p className="text-brand-200 mt-8 text-xs">
-          © {new Date().getFullYear()} {SITE.name} · Cash on Delivery across
-          Pakistan
-        </p>
+        {socials.length > 0 && (
+          <ul
+            className="mt-8 flex justify-center gap-3"
+            aria-label="Social media"
+          >
+            {socials.map(({ key, label, Icon, url }) => (
+              <li key={key}>
+                <a
+                  href={url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={label}
+                  data-testid={`social-${key}`}
+                  className="focus-visible:ring-mint-300/60 inline-flex size-12 items-center justify-center rounded-full border-2 border-white/25 text-white transition-colors hover:border-white hover:bg-white/10 focus-visible:ring-2 focus-visible:outline-none"
+                >
+                  <Icon width={26} height={26} />
+                </a>
+              </li>
+            ))}
+          </ul>
+        )}
+        <div className="text-brand-200 mt-6 border-t border-white/15 pt-5 text-center text-xs leading-relaxed">
+          <p>
+            © {new Date().getFullYear()} {SITE.name} ·{" "}
+            <span className="text-white">{SITE.slogan}</span>
+          </p>
+          <p className="mt-1" data-testid="made-in">
+            Made with <span aria-label="love">💚</span> in <PakistanFlag />
+          </p>
+        </div>
       </div>
     </footer>
+  );
+}
+
+/**
+ * Pakistan's flag as a tiny SVG: the 🇵🇰 emoji shows as the letters "PK" on
+ * Windows. Proportions 3:2, white hoist band a quarter of the width.
+ */
+function PakistanFlag() {
+  return (
+    <svg
+      viewBox="0 0 30 20"
+      width={21}
+      height={14}
+      role="img"
+      aria-label="Pakistan"
+      className="inline-block rounded-[2px] align-[-2px] ring-1 ring-white/30"
+    >
+      <rect width="30" height="20" fill="#01411C" />
+      <rect width="7.5" height="20" fill="#fff" />
+      {/* Crescent: a white disc with a green disc cut out of it. */}
+      <circle cx="19.2" cy="10" r="5.4" fill="#fff" />
+      <circle cx="20.6" cy="8.7" r="4.6" fill="#01411C" />
+      <polygon
+        fill="#fff"
+        transform="translate(22.4 7.4) rotate(-40)"
+        points="0,-1.9 0.45,-0.6 1.8,-0.6 0.7,0.25 1.1,1.55 0,0.75 -1.1,1.55 -0.7,0.25 -1.8,-0.6 -0.45,-0.6"
+      />
+    </svg>
   );
 }
