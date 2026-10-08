@@ -15,7 +15,7 @@ export function RecentTemplatesSection({
     <DesignShelf
       headingId="home-templates"
       title="New designs"
-      intro="Ready to use. Swap in your own photos, names and words to make any design yours."
+      intro="Made by our designers. Swap in your own photos, names and words, and it's yours."
       testId="home-designs"
       tileTestId="home-template"
       className="mt-10"

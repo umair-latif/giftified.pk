@@ -4,11 +4,11 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: {
-    default: "DesignBanana — Custom mugs, tees & hoodies",
+    default: "DesignBanana — Custom mugs & T-shirts, designed on your phone",
     template: "%s · DesignBanana",
   },
   description:
-    "Design custom mugs, t-shirts and hoodies on your phone. Cash on Delivery across Pakistan.",
+    "Put your photos, names and words on a custom mug or T-shirt. Design it on your phone, see it before you order, and pay cash on delivery across Pakistan.",
 };
 
 export const viewport: Viewport = {
