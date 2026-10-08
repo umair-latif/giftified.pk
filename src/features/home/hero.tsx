@@ -5,11 +5,11 @@ import { Container } from "@/components/ui/page";
 import { SITE } from "@/config/site";
 
 /**
- * Stand-in made from a real designer screenshot + the preview's own mockup
- * photo of the same design. TODO(founder): replace with a real photo of a
- * printed mug next to a phone showing the designer (WebP, ≤ 100 KB, 1600×1000).
+ * Founder's Canva picture (designer → preview → delivered box), with the
+ * browser bars removed and the step labels added. 1600×1000 WebP, ≤ 100 KB.
+ * Change the file name when replacing it, so cached copies don't linger.
  */
-const HERO_IMAGE = "/home/hero-steps.webp";
+const HERO_IMAGE = "/home/hero-steps-v2.webp";
 
 /** The same three steps as the step bar in the editor (Design → Preview → Order). */
 const HERO_STEPS = [
@@ -78,7 +78,7 @@ export function Hero() {
         </div>
         <Image
           src={HERO_IMAGE}
-          alt="Three steps: a mug design made in the DesignBanana designer on a phone, the preview photo of that mug, and the mug delivered in a box"
+          alt="Three steps: a mug design made in the DesignBanana designer on a phone, the preview of that mug, and the printed mug delivered in its box"
           width={1600}
           height={1000}
           preload
