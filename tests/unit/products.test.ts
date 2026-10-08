@@ -51,6 +51,7 @@ describe("hoodie photos", () => {
     const { specsForColour } = await import("@/features/editor/mockup/specs");
     expect(specsForColour("hoodie", "white").map((s) => s.id)).toEqual([
       "front",
+      "studio",
     ]);
     expect(specsForColour("hoodie", "grey").map((s) => s.id)).toEqual([
       "front-grey",
