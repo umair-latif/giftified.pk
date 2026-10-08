@@ -368,6 +368,18 @@ export const MOCKUP_SPECS: Partial<
       credit: "Founder-supplied",
     },
     {
+      id: "studio",
+      label: "Studio",
+      src: "/mockups/hoodie-studio.webp",
+      widthPx: 1080,
+      heightPx: 1080,
+      // Same 300 x 220 mm box, below the hood and above the pocket.
+      quad: { tl: [328, 305], tr: [733, 305], bl: [328, 602] },
+      // The print box with both drawstrings cut out, so they hang over the print.
+      mask: "/mockups/hoodie-studio-mask.png",
+      credit: "Founder-supplied",
+    },
+    {
       id: "front-grey",
       label: "Front",
       colour: "grey",
