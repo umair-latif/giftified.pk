@@ -10,8 +10,9 @@ test("home page: hero, products, sections, no horizontal scroll", async ({
       name: "Design it yourself. See it before you buy.",
     }),
   ).toBeVisible();
-  const steps = page.getByTestId("hero-steps").getByRole("listitem");
-  await expect(steps).toHaveText([/Design/, /Preview/, /Order/]);
+  await expect(page.getByTestId("hero-trust")).toContainText(
+    "Cash on delivery across Pakistan",
+  );
   await expect(page).toHaveTitle(/Kuch khaas banao/);
   await expect(page.getByRole("contentinfo")).toContainText("Kuch khaas banao");
 

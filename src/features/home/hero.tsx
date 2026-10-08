@@ -11,13 +11,6 @@ import { SITE } from "@/config/site";
  */
 const HERO_IMAGE = "/home/hero-steps-v2.webp";
 
-/** The same three steps as the step bar in the editor (Design → Preview → Order). */
-const HERO_STEPS = [
-  { title: "Design", text: "Add photos, names and words", badge: "bg-sunny" },
-  { title: "Preview", text: "See it on the product", badge: "bg-magenta" },
-  { title: "Order", text: "Pay cash when it arrives", badge: "bg-mint-300" },
-] as const;
-
 export function Hero() {
   return (
     <section className="bg-brand-500 border-ink border-b-[3px] pt-6 pb-8">
@@ -37,33 +30,6 @@ export function Hero() {
             T-shirt. The preview shows it on the product from every side, so you
             know exactly what you&apos;ll get.
           </p>
-          <ol
-            className="mt-5 grid grid-cols-3 gap-2 sm:gap-3"
-            aria-label="Three steps"
-            data-testid="hero-steps"
-          >
-            {HERO_STEPS.map((step, i) => (
-              <li
-                key={step.title}
-                className="border-ink rounded-xl border-2 bg-white p-2 sm:p-3"
-              >
-                <span className="flex items-center gap-1.5">
-                  <span
-                    aria-hidden
-                    className={`${step.badge} border-ink text-ink font-display grid size-6 shrink-0 place-items-center rounded-full border-2 text-xs leading-none`}
-                  >
-                    {i + 1}
-                  </span>
-                  <span className="text-ink text-sm font-semibold sm:text-base">
-                    {step.title}
-                  </span>
-                </span>
-                <span className="mt-1 block text-xs leading-snug text-zinc-700 sm:text-sm">
-                  {step.text}
-                </span>
-              </li>
-            ))}
-          </ol>
           <div className="mt-5 flex flex-wrap items-center gap-x-5 gap-y-3">
             <Link href="/products" className={buttonClass("sunny")}>
               Start designing
@@ -75,6 +41,13 @@ export function Hero() {
               How it works
             </a>
           </div>
+          <p
+            className="text-ink mt-4 text-sm font-medium"
+            data-testid="hero-trust"
+          >
+            Cash on delivery across Pakistan · We call to confirm before we
+            print
+          </p>
         </div>
         <Image
           src={HERO_IMAGE}
