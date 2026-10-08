@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { GalleryArrows } from "@/components/ui/image-gallery";
+import { formatCm } from "@/lib/units";
 import { useSwipe } from "@/components/ui/use-swipe";
 import type { ProductConfig } from "@/config/products";
 import {
@@ -330,7 +331,7 @@ export function DesignPreview({
           <dd className="text-right text-zinc-900">{product.subtitle}</dd>
           <dt className="text-zinc-500">Print size</dt>
           <dd className="text-right text-zinc-900">
-            {widthMm} × {heightMm} mm · {product.printDpi} DPI
+            Up to {formatCm(widthMm)} × {formatCm(heightMm)} cm
           </dd>
           <dt className="text-zinc-500">Layers</dt>
           <dd className="text-right text-zinc-900" data-testid="preview-layers">

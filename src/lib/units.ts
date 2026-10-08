@@ -7,6 +7,11 @@ export const MM_PER_INCH = 25.4;
 /** Print resolution for production files sent to vendors. */
 export const PRINT_DPI = 300;
 
+/** Customer-facing size: 216 mm → "21.6", 300 mm → "30" (centimetres). */
+export function formatCm(mm: number): string {
+  return String(Math.round(mm) / 10);
+}
+
 export function mmToInches(mm: number): number {
   return mm / MM_PER_INCH;
 }

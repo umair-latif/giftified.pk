@@ -1,5 +1,11 @@
 import { describe, expect, it } from "vitest";
-import { MM_PER_INCH, mmToPx, printPixelSize, pxToMm } from "@/lib/units";
+import {
+  formatCm,
+  MM_PER_INCH,
+  mmToPx,
+  printPixelSize,
+  pxToMm,
+} from "@/lib/units";
 
 describe("units", () => {
   it("converts one inch to exactly DPI pixels", () => {
@@ -17,5 +23,13 @@ describe("units", () => {
   it("rejects invalid DPI", () => {
     expect(() => mmToPx(10, 0)).toThrow(RangeError);
     expect(() => pxToMm(10, Number.NaN)).toThrow(RangeError);
+  });
+});
+
+describe("formatCm", () => {
+  it("shows millimetres as centimetres for customers", () => {
+    expect(formatCm(300)).toBe("30");
+    expect(formatCm(228)).toBe("22.8");
+    expect(formatCm(88.6)).toBe("8.9");
   });
 });
