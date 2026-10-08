@@ -20,3 +20,14 @@ describe("product config", () => {
     expect(p.baseColors.length).toBeGreaterThan(0);
   });
 });
+
+describe("hoodie config (task 28)", () => {
+  it("is grey only, with a print area smaller than the t-shirt's", async () => {
+    const { getProduct } = await import("@/config/products");
+    const hoodie = getProduct("hoodie");
+    const tee = getProduct("tshirt");
+    expect(hoodie?.baseColors.map((c) => c.id)).toEqual(["grey"]);
+    expect(hoodie!.printArea.heightMm).toBeLessThan(tee!.printArea.heightMm);
+    expect(hoodie?.vendorTodo).toBeTruthy();
+  });
+});
