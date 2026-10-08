@@ -277,3 +277,29 @@ test("Background colour fills the print area, prints with the design, and undoes
     )
     .toBe(false);
 });
+
+test("typing into new text keeps it in place (no slide down per letter)", async ({
+  page,
+}) => {
+  await openEditorWithText(page);
+  const before = await readout(page);
+  const { cx, cy } = await canvasBox(page);
+  // Double-tap the text to type into it (the phone keyboard opens).
+  await page.touchscreen.tap(cx, cy);
+  await page.waitForTimeout(80);
+  await page.touchscreen.tap(cx, cy);
+  await expect
+    .poll(() =>
+      page.evaluate(
+        () =>
+          document.activeElement?.getAttribute("data-fabric") === "textarea",
+      ),
+    )
+    .toBe(true);
+  for (const ch of " Ayesha") {
+    await page.keyboard.type(ch);
+    // The box grows sideways but its centre stays on the same line.
+    expect((await readout(page)).y).toBe(before.y);
+  }
+  expect((await readout(page)).w).toBeGreaterThan(before.w);
+});

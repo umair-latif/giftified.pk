@@ -39,11 +39,39 @@ export function fitTextWidth(tb: Textbox, maxWidthMm: number): void {
   tb.dirty = true;
 }
 
-/** Keeps auto-width text hugging what is typed (Fabric fires `text:changed` on every keystroke). */
+/**
+ * The horizontal anchor Fabric keeps fixed while typing (its
+ * `updateFromTextArea`): the text alignment, or the reading start for
+ * justified text.
+ */
+function typingAnchorX(tb: Textbox): "left" | "center" | "right" {
+  if (tb.textAlign === "justify")
+    return tb.direction === "rtl" ? "right" : "left";
+  const a = tb.textAlign.replace("justify-", "");
+  return a === "center" || a === "right" ? a : "left";
+}
+
+/**
+ * Keeps auto-width text hugging what is typed (Fabric fires `text:changed` on
+ * every keystroke).
+ *
+ * Fabric lays the new text out at the box's OLD width first, so a box that
+ * hugs its text briefly wraps onto an extra line, and Fabric pins the box's
+ * top edge while it grows. Re-fitting the width then drops the extra line
+ * again; without re-pinning the same top edge the box would slide down by
+ * half a line on every keystroke (off the canvas within a few letters).
+ */
 export function attachTextAutoWidth(canvas: Canvas): () => void {
   return canvas.on("text:changed", ({ target }) => {
     if (!isTextbox(target) || !isAutoWidth(target)) return;
+    const anchorX = typingAnchorX(target);
+    const anchor = target.getPositionByOrigin(anchorX, "top");
     fitTextWidth(target, printAreaWidthMm(canvas));
+    target.setPositionByOrigin(anchor, anchorX, "top");
+    target.setCoords();
+    // Keep the hidden textarea (and so the phone keyboard's caret) on the text.
+    const editing = target as Textbox & { updateTextareaPosition?: () => void };
+    if (editing.hiddenTextarea) editing.updateTextareaPosition?.();
     canvas.requestRenderAll();
   });
 }
