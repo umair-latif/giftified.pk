@@ -17,6 +17,11 @@ export const TSHIRT_EDITOR_GUIDE = {
   printLeft: "31.76%",
   printTop: "21.3%",
   printWidth: "36.48%",
+  /**
+   * Desktop: show only this part of the photo (fractions of its size), centred
+   * on the print area, which then fills ~82% of the stage height.
+   */
+  desktopView: { left: 0.159, top: 0.16, width: 0.682, height: 0.593 },
 } as const;
 
 /**
@@ -35,6 +40,8 @@ export const HOODIE_EDITOR_GUIDE = {
   printLeft: "26.51%",
   printTop: "32.79%",
   printWidth: "47.09%",
+  /** Desktop window (see the T-shirt's): the print fills ~65% of the width. */
+  desktopView: { left: 0.141, top: 0.224, width: 0.72, height: 0.554 },
 } as const;
 
 /** The editor garment photo for a product, or null to show the plain print area (mug). */
