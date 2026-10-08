@@ -14,12 +14,12 @@ test("catalog → mug page → Design your own opens the editor", async ({
   );
   await noSideScroll(page);
 
-  // Hoodie has no print config yet: "Coming soon", not a link.
-  for (const id of ["hoodie"]) {
-    const card = page.getByTestId(`product-card-${id}`);
-    await expect(card).toContainText("Coming soon");
-    await expect(card).not.toHaveAttribute("href");
-  }
+  // Every product has a print config now: each card is a link.
+  for (const id of ["tshirt", "hoodie"])
+    await expect(page.getByTestId(`product-card-${id}`)).toHaveAttribute(
+      "href",
+      `/products/${id}`,
+    );
 
   await page.getByTestId("product-card-mug").tap();
   await expect(page).toHaveURL(/\/products\/[\w-]+$/);
@@ -71,10 +71,8 @@ test("delivery estimate: Lahore costs Rs 200 and the city is remembered", async 
 
 // Not-found is streamed after loading.tsx, so Next sends it as a "soft 404"
 // (status 200 + noindex) — see node_modules/next/dist/docs loading.md "Status Codes".
-test("no page for products that can't be designed yet, or unknown slugs", async ({
-  page,
-}) => {
-  for (const path of ["/products/hoodie", "/products/nope"]) {
+test("unknown product slugs get the not-found page", async ({ page }) => {
+  for (const path of ["/products/nope"]) {
     await page.goto(path);
     await expect(
       page.getByRole("heading", { name: "We can’t find that page" }),

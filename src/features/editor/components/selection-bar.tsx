@@ -189,13 +189,13 @@ export function SelectionBar({
               <ReplaceIcon />
             </Action>
             {customerPhoto && (
-              <Toggle
-                label="Customer's photo"
+              <Action
+                label="Placeholder"
                 pressed={customerPhoto.active}
                 onClick={customerPhoto.onOpen}
               >
                 <CustomerPhotoIcon />
-              </Toggle>
+              </Action>
             )}
             <Divider />
           </>
@@ -250,22 +250,28 @@ function Action({
   onClick,
   danger,
   disabled,
+  pressed,
   children,
 }: {
   label: string;
   onClick: () => void;
   danger?: boolean;
   disabled?: boolean;
+  /** Set for on/off actions (shown highlighted when on). */
+  pressed?: boolean;
   children: ReactNode;
 }) {
   return (
     <button
       type="button"
       aria-label={label}
+      aria-pressed={pressed}
       onClick={onClick}
       disabled={disabled}
-      className={`focus-visible:ring-brand-600/20 flex h-11 min-w-11 shrink-0 flex-col items-center justify-center gap-0.5 rounded-md px-0.5 text-[10px] leading-none font-medium hover:bg-zinc-100 focus-visible:ring-2 focus-visible:outline-none active:bg-zinc-100 disabled:opacity-35 disabled:hover:bg-transparent ${
-        danger ? "text-red-600" : "text-zinc-700"
+      className={`focus-visible:ring-brand-600/20 flex h-11 min-w-11 shrink-0 flex-col items-center justify-center gap-0.5 rounded-md px-0.5 text-[10px] leading-none font-medium focus-visible:ring-2 focus-visible:outline-none disabled:opacity-35 disabled:hover:bg-transparent ${
+        pressed
+          ? "bg-brand-100 text-brand-700 hover:bg-brand-200"
+          : `hover:bg-zinc-100 active:bg-zinc-100 ${danger ? "text-red-600" : "text-zinc-700"}`
       }`}
     >
       {children}
