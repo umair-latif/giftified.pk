@@ -160,6 +160,8 @@ describe("woo:seed", () => {
     await seedWooCommerce({ ...base, fetch: wc.fetch });
 
     expect(wc.settings.woocommerce_currency).toBe("PKR");
+    // Pakistan has provinces in WooCommerce: "PK" alone is rejected.
+    expect(wc.settings.woocommerce_default_country).toBe("PK:PB");
     expect(wc.cod()).toBe(true);
 
     // The adapter maps the seeded product to our mug with a white variant.
@@ -194,6 +196,23 @@ describe("woo:seed", () => {
     expect(quoteFromZones("Rawalpindi", withRates)).toBe(250);
     expect(quoteFromZones("Multan", withRates)).toBe(300);
     expect(wc.zones).toHaveLength(ZONES.length + 1);
+  });
+
+  it("keeps going when a store setting is rejected, and says how to set it by hand", async () => {
+    const wc = fakeWoo();
+    const lines: string[] = [];
+    const fetch = (async (input: RequestInfo | URL, init?: RequestInit) =>
+      String(input).includes("woocommerce_default_country")
+        ? new Response(JSON.stringify({ code: "rest_setting_value_invalid" }), {
+            status: 400,
+          })
+        : wc.fetch(input, init)) as typeof globalThis.fetch;
+    await seedWooCommerce({ ...base, fetch, log: (l) => lines.push(l) });
+
+    expect(lines.join("\n")).toMatch(/Set it by hand: .*Pakistan — Punjab/);
+    expect(wc.settings.woocommerce_currency).toBe("PKR");
+    expect(wc.cod()).toBe(true);
+    expect(wc.products.length).toBeGreaterThan(0);
   });
 
   it("seeds the T-shirt as Colour x Size variations the app maps to variants", async () => {
