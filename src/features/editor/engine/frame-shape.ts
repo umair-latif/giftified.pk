@@ -1,5 +1,5 @@
 /**
- * Photo frame shapes ("Crop & shape"). Pure (no Fabric), unit-tested.
+ * Photo frame shapes ("Crop & frames"). Pure (no Fabric), unit-tested.
  *
  * A shape is an SVG path in a 0–100 unit square. It is stretched over the
  * photo's visible (cropped) box, so the editor, the 3D/2D preview and the

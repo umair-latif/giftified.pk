@@ -113,7 +113,7 @@ export function CropSheet({ target, onCancel, onApply }: Props) {
     <div
       role="dialog"
       aria-modal="true"
-      aria-label="Crop photo"
+      aria-label="Crop and frame photo"
       className="fixed inset-0 z-40 flex flex-col bg-zinc-950 text-white"
     >
       <header className="flex h-14 items-center justify-between px-2 pt-[env(safe-area-inset-top)]">
@@ -124,7 +124,7 @@ export function CropSheet({ target, onCancel, onApply }: Props) {
         >
           Cancel
         </button>
-        <h2 className="text-sm font-semibold">Crop &amp; shape</h2>
+        <h2 className="text-sm font-semibold">Crop &amp; frames</h2>
         <button
           type="button"
           onClick={() => onApply(viewToRect(imageAspect, view), shape)}

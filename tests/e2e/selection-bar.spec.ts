@@ -138,8 +138,8 @@ test("photo: crop to a square, reopen, and reset", async ({ page }) => {
   const before = await readout(page);
   expect(before.w).toBeGreaterThan(before.x); // wide
 
-  await bar(page).getByRole("button", { name: "Crop" }).click();
-  const dialog = page.getByRole("dialog", { name: "Crop photo" });
+  await bar(page).getByRole("button", { name: "Crop & frames" }).click();
+  const dialog = page.getByRole("dialog", { name: "Crop and frame photo" });
   await expect(dialog).toBeVisible();
   await expect(dialog.getByRole("radio", { name: "Original" })).toHaveAttribute(
     "aria-checked",
@@ -158,7 +158,7 @@ test("photo: crop to a square, reopen, and reset", async ({ page }) => {
   expect(dpi).toBeLessThan(Math.round((3000 / before.w) * 25.4));
 
   // Reopen: the square shape is remembered. Zoom in with the slider, then reset.
-  await bar(page).getByRole("button", { name: "Crop" }).click();
+  await bar(page).getByRole("button", { name: "Crop & frames" }).click();
   await expect(dialog.getByRole("radio", { name: "Square" })).toHaveAttribute(
     "aria-checked",
     "true",
@@ -175,7 +175,7 @@ test("photo: crop to a square, reopen, and reset", async ({ page }) => {
   );
 
   // Cancel leaves the photo untouched.
-  await bar(page).getByRole("button", { name: "Crop" }).click();
+  await bar(page).getByRole("button", { name: "Crop & frames" }).click();
   await dialog.getByRole("radio", { name: "Square" }).click();
   await dialog.getByRole("button", { name: "Cancel" }).click();
   await expect(status(page)).toHaveText(
@@ -195,8 +195,8 @@ test("crop & shape: pick a shape, it is remembered, and Replace keeps the frame"
     mimeType: "image/png",
     buffer: await makePng(page, 3000, 1200),
   });
-  await bar(page).getByRole("button", { name: "Crop" }).click();
-  const dialog = page.getByRole("dialog", { name: "Crop photo" });
+  await bar(page).getByRole("button", { name: "Crop & frames" }).click();
+  const dialog = page.getByRole("dialog", { name: "Crop and frame photo" });
   await expect(dialog.getByRole("radio", { name: "No shape" })).toHaveAttribute(
     "aria-checked",
     "true",
@@ -209,7 +209,7 @@ test("crop & shape: pick a shape, it is remembered, and Replace keeps the frame"
   );
   await dialog.getByRole("button", { name: "Done" }).click();
 
-  await bar(page).getByRole("button", { name: "Crop" }).click();
+  await bar(page).getByRole("button", { name: "Crop & frames" }).click();
   await expect(dialog.getByRole("radio", { name: "Circle" })).toHaveAttribute(
     "aria-checked",
     "true",
@@ -217,7 +217,7 @@ test("crop & shape: pick a shape, it is remembered, and Replace keeps the frame"
   await dialog.getByRole("button", { name: "Cancel" }).click();
 
   // Polaroid: square photo with a white border, slightly tilted.
-  await bar(page).getByRole("button", { name: "Crop" }).click();
+  await bar(page).getByRole("button", { name: "Crop & frames" }).click();
   await dialog.getByRole("radio", { name: "Polaroid" }).click();
   await expect(dialog.getByTestId("polaroid-border")).toBeVisible();
   // A ring, not a white slab: the photo stays visible inside the border.
@@ -227,7 +227,7 @@ test("crop & shape: pick a shape, it is remembered, and Replace keeps the frame"
   );
   await dialog.getByRole("button", { name: "Done" }).click();
   await expect(status(page)).toHaveText(/357°/);
-  await bar(page).getByRole("button", { name: "Crop" }).click();
+  await bar(page).getByRole("button", { name: "Crop & frames" }).click();
   await expect(dialog.getByRole("radio", { name: "Polaroid" })).toHaveAttribute(
     "aria-checked",
     "true",
@@ -259,7 +259,7 @@ test("crop survives reload (saved in the draft)", async ({ page }) => {
     mimeType: "image/png",
     buffer: await makePng(page, 3000, 1200),
   });
-  await bar(page).getByRole("button", { name: "Crop" }).click();
+  await bar(page).getByRole("button", { name: "Crop & frames" }).click();
   await page.getByRole("dialog").getByRole("radio", { name: "Square" }).click();
   await page.getByRole("dialog").getByRole("button", { name: "Done" }).click();
   const cropped = await readout(page);
