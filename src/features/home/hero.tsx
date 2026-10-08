@@ -14,15 +14,27 @@ export function Hero() {
         className="md:grid md:grid-cols-2 md:items-center md:gap-10"
       >
         <div>
-          <h1 className="text-ink text-[2rem] leading-none sm:text-5xl">
-            Your photo, your words — on a mug, tee or hoodie
-          </h1>
-          <p className="text-ink mt-3 text-base font-medium">
-            Pay cash on delivery across Pakistan
+          <p className="border-ink text-ink mb-3 w-fit rounded-full border-2 bg-white px-3 py-0.5 text-sm font-semibold">
+            Kuch khaas banao
           </p>
-          <Link href="/products" className={buttonClass("sunny", "mt-5")}>
-            Start designing
-          </Link>
+          <h1 className="text-ink text-[2rem] leading-none sm:text-5xl">
+            Design it on your phone. We&apos;ll make it real.
+          </h1>
+          <p className="text-ink mt-3 text-base font-medium sm:text-lg">
+            Put your photos, names and words on a mug or T-shirt. See it on the
+            product before you order, and pay cash when it arrives.
+          </p>
+          <div className="mt-5 flex flex-wrap items-center gap-x-5 gap-y-3">
+            <Link href="/products" className={buttonClass("sunny")}>
+              Start designing
+            </Link>
+            <a
+              href="#home-how"
+              className="text-ink focus-visible:ring-ink/40 rounded font-semibold underline underline-offset-4 focus-visible:ring-2 focus-visible:outline-none"
+            >
+              How it works
+            </a>
+          </div>
         </div>
         <Image
           src={HERO_IMAGE}

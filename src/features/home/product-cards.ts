@@ -21,19 +21,19 @@ export const HOME_PRODUCTS: readonly HomeProductInfo[] = [
   {
     productId: "mug",
     name: "Custom Mug",
-    note: "11oz white ceramic, full wrap",
+    note: "11oz white ceramic, printed all the way round",
     image: "/home/mug-placeholder.webp",
   },
   {
     productId: "tshirt",
     name: "T-Shirt",
-    note: "180–200 GSM combed cotton",
+    note: "Soft combed cotton, in white or black",
     image: "/home/tshirt-placeholder.webp",
   },
   {
     productId: "hoodie",
     name: "Hoodie",
-    note: "320+ GSM heavy fleece",
+    note: "Warm, heavy fleece",
     image: "/home/hoodie-placeholder.webp",
   },
 ];

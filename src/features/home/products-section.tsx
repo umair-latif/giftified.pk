@@ -42,8 +42,11 @@ export function ProductsSection({ cards }: { cards: HomeProductCard[] }) {
     <section aria-labelledby="home-products" className="pt-8">
       <Container width="wide">
         <h2 id="home-products" className="text-brand-900 text-2xl">
-          Pick a product
+          What will you make?
         </h2>
+        <p className="text-ink mt-1 text-sm">
+          Start with a blank product and make it yours.
+        </p>
         <ul className="mt-4 grid gap-3 sm:grid-cols-3">
           {cards.map((card) => (
             <li

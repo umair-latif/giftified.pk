@@ -20,6 +20,10 @@ export function Occasions() {
         <h2 id="home-occasions" className="text-brand-900 text-2xl">
           Gifts for every occasion
         </h2>
+        <p className="text-ink mt-1 text-sm">
+          Eid, shaadi, birthdays and more. Pick a moment and start from a
+          ready-made design.
+        </p>
         <ul className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
           {OCCASIONS.map((o, i) => (
             <li
