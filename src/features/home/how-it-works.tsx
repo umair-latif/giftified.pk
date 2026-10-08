@@ -9,12 +9,12 @@ const STEPS: { title: string; text: string; badge: string }[] = [
   },
   {
     title: "Preview",
-    text: "See your design on the mug or shirt from the front, the sides and in real-life scenes. Change anything until it looks right.",
+    text: "We turn your design into real-looking photos of your mug or shirt, up close and in everyday scenes. Not happy? Go back and change anything.",
     badge: "bg-magenta",
   },
   {
     title: "Order",
-    text: "Pay cash when it arrives, anywhere in Pakistan. We call you to confirm before we print.",
+    text: "Pay cash when it arrives, anywhere in Pakistan. More ways to pay are on the way. We call you to confirm before we print.",
     badge: "bg-mint-300",
   },
 ];

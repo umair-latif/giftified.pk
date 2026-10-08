@@ -7,7 +7,7 @@ export const WHY_GIFTIFIED: readonly string[] = [
   "Cash on delivery everywhere in Pakistan",
   "We call you to confirm before anything is printed",
   "Printed in 1–3 days, then delivered in 5–7 more",
-  "Sharp 300 DPI prints, made from your original photos",
+  "Sharp, clear prints, made from your original photos",
   "Printing fault or damaged on arrival? Tell us within 48 hours and we'll put it right",
 ];
 

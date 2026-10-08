@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { InfoPage, InfoSection } from "@/features/info/info-page";
-import { PRINT_DPI } from "@/lib/units";
 
 export const metadata: Metadata = {
   title: "About us",
@@ -35,7 +34,7 @@ export default function AboutPage() {
           belt, which has long experience in printing and textiles.
         </p>
         <p>
-          For each order we prepare a {PRINT_DPI} DPI print file from your
+          For each order we prepare a full-size, print-quality file from your
           design and a production sheet with the exact size and position of your
           print, so what you designed is what gets printed.
         </p>
