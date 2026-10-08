@@ -49,8 +49,8 @@ export function ProductDetails({
           <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-2 text-sm">
             <dt className="text-zinc-500">Print area</dt>
             <dd>
-              {cfg.printArea.widthMm} × {cfg.printArea.heightMm} mm · printed at{" "}
-              {cfg.printDpi} DPI
+              Up to {cm(cfg.printArea.widthMm)} × {cm(cfg.printArea.heightMm)}{" "}
+              cm
             </dd>
             {extraFacts}
             <dt className="text-zinc-500">Reprints</dt>
@@ -69,4 +69,9 @@ export function ProductDetails({
       </div>
     </Disclosure>
   );
+}
+
+/** 216 mm → "21.6", 300 mm → "30". */
+function cm(mm: number): string {
+  return String(Math.round(mm) / 10);
 }

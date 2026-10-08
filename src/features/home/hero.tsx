@@ -4,8 +4,12 @@ import { buttonClass } from "@/components/ui/button";
 import { Container } from "@/components/ui/page";
 import { SITE } from "@/config/site";
 
-/** TODO(founder): replace with a real product photo (WebP, ≤ 100 KB, ~1600×1000). */
-const HERO_IMAGE = "/home/hero-placeholder.webp";
+/**
+ * Stand-in made from a real designer screenshot + the preview's own mockup
+ * photo of the same design. TODO(founder): replace with a real photo of a
+ * printed mug next to a phone showing the designer (WebP, ≤ 100 KB, 1600×1000).
+ */
+const HERO_IMAGE = "/home/hero-designer-preview.webp";
 
 /** The same three steps as the step bar in the editor (Design → Preview → Order). */
 const HERO_STEPS = [
@@ -74,7 +78,7 @@ export function Hero() {
         </div>
         <Image
           src={HERO_IMAGE}
-          alt="A custom printed mug"
+          alt="A mug design being made in the DesignBanana designer on a phone, and the preview photo of the same mug"
           width={1600}
           height={1000}
           preload

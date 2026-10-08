@@ -37,7 +37,7 @@ test("t-shirt configuration opens a portrait editor and preserves its draft", as
   await expect(status).toContainText("1 layer");
   await page.getByRole("link", { name: "Preview", exact: true }).tap();
   await expect(page.getByTestId("preview-layers")).toHaveText("1");
-  await expect(page.getByText("300 × 400 mm · 300 DPI")).toBeVisible();
+  await expect(page.getByText("Up to 30 × 40 cm")).toBeVisible();
   expect(errors).toEqual([]);
 });
 
