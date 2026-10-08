@@ -84,15 +84,32 @@ export async function seedWooCommerce(cfg: SeedConfig): Promise<void> {
     return (text ? JSON.parse(text) : null) as T;
   }
 
-  // 1. Store basics: Pakistan, rupees without decimals.
-  await call("PUT", "/settings/general/woocommerce_default_country", {
-    value: "PK",
-  });
-  await call("PUT", "/settings/general/woocommerce_currency", { value: "PKR" });
-  await call("PUT", "/settings/general/woocommerce_price_num_decimals", {
-    value: "0",
-  });
-  log("✓ Store country Pakistan, currency PKR, no decimals");
+  // 1. Store basics: Pakistan, rupees without decimals. WooCommerce knows
+  // Pakistan's provinces, so the country must be "country:state" ("PK" alone
+  // is rejected as invalid); Punjab, where our print partners are. A store
+  // setting that won't save is reported, not fatal: products come next.
+  const settings: [string, string, string][] = [
+    [
+      "woocommerce_default_country",
+      "PK:PB",
+      "Country / State → Pakistan — Punjab",
+    ],
+    ["woocommerce_currency", "PKR", "Currency → Pakistani rupee"],
+    ["woocommerce_price_num_decimals", "0", "Number of decimals → 0"],
+  ];
+  let settingsOk = true;
+  for (const [id, value, manual] of settings) {
+    try {
+      await call("PUT", `/settings/general/${id}`, { value });
+    } catch (err) {
+      settingsOk = false;
+      log(
+        `! Couldn't set ${id} (${err instanceof Error ? err.message : String(err)}). ` +
+          `Set it by hand: WP admin → WooCommerce → Settings → General → ${manual}.`,
+      );
+    }
+  }
+  if (settingsOk) log("✓ Store country Pakistan, currency PKR, no decimals");
 
   // 2. Cash on Delivery on.
   await call("PUT", "/payment_gateways/cod", { enabled: true });
