@@ -139,6 +139,17 @@ export function EditorStage({
           )}
         </div>
       </div>
+      {product.id === "hoodie" && (
+        // Editor-only (never in exports): the print stops above the pocket.
+        <div
+          data-testid="pocket-guide"
+          className="mt-1 flex items-center gap-2 text-[10px] tracking-wide text-zinc-500 uppercase"
+        >
+          <span className="h-px flex-1 border-t border-dashed border-zinc-400" />
+          <span>Pocket starts here: keep the print above</span>
+          <span className="h-px flex-1 border-t border-dashed border-zinc-400" />
+        </div>
+      )}
       {product.edgeLabels && (
         <div className="mt-1 flex justify-between text-[10px] tracking-wide text-zinc-400 uppercase">
           <span>← {product.edgeLabels.left}</span>
