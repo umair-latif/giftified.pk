@@ -123,7 +123,9 @@ export function PreviewScreen({
   );
 
   return (
-    <div className="bg-cream min-h-dvh pb-28 lg:pb-10">
+    <div
+      className={`bg-cream min-h-dvh lg:pb-10 ${publishing ? "pb-48" : "pb-28"}`}
+    >
       <AppHeader
         title={item ? "Preview changes" : "Preview"}
         backHref={editHref}
