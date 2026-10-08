@@ -12,6 +12,7 @@ import {
 import {
   MUG,
   TSHIRT,
+  HOODIE,
   ZONES,
   seedWooCommerce,
 } from "../../scripts/woo-seed-lib";
@@ -213,6 +214,22 @@ describe("woo:seed", () => {
     expect(black.every((v) => v.pricePkr === TSHIRT.pricePkr)).toBe(true);
   });
 
+  it("seeds the hoodie as grey x size variations", async () => {
+    const wc = fakeWoo();
+    await seedWooCommerce({ ...base, fetch: wc.fetch });
+    const product = wooProductSchema.parse(
+      wc.products.find((p) => p.sku === "hoodie"),
+    );
+    const vars = wc.variations
+      .get(product.id)!
+      .map((v) => wooVariationSchema.parse(v));
+    const mapped = mapProduct(product, vars);
+    expect(mapped?.productId).toBe("hoodie");
+    expect(mapped?.variants.map((v) => [v.colourId, v.size])).toEqual(
+      HOODIE.sizes.map((size) => ["grey", size]),
+    );
+  });
+
   it("is safe to run twice: the second run creates nothing new", async () => {
     const wc = fakeWoo();
     await seedWooCommerce({ ...base, fetch: wc.fetch });
@@ -220,7 +237,7 @@ describe("woo:seed", () => {
     await seedWooCommerce({ ...base, fetch: wc.fetch });
     const after = wc.writes.filter((w) => w.startsWith("POST")).length;
     expect(after).toBe(before);
-    expect(wc.products).toHaveLength(2);
+    expect(wc.products).toHaveLength(3);
     expect(wc.variations.get(wc.products[1]!.id as number)).toHaveLength(
       TSHIRT.colours.length * TSHIRT.sizes.length,
     );

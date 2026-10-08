@@ -79,6 +79,27 @@ const CATALOG: CatalogProduct[] = [
       })),
     ),
   },
+  {
+    productId: "hoodie",
+    wooProductId: 103,
+    slug: "hoodie",
+    images: [],
+    name: "Custom Hoodie",
+    shortDescription:
+      "Heavy fleece hoodie with your design printed on the chest.",
+    descriptionHtml:
+      "<p>Heavy fleece hoodie, front chest print above the pocket.</p><ul><li>Heather grey</li><li>Sizes S to XXL</li></ul>",
+    basePricePkr: 3499,
+    variants: ["S", "M", "L", "XL", "XXL"].map((size, i) => ({
+      colourId: "grey",
+      colourName: "Heather Grey",
+      colourHex: "#b4b7bc" as const,
+      size,
+      wooVariationId: 1031 + i,
+      pricePkr: 3499,
+      inStock: true,
+    })),
+  },
 ];
 
 const SHIPPING_PKR: Record<string, number> = {

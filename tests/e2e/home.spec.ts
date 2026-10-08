@@ -24,8 +24,8 @@ test("home page: hero, products, sections, no horizontal scroll", async ({
     "/products/tshirt",
   );
   await expect(
-    page.getByTestId("home-product-hoodie").getByText("Coming soon"),
-  ).toBeVisible();
+    page.getByTestId("home-product-hoodie").getByRole("link"),
+  ).toHaveAttribute("href", "/products/hoodie");
 
   for (const name of [
     "How it works",

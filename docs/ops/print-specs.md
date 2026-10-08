@@ -4,11 +4,11 @@ Each product's print specs live in **one file**. Change the numbers there and
 everything else follows: the editor canvas, the safe-zone guide, the DPI checks,
 the preview, and the 300 DPI print files.
 
-| Product    | File                                                             |
-| ---------- | ---------------------------------------------------------------- |
-| Mug (11oz) | `src/config/products/mug.ts`                                     |
-| T-shirt    | `src/config/products/tshirt.ts` (provisional task 27 config)     |
-| Hoodie     | `src/config/products/hoodie.ts` (added when the hoodie launches) |
+| Product    | File                                                         |
+| ---------- | ------------------------------------------------------------ |
+| Mug (11oz) | `src/config/products/mug.ts`                                 |
+| T-shirt    | `src/config/products/tshirt.ts` (provisional task 27 config) |
+| Hoodie     | `src/config/products/hoodie.ts` (provisional task 28 config) |
 
 ## What to ask the vendor, and where it goes
 
@@ -27,6 +27,11 @@ until the Gujrat vendor confirms.
 ## How to change them
 
 ### Apparel confirmation checklist
+
+**Hoodie (task 28):** the config uses an **unconfirmed** 280 × 300 mm chest print
+area that stops above the kangaroo pocket, heather grey only. Ask the vendor for
+the printable height **above the pocket seam** and the distance from the collar,
+and whether printing on the pocket or hood is ever wanted.
 
 The t-shirt config uses task 27's **unconfirmed** 300 × 400 mm print area,
 10 mm safe margin and proposed garment colours. These enable development;

@@ -35,6 +35,15 @@ export const TSHIRT = {
   pricePkr: 1999,
 };
 
+/** Hoodie (task 28): grey only at launch; price and sizes are PLACEHOLDERS too. */
+export const HOODIE = {
+  sku: "hoodie",
+  name: "Custom Hoodie",
+  colours: ["Heather Grey"],
+  sizes: ["S", "M", "L", "XL", "XXL"],
+  pricePkr: 3499,
+};
+
 /**
  * Colours as terms of the GLOBAL attribute "Colour" (pa_colour). The term
  * description holds the swatch hex; the storefront reads it (task 11), so the
@@ -43,6 +52,7 @@ export const TSHIRT = {
 export const COLOURS: readonly { name: string; hex: `#${string}` }[] = [
   { name: "White", hex: "#FFFFFF" },
   { name: "Black", hex: "#171717" },
+  { name: "Heather Grey", hex: "#B4B7BC" },
 ];
 
 /** Zone names list their cities — that's how the app matches a city to a rate. */
@@ -188,65 +198,75 @@ export async function seedWooCommerce(cfg: SeedConfig): Promise<void> {
     log(`• Variation ${MUG.colour} already exists`);
   }
 
-  // 3c. T-shirt: variable product, global Colour + local Size, one variation per pair.
-  const shirts = await call<Json[]>("GET", `/products?sku=${TSHIRT.sku}`);
-  let shirt = shirts[0];
-  if (!shirt) {
-    shirt = await call<Json>("POST", "/products", {
-      name: TSHIRT.name,
-      type: "variable",
-      sku: TSHIRT.sku,
-      status: "publish",
-      attributes: [
-        {
-          id: colourAttr.id,
-          visible: true,
-          variation: true,
-          options: TSHIRT.colours,
-        },
-        { name: "Size", visible: true, variation: true, options: TSHIRT.sizes },
-      ],
-    });
-    log(`✓ Created product "${TSHIRT.name}" (SKU ${TSHIRT.sku})`);
-  } else {
-    log(
-      `• Product with SKU ${TSHIRT.sku} already exists (id ${String(shirt.id)})`,
-    );
-  }
-  const shirtId = String(shirt.id);
-  const shirtVars = await call<Json[]>(
-    "GET",
-    `/products/${shirtId}/variations`,
-  );
-  const have = new Set(
-    shirtVars.map((v) =>
-      ((v.attributes as { name?: string; option?: string }[] | undefined) ?? [])
-        .map((a) => `${(a.name ?? "").toLowerCase()}=${a.option ?? ""}`)
-        .sort()
-        .join("|"),
-    ),
-  );
-  let added = 0;
-  for (const colour of TSHIRT.colours) {
-    for (const size of TSHIRT.sizes) {
-      const key = [`colour=${colour}`, `size=${size}`].sort().join("|");
-      if (have.has(key)) continue;
-      await call("POST", `/products/${shirtId}/variations`, {
-        regular_price: String(TSHIRT.pricePkr),
+  // 3c. Apparel: variable products, global Colour + local Size, one variation per pair.
+  for (const apparel of [TSHIRT, HOODIE]) {
+    const items = await call<Json[]>("GET", `/products?sku=${apparel.sku}`);
+    let item = items[0];
+    if (!item) {
+      item = await call<Json>("POST", "/products", {
+        name: apparel.name,
+        type: "variable",
+        sku: apparel.sku,
         status: "publish",
         attributes: [
-          { id: colourAttr.id, name: "Colour", option: colour },
-          { name: "Size", option: size },
+          {
+            id: colourAttr.id,
+            visible: true,
+            variation: true,
+            options: apparel.colours,
+          },
+          {
+            name: "Size",
+            visible: true,
+            variation: true,
+            options: apparel.sizes,
+          },
         ],
       });
-      added++;
+      log(`✓ Created product "${apparel.name}" (SKU ${apparel.sku})`);
+    } else {
+      log(
+        `• Product with SKU ${apparel.sku} already exists (id ${String(item.id)})`,
+      );
     }
+    const itemId = String(item.id);
+    const itemVars = await call<Json[]>(
+      "GET",
+      `/products/${itemId}/variations`,
+    );
+    const have = new Set(
+      itemVars.map((v) =>
+        (
+          (v.attributes as { name?: string; option?: string }[] | undefined) ??
+          []
+        )
+          .map((a) => `${(a.name ?? "").toLowerCase()}=${a.option ?? ""}`)
+          .sort()
+          .join("|"),
+      ),
+    );
+    let added = 0;
+    for (const colour of apparel.colours) {
+      for (const size of apparel.sizes) {
+        const key = [`colour=${colour}`, `size=${size}`].sort().join("|");
+        if (have.has(key)) continue;
+        await call("POST", `/products/${itemId}/variations`, {
+          regular_price: String(apparel.pricePkr),
+          status: "publish",
+          attributes: [
+            { id: colourAttr.id, name: "Colour", option: colour },
+            { name: "Size", option: size },
+          ],
+        });
+        added++;
+      }
+    }
+    log(
+      added
+        ? `✓ Added ${added} ${apparel.name} variations at Rs ${apparel.pricePkr} (placeholder price)`
+        : `• All ${apparel.name} variations already exist`,
+    );
   }
-  log(
-    added
-      ? `✓ Added ${added} T-shirt variations at Rs ${TSHIRT.pricePkr} (placeholder price)`
-      : "• All T-shirt variations already exist",
-  );
 
   // 4. Shipping zones by city, each with a flat rate.
   const zones = await call<{ id: number; name: string }[]>(
