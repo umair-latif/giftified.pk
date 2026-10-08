@@ -52,6 +52,33 @@ const CATALOG: CatalogProduct[] = [
       },
     ],
   },
+  {
+    productId: "tshirt",
+    wooProductId: 102,
+    slug: "tshirt",
+    images: [],
+    name: "Custom T-Shirt",
+    shortDescription:
+      "Soft combed-cotton tee with your design printed on the front.",
+    descriptionHtml:
+      "<p>Combed-cotton tee, front print.</p><ul><li>White or black</li><li>Sizes S to XXL</li></ul>",
+    basePricePkr: 1999,
+    variants: [
+      ["white", "White", "#ffffff"],
+      ["black", "Black", "#171717"],
+    ].flatMap(([colourId, colourName, colourHex], c) =>
+      ["S", "M", "L", "XL", "XXL"].map((size, i) => ({
+        colourId: colourId!,
+        colourName: colourName!,
+        colourHex: colourHex as `#${string}`,
+        size,
+        wooVariationId: 1021 + c * 10 + i,
+        pricePkr: 1999,
+        // One sold-out size, so the picker's disabled state is testable.
+        inStock: !(colourId === "black" && size === "XXL"),
+      })),
+    ),
+  },
 ];
 
 const SHIPPING_PKR: Record<string, number> = {
@@ -233,7 +260,9 @@ export function createMockCommerce(
           return { ...line, unitPricePkr: d.input.pricePkr };
         }
         const variant = find(line.productId)?.variants.find(
-          (v) => v.colourId === line.colourId,
+          (v) =>
+            v.colourId === line.colourId &&
+            (line.size === undefined || v.size === line.size),
         );
         if (!variant)
           throw new Error(

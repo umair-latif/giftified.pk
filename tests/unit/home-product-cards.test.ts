@@ -30,7 +30,7 @@ describe("home product cards", () => {
     expect(mug).toMatchObject({ href: "/products/mug", fromPricePkr: 1499 });
     expect(tshirt).toMatchObject({
       href: "/products/tshirt",
-      fromPricePkr: null,
+      fromPricePkr: 1999,
     });
     expect(hoodie?.href).toBeNull();
   });
