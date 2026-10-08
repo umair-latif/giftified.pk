@@ -41,13 +41,6 @@ export function Hero() {
               How it works
             </a>
           </div>
-          <p
-            className="text-ink mt-4 text-sm font-medium"
-            data-testid="hero-trust"
-          >
-            Cash on delivery across Pakistan · We call to confirm before we
-            print
-          </p>
         </div>
         <Image
           src={HERO_IMAGE}
