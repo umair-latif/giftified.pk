@@ -58,6 +58,34 @@ export function addSizeLine(
   });
 }
 
+/**
+ * Change a line's size in the cart. If another line already has the same
+ * design in that size, the two become one line (quantities added, capped).
+ */
+export function setLineSize(
+  items: CartItem[],
+  id: string,
+  size: string,
+): CartItem[] {
+  const src = items.find((i) => i.id === id);
+  if (!src || src.size === size) return items;
+  const same = items.find(
+    (i) =>
+      i.id !== id &&
+      i.designKey === src.designKey &&
+      i.size === size &&
+      i.colourId === src.colourId &&
+      i.templateId === src.templateId,
+  );
+  if (same)
+    return setLineQuantity(
+      removeLine(items, id),
+      same.id,
+      same.quantity + src.quantity,
+    );
+  return items.map((i) => (i.id === id ? { ...i, size } : i));
+}
+
 /** Design keys no line uses any more (their snapshots can be deleted). */
 export function orphanDesignKeys(
   items: CartItem[],

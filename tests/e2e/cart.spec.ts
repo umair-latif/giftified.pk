@@ -1,5 +1,6 @@
 import { expect, test, type Page } from "@playwright/test";
 import { openEditorWithText, status } from "./helpers";
+import design from "../fixtures/design-mug.json";
 
 let pageErrors: string[] = [];
 test.beforeEach(({ page }) => {
@@ -90,6 +91,12 @@ test("two designs → cart → edit one → quantities → reload keeps it", asy
 test("empty cart and a stale edit link", async ({ page }) => {
   await page.goto("/cart");
   await expect(page.getByTestId("cart-empty")).toBeVisible();
+  // Start designing goes to the products, where the customer picks one.
+  await expect(
+    page
+      .getByTestId("cart-empty")
+      .getByRole("link", { name: "Start designing" }),
+  ).toHaveAttribute("href", "/products");
   await page.goto("/design/mug?item=does-not-exist");
   await expect(page.getByTestId("missing-item")).toBeVisible();
   await page.goto("/design/mug/order");
@@ -136,4 +143,68 @@ test("photos of cart designs survive starting a new design", async ({
   await page.getByRole("link", { name: "Edit design" }).tap();
   await expect(status(page)).toHaveText(/1 layer/);
   await expect(page.getByTestId("editor-notice")).toHaveCount(0);
+});
+
+test("apparel lines change size in the cart; ready-made designs say Customise", async ({
+  page,
+}) => {
+  await page.addInitScript(
+    ({ doc }) => {
+      if (sessionStorage.getItem("seeded")) return;
+      sessionStorage.setItem("seeded", "1");
+      localStorage.setItem("giftified:design:own", JSON.stringify(doc));
+      localStorage.setItem("giftified:design:ready", JSON.stringify(doc));
+      localStorage.setItem(
+        "giftified:cart",
+        JSON.stringify([
+          {
+            id: "own",
+            productId: "tshirt",
+            colourId: "black",
+            size: "M",
+            quantity: 1,
+            designKey: "own",
+            addedAt: "2026-10-09T10:00:00.000Z",
+          },
+          {
+            id: "mug",
+            productId: "mug",
+            colourId: "white",
+            quantity: 1,
+            designKey: "ready",
+            templateId: "tpl-1",
+            addedAt: "2026-10-09T10:00:00.000Z",
+          },
+        ]),
+      );
+    },
+    { doc: { ...design, productId: "tshirt" } },
+  );
+  await page.goto("/cart");
+  const lines = page.getByTestId("cart-line");
+  await expect(lines).toHaveCount(2);
+
+  // The T-shirt line has a size picker with the store's sizes.
+  const size = lines.nth(0).getByTestId("line-size");
+  await expect(size).toHaveValue("M");
+  await expect(size.locator("option", { hasText: "XXL" })).toHaveJSProperty(
+    "disabled",
+    true,
+  ); // sold out in black
+  await size.selectOption("L");
+  await expect(size).toHaveValue("L");
+  await page.reload();
+  await expect(
+    page.getByTestId("cart-line").nth(0).getByTestId("line-size"),
+  ).toHaveValue("L");
+  // Mugs have no sizes.
+  await expect(lines.nth(1).getByTestId("line-size")).toHaveCount(0);
+
+  // Own design: "Edit design"; ready-made design: "Customise" (optional).
+  await expect(
+    lines.nth(0).getByRole("link", { name: "Edit design" }),
+  ).toBeVisible();
+  await expect(
+    lines.nth(1).getByRole("link", { name: "Customise" }),
+  ).toHaveAttribute("href", "/design/mug?item=mug");
 });

@@ -27,6 +27,11 @@ import { CheckboxRow, Consents } from "./consents";
 import { Field, errorId, inputClass } from "./field";
 import { buttonClass } from "@/components/ui/button";
 import { startNavProgress } from "@/components/ui/nav-progress";
+import {
+  clearCheckoutDraft,
+  readCheckoutDraft,
+  writeCheckoutDraft,
+} from "../checkout-draft";
 
 const CITY_KEY = "giftified:city";
 const FIELDS = [
@@ -117,6 +122,33 @@ export function CheckoutForm() {
   // One checkoutId per attempt: re-sending the same cart + details reuses it,
   // so a retry after a lost response can never create a second order.
   const attempt = useRef<{ key: string; id: string } | null>(null);
+
+  // What was typed earlier in this tab (e.g. before "Edit cart"). Runs before
+  // the city and account prefill below, which only fill fields still empty.
+  const restored = useRef(false);
+  useEffect(() => {
+    const draft = readCheckoutDraft();
+    restored.current = true;
+    if (!draft) return;
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- sessionStorage is only readable after mount
+    setValues((v) => {
+      const next = { ...v };
+      for (const f of FIELDS) {
+        const typed = draft.values[f];
+        if (typed) next[f] = typed;
+      }
+      return next;
+    });
+    setDeliveryDifferent(draft.deliveryDifferent);
+    if (draft.values.city) setQuoteCity(draft.values.city);
+    if (draft.values.deliveryCity)
+      setDeliveryQuoteCity(draft.values.deliveryCity);
+  }, []);
+  // Keep it up to date as they type.
+  useEffect(() => {
+    if (!restored.current || placed) return;
+    writeCheckoutDraft({ values, deliveryDifferent });
+  }, [values, deliveryDifferent, placed]);
 
   // The coupon applied in the cart.
   useEffect(() => {
@@ -289,6 +321,7 @@ export function CheckoutForm() {
             createdAt: new Date().toISOString(),
           });
         setPlaced(true);
+        clearCheckoutDraft();
         clearCart();
         writeCoupon("");
         startNavProgress();

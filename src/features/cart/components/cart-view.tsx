@@ -7,10 +7,19 @@ import { loadThumbnail } from "@/features/editor/draft";
 import { CityPicker } from "@/features/checkout/components/city-picker";
 import { formatPkr } from "@/features/checkout/format";
 import { MAX_LINE_QUANTITY, type CartItem } from "@/types/cart";
-import { quoteCart, type CartQuote } from "../actions";
+import {
+  cartVariants,
+  quoteCart,
+  type CartQuote,
+  type CartVariants,
+} from "../actions";
 import { readCoupon, writeCoupon } from "../coupon-storage";
 import { CouponBox } from "./coupon-box";
-import { removeFromCart, updateQuantity, useCart } from "../cart";
+import { changeSize, removeFromCart, updateQuantity, useCart } from "../cart";
+import {
+  sizeOptionsFor,
+  type SizeOption,
+} from "@/features/editor/components/size-picker";
 import { buttonClass } from "@/components/ui/button";
 
 const CITY_KEY = "giftified:city";
@@ -26,6 +35,17 @@ function readCity(): string {
 /** Cart lines, prices from the server, delivery estimate, Checkout. */
 export function CartView() {
   const cart = useCart();
+  // The store's sizes per product, for the size picker on apparel lines.
+  const [variants, setVariants] = useState<CartVariants>({});
+  useEffect(() => {
+    let stale = false;
+    cartVariants()
+      .then((v) => !stale && setVariants(v))
+      .catch(() => {});
+    return () => {
+      stale = true;
+    };
+  }, []);
   const [city, setCity] = useState("");
   const [quoteCity, setQuoteCity] = useState("");
   const [quote, setQuote] = useState<CartQuote | null>(null);
@@ -75,9 +95,10 @@ export function CartView() {
       <div className="card mt-6 p-5 text-sm" data-testid="cart-empty">
         <p className="text-zinc-700">Your cart is empty.</p>
         <p className="mt-1 text-zinc-500">
-          Design a mug with your photo and a message — it takes a minute.
+          Pick a mug, T-shirt or hoodie and add your photos and words — it takes
+          a minute.
         </p>
-        <Link href="/design/mug" className={buttonClass("primary", "mt-4")}>
+        <Link href="/products" className={buttonClass("primary", "mt-4")}>
           Start designing
         </Link>
       </div>
@@ -93,6 +114,10 @@ export function CartView() {
             key={item.id}
             item={item}
             unitPricePkr={quote ? quote.unitPricePkr[i] : undefined}
+            sizes={sizeOptionsFor(
+              variants[item.productId] ?? [],
+              item.colourId,
+            )}
             title={quote?.lineTitles[i] ?? undefined}
           />
         ))}
@@ -190,10 +215,13 @@ export function CartView() {
 function CartLine({
   item,
   unitPricePkr,
+  sizes,
   title,
 }: {
   item: CartItem;
   unitPricePkr: number | null | undefined;
+  /** Sizes on offer for this product in the line's colour (none for mugs). */
+  sizes: readonly SizeOption[];
   /** Ready-made design title (design products). */
   title?: string;
 }) {
@@ -228,8 +256,36 @@ function CartLine({
         <p className="text-xs text-zinc-500">
           {title ? `${product?.name ?? item.productId} · ` : ""}
           {colour}
-          {item.size ? ` · ${item.size}` : ""}
+          {item.size && sizes.length === 0 ? ` · ${item.size}` : ""}
         </p>
+        {sizes.length > 0 && (
+          // Change the size right here: no need to open the designer for it.
+          <label className="mt-1 flex items-center gap-2 text-xs text-zinc-600">
+            Size
+            <select
+              value={item.size ?? ""}
+              onChange={(e) => changeSize(item.id, e.target.value)}
+              data-testid="line-size"
+              className="focus-visible:ring-brand-600/20 h-9 rounded-lg border border-zinc-300 bg-white px-2 text-sm text-zinc-900 focus-visible:ring-2 focus-visible:outline-none"
+            >
+              {!item.size && (
+                <option value="" disabled>
+                  Choose
+                </option>
+              )}
+              {sizes.map((s) => (
+                <option
+                  key={s.size}
+                  value={s.size}
+                  disabled={!s.inStock && s.size !== item.size}
+                >
+                  {s.size}
+                  {s.inStock ? "" : " (sold out)"}
+                </option>
+              ))}
+            </select>
+          </label>
+        )}
         <p className="mt-1 text-sm" data-testid="line-price">
           {unitPricePkr === undefined ? (
             "…"
@@ -271,7 +327,8 @@ function CartLine({
               href={`/design/${item.productId}?item=${encodeURIComponent(item.id)}`}
               className="text-brand-700 hover:text-brand-800 focus-visible:ring-brand-600/20 rounded underline focus-visible:ring-2 focus-visible:outline-none"
             >
-              Edit design
+              {/* A ready-made design is fine as it is; changing it is optional. */}
+              {item.templateId ? "Customise" : "Edit design"}
             </Link>
             <button
               type="button"

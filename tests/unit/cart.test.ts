@@ -7,6 +7,7 @@ import {
   orphanDesignKeys,
   removeLine,
   setLineQuantity,
+  setLineSize,
 } from "@/features/cart/cart-lines";
 import {
   allDraftAssetIds,
@@ -63,6 +64,39 @@ describe("cart lines", () => {
     items = addSizeLine(items, "a", "L", "c", "now");
     expect(items).toHaveLength(2);
     expect(items[1]?.quantity).toBe(2);
+  });
+
+  it("changes a line's size in place", () => {
+    const items = [
+      line("a", "d1", { productId: "tshirt", size: "M" }),
+      line("b", "d2"),
+    ];
+    const next = setLineSize(items, "a", "L");
+    expect(next.map((i) => [i.id, i.size])).toEqual([
+      ["a", "L"],
+      ["b", undefined],
+    ]);
+    expect(setLineSize(next, "a", "L")).toBe(next); // no change
+    expect(setLineSize(next, "missing", "S")).toBe(next);
+  });
+
+  it("merges into a line that already has that design in that size", () => {
+    const items = [
+      line("a", "d1", { productId: "tshirt", size: "M", quantity: 2 }),
+      line("b", "d1", { productId: "tshirt", size: "L", quantity: 9 }),
+    ];
+    const next = setLineSize(items, "a", "L");
+    expect(next).toHaveLength(1);
+    expect(next[0]).toMatchObject({ id: "b", size: "L", quantity: 10 }); // capped
+  });
+
+  it("never merges different designs or colours", () => {
+    const items = [
+      line("a", "d1", { productId: "tshirt", size: "M" }),
+      line("b", "d2", { productId: "tshirt", size: "L" }),
+      line("c", "d1", { productId: "tshirt", size: "L", colourId: "black" }),
+    ];
+    expect(setLineSize(items, "a", "L")).toHaveLength(3);
   });
 
   it("finds designs to upload once and orphaned snapshots", () => {
