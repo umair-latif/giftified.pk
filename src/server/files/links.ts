@@ -73,7 +73,7 @@ export function fileLinkSecret(
   return "";
 }
 
-/** Public base URL of the app (Vercel sets VERCEL_PROJECT_PRODUCTION_URL, e.g. giftified.microw.me). */
+/** Public base URL of the app (Vercel sets VERCEL_PROJECT_PRODUCTION_URL, e.g. designbanana.pk). */
 export function appBaseUrl(
   env: Record<string, string | undefined> = process.env,
 ): string {

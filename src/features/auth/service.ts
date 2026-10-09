@@ -118,7 +118,7 @@ export async function signIn(
 export interface ResetDeps extends AuthDeps {
   email: EmailSender;
   secret: string;
-  /** Public origin for the link, e.g. https://giftified.pk */
+  /** Public origin for the link, e.g. https://designbanana.pk */
   baseUrl: string;
   now?: () => number;
 }
@@ -157,7 +157,7 @@ export async function requestPasswordReset(
     const link = `${deps.baseUrl}/reset-password?token=${encodeURIComponent(token)}`;
     await deps.email.send({
       to: customer.email,
-      subject: "Reset your DesignBanana.pk password",
+      subject: "Reset your DesignBanana password",
       text: [
         `Hi${customer.firstName ? ` ${customer.firstName}` : ""},`,
         "",

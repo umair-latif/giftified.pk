@@ -12,7 +12,7 @@ local site won't work.
 - **Quickest:** a disposable WordPress site from a service such as InstaWP (paid per
   day while it exists; plans with SSL start around $5/month).
 - **Better long-term:** normal WordPress hosting with a free SSL certificate, on a
-  subdomain like `shop.giftified.pk`. You'll need this for launch anyway (it becomes the
+  subdomain like `admin.designbanana.pk`. You'll need this for launch anyway (it becomes the
   order back office), so the test store can simply be this site before launch.
 
 ## 2. Install WooCommerce

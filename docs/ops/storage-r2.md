@@ -16,7 +16,8 @@ Bucket → **Settings** → **CORS Policy** → paste (add your own test origins
 [
   {
     "AllowedOrigins": [
-      "https://giftified.microw.me",
+      "https://designbanana.pk",
+      "https://www.designbanana.pk",
       "http://localhost:3000",
       "http://192.168.0.32:3000"
     ],

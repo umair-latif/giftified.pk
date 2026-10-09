@@ -5,7 +5,7 @@ import { Occasions } from "@/features/home/occasions";
 import { loadRecentTemplates } from "@/features/home/recent-templates";
 import { RecentTemplatesSection } from "@/features/home/recent-templates-section";
 import { ProductsSection } from "@/features/home/products-section";
-import { WhyGiftified } from "@/features/home/why-giftified";
+import { WhyDesignBanana } from "@/features/home/why-designbanana";
 
 /** ISR: prices come from WooCommerce; refresh the page at most hourly. */
 export const revalidate = 3600;
@@ -22,7 +22,7 @@ export default async function Home() {
       <RecentTemplatesSection templates={templates} />
       <HowItWorks />
       <Occasions />
-      <WhyGiftified />
+      <WhyDesignBanana />
     </main>
   );
 }

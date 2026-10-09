@@ -1,6 +1,6 @@
 # Parallel work — how modules are split
 
-Several AI assistants (and people) build Giftified.pk at the same time. This works
+Several AI assistants (and people) build DesignBanana (repo `giftified.pk`) at the same time. This works
 because every module talks to the others only through **contracts** (small
 TypeScript interfaces that already exist in the repo) and every task owns its
 own folders.

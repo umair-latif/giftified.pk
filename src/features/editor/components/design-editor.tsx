@@ -222,11 +222,20 @@ export function DesignEditor({
               then choose Replace to add yours.
             </p>
           )}
+          {/* What customers see: a plain hint (the selection bar shows the tools). */}
           <p
             className="min-h-5 text-xs text-zinc-500"
-            data-testid="editor-status"
-            aria-live="polite"
+            data-testid="editor-hint"
           >
+            {ed.selection
+              ? ""
+              : ed.layerCount === 0
+                ? "Add text or a photo to start."
+                : "Tap a text or photo to change it."}
+          </p>
+          {/* Technical readout (position and size in mm): kept for tests and
+              debugging, never shown. */}
+          <p className="sr-only" aria-hidden data-testid="editor-status">
             {ed.selection
               ? describe(ed.selection)
               : `${ed.layerCount} ${ed.layerCount === 1 ? "layer" : "layers"} · add text or a photo`}

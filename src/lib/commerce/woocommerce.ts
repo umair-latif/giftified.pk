@@ -59,7 +59,7 @@ import { assertSavedDesignList, parseSavedDesigns } from "./saved-designs";
  */
 
 export interface WooConfig {
-  /** Store root, e.g. https://admin.giftified.pk (no /wp-json suffix). */
+  /** Store root, e.g. https://admin.designbanana.pk (no /wp-json suffix). */
   url: string;
   consumerKey: string;
   consumerSecret: string;

@@ -254,7 +254,7 @@ test("crop & shape: pick a shape, it is remembered, and Replace keeps the frame"
   });
   await bar(page).getByRole("button", { name: "Crop & frames" }).click();
   const dialog = page.getByRole("dialog", { name: "Crop and frame photo" });
-  await expect(dialog.getByRole("radio", { name: "No shape" })).toHaveAttribute(
+  await expect(dialog.getByRole("radio", { name: "No frame" })).toHaveAttribute(
     "aria-checked",
     "true",
   );
