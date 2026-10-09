@@ -71,7 +71,8 @@ test("how it works: no 3D promise; ready-made designs, easy customising and inst
   await expect(how).toBeVisible();
   await expect(how).not.toContainText("3D");
   await expect(how).toContainText("ready-made design");
-  await expect(how).toContainText("everyday scenes");
+  await expect(how).toContainText("Design Studio");
+  await expect(how).not.toContainText("everyday scenes");
   // Brand rule: the site works on any device, so no "on your phone" copy.
   await expect(page.getByText(/on your phone/i)).toHaveCount(0);
   await expect(page.getByTestId("home-template")).toHaveCount(0); // none yet
