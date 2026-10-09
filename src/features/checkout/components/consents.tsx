@@ -7,8 +7,9 @@ const link =
 
 /**
  * Marketing opt-in (optional), the required content confirmation, and the legal
- * small print — rendered right above Place order. Links open in the same tab;
- * the cart lives in localStorage, so customers can read and come back.
+ * small print — rendered right above Place order. The policy links open in a
+ * new tab, so reading them never leaves checkout: the typed name, phone and
+ * address would be lost (the cart itself survives, it lives in localStorage).
  */
 export function Consents({
   contentConfirmed,
@@ -42,24 +43,14 @@ export function Consents({
         invalid={!!error}
       >
         I confirm my design follows Pakistani law (including PECA) and our{" "}
-        <Link href="/printing-guidelines" className={link}>
-          Printing guidelines
-        </Link>
+        <PolicyLink href="/printing-guidelines">Printing guidelines</PolicyLink>
         , and I have the right to print everything in it.
       </CheckboxRow>
       <p className="text-xs text-zinc-500">
         By placing your order you agree to our{" "}
-        <Link href="/terms" className={link}>
-          Terms
-        </Link>
-        ,{" "}
-        <Link href="/privacy" className={link}>
-          Privacy notice
-        </Link>{" "}
-        and{" "}
-        <Link href="/printing-guidelines" className={link}>
-          Printing guidelines
-        </Link>
+        <PolicyLink href="/terms">Terms</PolicyLink>,{" "}
+        <PolicyLink href="/privacy">Privacy notice</PolicyLink> and{" "}
+        <PolicyLink href="/printing-guidelines">Printing guidelines</PolicyLink>
         .
       </p>
       {hint && (
@@ -112,5 +103,15 @@ export function CheckboxRow({
       />
       <span>{children}</span>
     </label>
+  );
+}
+
+/** Opens in a new tab (and says so to screen readers) so checkout stays filled in. */
+function PolicyLink({ href, children }: { href: string; children: ReactNode }) {
+  return (
+    <Link href={href} target="_blank" rel="noopener" className={link}>
+      {children}
+      <span className="sr-only"> (opens in a new tab)</span>
+    </Link>
   );
 }
