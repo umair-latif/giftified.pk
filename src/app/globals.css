@@ -72,3 +72,96 @@ h2.font-semibold {
   font-family: var(--font-sans);
   font-weight: 600;
 }
+
+/* ---- Page transitions (components/site/page-transition.tsx) ----------------
+   The page content leaves quickly and the new page arrives a beat later with a
+   short slide: forward (deeper in the flow) from the right, back from the left,
+   same level a plain fade. Small offset and quick timing: it should read as
+   "smooth", never as "slow". The headers keep their own name and don't move. */
+:root {
+  --page-exit: 120ms;
+  --page-enter: 180ms;
+  --page-move: 260ms;
+  --page-offset: 24px;
+}
+
+::view-transition-old(.page) {
+  animation: var(--page-exit) ease-in both page-fade reverse;
+}
+::view-transition-new(.page) {
+  animation: var(--page-enter) ease-out var(--page-exit) both page-fade;
+}
+:root[data-nav="forward"]::view-transition-old(.page) {
+  --page-slide: calc(-1 * var(--page-offset));
+  animation:
+    var(--page-exit) ease-in both page-fade reverse,
+    var(--page-move) ease-in-out both page-slide reverse;
+}
+:root[data-nav="forward"]::view-transition-new(.page) {
+  --page-slide: var(--page-offset);
+  animation:
+    var(--page-enter) ease-out var(--page-exit) both page-fade,
+    var(--page-move) ease-in-out both page-slide;
+}
+:root[data-nav="back"]::view-transition-old(.page) {
+  --page-slide: var(--page-offset);
+  animation:
+    var(--page-exit) ease-in both page-fade reverse,
+    var(--page-move) ease-in-out both page-slide reverse;
+}
+:root[data-nav="back"]::view-transition-new(.page) {
+  --page-slide: calc(-1 * var(--page-offset));
+  animation:
+    var(--page-enter) ease-out var(--page-exit) both page-fade,
+    var(--page-move) ease-in-out both page-slide;
+}
+
+@keyframes page-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes page-slide {
+  from {
+    translate: var(--page-slide) 0;
+  }
+  to {
+    translate: 0 0;
+  }
+}
+
+/* Headers stay put: no crossfade, old copy hidden, above the sliding page. */
+::view-transition-group(site-header),
+::view-transition-group(app-header) {
+  animation: none;
+  z-index: 100;
+}
+::view-transition-old(site-header),
+::view-transition-old(app-header) {
+  display: none;
+}
+::view-transition-new(site-header),
+::view-transition-new(app-header) {
+  animation: none;
+}
+/* The rest of the page (footer, background) doesn't crossfade either. */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+}
+/* Taps during the animation reach the live page. */
+::view-transition {
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-old(*),
+  ::view-transition-new(*),
+  ::view-transition-group(*) {
+    animation-duration: 0s !important;
+    animation-delay: 0s !important;
+  }
+}
