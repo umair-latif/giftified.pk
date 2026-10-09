@@ -37,3 +37,33 @@ export async function quoteCart(raw: unknown): Promise<CartQuote | null> {
   if (!r.success) return null;
   return priceCart(getCommerce(), r.data);
 }
+
+export type CartVariants = Partial<
+  Record<
+    "mug" | "tshirt" | "hoodie",
+    { colourId: string; size?: string; inStock: boolean }[]
+  >
+>;
+
+/**
+ * Colour/size variants per product, so the cart can offer a size picker on
+ * apparel lines. Read from the store (cached by the adapter); empty if the
+ * store can't be reached — the cart then just shows the size as text.
+ */
+export async function cartVariants(): Promise<CartVariants> {
+  try {
+    const products = await getCommerce().listProducts();
+    return Object.fromEntries(
+      products.map((p) => [
+        p.productId,
+        p.variants.map((v) => ({
+          colourId: v.colourId,
+          inStock: v.inStock,
+          ...(v.size ? { size: v.size } : {}),
+        })),
+      ]),
+    );
+  } catch {
+    return {};
+  }
+}

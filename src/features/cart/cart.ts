@@ -24,6 +24,7 @@ import {
   orphanDesignKeys,
   removeLine,
   setLineQuantity,
+  setLineSize,
 } from "./cart-lines";
 import {
   CART_STORAGE_KEY,
@@ -169,6 +170,10 @@ export function updateQuantity(id: string, quantity: number): void {
 export function removeFromCart(id: string): void {
   writeCart(removeLine(readCart(), id));
   collectGarbage();
+}
+
+export function changeSize(id: string, size: string): void {
+  writeCart(setLineSize(readCart(), id, size));
 }
 
 export function addAnotherSize(id: string, size: string): void {

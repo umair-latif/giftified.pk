@@ -134,8 +134,32 @@ test("two cart items → checkout → one order with both lines", async ({
     "0300 •••• 567",
   );
   expect(await orderNumber(page)).toBeGreaterThan(0);
-  // The cart is empty now.
+  // The cart is empty now, and the typed details aren't kept any more.
   await expect(page.getByTestId("cart-count")).toHaveCount(0);
+  expect(
+    await page.evaluate(() =>
+      sessionStorage.getItem("giftified:checkout-draft"),
+    ),
+  ).toBeNull();
+});
+
+test("Edit cart and back: checkout keeps what was typed", async ({ page }) => {
+  await seedCart(page, [{ quantity: 1 }]);
+  await page.goto("/checkout");
+  await page.getByLabel("Full name").fill("Ayesha Khan");
+  await page.getByLabel("Mobile number").fill("0300 1234567");
+  await page.getByLabel("Address").fill("House 12, Street 4, Model Town");
+  await page.getByRole("link", { name: "Edit cart" }).tap();
+  await expect(page).toHaveURL(/\/cart$/);
+  await page.getByRole("link", { name: /Checkout/ }).tap();
+  await expect(page).toHaveURL(/\/checkout$/);
+  await expect(page.getByLabel("Full name")).toHaveValue("Ayesha Khan");
+  await expect(page.getByLabel("Mobile number")).toHaveValue("0300 1234567");
+  await expect(page.getByLabel("Address")).toHaveValue(
+    "House 12, Street 4, Model Town",
+  );
+  // The confirmation tick is never remembered: it's asked every time.
+  await expect(confirmBox(page)).not.toBeChecked();
 });
 
 test("double tap creates one order", async ({ page }) => {

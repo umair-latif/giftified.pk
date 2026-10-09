@@ -19,7 +19,6 @@ export default function PrivacyPage() {
       title="Privacy"
       intro="In plain words: what we keep, why, and who sees it."
     >
-
       <InfoSection id="what-we-store" title="What we collect">
         <ul>
           <li>
@@ -33,7 +32,9 @@ export default function PrivacyPage() {
           </li>
           <li>
             <strong>On your device only:</strong> your cart and unfinished
-            designs are saved in your browser so you don&rsquo;t lose them.
+            designs are saved in your browser so you don&rsquo;t lose them. The
+            details you type at checkout are kept only until you place the order
+            or close the tab.
           </li>
         </ul>
         <p>
@@ -149,10 +150,11 @@ export default function PrivacyPage() {
 
       <InfoSection id="cookies" title="Cookies and browser storage">
         <p>
-          We use essential browser storage (<code>localStorage</code>) solely to
-          keep track of your active cart and draft designs on your device. We do
-          not use third-party cross-site tracking cookies or advertising pixels
-          without your explicit consent.
+          We use essential browser storage (<code>localStorage</code> and{" "}
+          <code>sessionStorage</code>) solely to keep track of your active cart,
+          draft designs and the checkout form you are filling in, on your
+          device. We do not use third-party cross-site tracking cookies or
+          advertising pixels without your explicit consent.
         </p>
       </InfoSection>
 

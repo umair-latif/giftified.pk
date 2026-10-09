@@ -62,8 +62,8 @@ Full refused-content list: `/printing-guidelines`.
 
 ## Cookies and browser storage
 
-We use essential browser storage (`localStorage`) solely to keep track of your active cart and draft
-canvas designs on your device. We do not use third-party cross-site tracking cookies or advertising
+We use essential browser storage (`localStorage` and `sessionStorage`) solely to keep track of your
+active cart, draft canvas designs and the checkout form you are filling in, on your device. We do not use third-party cross-site tracking cookies or advertising
 pixels without your explicit consent.
 
 ## Your choices
@@ -93,5 +93,6 @@ The page may only claim these once they are built:
 6. **Where the opt-in lives:** the checkbox at checkout is the one that must exist (most customers
    order as guests and have no profile). Signed-in customers can change the same setting in
    `/account/profile` (task 21); it then pre-fills the checkout box.
-7. **localStorage** claim is accurate today (cart, drafts, city, recent orders) — keep it true if
+7. **localStorage** claim is accurate today (cart, drafts, city, recent orders; sessionStorage: the
+   checkout form until the order is placed or the tab closes) — keep it true if
    analytics are ever added.
