@@ -241,22 +241,24 @@ test("Place order waits for the content confirmation; legal links and opt-in", a
     "Please tick the box to confirm your design follows our Printing guidelines.",
   );
 
-  // Legal links (same tab) and the guidelines link inside the confirmation.
+  // Legal links and the guidelines link inside the confirmation: all open in a
+  // new tab, so reading them never loses the filled-in form.
   const consents = page.getByTestId("checkout-consents");
   for (const [name, href] of [
-    ["Terms", "/terms"],
-    ["Privacy notice", "/privacy"],
-  ] as const)
-    await expect(
-      consents.getByRole("link", { name, exact: true }),
-    ).toHaveAttribute("href", href);
+    ["Terms (opens in a new tab)", "/terms"],
+    ["Privacy notice (opens in a new tab)", "/privacy"],
+  ] as const) {
+    const l = consents.getByRole("link", { name, exact: true });
+    await expect(l).toHaveAttribute("href", href);
+    await expect(l).toHaveAttribute("target", "_blank");
+  }
   const guidelines = consents.getByRole("link", {
-    name: "Printing guidelines",
+    name: "Printing guidelines (opens in a new tab)",
   });
   await expect(guidelines).toHaveCount(2);
   for (const l of await guidelines.all()) {
     await expect(l).toHaveAttribute("href", "/printing-guidelines");
-    await expect(l).not.toHaveAttribute("target", /.+/);
+    await expect(l).toHaveAttribute("target", "_blank");
   }
 
   // Whole rows are finger-sized tap targets.
@@ -283,17 +285,27 @@ test("Place order waits for the content confirmation; legal links and opt-in", a
   await expect(page.getByRole("heading", { name: "Thank you!" })).toBeVisible();
 });
 
-test("the cart survives reading the Terms and coming back", async ({
+test("reading the Printing guidelines opens a new tab; checkout keeps what was typed", async ({
   page,
 }) => {
   await seedCart(page, [{ quantity: 1 }]);
   await page.goto("/checkout");
-  await page
-    .getByTestId("checkout-consents")
-    .getByRole("link", { name: "Terms", exact: true })
-    .tap();
-  await expect(page).toHaveURL(/\/terms$/);
-  await page.goBack();
+  await page.getByLabel("Full name").fill("Ayesha Khan");
+  await page.getByLabel("Address").fill("House 12, Street 4, Model Town");
+  const [tab] = await Promise.all([
+    page.context().waitForEvent("page"),
+    page
+      .getByTestId("checkout-consents")
+      .getByRole("link", { name: /^Printing guidelines/ })
+      .first()
+      .tap(),
+  ]);
+  await expect(tab).toHaveURL(/\/printing-guidelines$/);
+  await tab.close();
   await expect(page).toHaveURL(/\/checkout$/);
   await expect(page.getByTestId("checkout-line")).toHaveCount(1);
+  await expect(page.getByLabel("Full name")).toHaveValue("Ayesha Khan");
+  await expect(page.getByLabel("Address")).toHaveValue(
+    "House 12, Street 4, Model Town",
+  );
 });
