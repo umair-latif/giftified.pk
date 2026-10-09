@@ -614,8 +614,8 @@ export function CheckoutForm() {
             {quote?.shippingPkr != null ? formatPkr(quote.totalPkr) : "…"}
           </dd>
           <dd className="col-span-2 mt-2 text-xs text-zinc-500">
-            Pay in cash when it arrives. We’ll call or message you to confirm
-            before we print.
+            Pay in cash when it arrives. We’ll contact you to confirm before we
+            print.
           </dd>
         </dl>
 

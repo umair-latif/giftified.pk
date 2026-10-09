@@ -52,8 +52,8 @@ export default function AboutPage() {
             rider when the parcel arrives.
           </li>
           <li>
-            <strong>We confirm every order.</strong> We call or message you to
-            check your address and product before anything is printed.
+            <strong>We confirm every order.</strong> We contact you to check
+            your address and product before anything is printed.
           </li>
           <li>
             <strong>Quality checks while you design.</strong> The editor warns

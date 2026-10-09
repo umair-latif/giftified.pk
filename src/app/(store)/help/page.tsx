@@ -30,7 +30,7 @@ const ORDERING: readonly FaqItem[] = [
         <ol className="ml-5 list-decimal space-y-1">
           <li>You design your product and place the order.</li>
           <li>
-            We call or message you on the mobile number you gave to confirm your
+            We contact you on the mobile number you gave to confirm your
             address, the product, colour and size.
           </li>
           <li>
@@ -68,9 +68,7 @@ const ORDERING: readonly FaqItem[] = [
             to pay the rider beyond the total you see there.
           </li>
         </ul>
-        <p>
-          We deliver nationwide, all across Pakistan.
-        </p>
+        <p>We deliver nationwide, all across Pakistan.</p>
       </>
     ),
   },
@@ -120,9 +118,8 @@ const ORDERING: readonly FaqItem[] = [
         <p>
           Yes. You can cancel or change your order any time up to the moment we
           hand your design over to the printing partner &ndash; which happens
-          after you confirm the order on our call or message. Just tell us on
-          that call, or <Link href="/contact">contact us</Link> as soon as
-          possible.
+          after you confirm the order when we contact you. Just tell us then, or{" "}
+          <Link href="/contact">contact us</Link> as soon as possible.
         </p>
         <p>
           After your design has gone to printing it can no longer be cancelled,
@@ -215,16 +212,16 @@ const QUALITY: readonly FaqItem[] = [
           </li>
         </ul>
         <p>
-          Refunds are only for a fault on our side: a printing fault or a damaged
-          product, reported with photos within 48 hours.
+          Refunds are only for a fault on our side: a printing fault or a
+          damaged product, reported with photos within 48 hours.
         </p>
         <p>
-          Because every item is made to order, we can&rsquo;t take back items for
-          a change of mind, for a mistake in the design you sent us (a typo, the
-          wrong photo, the wrong spelling of a name), or for a photo that printed
-          soft after the editor warned you it was low quality and you chose to
-          order it anyway. Please check your design carefully on the preview
-          screen before you order.
+          Because every item is made to order, we can&rsquo;t take back items
+          for a change of mind, for a mistake in the design you sent us (a typo,
+          the wrong photo, the wrong spelling of a name), or for a photo that
+          printed soft after the editor warned you it was low quality and you
+          chose to order it anyway. Please check your design carefully on the
+          preview screen before you order.
         </p>
       </>
     ),

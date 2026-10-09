@@ -184,8 +184,8 @@ export function CartView() {
             </dd>
           </dl>
           <p className="mt-2 text-xs text-zinc-500">
-            Pay in cash when it arrives. We’ll call or message you to confirm
-            before we print.
+            Pay in cash when it arrives. We’ll contact you to confirm before we
+            print.
           </p>
         </section>
 

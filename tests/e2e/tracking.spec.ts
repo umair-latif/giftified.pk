@@ -101,7 +101,7 @@ test.describe("with a placed order", () => {
     ).toBeVisible();
     await expect(page.getByTestId("order-number")).toHaveText(`#${orderId}`);
     await expect(page.getByTestId("confirm-message")).toHaveText(
-      "We’ll call you on 0300 •••• 567 before printing.",
+      "We’ll contact you on 0300 •••• 567 before printing.",
     );
     const timeline = page.getByTestId("order-timeline");
     await expect(timeline.locator('[aria-current="step"]')).toContainText(

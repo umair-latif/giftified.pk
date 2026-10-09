@@ -56,7 +56,7 @@ export function OrderTimeline({
                   className="text-sm text-zinc-700"
                   data-testid="confirm-message"
                 >
-                  We’ll call you on{" "}
+                  We’ll contact you on{" "}
                   <span className="font-medium whitespace-nowrap">
                     {maskedPhone}
                   </span>{" "}
