@@ -657,9 +657,24 @@ export function createWooCommerceClient(config: WooConfig): CommerceClient {
     const { shippingPkr } = await quoteShipping(
       input.delivery?.city ?? input.customer.city,
     );
-    const { json } = await request("POST", "/orders", {
-      body: buildOrderBody(input, lines, shippingPkr),
-    });
+    let json: unknown;
+    try {
+      ({ json } = await request("POST", "/orders", {
+        body: buildOrderBody(input, lines, shippingPkr),
+      }));
+    } catch (err) {
+      // WordPress often saves the order and only then crashes (a plugin
+      // failing while sending the "new order" email answers 500). Look before
+      // telling the customer it failed: the checkoutId finds it.
+      if (!(err instanceof WooCommerceError) || err.status < 500) throw err;
+      const saved = await findByCheckoutId(input.checkoutId).catch(() => null);
+      if (!saved) throw err;
+      console.warn(
+        `[commerce] WooCommerce answered ${err.status} but saved order ${saved.id}; check the WordPress fatal-errors log`,
+      );
+      knownCheckouts.set(input.checkoutId, saved.id);
+      return mapOrder(saved, catalog);
+    }
     const created = wooOrderSchema.parse(json);
     knownCheckouts.set(input.checkoutId, created.id);
     return mapOrder(created, catalog);

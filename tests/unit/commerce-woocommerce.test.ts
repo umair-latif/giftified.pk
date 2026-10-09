@@ -124,6 +124,66 @@ describe("WooCommerce client — createOrder", () => {
     expect(scan.query.get("dates_are_gmt")).toBe("true");
   });
 
+  it("treats a WordPress crash after saving the order as success (plugin email failure)", async () => {
+    const real = woo.fetch;
+    const crashing: typeof fetch = async (u, init) => {
+      const res = await real(u, init);
+      const url = new URL(String(u));
+      if (
+        (init?.method ?? "GET") === "POST" &&
+        url.pathname.endsWith("/orders")
+      )
+        return new Response(
+          JSON.stringify({
+            code: "internal_server_error",
+            message: "kritischer Fehler",
+          }),
+          { status: 500 },
+        );
+      return res;
+    };
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    const c = createWooCommerceClient({
+      url: "https://shop.test/",
+      consumerKey: "ck_test",
+      consumerSecret: "cs_test",
+      webhookSecret: "whsec",
+      fetch: crashing,
+      now: () => clock,
+    });
+    const order = await c.createOrder({ ...input, checkoutId: "chk-crash" });
+    expect(order.status).toBe("on-hold");
+    expect(
+      woo.calls.filter((x) => x.method === "POST" && x.path === "/orders"),
+    ).toHaveLength(1);
+    expect(warn).toHaveBeenCalledWith(expect.stringContaining("saved order"));
+    warn.mockRestore();
+  });
+
+  it("still fails when WordPress crashed before saving", async () => {
+    const real = woo.fetch;
+    const crashing: typeof fetch = async (u, init) => {
+      const url = new URL(String(u));
+      if (
+        (init?.method ?? "GET") === "POST" &&
+        url.pathname.endsWith("/orders")
+      )
+        return new Response("{}", { status: 500 });
+      return real(u, init);
+    };
+    const c = createWooCommerceClient({
+      url: "https://shop.test/",
+      consumerKey: "ck_test",
+      consumerSecret: "cs_test",
+      webhookSecret: "whsec",
+      fetch: crashing,
+      now: () => clock,
+    });
+    await expect(
+      c.createOrder({ ...input, checkoutId: "chk-crash-2" }),
+    ).rejects.toBeInstanceOf(WooCommerceError);
+  });
+
   it("collapses a double-tap into one WC order", async () => {
     const c = client();
     const [a, b] = await Promise.all([
