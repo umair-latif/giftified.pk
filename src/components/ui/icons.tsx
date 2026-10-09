@@ -143,6 +143,17 @@ export const InstagramIcon = (p: IconProps) => (
   </svg>
 );
 
+/** WhatsApp: chat bubble with a phone handset, in the same line style as the set. */
+export const WhatsappIcon = (p: IconProps) => (
+  <svg {...base} {...p}>
+    <path d="M7.9 19.4A8.5 8.5 0 1 0 4.6 16L3.5 20.5z" />
+    <path
+      strokeWidth={1.6}
+      d="M9.3 8.1c.3-.3.6-.4.9-.4h.4c.3 0 .5.2.6.4l.6 1.5c.1.3 0 .6-.2.8l-.6.6a5.6 5.6 0 0 0 2.4 2.4l.6-.6c.2-.2.5-.3.8-.2l1.5.6c.2.1.4.3.4.6v.4c0 .3-.1.6-.4.9-.7.6-1.8.7-2.8.3a8 8 0 0 1-4-4c-.4-1-.3-2.1.3-2.8z"
+    />
+  </svg>
+);
+
 export const TiktokIcon = (p: IconProps) => (
   <svg {...base} {...p}>
     <path d="M14 3v11.5a3.5 3.5 0 11-3.5-3.5" />
