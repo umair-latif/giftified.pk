@@ -61,6 +61,20 @@ export const COLOURS: readonly { name: string; hex: `#${string}` }[] = [
   { name: "Heather Grey", hex: "#B4B7BC" },
 ];
 
+/**
+ * Cash on Delivery texts. Written on every run: when COD is switched on in a
+ * store whose WordPress is set to another language, WooCommerce saves its
+ * translated defaults (German on IONOS), and the Instructions line appears in
+ * every order email. The customer never sees the WordPress checkout, so only
+ * Instructions matters; Title/Description are kept English for WP admin.
+ */
+export const COD_TEXTS = {
+  title: "Cash on Delivery",
+  description: "Pay in cash when your order arrives.",
+  instructions:
+    "Pay in cash when your order arrives. We'll call or message you to confirm your order before we print it.",
+} as const;
+
 /** Zone names list their cities — that's how the app matches a city to a rate. */
 export const ZONES: readonly { name: string; costPkr: number }[] = [
   { name: "Lahore", costPkr: 200 },
@@ -127,9 +141,14 @@ export async function seedWooCommerce(cfg: SeedConfig): Promise<void> {
   }
   if (settingsOk) log("✓ Store country Pakistan, currency PKR, no decimals");
 
-  // 2. Cash on Delivery on.
-  await call("PUT", "/payment_gateways/cod", { enabled: true });
-  log("✓ Cash on Delivery enabled");
+  // 2. Cash on Delivery on, with English texts (see COD_TEXTS).
+  await call("PUT", "/payment_gateways/cod", {
+    enabled: true,
+    title: COD_TEXTS.title,
+    description: COD_TEXTS.description,
+    settings: { instructions: COD_TEXTS.instructions },
+  });
+  log("✓ Cash on Delivery enabled (English title, description, email instructions)");
 
   // 3a. Global Colour attribute with one term per colour (description = hex).
   type Attr = { id: number; name: string; slug: string };
