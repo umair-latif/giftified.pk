@@ -258,7 +258,7 @@ export function CropSheet({ target, onCancel, onApply }: Props) {
                 }}
                 className={chipClass(on)}
               >
-                {id ? FRAME_SHAPE_INFO[id].label : "No shape"}
+                {id ? FRAME_SHAPE_INFO[id].label : "No frame"}
               </button>
             );
           })}

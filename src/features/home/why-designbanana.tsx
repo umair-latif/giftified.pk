@@ -3,7 +3,7 @@ import { Container } from "@/components/ui/page";
 /**
  * Promises shown on the home page. Edit here only — keep every line true.
  */
-export const WHY_GIFTIFIED: readonly string[] = [
+export const WHY_DESIGNBANANA: readonly string[] = [
   "Cash on delivery everywhere in Pakistan",
   "We call you to confirm before anything is printed",
   "Printed in 1–3 days, then delivered in 5–7 more",
@@ -11,7 +11,7 @@ export const WHY_GIFTIFIED: readonly string[] = [
   "Printing fault or damaged on arrival? Tell us within 48 hours and we'll put it right",
 ];
 
-export function WhyGiftified() {
+export function WhyDesignBanana() {
   return (
     <section aria-labelledby="home-why" className="pt-10">
       <Container width="wide">
@@ -20,7 +20,7 @@ export function WhyGiftified() {
             Why DesignBanana
           </h2>
           <ul className="mt-3 space-y-2">
-            {WHY_GIFTIFIED.map((claim) => (
+            {WHY_DESIGNBANANA.map((claim) => (
               <li key={claim} className="text-ink flex items-start gap-2">
                 <svg
                   width="20"

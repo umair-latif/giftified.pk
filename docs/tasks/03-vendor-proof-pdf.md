@@ -26,7 +26,7 @@ Use `tests/fixtures/design-mug-preview.png` as the print image stand-in.
 
 - Library: `pdf-lib` (pure JS, works in serverless). Embed one font; no network fetches.
 - Layout (A4 portrait, big readable type — it will be printed and read on a factory floor):
-  1. Header: "Giftified.pk — Production Proof", order ID large, date.
+  1. Header: "DesignBanana.pk — Production Proof", order ID large, date.
   2. Product block: product name, colour, size, quantity.
   3. The print image on a checkerboard (shows transparency), with a **dimensioned outline**
      (width × height in mm) and a 10 mm scale bar.

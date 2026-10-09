@@ -1,4 +1,6 @@
-# Giftified.pk
+# DesignBanana
+
+Repository name: `giftified.pk` (the brand was renamed to DesignBanana in October 2026; the live site is https://designbanana.pk).
 
 Mobile-first print-on-demand store for Pakistan (mugs, t-shirts, hoodies · Cash on Delivery).
 

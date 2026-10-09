@@ -13,11 +13,11 @@ For every new order in WP admin → WooCommerce → Orders (status **On hold**):
 
    Draft message (adjust freely):
 
-   > Assalam o Alaikum {name}, Giftified.pk se. Aap ka order #{id} mila: {product}, {colour},
+   > Assalam o Alaikum {name}, DesignBanana se. Aap ka order #{id} mila: {product}, {colour},
    > {qty} pcs. Total Rs {total} (cash on delivery). Delivery address: {address}, {city}.
    > Kya yeh sab theek hai? Confirm karne ke liye "Yes" likh dein.
 
-   > Hello {name}, this is Giftified.pk. We received your order #{id}: {product}, {colour},
+   > Hello {name}, this is DesignBanana. We received your order #{id}: {product}, {colour},
    > {qty} pcs. Total Rs {total}, cash on delivery, to {address}, {city}. Is everything
    > correct? Reply "Yes" to confirm.
 

@@ -43,4 +43,4 @@ placeholder frames: `tshirt-white-front-placeholder.jpg`, and so on. Reference/g
 
 - Print position: distance from the collar seam to the top of the print (mm), and the maximum print area per product.
 - Exact garment sizes/measurements for the photographed blank (width at chest).
-- Permission to use the photos on giftified.pk.
+- Permission to use the photos on designbanana.pk.

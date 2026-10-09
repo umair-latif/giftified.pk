@@ -2,7 +2,7 @@ import type { EmailMessage, EmailSender } from "./types";
 
 export interface ResendConfig {
   apiKey: string;
-  /** e.g. `Giftified.pk <hello@giftified.pk>` (a domain verified in Resend). */
+  /** e.g. `DesignBanana <hello@designbanana.pk>` (a domain verified in Resend). */
   from: string;
   fetch?: typeof fetch;
 }

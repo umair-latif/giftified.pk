@@ -37,7 +37,7 @@ every customer at once. Allow-list our server's IP too if the plugin offers it.
 
 ## 3. Google OAuth client (5 minutes)
 
-1. Google Cloud console → APIs & Services → **OAuth consent screen**: External, app name Giftified.pk,
+1. Google Cloud console → APIs & Services → **OAuth consent screen**: External, app name DesignBanana,
    scopes `openid`, `email`, `profile`. Publish it (otherwise only test users can sign in).
 2. **Credentials → Create credentials → OAuth client ID → Web application.**
    Authorised redirect URIs: `https://<APP_URL host>/api/auth/google/callback`
@@ -51,7 +51,7 @@ _Forgot password_).
 ## 4. Resend
 
 1. Add and verify your domain in Resend (DNS records), create an API key.
-2. `EMAIL_FROM="Giftified.pk <hello@giftified.pk>"` must be on that verified domain.
+2. `EMAIL_FROM="DesignBanana <hello@designbanana.pk>"` must be on that verified domain.
 
 ## 5. How it behaves
 
