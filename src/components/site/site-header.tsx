@@ -14,7 +14,10 @@ import { MobileMenu } from "./mobile-menu";
  */
 export function SiteHeader() {
   return (
-    <header className="border-ink sticky top-0 z-30 border-b-[3px] bg-white/95 pt-[env(safe-area-inset-top)] backdrop-blur">
+    <header
+      style={{ viewTransitionName: "site-header" }}
+      className="border-ink sticky top-0 z-30 border-b-[3px] bg-white/95 pt-[env(safe-area-inset-top)] backdrop-blur"
+    >
       <div className="mx-auto flex h-16 max-w-5xl items-center gap-1 pr-1 pl-1 sm:pl-4 lg:h-20">
         <MobileMenu />
         <Link
