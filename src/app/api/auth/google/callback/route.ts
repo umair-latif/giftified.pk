@@ -20,7 +20,8 @@ import { appBaseUrl } from "@/server/files/links";
  */
 export async function GET(request: NextRequest) {
   const base = appBaseUrl();
-  const fail = () => {
+  const fail = (reason?: string) => {
+    if (reason) console.warn(`[auth] google sign-in failed: ${reason}`);
     const res = NextResponse.redirect(`${base}/sign-in?error=google`);
     res.cookies.delete({ name: OAUTH_COOKIE, path: "/api/auth/google" });
     return res;
@@ -30,10 +31,18 @@ export async function GET(request: NextRequest) {
   const code = request.nextUrl.searchParams.get("code");
   const state = request.nextUrl.searchParams.get("state");
   const nonce = request.cookies.get(OAUTH_COOKIE)?.value;
-  if (!config || !code || !state || !nonce) return fail();
+  if (!config) return fail("GOOGLE_CLIENT_ID / GOOGLE_CLIENT_SECRET not set");
+  if (!code || !state)
+    return fail(
+      `Google sent no code (${request.nextUrl.searchParams.get("error") ?? "no error given"})`,
+    );
+  if (!nonce)
+    return fail(
+      "no sign-in cookie: started on another address (www or vercel.app) than APP_URL",
+    );
 
   const claims = verifyToken(OAUTH_PURPOSE, state, authSecret());
-  if (!claims || claims.n !== nonce) return fail();
+  if (!claims || claims.n !== nonce) return fail("state check failed");
 
   try {
     const profile = await fetchGoogleProfile(
@@ -41,7 +50,8 @@ export async function GET(request: NextRequest) {
       `${base}/api/auth/google/callback`,
       code,
     );
-    if (!profile) return fail();
+    if (!profile)
+      return fail("Google profile step failed (see the line above)");
     const customer = await customerForGoogle(profile, getCommerce());
     await startSession(customer.id);
     const res = NextResponse.redirect(`${base}${safeNextPath(claims.next)}`);

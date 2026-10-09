@@ -69,9 +69,22 @@ export async function fetchGoogleProfile(
     }),
     signal: AbortSignal.timeout(15_000),
   });
-  if (!tokenRes.ok) return null;
+  if (!tokenRes.ok) {
+    // Google's error code only ("invalid_client", "redirect_uri_mismatch",
+    // "invalid_grant"): enough to fix the setup, no secrets.
+    const body = (await tokenRes.json().catch(() => ({}))) as {
+      error?: unknown;
+    };
+    console.warn(
+      `[auth] google token exchange failed (${tokenRes.status}): ${String(body.error ?? "unknown")}`,
+    );
+    return null;
+  }
   const token = tokenSchema.safeParse(await tokenRes.json());
-  if (!token.success) return null;
+  if (!token.success) {
+    console.warn("[auth] google token response not understood");
+    return null;
+  }
 
   const profileRes = await doFetch(
     "https://openidconnect.googleapis.com/v1/userinfo",
@@ -80,9 +93,15 @@ export async function fetchGoogleProfile(
       signal: AbortSignal.timeout(15_000),
     },
   );
-  if (!profileRes.ok) return null;
+  if (!profileRes.ok) {
+    console.warn(`[auth] google profile request failed (${profileRes.status})`);
+    return null;
+  }
   const p = profileSchema.safeParse(await profileRes.json());
-  if (!p.success || p.data.email_verified !== true) return null;
+  if (!p.success || p.data.email_verified !== true) {
+    console.warn("[auth] google profile missing or email not verified");
+    return null;
+  }
   return {
     email: p.data.email.trim().toLowerCase(),
     name: (p.data.name ?? p.data.given_name ?? "").trim(),
