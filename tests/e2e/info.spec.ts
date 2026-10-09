@@ -91,3 +91,19 @@ test("customer pages: DesignBanana name only, no draft or registration notices",
     await expect(body, path).not.toContainText(/not been reviewed/i);
   }
 });
+
+test("WhatsApp buttons show the WhatsApp icon; the Contact one stays readable", async ({
+  page,
+}) => {
+  await page.goto("/contact");
+  const footer = page
+    .getByRole("contentinfo")
+    .getByRole("link", { name: "Chat on WhatsApp" });
+  await expect(footer.locator("svg")).toHaveCount(1);
+  const contact = page
+    .getByRole("main")
+    .getByRole("link", { name: "Chat on WhatsApp" });
+  await expect(contact.locator("svg")).toHaveCount(1);
+  // Info sections colour links teal; the teal button must keep white text.
+  await expect(contact).toHaveCSS("color", "rgb(255, 255, 255)");
+});

@@ -5,6 +5,7 @@ import {
   FacebookIcon,
   InstagramIcon,
   TiktokIcon,
+  WhatsappIcon,
   YoutubeIcon,
 } from "@/components/ui/icons";
 import { SITE, whatsappUrl } from "@/config/site";
@@ -59,8 +60,9 @@ export function SiteFooter() {
             {wa && (
               <a
                 href={wa}
-                className="bg-sunny text-ink border-ink focus-visible:ring-sunny/60 mt-4 inline-flex h-11 items-center rounded-2xl border-[3px] px-5 font-semibold hover:bg-[#ffd814] focus-visible:ring-2 focus-visible:outline-none"
+                className="bg-sunny text-ink border-ink focus-visible:ring-sunny/60 mt-4 inline-flex h-11 items-center gap-2 rounded-2xl border-[3px] px-5 font-semibold hover:bg-[#ffd814] focus-visible:ring-2 focus-visible:outline-none"
               >
+                <WhatsappIcon width={22} height={22} />
                 Chat on WhatsApp
               </a>
             )}

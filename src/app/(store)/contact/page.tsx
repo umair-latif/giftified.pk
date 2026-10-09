@@ -3,6 +3,7 @@ import Link from "next/link";
 import { SITE, whatsappUrl } from "@/config/site";
 import { InfoPage, InfoSection } from "@/features/info/info-page";
 import { buttonClass } from "@/components/ui/button";
+import { WhatsappIcon } from "@/components/ui/icons";
 
 export const metadata: Metadata = {
   title: "Contact us",
@@ -27,7 +28,11 @@ export default function ContactPage() {
           have one.
         </p>
         {wa ? (
-          <a href={wa} className={buttonClass("primary")}>
+          <a
+            href={wa}
+            className={buttonClass("primary", "text-white! hover:text-white!")}
+          >
+            <WhatsappIcon width={22} height={22} />
             Chat on WhatsApp
           </a>
         ) : (
@@ -80,8 +85,8 @@ export default function ContactPage() {
         </p>
         <p>
           We are an online-only shop &ndash; there is no walk-in counter. Your
-          order is printed by our partner workshops in and around Gujrat and Jhelum and
-          sent straight to you by courier.
+          order is printed by our partner workshops in and around Gujrat and
+          Jhelum and sent straight to you by courier.
         </p>
       </InfoSection>
     </InfoPage>
