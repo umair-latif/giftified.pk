@@ -26,9 +26,9 @@ export function Hero() {
             Design it yourself. See it before you buy.
           </h1>
           <p className="text-ink mt-3 text-base font-medium sm:text-lg">
-            Our easy designer puts your photos, names and words on a mug or
-            T-shirt. The preview shows it on the product from every side, so you
-            know exactly what you&apos;ll get.
+            Add your photos, a name or a message to a mug, T-shirt or hoodie.
+            The preview shows it on the product from every side, so you know
+            exactly what you&apos;ll get.
           </p>
           <div className="mt-5 flex flex-wrap items-center gap-x-5 gap-y-3">
             <Link href="/products" className={buttonClass("sunny")}>

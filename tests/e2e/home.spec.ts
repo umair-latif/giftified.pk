@@ -41,7 +41,7 @@ test("home page: hero, products, sections, no horizontal scroll", async ({
 
   for (const name of [
     "How it works",
-    "Gifts for every occasion",
+    "Make it for any moment",
     "Why DesignBanana",
   ])
     await expect(page.getByRole("heading", { level: 2, name })).toBeVisible();
@@ -82,7 +82,7 @@ test("occasion tiles: no column is a single colour on a phone", async ({
 }) => {
   await page.goto("/");
   const tiles = page
-    .getByRole("region", { name: "Gifts for every occasion" })
+    .getByRole("region", { name: "Make it for any moment" })
     .getByRole("link");
   const colours = await tiles.evaluateAll((els) =>
     els.map((el) => ({

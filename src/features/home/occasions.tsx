@@ -18,7 +18,7 @@ export function Occasions() {
     <section aria-labelledby="home-occasions" className="pt-10">
       <Container width="wide">
         <h2 id="home-occasions" className="text-brand-900 text-2xl">
-          Gifts for every occasion
+          Make it for any moment
         </h2>
         <p className="text-ink mt-1 text-sm">
           Eid, shaadi, birthdays and more. Pick a moment and start from a
