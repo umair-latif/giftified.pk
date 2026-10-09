@@ -14,13 +14,12 @@ export default function TermsPage() {
       title="Terms of sale"
       intro="The rules for ordering from DesignBanana.pk, in plain words."
     >
-
       <InfoSection id="who" title="Who we are">
         <p>
-          DesignBanana.pk sells custom-printed products that you design on
-          this website. We are an online-only shop in Pakistan: our partner
-          workshops in and around Gujrat and Jhelum print your order, and a
-          courier delivers it to you.
+          DesignBanana.pk sells custom-printed products that you design on this
+          website. We are an online-only shop in Pakistan: our partner workshops
+          in and around Gujrat and Jhelum print your order, and a courier
+          delivers it to you.
         </p>
       </InfoSection>
 
@@ -38,8 +37,8 @@ export default function TermsPage() {
           <li>
             Prices are in Pakistani rupees (PKR). The price and delivery charge
             shown at checkout are the ones you pay. If a price was clearly
-            wrong, we&rsquo;ll tell you when we call to confirm, and you can
-            accept the correct price or cancel.
+            wrong, we&rsquo;ll tell you when we contact you to confirm, and you
+            can accept the correct price or cancel.
           </li>
           <li>
             Products are made to order from your design. Please check spelling,

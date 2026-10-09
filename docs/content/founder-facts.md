@@ -8,15 +8,15 @@ then update the page that renders it (each entry names the file).
 
 ## Contact details → `src/config/site.ts`
 
-| What      | Value                                      |
-| --------- | ------------------------------------------ |
-| WhatsApp  | `+49 15209144535`                          |
+| What      | Value                                                                      |
+| --------- | -------------------------------------------------------------------------- |
+| WhatsApp  | `+49 15209144535`                                                          |
 | Email     | `designbanana.admin@gmail.com` (for now; move to `@designbanana.pk` later) |
-| Instagram | `@designbananapk` → https://instagram.com/designbananapk |
-| TikTok    | `@designbananapk` → https://tiktok.com/@designbananapk |
-| Facebook  | TODO(founder) — placeholder https://facebook.com until the page exists |
-| YouTube   | TODO(founder) — placeholder https://youtube.com until the channel exists |
-| Hours     | 7am – 6pm PKT, every day                   |
+| Instagram | `@designbananapk` → https://instagram.com/designbananapk                   |
+| TikTok    | `@designbananapk` → https://tiktok.com/@designbananapk                     |
+| Facebook  | TODO(founder) — placeholder https://facebook.com until the page exists     |
+| YouTube   | TODO(founder) — placeholder https://youtube.com until the channel exists   |
+| Hours     | 7am – 6pm PKT, every day                                                   |
 
 **TODO(founder): the WhatsApp number is German (+49), not Pakistani.** It is published as-is for
 now, but COD customers in Pakistan will see a foreign support number. Swap it for a PK number when
@@ -36,14 +36,19 @@ one exists — one-line change in `src/config/site.ts`.
 
 ## Cancellation → `/help` ("Can I change or cancel my order?")
 
-Possible **until the design is handed over to printing**, which happens after the order is verified
-by call or message. After that it cannot be cancelled, because the item is made to order.
+Possible **until the design is handed over to printing**, which happens after we have contacted the
+customer and verified the order (by hand for now; automatically on WhatsApp later). After that it
+cannot be cancelled, because the item is made to order.
+
+**Wording rule:** customer-facing pages say "we contact you" to confirm, never "we call you", so the
+text stays true when confirmation moves to an automatic WhatsApp message. Terms and Privacy keep "by
+phone or message" where the channels need naming.
 
 ## Reprints and refunds → `/help` ("What if my product arrives damaged or misprinted?")
 
 Report within **48 hours** with the order number, a description and clear photos.
 
-- **Reprint** — offered when the fault is in the *printing* (smudged, misaligned, wrong colours,
+- **Reprint** — offered when the fault is in the _printing_ (smudged, misaligned, wrong colours,
   wrong size printed).
 - **Refund** — only for a fault on our side: a printing fault, or a product that arrived damaged
   (broken/chipped mug, torn garment). Reported with photos within 48 hours.
