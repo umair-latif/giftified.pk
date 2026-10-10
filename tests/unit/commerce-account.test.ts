@@ -5,6 +5,7 @@ import {
   parseSavedDesigns,
 } from "@/lib/commerce/saved-designs";
 import { MAX_SAVED_DESIGNS, type SavedDesign } from "@/lib/commerce/types";
+import { CUSTOMER_META } from "@/lib/commerce/woo-map";
 import { wooFixture } from "./commerce-woo-helpers";
 
 vi.mock("server-only", () => ({}));
@@ -81,18 +82,29 @@ describe("saved designs meta parsing", () => {
 });
 
 describe("WooCommerce account methods", () => {
+  it("uses customer meta keys the customers REST API keeps (no leading underscore)", () => {
+    // WooCommerce drops "protected" (_-prefixed) user meta on REST writes and
+    // hides it on reads: a key like "_saved_designs" is never stored.
+    for (const key of Object.values(CUSTOMER_META))
+      expect(key).toMatch(/^(?!_|wp_)[a-z][a-z0-9_]*$/);
+  });
+
   it("reads the marketing preference from customer meta", async () => {
     const { woo } = client(() =>
       Response.json({
         ...wooCustomer,
-        meta_data: [{ id: 1, key: "_marketing_optin", value: "yes" }],
+        meta_data: [
+          { id: 1, key: "designbanana_marketing_optin", value: "yes" },
+        ],
       }),
     );
     expect((await woo.getCustomer(12))?.marketingOptIn).toBe(true);
     const off = client(() =>
       Response.json({
         ...wooCustomer,
-        meta_data: [{ id: 1, key: "_marketing_optin", value: "no" }],
+        meta_data: [
+          { id: 1, key: "designbanana_marketing_optin", value: "no" },
+        ],
       }),
     );
     expect((await off.woo.getCustomer(12))?.marketingOptIn).toBeUndefined();
@@ -110,7 +122,7 @@ describe("WooCommerce account methods", () => {
     expect(body(calls[0]!)).toEqual({
       first_name: "Sara",
       last_name: "Ali",
-      meta_data: [{ key: "_marketing_optin", value: "no" }],
+      meta_data: [{ key: "designbanana_marketing_optin", value: "no" }],
     });
   });
 
@@ -134,7 +146,11 @@ describe("WooCommerce account methods", () => {
       Response.json({
         ...wooCustomer,
         meta_data: [
-          { id: 9, key: "_saved_designs", value: JSON.stringify(list) },
+          {
+            id: 9,
+            key: "designbanana_saved_designs",
+            value: JSON.stringify(list),
+          },
         ],
       }),
     );
@@ -143,7 +159,9 @@ describe("WooCommerce account methods", () => {
     const put = calls[1]!;
     expect(put.init.method).toBe("PUT");
     expect(body(put)).toEqual({
-      meta_data: [{ key: "_saved_designs", value: JSON.stringify(list) }],
+      meta_data: [
+        { key: "designbanana_saved_designs", value: JSON.stringify(list) },
+      ],
     });
     await expect(
       woo.setSavedDesigns(12, [
@@ -157,7 +175,9 @@ describe("WooCommerce account methods", () => {
     const { woo } = client(() =>
       Response.json({
         ...wooCustomer,
-        meta_data: [{ id: 3, key: "_marketing_optin", value: "no" }],
+        meta_data: [
+          { id: 3, key: "designbanana_marketing_optin", value: "no" },
+        ],
       }),
     );
     await expect(
@@ -165,7 +185,10 @@ describe("WooCommerce account methods", () => {
     ).rejects.toThrow(/didn't keep the saved designs/);
     expect(error).toHaveBeenCalledWith(
       "[commerce] saved designs not kept by WooCommerce",
-      expect.objectContaining({ customerId: 12, metaKeys: ["_marketing_optin"] }),
+      expect.objectContaining({
+        customerId: 12,
+        metaKeys: ["designbanana_marketing_optin"],
+      }),
     );
     error.mockRestore();
   });
@@ -175,7 +198,13 @@ describe("WooCommerce account methods", () => {
     const list = [saved("a", "2026-09-01T00:00:00Z")];
     const withList = {
       ...wooCustomer,
-      meta_data: [{ id: 9, key: "_saved_designs", value: JSON.stringify(list) }],
+      meta_data: [
+        {
+          id: 9,
+          key: "designbanana_saved_designs",
+          value: JSON.stringify(list),
+        },
+      ],
     };
     const { woo, calls } = client(({ init, url }) =>
       Response.json(

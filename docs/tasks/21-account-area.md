@@ -23,7 +23,7 @@ Data through the commerce adapter methods added in task 20. Detailed brief when 
 - **`/account/addresses`**: phone + default address (same validation as checkout), fills checkout.
 - **`/account/profile`**: first/last name, email (read only: changing it safely needs a verification
   link, and Google sign-in matches on email; customers ask via Contact), **marketing preference**
-  (customer meta `_marketing_optin`; checkout starts ticked when it is on, and a signed-in checkout
+  (customer meta `designbanana_marketing_optin`, no leading `_`: the customers REST API drops those; checkout starts ticked when it is on, and a signed-in checkout
   writes its choice back), **Email me a password link** (the reset flow, works for Google accounts
   too), sign out, **Delete my account**.
 - **Delete account** (`server/account/service.ts`): type DELETE to confirm. Refused while an order is

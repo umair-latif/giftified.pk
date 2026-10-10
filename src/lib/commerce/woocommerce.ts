@@ -15,6 +15,7 @@ import type {
   ShippingQuote,
 } from "./types";
 import {
+  CUSTOMER_META,
   META,
   PRODUCT_SKUS,
   buildOrderBody,
@@ -162,7 +163,7 @@ function mapCustomer(c: WooCustomer): Customer {
           },
         }
       : {}),
-    ...(metaValue(c.meta_data, META.marketingOptIn) === "yes"
+    ...(metaValue(c.meta_data, CUSTOMER_META.marketingOptIn) === "yes"
       ? { marketingOptIn: true }
       : {}),
     id: c.id,
@@ -176,7 +177,7 @@ function mapCustomer(c: WooCustomer): Customer {
 /** The saved designs list in a customer's meta (task 22). */
 function savedDesignsMeta(c: WooCustomer): SavedDesign[] {
   return parseSavedDesigns(
-    c.meta_data.find((m) => m.key === META.savedDesigns)?.value,
+    c.meta_data.find((m) => m.key === CUSTOMER_META.savedDesigns)?.value,
   );
 }
 
@@ -813,7 +814,7 @@ export function createWooCommerceClient(config: WooConfig): CommerceClient {
           // WC replaces an existing key when meta is sent without an id.
           meta_data: [
             {
-              key: META.marketingOptIn,
+              key: CUSTOMER_META.marketingOptIn,
               value: update.marketingOptIn ? "yes" : "no",
             },
           ],
@@ -876,7 +877,7 @@ export function createWooCommerceClient(config: WooConfig): CommerceClient {
       const { json } = await request("PUT", `/customers/${customerId}`, {
         body: {
           meta_data: [
-            { key: META.savedDesigns, value: JSON.stringify(designs) },
+            { key: CUSTOMER_META.savedDesigns, value: JSON.stringify(designs) },
           ],
         },
       });
@@ -893,6 +894,10 @@ export function createWooCommerceClient(config: WooConfig): CommerceClient {
           customerId,
           want,
           got: writtenIds,
+          // WooCommerce only sends meta_data when the API key belongs to a
+          // WordPress Administrator; without it nothing can be read back.
+          metaInReply:
+            typeof json === "object" && json !== null && "meta_data" in json,
           metaKeys: written.success
             ? written.data.meta_data.map((m) => m.key)
             : [],
