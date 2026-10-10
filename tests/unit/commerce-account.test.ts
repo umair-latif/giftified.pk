@@ -152,6 +152,51 @@ describe("WooCommerce account methods", () => {
     ).rejects.toThrow();
   });
 
+  it("fails the save when WooCommerce answers OK but drops the list", async () => {
+    const error = vi.spyOn(console, "error").mockImplementation(() => {});
+    const { woo } = client(() =>
+      Response.json({
+        ...wooCustomer,
+        meta_data: [{ id: 3, key: "_marketing_optin", value: "no" }],
+      }),
+    );
+    await expect(
+      woo.setSavedDesigns(12, [saved("a", "2026-09-01T00:00:00Z")]),
+    ).rejects.toThrow(/didn't keep the saved designs/);
+    expect(error).toHaveBeenCalledWith(
+      "[commerce] saved designs not kept by WooCommerce",
+      expect.objectContaining({ customerId: 12, metaKeys: ["_marketing_optin"] }),
+    );
+    error.mockRestore();
+  });
+
+  it("logs (but keeps the save) when the list is stored and a read returns an older copy", async () => {
+    const error = vi.spyOn(console, "error").mockImplementation(() => {});
+    const list = [saved("a", "2026-09-01T00:00:00Z")];
+    const withList = {
+      ...wooCustomer,
+      meta_data: [{ id: 9, key: "_saved_designs", value: JSON.stringify(list) }],
+    };
+    const { woo, calls } = client(({ init, url }) =>
+      Response.json(
+        // A cache serves the plain read; the cache-busted read is fresh.
+        init.method === "GET" && !url.searchParams.has("_fresh")
+          ? { ...wooCustomer, meta_data: [] }
+          : withList,
+      ),
+    );
+    await expect(woo.setSavedDesigns(12, list)).resolves.toBeUndefined();
+    expect(calls.map((c) => c.init.method)).toEqual(["PUT", "GET", "GET"]);
+    expect(error).toHaveBeenCalledWith(
+      "[commerce] saved designs stored but read back stale",
+      expect.objectContaining({
+        plainRead: "(empty)",
+        cacheBustedRead: "a@2026-09-01T00:00:00Z",
+      }),
+    );
+    error.mockRestore();
+  });
+
   it("lists a customer's orders newest first and never another customer's", async () => {
     const products = wooFixture<unknown[]>("products");
     const order = wooFixture<Record<string, unknown>>("order");
