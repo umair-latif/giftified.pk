@@ -22,6 +22,7 @@ const GROUPS = [
     title: "Shop",
     links: [
       { href: "/products", label: "All products" },
+      { href: "/designs", label: "Ready-made designs" },
       { href: "/track", label: "Track your order" },
     ],
   },

@@ -34,6 +34,12 @@ export function SiteHeader() {
           Products
         </Link>
         <Link
+          href="/designs"
+          className="text-ink hover:bg-mint-100 active:bg-mint-100 focus-visible:ring-brand-600/20 hidden h-11 items-center rounded-full px-3 text-sm font-medium focus-visible:ring-2 focus-visible:outline-none sm:flex"
+        >
+          Designs
+        </Link>
+        <Link
           href="/help"
           className="text-ink hover:bg-mint-100 active:bg-mint-100 focus-visible:ring-brand-600/20 hidden h-11 items-center rounded-full px-3 text-sm font-medium focus-visible:ring-2 focus-visible:outline-none sm:flex"
         >

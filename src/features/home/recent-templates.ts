@@ -1,6 +1,7 @@
 import "server-only";
 import { getProduct } from "@/config/products";
-import { getStorage, type ObjectStorage } from "@/lib/storage";
+import type { ObjectStorage } from "@/lib/storage";
+import { loadTemplates } from "@/features/templates/load-templates";
 import { listTemplates } from "@/server/templates";
 import {
   withLiveDesigns,
@@ -30,11 +31,14 @@ export async function loadRecentTemplates(
   storage?: ObjectStorage,
 ): Promise<RecentTemplate[]> {
   try {
-    const store = storage ?? getStorage();
+    // The shop's cached list (tag "templates"): publishing a design expires
+    // it, so the home page shows it at once instead of after its hourly
+    // refresh. Tests pass their own storage.
+    const listed = storage
+      ? await listTemplates({}, storage)
+      : await loadTemplates();
     // Design products only (older plain templates are not shown).
-    const known = (await listTemplates({}, store)).filter(
-      (t) => t.product && getProduct(t.productId),
-    );
+    const known = listed.filter((t) => t.product && getProduct(t.productId));
     // Drop design products deleted in WooCommerce BEFORE taking the newest N.
     const { templates: live, prices } = await withLiveDesigns(known);
     return live.slice(0, limit).map((t) => ({

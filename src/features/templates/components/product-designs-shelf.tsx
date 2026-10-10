@@ -1,5 +1,7 @@
+import type { ProductId } from "@/config/products";
 import { OCCASIONS } from "@/features/home/occasions";
 import type { TemplateMeta } from "@/server/templates/types";
+import { designsHref } from "../design-filters";
 import { withLiveDesigns } from "../load-design-prices";
 import { templateHref, tileImage } from "../tile-image";
 import { DeleteTemplateButton } from "./delete-template-button";
@@ -14,8 +16,10 @@ const occasionLabel = (slug: string) =>
  * deleted in WooCommerce are left out; template editors get a Delete button.
  */
 export async function ProductDesignsShelf({
+  productId,
   templates,
 }: {
+  productId: ProductId;
   templates: TemplateMeta[];
 }) {
   const { templates: live, prices } = await withLiveDesigns(templates);
@@ -36,6 +40,10 @@ export async function ProductDesignsShelf({
       testId="product-designs"
       tileTestId="product-design"
       className="mt-10"
+      more={{
+        href: designsHref({ product: productId }),
+        label: "See all designs",
+      }}
       items={live.map((t) => ({
         id: t.id,
         href: templateHref(t),

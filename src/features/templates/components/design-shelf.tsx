@@ -1,4 +1,7 @@
+import Link from "next/link";
 import type { ReactNode } from "react";
+import { buttonClass } from "@/components/ui/button";
+import { ArrowRightIcon } from "@/components/ui/icons";
 import { Container } from "@/components/ui/page";
 import type { DesignPrice } from "../load-design-prices";
 import { DesignTile } from "./design-tile";
@@ -27,6 +30,7 @@ export function DesignShelf({
   intro,
   items,
   empty,
+  more,
   testId,
   tileTestId,
   className = "",
@@ -39,6 +43,8 @@ export function DesignShelf({
   items: ShelfItem[];
   /** Shown instead of the row when there are no designs. */
   empty?: ReactNode;
+  /** "See all designs" link under the row (shown only when there are designs). */
+  more?: { href: string; label: string };
   testId?: string;
   tileTestId?: string;
   className?: string;
@@ -84,6 +90,16 @@ export function DesignShelf({
               </li>
             ))}
           </ul>
+        )}
+        {more && items.length > 0 && (
+          <Link
+            href={more.href}
+            className={buttonClass("secondary", "mt-4")}
+            data-testid={testId ? `${testId}-more` : undefined}
+          >
+            {more.label}
+            <ArrowRightIcon width={18} height={18} />
+          </Link>
         )}
       </Container>
     </section>

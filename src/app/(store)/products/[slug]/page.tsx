@@ -176,7 +176,7 @@ export default async function ProductPage({
         />
       </Container>
       {/* Full-width yellow shelf, the same as the home page's "New designs". */}
-      <ProductDesignsShelf templates={templates} />
+      <ProductDesignsShelf productId={productId} templates={templates} />
     </main>
   );
 }
