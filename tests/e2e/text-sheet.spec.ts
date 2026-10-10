@@ -162,3 +162,31 @@ test("fonts: the editor fetches only the new-text face; the sheet loads the rest
     .poll(() => fontRequests.length, { message: "font files requested" })
     .toBeGreaterThan(1);
 });
+
+test("Words: tapping in selects all; Clear empties it in one tap", async ({
+  page,
+}) => {
+  await openEditorWithText(page);
+  await more(page).click();
+  const input = page.getByTestId("text-sheet-input");
+  await input.tap();
+  await expect
+    .poll(() =>
+      input.evaluate((el: HTMLTextAreaElement) => [
+        el.selectionStart,
+        el.selectionEnd,
+      ]),
+    )
+    .toEqual([0, 9]);
+  await sheet(page).getByRole("button", { name: "Clear" }).tap();
+  await expect(input).toHaveValue("");
+  await expect(input).toBeFocused();
+  await expect(
+    sheet(page).getByRole("button", { name: "Clear" }),
+  ).toBeDisabled();
+  await input.fill("Eid Mubarak");
+  await input.blur();
+  await expect
+    .poll(async () => (await textObject(page)).text)
+    .toBe("Eid Mubarak");
+});
