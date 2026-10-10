@@ -148,8 +148,11 @@ Mobile PWA (Fabric.js editor + Three.js preview)
   styles, snap settings) must be re-applied in `applyTouchControls` after a restore.
 - Drafts autosave to localStorage per product (`features/editor/draft.ts`) so Back/Next and
   refresh never lose work. Keep designs small: images go in as storage URLs, never data URLs.
-- Snapping: object centre snaps to the centre lines within 8 screen px; rotation snaps to
-  0/90/180/270° within 5° (`engine/snap.ts`, pure + unit-tested).
+- Snapping (`engine/snap.ts` `AxisSnapper`, pure + unit-tested; wired in `engine/guides.ts`): an
+  object's edges/centre snap to the print area's centre lines and edges and to other elements'
+  edges/centres within 6 screen px, as a weak magnet: it lets go on a 2 px move away or past the
+  line. Guides are CSS (centre lines + `GuideState.lines`). Rotation snaps to 0/90/180/270° within 5°.
+- Double tap / double click on a text edits it with all text selected (`engine/text-select.ts`).
 - Photos: `features/editor/assets/` keeps the ORIGINAL upload + a ≤2048 px WebP preview in
   IndexedDB; the canvas shows the preview, the design stores `src: "asset:<id>"` plus
   `assetId`/`sourceWidthPx`/`sourceHeightPx`. DPI always uses the original's pixels
