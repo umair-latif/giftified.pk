@@ -19,6 +19,7 @@ export function RecentTemplatesSection({
       testId="home-designs"
       tileTestId="home-template"
       className="mt-10"
+      more={{ href: "/designs", label: "See all designs" }}
       items={templates.map((t) => ({
         id: t.id,
         href: t.href,

@@ -155,6 +155,8 @@ test("a template editor publishes a design as a product from the preview; others
   browser,
   baseURL,
 }) => {
+  // Publishes, then walks the product page, cart and the /designs page.
+  test.setTimeout(90_000);
   // Guests: the preview offers only "Add to cart".
   await openEditorWithText(page);
   await page.getByRole("link", { name: /Preview/ }).click();
@@ -260,6 +262,29 @@ test("a template editor publishes a design as a product from the preview; others
   await expect(ep.getByText("1,899").first()).toBeVisible();
   // The line is titled with the design, with the product beneath it.
   await expect(ep.getByTestId("line-title")).toHaveText("Happy Birthday");
+
+  // "See all designs" on the home shelf opens the marketplace page.
+  await ep.goto("/");
+  await ep.getByTestId("home-designs-more").click();
+  await expect(ep).toHaveURL(/\/designs$/);
+  await expect(
+    ep.getByRole("heading", { level: 1, name: "Ready-made designs" }),
+  ).toBeVisible();
+  const grid = ep.getByTestId("template-grid");
+  await expect(grid.getByRole("link", { name: /Happy Birthday/ })).toBeVisible();
+  // The product page's shelf links to the same page, filtered to the product.
+  await ep.goto("/products/mug");
+  await expect(ep.getByTestId("product-designs-more")).toHaveAttribute(
+    "href",
+    "/designs?product=mug",
+  );
+  // A filter with nothing behind it says so and offers the way back.
+  await ep.goto("/designs?product=hoodie");
+  await expect(ep.getByTestId("no-templates")).toContainText(
+    "No designs match",
+  );
+  await ep.getByRole("link", { name: "See all designs" }).click();
+  await expect(ep).toHaveURL(/\/designs$/);
   await editorCtx.close();
 });
 

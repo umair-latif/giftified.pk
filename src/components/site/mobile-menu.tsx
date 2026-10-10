@@ -8,6 +8,7 @@ import { OCCASIONS } from "@/features/home/occasions";
 
 const LINKS = [
   { href: "/products", label: "Products" },
+  { href: "/designs", label: "Ready-made designs" },
   { href: "/track", label: "Track your order" },
   { href: "/help", label: "Help & FAQ" },
   { href: "/contact", label: "Contact" },
