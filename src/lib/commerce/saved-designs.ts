@@ -2,7 +2,7 @@ import { z } from "zod";
 import { MAX_SAVED_DESIGNS, type SavedDesign } from "./types";
 
 /**
- * Parsing for the `_saved_designs` customer meta (task 22). The meta is
+ * Parsing for the `giftified_saved_designs` customer meta (task 22). The meta is
  * written only by us, but WP admin lets anyone edit customer meta by hand, so
  * every read goes through this schema and bad entries are dropped instead of
  * breaking the account page.

@@ -40,14 +40,25 @@ export const META = {
   printPngUrl: "_print_png_url",
   proofPdfUrl: "_proof_pdf_url",
   contentConfirmed: "_content_confirmed",
-  /** Order meta AND customer meta (the account's default, task 21). */
+  /** Order meta: ticked at checkout (task 13). The account's default is CUSTOMER_META. */
   marketingOptIn: "_marketing_optin",
-  /** Customer meta: JSON list of saved designs (task 22). */
-  savedDesigns: "_saved_designs",
   retainForReview: "_retain_for_review",
   retentionDone: "_retention_done",
   templateId: "_template_id",
   baseProduct: "_base_product",
+} as const;
+
+/**
+ * Customer (user) meta. Unlike order meta these must NOT start with "_":
+ * WooCommerce's customers REST API silently drops "protected" (underscore)
+ * meta keys on write and hides them on read, so a "_" key is never stored.
+ * Also avoid a "wp_" prefix or the site's table prefix (filtered out too).
+ */
+export const CUSTOMER_META = {
+  /** "yes"/"no": the account's marketing preference (task 21). */
+  marketingOptIn: "giftified_marketing_optin",
+  /** JSON list of saved designs (task 22). */
+  savedDesigns: "giftified_saved_designs",
 } as const;
 
 /** Visible line notes on design-product order lines (read back by `mapOrder`). */
