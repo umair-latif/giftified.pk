@@ -11,6 +11,7 @@ import type {
   DesignProduct,
   DesignProductInfo,
   NewDesignProduct,
+  SavedDesign,
   ShippingQuote,
 } from "./types";
 import {
@@ -170,6 +171,18 @@ function mapCustomer(c: WooCustomer): Customer {
     lastName: c.last_name,
     modifiedAt: c.date_modified_gmt ?? "",
   };
+}
+
+/** The saved designs list in a customer's meta (task 22). */
+function savedDesignsMeta(c: WooCustomer): SavedDesign[] {
+  return parseSavedDesigns(
+    c.meta_data.find((m) => m.key === META.savedDesigns)?.value,
+  );
+}
+
+/** Compact fingerprint of a list for comparing and logging ("a@2026…,b@…"). */
+function savedIds(list: SavedDesign[]): string {
+  return list.map((d) => `${d.id}@${d.updatedAt}`).join(",") || "(empty)";
 }
 
 /** Customer orders per page on /account/orders. */
@@ -853,21 +866,64 @@ export function createWooCommerceClient(config: WooConfig): CommerceClient {
     },
 
     async listSavedDesigns(customerId) {
-      const c = await get(`/customers/${customerId}`, wooCustomerSchema);
-      return parseSavedDesigns(
-        c.meta_data.find((m) => m.key === META.savedDesigns)?.value,
+      return savedDesignsMeta(
+        await get(`/customers/${customerId}`, wooCustomerSchema),
       );
     },
 
     async setSavedDesigns(customerId, designs) {
       assertSavedDesignList(designs);
-      await request("PUT", `/customers/${customerId}`, {
+      const { json } = await request("PUT", `/customers/${customerId}`, {
         body: {
           meta_data: [
             { key: META.savedDesigns, value: JSON.stringify(designs) },
           ],
         },
       });
+      // WordPress answers 200 even when a plugin or the host drops the meta,
+      // so check the list really is on the account (and readable) before
+      // the customer is told "Saved".
+      const want = savedIds(designs);
+      const written = wooCustomerSchema.safeParse(json);
+      const writtenIds = written.success
+        ? savedIds(savedDesignsMeta(written.data))
+        : "(unreadable reply)";
+      if (writtenIds !== want) {
+        console.error("[commerce] saved designs not kept by WooCommerce", {
+          customerId,
+          want,
+          got: writtenIds,
+          metaKeys: written.success
+            ? written.data.meta_data.map((m) => m.key)
+            : [],
+        });
+        throw new WooCommerceError(
+          `WooCommerce didn't keep the saved designs list for customer ${customerId}`,
+          502,
+        );
+      }
+      const read = savedIds(
+        savedDesignsMeta(
+          await get(`/customers/${customerId}`, wooCustomerSchema),
+        ),
+      );
+      if (read !== want) {
+        // Stored, but a plain read returns an older copy: a cache between us
+        // and WordPress. Check whether a cache-busting read sees it.
+        const fresh = savedIds(
+          savedDesignsMeta(
+            await get(`/customers/${customerId}`, wooCustomerSchema, {
+              query: { _fresh: now() },
+            }),
+          ),
+        );
+        console.error("[commerce] saved designs stored but read back stale", {
+          customerId,
+          want,
+          plainRead: read,
+          cacheBustedRead: fresh,
+        });
+      }
     },
 
     createOrder(input) {
