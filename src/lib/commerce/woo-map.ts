@@ -56,9 +56,9 @@ export const META = {
  */
 export const CUSTOMER_META = {
   /** "yes"/"no": the account's marketing preference (task 21). */
-  marketingOptIn: "giftified_marketing_optin",
+  marketingOptIn: "designbanana_marketing_optin",
   /** JSON list of saved designs (task 22). */
-  savedDesigns: "giftified_saved_designs",
+  savedDesigns: "designbanana_saved_designs",
 } as const;
 
 /** Visible line notes on design-product order lines (read back by `mapOrder`). */

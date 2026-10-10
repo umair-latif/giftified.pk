@@ -22,7 +22,7 @@ touches) and a test for it.
 - **Upload in two steps** (`src/server/saved-designs/service.ts`, routes under `/api/account/designs`):
   `POST /api/account/designs` writes `pending.json` + presigned PUTs for photos not already stored and
   the thumbnail; `POST …/<id>/finish` checks every photo arrived, promotes it to `design.json`, drops
-  photos the design no longer uses and updates customer meta `giftified_saved_designs` (no leading `_`: the customers REST API drops those). Sample or blurry photos
+  photos the design no longer uses and updates customer meta `designbanana_saved_designs` (no leading `_`: the customers REST API drops those). Sample or blurry photos
   are allowed here (work in progress); checkout still checks before printing.
 - **Storage:** `accounts/<customerId>/designs/<id>/` (`lib/storage/keys.ts`). The retention job only lists
   `designs/`, so it never sees these; `tests/unit/saved-designs.test.ts` proves it 400 days on.

@@ -93,14 +93,18 @@ describe("WooCommerce account methods", () => {
     const { woo } = client(() =>
       Response.json({
         ...wooCustomer,
-        meta_data: [{ id: 1, key: "giftified_marketing_optin", value: "yes" }],
+        meta_data: [
+          { id: 1, key: "designbanana_marketing_optin", value: "yes" },
+        ],
       }),
     );
     expect((await woo.getCustomer(12))?.marketingOptIn).toBe(true);
     const off = client(() =>
       Response.json({
         ...wooCustomer,
-        meta_data: [{ id: 1, key: "giftified_marketing_optin", value: "no" }],
+        meta_data: [
+          { id: 1, key: "designbanana_marketing_optin", value: "no" },
+        ],
       }),
     );
     expect((await off.woo.getCustomer(12))?.marketingOptIn).toBeUndefined();
@@ -118,7 +122,7 @@ describe("WooCommerce account methods", () => {
     expect(body(calls[0]!)).toEqual({
       first_name: "Sara",
       last_name: "Ali",
-      meta_data: [{ key: "giftified_marketing_optin", value: "no" }],
+      meta_data: [{ key: "designbanana_marketing_optin", value: "no" }],
     });
   });
 
@@ -144,7 +148,7 @@ describe("WooCommerce account methods", () => {
         meta_data: [
           {
             id: 9,
-            key: "giftified_saved_designs",
+            key: "designbanana_saved_designs",
             value: JSON.stringify(list),
           },
         ],
@@ -156,7 +160,7 @@ describe("WooCommerce account methods", () => {
     expect(put.init.method).toBe("PUT");
     expect(body(put)).toEqual({
       meta_data: [
-        { key: "giftified_saved_designs", value: JSON.stringify(list) },
+        { key: "designbanana_saved_designs", value: JSON.stringify(list) },
       ],
     });
     await expect(
@@ -171,7 +175,9 @@ describe("WooCommerce account methods", () => {
     const { woo } = client(() =>
       Response.json({
         ...wooCustomer,
-        meta_data: [{ id: 3, key: "giftified_marketing_optin", value: "no" }],
+        meta_data: [
+          { id: 3, key: "designbanana_marketing_optin", value: "no" },
+        ],
       }),
     );
     await expect(
@@ -181,7 +187,7 @@ describe("WooCommerce account methods", () => {
       "[commerce] saved designs not kept by WooCommerce",
       expect.objectContaining({
         customerId: 12,
-        metaKeys: ["giftified_marketing_optin"],
+        metaKeys: ["designbanana_marketing_optin"],
       }),
     );
     error.mockRestore();
@@ -193,7 +199,11 @@ describe("WooCommerce account methods", () => {
     const withList = {
       ...wooCustomer,
       meta_data: [
-        { id: 9, key: "giftified_saved_designs", value: JSON.stringify(list) },
+        {
+          id: 9,
+          key: "designbanana_saved_designs",
+          value: JSON.stringify(list),
+        },
       ],
     };
     const { woo, calls } = client(({ init, url }) =>
