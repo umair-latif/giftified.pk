@@ -105,10 +105,11 @@ test("centre guides light up and snap while dragging", async ({ page }) => {
   const vGuide = page.getByTestId("guide-vertical");
   const { cx, cy, pxPerMm } = await canvasBox(page);
 
-  // Move well away, then back to within a few px of centre.
+  // Move well away (so neither the centre nor an edge is near the centre
+  // line), then back to within a few px of centre.
   await page.mouse.move(cx, cy);
   await page.mouse.down();
-  await page.mouse.move(cx + 50, cy, { steps: 5 });
+  await page.mouse.move(cx + 90, cy, { steps: 6 });
   await expect(vGuide).toHaveAttribute("data-active", "false");
   await page.mouse.move(cx + 4, cy, { steps: 5 });
   await expect(vGuide).toHaveAttribute("data-active", "true");
@@ -116,7 +117,7 @@ test("centre guides light up and snap while dragging", async ({ page }) => {
   await expect(vGuide).toHaveAttribute("data-active", "false");
   expect((await readout(page)).x).toBe(CX);
 
-  // Outside the 8px snap zone it stays where it was dropped.
+  // Outside the 6 px snap zone it stays where it was dropped.
   await page.mouse.move(cx, cy);
   await page.mouse.down();
   await page.mouse.move(cx + 20, cy, { steps: 5 });
@@ -128,6 +129,86 @@ test("centre guides light up and snap while dragging", async ({ page }) => {
   // Centre chip puts it back.
   await page.getByRole("button", { name: "Centre" }).click();
   await expect.poll(async () => (await readout(page)).x).toBe(CX);
+});
+
+test("snapping is a weak magnet: a small nudge off the centre line stays off", async ({
+  page,
+}) => {
+  await openEditorWithText(page);
+  const vGuide = page.getByTestId("guide-vertical");
+  const { cx, cy, pxPerMm } = await canvasBox(page);
+  await page.mouse.move(cx, cy);
+  await page.mouse.down();
+  await page.mouse.move(cx + 90, cy, { steps: 6 });
+  // In from the right: it locks onto the centre line…
+  await page.mouse.move(cx + 1, cy, { steps: 10 });
+  await expect(vGuide).toHaveAttribute("data-active", "true");
+  // …and a 5 px move back lets go, even though that's inside the zone.
+  await page.mouse.move(cx + 5, cy, { steps: 2 });
+  await expect(vGuide).toHaveAttribute("data-active", "false");
+  await page.mouse.up();
+  const x = (await readout(page)).x;
+  expect(x).not.toBe(CX);
+  expect(x).toBe(Math.round(AREA.widthMm / 2 + 5 / pxPerMm));
+});
+
+test("elements snap to each other's edges: side by side without overlap", async ({
+  page,
+}) => {
+  await openEditorWithText(page);
+  const first = await readout(page);
+  // Copy lands 5 mm down-right of the first text and is selected.
+  await page
+    .getByTestId("selection-bar")
+    .getByRole("button", { name: "Copy" })
+    .click();
+  await expect(status(page)).toContainText(centreText(5, 5));
+  const copy = await readout(page);
+  const { cx, cy, pxPerMm } = await canvasBox(page);
+  const startX = cx + 5 * pxPerMm;
+  const startY = cy + 5 * pxPerMm;
+  // Drag it right until its left edge is ~2 px short of the first's right edge.
+  const toX = startX + (first.w - 5) * pxPerMm + 2;
+  await page.mouse.move(startX, startY);
+  await page.mouse.down();
+  await page.mouse.move(toX + 40, startY, { steps: 5 });
+  await page.mouse.move(toX, startY, { steps: 6 });
+  const line = page.locator('[data-testid="guide-line"][data-axis="x"]');
+  await expect(line).toHaveCount(1);
+  await page.mouse.up();
+  await expect(page.getByTestId("guide-line")).toHaveCount(0);
+  // Its centre is now exactly one width right of the first's: edges touch.
+  const moved = await readout(page);
+  expect(Math.abs(moved.x - (first.x + first.w))).toBeLessThanOrEqual(1);
+  expect(moved.y).toBe(copy.y);
+});
+
+test("double tap on a text selects all of it, so typing replaces it", async ({
+  page,
+}) => {
+  await openEditorWithText(page);
+  const { cx, cy } = await canvasBox(page);
+  await page.touchscreen.tap(cx, cy);
+  await page.waitForTimeout(80);
+  await page.touchscreen.tap(cx, cy);
+  await expect
+    .poll(() =>
+      page.evaluate(() => {
+        const el = document.activeElement as HTMLTextAreaElement | null;
+        return el?.tagName === "TEXTAREA"
+          ? [el.selectionStart, el.selectionEnd, el.value.length]
+          : null;
+      }),
+    )
+    .toEqual([0, 9, 9]); // "Your text", all of it
+  await page.keyboard.type("Ali");
+  await expect
+    .poll(() =>
+      page.evaluate(
+        () => (document.activeElement as HTMLTextAreaElement | null)?.value,
+      ),
+    )
+    .toBe("Ali");
 });
 
 test("rotation snaps level and Straighten resets it", async ({ page }) => {
@@ -296,6 +377,16 @@ test("typing into new text keeps it in place (no slide down per letter)", async 
       ),
     )
     .toBe(true);
+  // A double tap selects all of it; go to the end to add to it instead.
+  await expect
+    .poll(() =>
+      page.evaluate(() => {
+        const el = document.activeElement as HTMLTextAreaElement;
+        return el.selectionEnd - el.selectionStart;
+      }),
+    )
+    .toBe(9);
+  await page.keyboard.press("End");
   for (const ch of " Ayesha") {
     await page.keyboard.type(ch);
     // The box grows sideways but its centre stays on the same line.

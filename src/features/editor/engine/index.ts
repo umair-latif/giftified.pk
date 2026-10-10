@@ -13,7 +13,12 @@ export { addText, type AddTextOptions } from "./text";
 export { attachTwoFingerGestures } from "./gestures";
 export { attachTextAutoWidth } from "./text-fit";
 export { attachHistory, type CanvasHistory } from "./history";
-export { attachCentreSnapping, NO_GUIDES, type GuideState } from "./guides";
+export {
+  attachSnapping,
+  NO_GUIDES,
+  type GuideLine,
+  type GuideState,
+} from "./guides";
 export {
   straightenSelected,
   centreSelected,
@@ -44,3 +49,4 @@ export {
   type DesignDocument,
   DESIGN_SCHEMA_VERSION,
 } from "./serialize";
+export { attachDoubleTapSelectAll } from "./text-select";

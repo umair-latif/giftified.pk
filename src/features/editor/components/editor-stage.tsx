@@ -20,8 +20,8 @@ interface Props {
 /**
  * Reserves the print area's exact aspect ratio before Fabric loads (no layout
  * shift) and draws screen-only guides as CSS so they never reach exports:
- * the safe zone, and the two centre lines, which light up when an object's
- * centre snaps onto them.
+ * the safe zone, the two centre lines (they light up when something snaps
+ * onto them), and lines to other elements' edges while snapped to them.
  */
 export function EditorStage({
   product,
@@ -116,6 +116,25 @@ export function EditorStage({
                 data-active={guides.horizontal}
                 className={`absolute inset-x-0 top-1/2 -translate-y-1/2 border-t ${line(guides.horizontal)}`}
               />
+              {/* Lines to other elements' edges/centres or the print area's
+                  edge, only while something is snapped to them. */}
+              {guides.lines.map((g) => (
+                <div
+                  key={`${g.axis}${g.at}`}
+                  data-testid="guide-line"
+                  data-axis={g.axis}
+                  className={`absolute ${
+                    g.axis === "x"
+                      ? "inset-y-0 -translate-x-1/2 border-l"
+                      : "inset-x-0 -translate-y-1/2 border-t"
+                  } ${line(true)}`}
+                  style={
+                    g.axis === "x"
+                      ? { left: `${(g.at / widthMm) * 100}%` }
+                      : { top: `${(g.at / heightMm) * 100}%` }
+                  }
+                />
+              ))}
               <div
                 className="absolute rounded-sm border border-dashed border-sky-400/70"
                 style={{

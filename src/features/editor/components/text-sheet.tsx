@@ -65,19 +65,46 @@ export function TextSheet({ text, onTextStyle, onClose }: Props) {
   return (
     <Sheet title="Text" onClose={onClose}>
       <div className="flex flex-col gap-5 py-1">
-        <label className="flex flex-col gap-1.5">
-          <span className="text-xs font-medium text-zinc-600">Words</span>
+        <div className="flex flex-col gap-1.5">
+          <div className="flex items-center justify-between">
+            <label
+              htmlFor="text-sheet-words"
+              className="text-xs font-medium text-zinc-600"
+            >
+              Words
+            </label>
+            {/* One tap instead of deleting letter by letter on a phone. */}
+            <button
+              type="button"
+              disabled={!draft}
+              onPointerDown={(e) => e.preventDefault()} // keep the field focused
+              onClick={() => {
+                setDraft("");
+                inputRef.current?.focus();
+              }}
+              className="focus-visible:ring-brand-600/20 -my-2 min-h-11 rounded px-2 text-xs font-medium text-zinc-600 underline hover:text-zinc-900 focus-visible:ring-2 focus-visible:outline-none disabled:text-zinc-300 disabled:no-underline"
+            >
+              Clear
+            </button>
+          </div>
           <textarea
             ref={inputRef}
+            id="text-sheet-words"
             data-testid="text-sheet-input"
             value={draft}
             onChange={(e) => setDraft(e.target.value)}
+            // Tapping in selects all the words, so typing replaces them.
+            // (After the tap itself, which would otherwise place a caret.)
+            onFocus={(e) => {
+              const el = e.currentTarget;
+              setTimeout(() => el.select(), 0);
+            }}
             onBlur={applyText}
             enterKeyHint="done"
             rows={2}
             className="min-h-[44px] resize-none rounded-md border border-zinc-300 px-3 py-2 text-base text-zinc-900"
           />
-        </label>
+        </div>
 
         <section className="flex flex-col gap-1.5">
           <h3 className="text-xs font-medium text-zinc-600">Alignment</h3>

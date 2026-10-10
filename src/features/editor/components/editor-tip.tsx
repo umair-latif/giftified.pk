@@ -49,8 +49,8 @@ export function EditorTip() {
       <p className="flex-1 leading-relaxed">
         <span className="text-ink font-semibold">Tip: </span>
         {touch
-          ? "Drag to move (it snaps to the centre). Two fingers to resize and rotate. Double-tap text to edit."
-          : "Drag to move (it snaps to the centre). Use the handles to resize and rotate. Double-click text to edit."}
+          ? "Drag to move (it lines up with the centre and other items). Two fingers to resize and rotate. Double-tap text to change it."
+          : "Drag to move (it lines up with the centre and other items). Use the handles to resize and rotate. Double-click text to change it."}
       </p>
       <button
         type="button"

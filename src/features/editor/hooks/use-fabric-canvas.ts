@@ -66,7 +66,11 @@ export interface PrintQuality {
   status: DpiStatus;
 }
 
-const NO_GUIDES: GuideState = { vertical: false, horizontal: false };
+const NO_GUIDES: GuideState = {
+  vertical: false,
+  horizontal: false,
+  lines: [],
+};
 const AUTOSAVE_DELAY_MS = 300;
 
 type Engine = typeof import("../engine");
@@ -235,7 +239,8 @@ export function useFabricCanvas(
         sync,
       );
       const detachTextFit = engine.attachTextAutoWidth(canvas);
-      const detachSnap = engine.attachCentreSnapping(
+      const detachSelectAll = engine.attachDoubleTapSelectAll(canvas);
+      const detachSnap = engine.attachSnapping(
         canvas,
         product.printArea,
         dc.zoom,
@@ -275,6 +280,7 @@ export function useFabricCanvas(
         ro.disconnect();
         detachSnap();
         detachTextFit();
+        detachSelectAll();
         detachGestures();
         history.detach();
         offs.forEach((off) => off());

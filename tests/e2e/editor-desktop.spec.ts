@@ -1,5 +1,5 @@
 import { expect, test } from "@playwright/test";
-import { openEditorWithText } from "./helpers";
+import { canvasBox, openEditorWithText } from "./helpers";
 
 // Desktop: canvas on the left, tools in a panel on the right (no fixed bottom bars).
 test.use({
@@ -58,4 +58,22 @@ test("tools sit in a side panel next to a larger canvas", async ({ page }) => {
     .boundingBox();
   expect(add!.x).toBeGreaterThan(gallery!.x + gallery!.width);
   expect(add!.y).toBeGreaterThan(details!.y);
+});
+
+test("double click on a text selects all of it (not just one word)", async ({
+  page,
+}) => {
+  await openEditorWithText(page);
+  const { cx, cy } = await canvasBox(page);
+  await page.mouse.dblclick(cx, cy);
+  await expect
+    .poll(() =>
+      page.evaluate(() => {
+        const el = document.activeElement as HTMLTextAreaElement | null;
+        return el?.tagName === "TEXTAREA"
+          ? [el.selectionStart, el.selectionEnd]
+          : null;
+      }),
+    )
+    .toEqual([0, 9]);
 });
