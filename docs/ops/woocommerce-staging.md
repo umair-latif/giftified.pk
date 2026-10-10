@@ -49,7 +49,9 @@ Never paste keys into chat or commit them. If a key leaks, revoke it in the same
 pnpm woo:seed
 ```
 
-This sets the country to Pakistan and the currency to PKR, turns on **Cash on Delivery**,
+This sets the country to Pakistan and the currency to PKR, turns on **Cash on Delivery** with
+English texts (its "Instructions" line appears in every order email; set the WordPress site
+language to English too, or WooCommerce saves German defaults),
 creates the global **Colour** attribute (White `#FFFFFF`, Black `#171717`), the **Custom Mug**
 (SKU `mug`, colour White, Rs 1499), the **Custom T-Shirt** (SKU `tshirt`, Colour White/Black ×
 Size S–XXL = 10 variations, **placeholder** Rs 1999 until the vendor price is agreed; change the

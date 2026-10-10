@@ -13,6 +13,7 @@ import {
   HOODIE,
   MUG,
   TSHIRT,
+  COD_TEXTS,
   ZONES,
   seedWooCommerce,
 } from "../../scripts/woo-seed-lib";
@@ -22,6 +23,7 @@ function fakeWoo() {
   let nextId = 100;
   const settings: Record<string, string> = {};
   let codEnabled = false;
+  let cod: Record<string, unknown> = {};
   const products: Record<string, unknown>[] = [];
   const variations = new Map<number, Record<string, unknown>[]>();
   const zones: { id: number; name: string; order: number }[] = [
@@ -52,6 +54,7 @@ function fakeWoo() {
     }
     if (path === "/payment_gateways/cod") {
       codEnabled = body.enabled;
+      cod = body;
       return ok({});
     }
     if (path === "/products" && method === "GET")
@@ -145,6 +148,7 @@ function fakeWoo() {
     terms,
     writes,
     cod: () => codEnabled,
+    codBody: () => cod,
   };
 }
 
@@ -164,6 +168,13 @@ describe("woo:seed", () => {
     // Pakistan has provinces in WooCommerce: "PK" alone is rejected.
     expect(wc.settings.woocommerce_default_country).toBe("PK:PB");
     expect(wc.cod()).toBe(true);
+    // English COD texts, so a German WordPress doesn't put its translated
+    // defaults ("Bezahle bei Lieferung in bar") in the order emails.
+    expect(wc.codBody()).toMatchObject({
+      title: "Cash on Delivery",
+      description: COD_TEXTS.description,
+      settings: { instructions: COD_TEXTS.instructions },
+    });
 
     // The adapter maps the seeded product to our mug with a white variant.
     const product = wooProductSchema.parse(wc.products[0]);
