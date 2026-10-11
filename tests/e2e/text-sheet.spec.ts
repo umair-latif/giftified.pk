@@ -190,3 +190,56 @@ test("Words: tapping in selects all; Clear empties it in one tap", async ({
     .poll(async () => (await textObject(page)).text)
     .toBe("Eid Mubarak");
 });
+
+test("the words are kept when the sheet closes without the field losing focus", async ({
+  page,
+}) => {
+  await openEditorWithText(page);
+  await more(page).click();
+  const input = page.getByTestId("text-sheet-input");
+  await input.fill("Eid Mubarak");
+  // On a phone the keyboard hides the sheet, so people tap the canvas to
+  // finish. That tap closes the sheet and may deselect the text.
+  const { x, y, width } = await canvasBox(page);
+  await page.touchscreen.tap(x + width - 6, y + 6);
+  await expect(sheet(page)).toHaveCount(0);
+  await expect
+    .poll(async () => (await textObject(page)).text)
+    .toBe("Eid Mubarak");
+
+  // Escape closes without a tap anywhere: still kept.
+  await page.locator("canvas.upper-canvas").waitFor();
+  const { cx, cy } = await canvasBox(page);
+  await page.touchscreen.tap(cx, cy);
+  await more(page).click();
+  await input.fill("Shaadi Mubarak");
+  await page.keyboard.press("Escape");
+  await expect(sheet(page)).toHaveCount(0);
+  await expect
+    .poll(async () => (await textObject(page)).text)
+    .toBe("Shaadi Mubarak");
+});
+
+test("with the phone keyboard open the sheet sits above it", async ({
+  page,
+}) => {
+  await openEditorWithText(page);
+  await more(page).click();
+  const viewport = page.viewportSize()!;
+  // Simulate a 300 px keyboard: the visual viewport shrinks, the layout
+  // viewport (where fixed elements live) does not.
+  await page.evaluate((h) => {
+    const vv = window.visualViewport!;
+    Object.defineProperty(vv, "height", { configurable: true, get: () => h });
+    vv.dispatchEvent(new Event("resize"));
+  }, viewport.height - 300);
+  await expect
+    .poll(async () => {
+      const b = (await sheet(page).boundingBox())!;
+      return Math.round(b.y + b.height);
+    })
+    .toBeLessThanOrEqual(viewport.height - 300 + 1);
+  // The field is visible above the keyboard.
+  const field = (await page.getByTestId("text-sheet-input").boundingBox())!;
+  expect(field.y + field.height).toBeLessThanOrEqual(viewport.height - 300);
+});

@@ -283,6 +283,7 @@ export function DesignEditor({
         <TextSheet
           text={ed.selection.text}
           onTextStyle={ed.applyTextStyle}
+          onPreviewText={ed.previewText}
           onClose={() => setTextSheetOpen(false)}
         />
       )}
