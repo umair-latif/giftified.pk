@@ -37,7 +37,9 @@ test("new text is as wide as the text, and grows as you type", async ({
   await expect(status(page)).toContainText("textbox");
 });
 
-test("changing the words in the sheet re-fits the box", async ({ page }) => {
+test("changing the words in the text editor re-fits the box", async ({
+  page,
+}) => {
   await openEditorWithText(page);
   const before = await readout(page);
   await page
@@ -45,7 +47,10 @@ test("changing the words in the sheet re-fits the box", async ({ page }) => {
     .getByRole("button", { name: "More" })
     .click();
   await page.getByTestId("text-sheet-input").fill("Happy Anniversary");
-  await page.getByTestId("text-sheet-input").blur();
+  await page
+    .getByRole("dialog", { name: "Edit text" })
+    .getByRole("button", { name: "Done" })
+    .click();
   await expect
     .poll(async () => (await readout(page)).w)
     .toBeGreaterThan(before.w);

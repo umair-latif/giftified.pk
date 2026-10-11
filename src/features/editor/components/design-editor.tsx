@@ -18,7 +18,7 @@ import { CropSheet } from "./crop-sheet";
 import { BackgroundSheet } from "./background-sheet";
 import { EditorTip } from "./editor-tip";
 import { SelectionBar } from "./selection-bar";
-import { TextSheet } from "./text-sheet";
+import { TextEditor } from "./text-editor";
 import { ACCEPTED_IMAGE_TYPES } from "../assets/prepare-image";
 import { EditorStage } from "./editor-stage";
 import { ColourPicker, garmentColourLabel } from "./colour-picker";
@@ -280,11 +280,16 @@ export function DesignEditor({
         />
       )}
       {textSheetOpen && ed.selection?.text && (
-        <TextSheet
+        <TextEditor
           text={ed.selection.text}
-          onTextStyle={ed.applyTextStyle}
-          onPreviewText={ed.previewText}
-          onClose={() => setTextSheetOpen(false)}
+          background={
+            product.baseColors.find((c) => c.id === colourId)?.hex ?? "#ffffff"
+          }
+          onDone={(changes) => {
+            ed.applyTextStyle(changes);
+            setTextSheetOpen(false);
+          }}
+          onCancel={() => setTextSheetOpen(false)}
         />
       )}
       {cropTarget && (

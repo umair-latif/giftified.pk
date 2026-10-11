@@ -38,7 +38,7 @@ export function PriceTag({
             {formatPkr(regularPkr)}
           </s>
           {showSale && (
-            <span className="bg-magenta rounded-full px-1.5 py-px text-[11px] font-semibold text-ink">
+            <span className="bg-magenta text-ink rounded-full px-1.5 py-px text-[11px] font-semibold">
               Sale
             </span>
           )}

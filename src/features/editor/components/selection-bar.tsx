@@ -1,8 +1,8 @@
 import type { ReactNode } from "react";
 import { chipClass } from "@/components/ui/button";
 import { CopyIcon, CropIcon, TrashIcon } from "@/components/ui/icons";
-import { fontForFamily, hasFace } from "@/config/fonts";
 import type { TextStyle } from "../engine/text-style";
+import { faceToggles } from "../text-faces";
 import { FontPicker } from "./font-picker";
 import { TextColourPicker } from "./text-colour-picker";
 
@@ -44,23 +44,9 @@ export function SelectionBar({
 }: Props) {
   // Bold/italic only where the font has a REAL face for it (the print can't
   // fake one the way a browser does) — e.g. no italic for Caveat, neither for Urdu.
-  const font = text ? fontForFamily(text.fontFamily) : null;
-  const canBold =
-    !text ||
-    !font ||
-    hasFace(
-      font,
-      text.fontWeight === "bold" ? "normal" : "bold",
-      text.fontStyle,
-    );
-  const canItalic =
-    !text ||
-    !font ||
-    hasFace(
-      font,
-      text.fontWeight,
-      text.fontStyle === "italic" ? "normal" : "italic",
-    );
+  const { canBold, canItalic } = text
+    ? faceToggles(text)
+    : { canBold: true, canItalic: true };
   return (
     <div
       role="toolbar"
@@ -107,11 +93,12 @@ export function SelectionBar({
             <button
               type="button"
               aria-label="More"
+              title="Edit text"
               aria-haspopup="dialog"
               onClick={onMore}
               className="focus-visible:ring-brand-600/20 grid size-9 shrink-0 place-items-center rounded-md text-zinc-700 hover:bg-zinc-100 focus-visible:ring-2 focus-visible:outline-none active:bg-zinc-100"
             >
-              {/* Words, alignment, outline. Not "Aa": that is the font button. */}
+              {/* The full text editor. Not "Aa": that is the font button. */}
               <svg aria-hidden viewBox="0 0 24 24" width={22} height={22}>
                 <circle cx="5" cy="12" r="2" fill="currentColor" />
                 <circle cx="12" cy="12" r="2" fill="currentColor" />
