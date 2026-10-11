@@ -49,6 +49,20 @@ export interface CatalogProduct {
   variants: CatalogVariant[];
   /** WooCommerce category ids (coupon restrictions). */
   categoryIds?: number[];
+  /**
+   * Print partner for this product, from the product's custom fields in WP
+   * admin (`vendor_name`, `vendor_email`, `vendor_whatsapp`). Server-only use
+   * (vendor hand-off); never rendered on shop pages.
+   */
+  vendor?: VendorContact;
+}
+
+/** A print partner's contact (any part may be missing). */
+export interface VendorContact {
+  name?: string;
+  email?: string;
+  /** As typed in WP admin, e.g. "0300 1234567" or "+92 300 1234567". */
+  whatsapp?: string;
 }
 
 export interface ShippingQuote {
@@ -264,6 +278,8 @@ export interface CommerceClient {
   ): Promise<void>;
   /** Audit trail visible in WP admin. */
   addOrderNote(id: OrderId, note: string): Promise<void>;
+  /** Recipient of WooCommerce's "New order" email (WC → Settings → Emails), or null. */
+  getNewOrderRecipient(): Promise<string | null>;
 
   // Accounts (task 20): WooCommerce customers are the accounts.
   findCustomerByEmail(email: string): Promise<Customer | null>;

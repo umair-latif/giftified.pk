@@ -437,6 +437,9 @@ export function createMockCommerce(
     async addOrderNote() {
       /* notes are not kept in the mock */
     },
+    async getNewOrderRecipient() {
+      return null;
+    },
     async listOrdersForRetention(page) {
       const all = [...orders.values()].sort((a, b) => a.id - b.id);
       const slice = all.slice(
