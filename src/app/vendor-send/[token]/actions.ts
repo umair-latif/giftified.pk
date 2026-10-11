@@ -2,21 +2,21 @@
 
 import { redirect } from "next/navigation";
 import {
+  handoffRecipient,
   readSendToken,
   sendToVendor,
   vendorDeps,
-  vendorReplyTo,
 } from "@/server/vendors";
 
 /** The Send button: emails the vendor, then shows the page again with the result. */
 export async function sendToVendorAction(token: string): Promise<void> {
   const claims = readSendToken(token);
   if (!claims) redirect(`/vendor-send/${token}`);
-  const replyTo = vendorReplyTo();
   let ok = false;
   try {
+    const replyTo = await handoffRecipient();
     const result = await sendToVendor(claims, {
-      ...vendorDeps(),
+      ...(await vendorDeps()),
       ...(replyTo ? { replyTo } : {}),
     });
     ok = result.ok;

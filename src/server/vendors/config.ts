@@ -1,45 +1,29 @@
 import type { ProductId } from "@/config/products";
+import type { CatalogProduct } from "@/lib/commerce/types";
 
 /**
- * Print partners. Which vendor prints which product is fixed here; their
- * contacts come from env (Vercel settings), so they stay out of the repo and
- * change without a code edit:
- *
- *   VENDOR_MUGS_NAME / VENDOR_MUGS_EMAIL / VENDOR_MUGS_WHATSAPP
- *   VENDOR_APPAREL_NAME / VENDOR_APPAREL_EMAIL / VENDOR_APPAREL_WHATSAPP
- *   VENDOR_HANDOFF_TO   the admin address that gets "Send to vendor" emails
- *
- * Any contact may be missing: without an email the send page says so; without
- * a WhatsApp number the WhatsApp button lets the founder pick the contact.
+ * Print partners come from WP admin (founder, 11 Oct): each base product
+ * (Custom Mug, Custom T-Shirt, Custom Hoodie) has custom fields
+ * `vendor_name`, `vendor_email`, `vendor_whatsapp`. Products with the same
+ * vendor (same email, else number, else name) are grouped, so a T-shirt and
+ * a hoodie for one apparel printer go in one message. Designs made from a
+ * product use that product's vendor. Any field may be missing: without an
+ * email the send page says so; without a number WhatsApp lets you pick the
+ * contact. A product without any vendor fields is its own "vendor not set".
  */
-export interface VendorGroup {
-  id: "mugs" | "apparel";
-  /** Shown when no name is configured. */
-  label: string;
-  productIds: readonly ProductId[];
-}
-
-export const VENDOR_GROUPS: readonly VendorGroup[] = [
-  { id: "mugs", label: "Mug printer", productIds: ["mug"] },
-  { id: "apparel", label: "Apparel printer", productIds: ["tshirt", "hoodie"] },
-];
-
 export interface Vendor {
-  id: VendorGroup["id"];
+  /** Stable within an order: the first product this vendor prints. */
+  id: ProductId;
   name: string;
   email?: string;
   /** Digits only, with country code (e.g. 923001234567), for wa.me links. */
   whatsapp?: string;
-  productIds: readonly ProductId[];
+  productIds: ProductId[];
 }
-
-type Env = Record<string, string | undefined>;
-
-const clean = (v: string | undefined) => v?.trim() || undefined;
 
 /** "+92 300 1234567" / "0300-1234567" → "923001234567"; undefined if not a number. */
 export function waDigits(raw: string | undefined): string | undefined {
-  const v = clean(raw);
+  const v = raw?.trim();
   if (!v) return undefined;
   let d = v.replace(/[^\d+]/g, "");
   if (d.startsWith("+")) d = d.slice(1);
@@ -48,22 +32,34 @@ export function waDigits(raw: string | undefined): string | undefined {
   return /^\d{8,15}$/.test(d) ? d : undefined;
 }
 
-export function vendorsFromEnv(env: Env = process.env): Vendor[] {
-  return VENDOR_GROUPS.map((g) => {
-    const key = g.id.toUpperCase();
-    const email = clean(env[`VENDOR_${key}_EMAIL`]);
-    const whatsapp = waDigits(env[`VENDOR_${key}_WHATSAPP`]);
-    return {
-      id: g.id,
-      name: clean(env[`VENDOR_${key}_NAME`]) ?? g.label,
-      productIds: g.productIds,
+export function vendorsFromCatalog(catalog: CatalogProduct[]): Vendor[] {
+  const vendors: Vendor[] = [];
+  const byKey = new Map<string, Vendor>();
+  for (const p of catalog) {
+    const email = p.vendor?.email?.trim().toLowerCase() || undefined;
+    const whatsapp = waDigits(p.vendor?.whatsapp);
+    const name = p.vendor?.name?.trim() || undefined;
+    const key = email
+      ? `e:${email}`
+      : whatsapp
+        ? `w:${whatsapp}`
+        : name
+          ? `n:${name.toLowerCase()}`
+          : `p:${p.productId}`;
+    const known = byKey.get(key);
+    if (known) {
+      known.productIds.push(p.productId);
+      continue;
+    }
+    const v: Vendor = {
+      id: p.productId,
+      name: name ?? `${p.name} printer (not set)`,
+      productIds: [p.productId],
       ...(email ? { email } : {}),
       ...(whatsapp ? { whatsapp } : {}),
     };
-  });
-}
-
-/** Who gets the "Send to vendor" email (the admin). */
-export function handoffRecipient(env: Env = process.env): string | undefined {
-  return clean(env.VENDOR_HANDOFF_TO);
+    byKey.set(key, v);
+    vendors.push(v);
+  }
+  return vendors;
 }

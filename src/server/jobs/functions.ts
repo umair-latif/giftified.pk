@@ -105,12 +105,17 @@ export const vendorHandoffFn = inngest.createFunction(
     if (!parsed.success)
       throw new NonRetriableError("order/vendor.handoff without an orderId");
     const { orderId } = parsed.data;
-    const to = handoffRecipient();
-    if (!to) return { orderId, skipped: "VENDOR_HANDOFF_TO is not set" };
+    const to = await step.run("recipient", () => handoffRecipient());
+    if (!to)
+      return {
+        orderId,
+        skipped:
+          "no recipient (WooCommerce New order email recipient or VENDOR_HANDOFF_TO)",
+      };
 
     for (let i = 1; i <= FILES_WAIT.checks; i++) {
       const ready = await step.run(`files-ready-${i}`, async () => {
-        const order = await vendorDeps().commerce.getOrder(orderId);
+        const order = await productionDeps().commerce.getOrder(orderId);
         return !order || order.lines.every((l) => !!l.printPngUrl);
       });
       if (ready) break;
@@ -121,7 +126,7 @@ export const vendorHandoffFn = inngest.createFunction(
     return step.run("email-admin", async () => ({
       orderId,
       ...(await emailHandoff(orderId, {
-        ...vendorDeps(),
+        ...(await vendorDeps()),
         to,
         sendUrl: (vendorId) => sendPageUrl(orderId, vendorId),
       })),

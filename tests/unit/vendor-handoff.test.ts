@@ -2,7 +2,8 @@ import { describe, expect, it, vi } from "vitest";
 import { createMockEmail } from "@/lib/email/mock";
 import { printFileKey, proofFileKey } from "@/lib/storage/keys";
 import { createMemoryStorage } from "@/lib/storage/memory";
-import { vendorsFromEnv, waDigits } from "@/server/vendors/config";
+import type { CatalogProduct } from "@/lib/commerce/types";
+import { vendorsFromCatalog, waDigits } from "@/server/vendors/config";
 import {
   handoffEmail,
   signSendToken,
@@ -55,12 +56,23 @@ const order = (status: OrderStatus = "processing"): Order => ({
   paymentMethod: "cod",
 });
 
-const vendors = vendorsFromEnv({
-  VENDOR_MUGS_NAME: "Gujrat Mugs",
-  VENDOR_MUGS_EMAIL: "mugs@vendor.test",
-  VENDOR_MUGS_WHATSAPP: "0300 1112233",
-  VENDOR_APPAREL_NAME: "Sialkot DTF",
-});
+const product = (
+  productId: CatalogProduct["productId"],
+  name: string,
+  vendor?: CatalogProduct["vendor"],
+) => ({ productId, name, ...(vendor ? { vendor } : {}) }) as CatalogProduct;
+
+// As set in WP admin → product → Custom fields.
+const catalog = [
+  product("mug", "Custom Mug", {
+    name: "Gujrat Mugs",
+    email: "Mugs@Vendor.test",
+    whatsapp: "0300 1112233",
+  }),
+  product("tshirt", "Custom T-Shirt", { name: "Sialkot DTF" }),
+  product("hoodie", "Custom Hoodie", { name: "Sialkot DTF" }),
+];
+const vendors = vendorsFromCatalog(catalog);
 
 function deps(o: Order | null = order()) {
   const { storage } = createMemoryStorage("/x");
@@ -74,22 +86,28 @@ function deps(o: Order | null = order()) {
     storage,
     email,
     vendors,
-    test: false,
     now: () => Date.parse("2026-10-11T12:00:00Z"),
   };
   return { d, email, notes, storage };
 }
 
-describe("vendor config", () => {
-  it("reads contacts from env; numbers become wa.me digits", () => {
-    expect(vendors.map((v) => [v.id, v.name, v.email, v.whatsapp])).toEqual([
-      ["mugs", "Gujrat Mugs", "mugs@vendor.test", "923001112233"],
-      ["apparel", "Sialkot DTF", undefined, undefined],
+describe("vendor config (from the products in WP admin)", () => {
+  it("groups products by vendor; numbers become wa.me digits", () => {
+    expect(
+      vendors.map((v) => [v.id, v.name, v.email, v.whatsapp, v.productIds]),
+    ).toEqual([
+      ["mug", "Gujrat Mugs", "mugs@vendor.test", "923001112233", ["mug"]],
+      ["tshirt", "Sialkot DTF", undefined, undefined, ["tshirt", "hoodie"]],
     ]);
     expect(waDigits("+92 300 1112233")).toBe("923001112233");
     expect(waDigits("0049 151 2345678")).toBe("491512345678");
     expect(waDigits("call me")).toBeUndefined();
-    expect(vendorsFromEnv({})[0]!.name).toBe("Mug printer");
+  });
+
+  it("a product without vendor fields is its own vendor, marked not set", () => {
+    expect(vendorsFromCatalog([product("mug", "Custom Mug")])).toEqual([
+      { id: "mug", name: "Custom Mug printer (not set)", productIds: ["mug"] },
+    ]);
   });
 });
 
@@ -99,8 +117,8 @@ describe("vendor hand-off content", () => {
     expect(
       parts.map((p) => [p.vendor.id, p.lines.map((l) => l.index)]),
     ).toEqual([
-      ["mugs", [0]],
-      ["apparel", [1]],
+      ["mug", [0]],
+      ["tshirt", [1]],
     ]);
     expect(unassigned).toEqual([]);
   });
@@ -121,12 +139,6 @@ describe("vendor hand-off content", () => {
     expect(vendorMessage(o, apparel!)).toContain("size L");
   });
 
-  it("marks test orders while the site is in preview", () => {
-    const o = order();
-    const part = splitByVendor(o, vendors).parts[0]!;
-    expect(vendorMessage(o, part, { test: true })).toMatch(/^TEST ORDER/);
-  });
-
   it("WhatsApp links go to the vendor when the number is known, else let you pick", () => {
     expect(whatsappUrl("Hi & bye", "923001112233")).toBe(
       "https://wa.me/923001112233?text=Hi%20%26%20bye",
@@ -139,13 +151,12 @@ describe("vendor hand-off content", () => {
     const { parts, unassigned } = splitByVendor(o, vendors);
     const mail = handoffEmail(o, parts, unassigned, {
       sendUrl: (v) => `https://a.test/vendor-send/${v}`,
-      test: true,
       missingFiles: [1],
     });
-    expect(mail.subject).toBe("[TEST] Send to vendor: order #1234");
+    expect(mail.subject).toBe("Send to vendor: order #1234");
     expect(mail.text).toContain("== Gujrat Mugs ==");
     expect(mail.text).toContain(
-      "Email to mugs@vendor.test: https://a.test/vendor-send/mugs",
+      "Email to mugs@vendor.test: https://a.test/vendor-send/mug",
     );
     expect(mail.text).toContain("== Sialkot DTF ==");
     expect(mail.text).toContain("Email: no address set");
@@ -204,7 +215,7 @@ describe("vendor hand-off flow", () => {
     await t.storage.put(printFileKey(1234, 0), new Uint8Array(10), {
       contentType: "image/png",
     });
-    const claims = { o: 1234, v: "mugs", e: 9e9 };
+    const claims = { o: 1234, v: "mug", e: 9e9 };
     const r = await sendToVendor(claims, { ...t.d, replyTo: "admin@x.test" });
     expect(r.ok).toBe(true);
     const mail = t.email.sent[0]!;
@@ -233,7 +244,7 @@ describe("vendor hand-off flow", () => {
         contentType: "image/png",
       },
     );
-    await sendToVendor({ o: 1234, v: "mugs", e: 9e9 }, t.d);
+    await sendToVendor({ o: 1234, v: "mug", e: 9e9 }, t.d);
     expect(t.email.sent[0]!.attachments).toEqual([]);
     expect(t.email.sent[0]!.text).toContain(
       "Download the files from the links above",
@@ -245,13 +256,13 @@ describe("vendor hand-off flow", () => {
 
   it("refuses unconfirmed orders and vendors without an email", async () => {
     const pending = deps(order("on-hold"));
-    const r = await sendToVendor({ o: 1234, v: "mugs", e: 9e9 }, pending.d);
+    const r = await sendToVendor({ o: 1234, v: "mug", e: 9e9 }, pending.d);
     expect(r).toEqual({
       ok: false,
       message: expect.stringContaining("Only orders set to Processing"),
     });
     const t = deps();
-    expect(await sendToVendor({ o: 1234, v: "apparel", e: 9e9 }, t.d)).toEqual({
+    expect(await sendToVendor({ o: 1234, v: "tshirt", e: 9e9 }, t.d)).toEqual({
       ok: false,
       message: "No email address is set for Sialkot DTF.",
     });

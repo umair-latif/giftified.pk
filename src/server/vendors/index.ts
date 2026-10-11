@@ -1,35 +1,52 @@
 import "server-only";
-import { SITE } from "@/config/site";
 import { getCommerce } from "@/lib/commerce";
 import { getEmail } from "@/lib/email";
 import { getStorage } from "@/lib/storage";
 import { appBaseUrl, fileLinkSecret } from "@/server/files/links";
-import { handoffRecipient, vendorsFromEnv } from "./config";
+import { vendorsFromCatalog } from "./config";
 import { SEND_LINK_TTL_S, signSendToken, verifySendToken } from "./handoff";
 import type { VendorDeps } from "./send";
 
 export * from "./send";
-export { handoffRecipient } from "./config";
 
-/** Real dependencies: WooCommerce, R2, Resend and the vendors from env. */
-export function vendorDeps(
-  env: Record<string, string | undefined> = process.env,
-): VendorDeps {
+type Env = Record<string, string | undefined>;
+
+/** Real dependencies: WooCommerce (orders + vendors from the products), R2, Resend. */
+export async function vendorDeps(env: Env = process.env): Promise<VendorDeps> {
+  const commerce = getCommerce();
   return {
-    commerce: getCommerce(),
+    commerce,
     storage: getStorage(),
     email: getEmail(env),
-    vendors: vendorsFromEnv(env),
-    test: SITE.preview,
+    vendors: vendorsFromCatalog(await commerce.listProducts()),
     now: Date.now,
   };
+}
+
+/**
+ * Who gets "Send to vendor" (and vendors' replies): VENDOR_HANDOFF_TO if set,
+ * else the recipient of WooCommerce's "New order" email.
+ */
+export async function handoffRecipient(
+  env: Env = process.env,
+): Promise<string | null> {
+  const override = env.VENDOR_HANDOFF_TO?.trim();
+  if (override) return override;
+  try {
+    return await getCommerce().getNewOrderRecipient();
+  } catch (err) {
+    console.warn(
+      `[vendor] couldn't read the New order email recipient: ${err instanceof Error ? err.message : String(err)}`,
+    );
+    return null;
+  }
 }
 
 /** The send page for one order + vendor (signed, 30 days). */
 export function sendPageUrl(
   orderId: number,
   vendorId: string,
-  env: Record<string, string | undefined> = process.env,
+  env: Env = process.env,
   nowS = Date.now() / 1000,
 ): string {
   const token = signSendToken(
@@ -41,6 +58,3 @@ export function sendPageUrl(
 
 export const readSendToken = (token: string) =>
   verifySendToken(token, fileLinkSecret());
-
-/** Replies from vendors go to the admin. */
-export const vendorReplyTo = () => handoffRecipient();

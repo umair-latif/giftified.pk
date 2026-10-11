@@ -27,7 +27,7 @@ export default async function VendorSendPage({
         <p>This link is invalid or has expired (links work for 30 days).</p>
       </Shell>
     );
-  const page = await loadSend(claims, vendorDeps());
+  const page = await loadSend(claims, await vendorDeps());
   if (!page.ok)
     return (
       <Shell>

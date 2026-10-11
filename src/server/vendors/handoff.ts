@@ -58,8 +58,8 @@ export function lineSummary(line: OrderLine): string {
     .join(" · ");
 }
 
-export const vendorSubject = (order: Order, part: VendorPart, test: boolean) =>
-  `${test ? "[TEST] " : ""}DesignBanana order #${order.id}: ${part.lines
+export const vendorSubject = (order: Order, part: VendorPart) =>
+  `DesignBanana order #${order.id}: ${part.lines
     .map(
       ({ line }) =>
         `${line.quantity} × ${getProduct(line.productId)?.name ?? line.productId}`,
@@ -70,7 +70,7 @@ export const vendorSubject = (order: Order, part: VendorPart, test: boolean) =>
 export function vendorMessage(
   order: Order,
   part: VendorPart,
-  { test = false, filesAttached = false } = {},
+  { filesAttached = false } = {},
 ): string {
   const items = part.lines.map(({ index, line }, i) => {
     const files = [
@@ -85,7 +85,6 @@ export function vendorMessage(
     ].join("\n");
   });
   return [
-    test ? "TEST ORDER — please do not print." : null,
     `Assalam o Alaikum ${part.vendor.name},`,
     "",
     `New DesignBanana order #${order.id} to print:`,
@@ -116,23 +115,22 @@ export function handoffEmail(
   unassigned: number[],
   opts: {
     sendUrl: (vendorId: string) => string;
-    test: boolean;
     /** Lines whose print file isn't ready (yet). */
     missingFiles: number[];
   },
 ): { subject: string; text: string; html: string } {
-  const subject = `${opts.test ? "[TEST] " : ""}Send to vendor: order #${order.id}`;
+  const subject = `Send to vendor: order #${order.id}`;
   const warn = [
     opts.missingFiles.length
       ? `Print files are missing for line(s) ${opts.missingFiles.map((i) => i + 1).join(", ")}. Check the order notes, or run "pnpm order:files ${order.id}", before sending.`
       : null,
     unassigned.length
-      ? `No vendor prints line(s) ${unassigned.map((i) => i + 1).join(", ")}: send those yourself.`
+      ? `No vendor found for line(s) ${unassigned.map((i) => i + 1).join(", ")} (is the product published in WooCommerce?): send those yourself.`
       : null,
   ].filter((w): w is string => !!w);
 
   const blocks = parts.map((p) => {
-    const msg = vendorMessage(order, p, { test: opts.test });
+    const msg = vendorMessage(order, p);
     return {
       name: p.vendor.name,
       lines: p.lines.map(({ line }) => lineSummary(line)),
@@ -153,7 +151,7 @@ export function handoffEmail(
       ...b.lines.map((l) => `- ${l}`),
       b.email
         ? `Email to ${b.emailTo}: ${b.email}`
-        : "Email: no address set (VENDOR_…_EMAIL in Vercel).",
+        : "Email: no address set (add vendor_email to the product's custom fields in WP admin).",
       `WhatsApp${b.hasNumber ? "" : " (pick the contact)"}: ${b.whatsapp}`,
       "",
     ]),
@@ -177,7 +175,7 @@ ${blocks
     ) => `<div style="margin:16px 0;padding:12px 16px;border:2px solid #111;border-radius:12px">
 <h3 style="margin:0 0 6px">${esc(b.name)}</h3>
 <ul style="margin:0 0 8px;padding-left:18px">${b.lines.map((l) => `<li>${esc(l)}</li>`).join("")}</ul>
-${b.email ? button(b.email, `Email to ${b.name}`, "#0f766e") : `<p style="color:#555">No email address set for this vendor (VENDOR_…_EMAIL in Vercel).</p>`}
+${b.email ? button(b.email, `Email to ${b.name}`, "#0f766e") : `<p style="color:#555">No email address set for this vendor: add <code>vendor_email</code> to the product's custom fields in WP admin.</p>`}
 ${button(b.whatsapp, b.hasNumber ? `WhatsApp to ${b.name}` : "WhatsApp (pick the contact)", "#16a34a")}
 </div>`,
   )

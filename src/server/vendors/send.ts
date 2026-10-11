@@ -22,9 +22,8 @@ export interface VendorDeps {
   commerce: Pick<CommerceClient, "getOrder" | "addOrderNote">;
   storage: Pick<ObjectStorage, "get" | "put">;
   email: EmailSender;
+  /** From the products' vendor fields in WP admin (see config.ts). */
   vendors: Vendor[];
-  /** Pre-launch: subjects say [TEST], the vendor text says not to print. */
-  test: boolean;
   now: () => number;
 }
 
@@ -33,7 +32,6 @@ export interface VendorDeps {
  * attachments under this; bigger print files go as links only.
  */
 export const MAX_ATTACH_BYTES = 25 * 1024 * 1024;
-
 
 /** Step 1 (job): the admin's "Send to vendor" email. */
 export async function emailHandoff(
@@ -50,7 +48,6 @@ export async function emailHandoff(
   );
   const mail = handoffEmail(order, parts, unassigned, {
     sendUrl: deps.sendUrl,
-    test: deps.test,
     missingFiles,
   });
   await deps.email.send({ to: deps.to, ...mail });
@@ -106,7 +103,7 @@ export async function loadSend(
     order,
     part,
     sent,
-    text: vendorMessage(order, part, { test: deps.test }),
+    text: vendorMessage(order, part),
   };
 }
 
@@ -160,8 +157,8 @@ export async function sendToVendor(
   const filesAttached = attachments.length > 0 && skipped.length === 0;
   await deps.email.send({
     to: part.vendor.email,
-    subject: vendorSubject(order, part, deps.test),
-    text: vendorMessage(order, part, { test: deps.test, filesAttached }),
+    subject: vendorSubject(order, part),
+    text: vendorMessage(order, part, { filesAttached }),
     attachments,
     ...(deps.replyTo ? { replyTo: deps.replyTo } : {}),
   });
