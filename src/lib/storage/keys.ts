@@ -6,6 +6,7 @@
  *   designs/<designId>/assets/<assetId>      ORIGINAL uploaded photo
  *   orders/<orderId>/line-<n>/print.png      300 DPI print file
  *   orders/<orderId>/line-<n>/proof.pdf      VendorProof.pdf
+ *   orders/<orderId>/vendor-<vendorId>.json  when the files were emailed to that vendor
  *   templates/index.json                     template list (task 18)
  *   templates/<id>/design.json               template DesignDocument
  *   templates/<id>/assets/<assetId>          customer's photo: its sample; artwork: the ORIGINAL
@@ -59,6 +60,10 @@ function linePart(i: number): number {
 /** "designs/<designId>/" — everything stored for one design (JSON + photos). */
 export const designFolder = (designId: string) =>
   `designs/${assertSafeId(designId, "designId")}/`;
+
+/** Marker that an order's files were sent to a vendor (inside the order folder, so retention removes it). */
+export const vendorSentKey = (orderId: number, vendorId: string) =>
+  `orders/${orderPart(orderId)}/vendor-${assertSafeId(vendorId, "vendorId")}.json`;
 
 /** "orders/<orderId>/" — every print file and proof of one order. */
 export const orderFolder = (orderId: number) => `orders/${orderPart(orderId)}/`;

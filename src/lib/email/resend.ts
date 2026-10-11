@@ -24,8 +24,21 @@ export function createResendSender(config: ResendConfig): EmailSender {
           subject: message.subject,
           text: message.text,
           ...(message.html ? { html: message.html } : {}),
+          ...(message.replyTo ? { reply_to: message.replyTo } : {}),
+          ...(message.attachments?.length
+            ? {
+                attachments: message.attachments.map((a) => ({
+                  filename: a.filename,
+                  content: Buffer.from(a.content).toString("base64"),
+                  content_type: a.contentType,
+                })),
+              }
+            : {}),
         }),
-        signal: AbortSignal.timeout(15_000),
+        // Attachments make the request large: give it longer.
+        signal: AbortSignal.timeout(
+          message.attachments?.length ? 60_000 : 15_000,
+        ),
       });
       if (!res.ok)
         throw new Error(`Resend failed (${res.status}): ${await res.text()}`);

@@ -20,7 +20,28 @@ export interface OrderFilesEvent {
   data: { orderId: OrderId };
 }
 
-export type SendEvent = (event: OrderFilesEvent) => Promise<unknown>;
+/**
+ * Order confirmed (Processing) → email the admin "Send to vendor" once.
+ * Dedupe id per order: re-deliveries and our own order.updated echoes (notes,
+ * file links) within 24 h never send a second email.
+ */
+export const VENDOR_HANDOFF_EVENT = "order/vendor.handoff";
+
+export interface VendorHandoffEvent {
+  name: typeof VENDOR_HANDOFF_EVENT;
+  id: string;
+  data: { orderId: OrderId };
+}
+
+export const vendorHandoffEvent = (orderId: OrderId): VendorHandoffEvent => ({
+  name: VENDOR_HANDOFF_EVENT,
+  id: `vendor-handoff-${orderId}`,
+  data: { orderId },
+});
+
+export type SendEvent = (
+  event: OrderFilesEvent | VendorHandoffEvent,
+) => Promise<unknown>;
 
 /** Orders that can still need print files: awaiting confirmation or confirmed. */
 export function webhookWantsFiles(e: VerifiedWebhook): boolean {
@@ -39,7 +60,8 @@ export function orderFilesEvent(
 }
 
 /**
- * Webhook sink: log, and enqueue the files job for live orders. Never throws —
+ * Webhook sink: log, enqueue the files job for live orders and, once an order
+ * is confirmed (Processing), the vendor hand-off. Never throws —
  * the webhook must still answer 200 (WooCommerce disables webhooks after
  * repeated failures, and doesn't retry anyway). If enqueueing fails, the next
  * order.updated (e.g. the founder setting Processing) tries again, and
@@ -59,6 +81,14 @@ export function createOrderFilesSink(
     } catch (err) {
       log.error(
         `[commerce-webhook] couldn't queue print files for order ${e.orderId}: ${err instanceof Error ? err.message : String(err)}`,
+      );
+    }
+    if (e.status !== "processing") return;
+    try {
+      await send(vendorHandoffEvent(e.orderId));
+    } catch (err) {
+      log.error(
+        `[commerce-webhook] couldn't queue the vendor hand-off for order ${e.orderId}: ${err instanceof Error ? err.message : String(err)}`,
       );
     }
   };
