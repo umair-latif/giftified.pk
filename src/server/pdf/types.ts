@@ -30,7 +30,6 @@ export interface VendorProofInput {
   printPng: Uint8Array;
   /** Optional product mockup/preview PNG. */
   mockupPng?: Uint8Array;
-  customerCity: string;
   notes?: string;
 }
 

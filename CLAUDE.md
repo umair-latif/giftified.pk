@@ -97,8 +97,8 @@ Mobile PWA (Fabric.js editor + Three.js preview)
    double-dispatch to a vendor.
 9. Print PNGs: transparent background, sRGB, exact print-area dimensions from config.
 10. `VendorProof.pdf` always includes: order ID, product, colour, size, print dimensions
-    (mm), placement offsets (mm from reference point), mockup preview, customer city.
-    No customer phone/address in vendor docs unless the vendor needs it for shipping.
+    (mm), placement offsets (mm from reference point), mockup preview. No customer data
+    (name, phone, address, city): DesignBanana ships the parcels (founder, 11 Oct 2026).
 
 ## Workflow & parallel work
 

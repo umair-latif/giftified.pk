@@ -44,7 +44,6 @@ function input(over: Partial<VendorProofInput> = {}): VendorProofInput {
       offsetYMm: 0,
     },
     printPng: preview,
-    customerCity: "Lahore",
     ...over,
   };
 }
@@ -93,7 +92,6 @@ describe("buildVendorProof", () => {
       "216 × 89 mm",
       "2551 × 1051 px at 300 DPI",
       "Print at 100% · 300 DPI · colours sRGB",
-      "Lahore",
       "HANDLE",
       "28 Sep 2026, 14:05 PKT",
     ])
@@ -142,10 +140,13 @@ describe("buildVendorProof", () => {
     expect(Buffer.from(a).equals(Buffer.from(b))).toBe(true);
   });
 
+  it("carries no customer data (we ship the parcels)", async () => {
+    const text = pdfText(await buildVendorProof(input()));
+    expect(text).not.toMatch(/city/i);
+  });
+
   it("replaces characters the font can't draw instead of failing", async () => {
-    const pdf = await buildVendorProof(
-      input({ customerCity: "لاہور", notes: "🎉 Mubarak" }),
-    );
+    const pdf = await buildVendorProof(input({ notes: "لاہور 🎉 Mubarak" }));
     const text = pdfText(pdf);
     expect(text).toContain("?????");
     expect(text).toContain("? Mubarak");

@@ -33,8 +33,9 @@ Use `tests/fixtures/design-mug-preview.png` as the print image stand-in.
   4. Placement: text from `print.placement` + offsets in mm, plus a simple diagram
      (for the mug: unrolled wrap with "handle" marks at both ends).
   5. Optional mockup image.
-  6. Footer: "Print at 100% · 300 DPI · colours sRGB", customer **city only**, notes.
-- Must not contain customer phone or street address.
+  6. Footer: "Print at 100% · 300 DPI · colours sRGB", notes.
+- Must not contain any customer data (name, phone, address, city): DesignBanana ships the
+  parcels (founder, 11 Oct 2026; the city was removed then).
 - Output < 2 MB for a typical order (downscale the embedded preview; the full PNG is attached separately).
 
 ## Acceptance criteria

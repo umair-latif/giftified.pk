@@ -146,7 +146,6 @@ export async function prepareLine(
           offsetYMm: 0,
         },
         printPng: file.png,
-        customerCity: order.customer.city,
       });
       const proofKey = proofFileKey(order.id, index);
       await deps.storage.put(proofKey, pdf, { contentType: "application/pdf" });
