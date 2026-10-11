@@ -985,6 +985,17 @@ export function createWooCommerceClient(config: WooConfig): CommerceClient {
       });
     },
 
+    async getNewOrderRecipient() {
+      // WC → Settings → Emails → New order → Recipient(s); may list several.
+      const { json } = await request(
+        "GET",
+        "/settings/email_new_order/recipient",
+      );
+      const v = z.object({ value: z.string() }).safeParse(json);
+      const first = v.success ? v.data.value.split(",")[0]?.trim() : "";
+      return first || null;
+    },
+
     async listOrdersForRetention(page) {
       if (!Number.isInteger(page) || page < 1)
         throw new WooCommerceError(`Invalid page ${page}`, 400);
