@@ -46,7 +46,7 @@ For every new order in WP admin → WooCommerce → Orders (status **On hold**):
    - **Email to …** opens a page with what will be sent; press **Send by email**. The vendor gets
      the order number, product, colour, size, quantity and print size, with the proof PDF and the
      print PNG attached (very large PNGs as a download link). No customer name, phone or address:
-     we ship the parcels. (The proof PDF still shows the customer's city.)
+     we ship the parcels.
    - **WhatsApp to …** opens WhatsApp with the same message and the file links (WhatsApp links
      can't attach files). Without the vendor's number set, WhatsApp asks you which contact.
    - No email came? Check the New order recipient (or `VENDOR_HANDOFF_TO`) and the order notes;
