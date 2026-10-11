@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { useKeyboardInset } from "./use-keyboard-inset";
 
 interface Props {
   title: string;
@@ -109,44 +110,4 @@ export function Sheet({ title, onClose, children }: Props) {
       </div>
     </div>
   );
-}
-
-/** Below this the visual viewport shrank for something else (URL bar), not a keyboard. */
-const MIN_KEYBOARD_PX = 120;
-
-/**
- * How much of the layout viewport the on-screen keyboard covers, from the
- * Visual Viewport API (null when no keyboard is open). Fixed elements stay
- * pinned to the layout viewport, which on Android Chrome and iOS Safari does
- * not shrink for the keyboard.
- */
-function useKeyboardInset(): { inset: number; visibleHeight: number } | null {
-  const [state, setState] = useState<{
-    inset: number;
-    visibleHeight: number;
-  } | null>(null);
-  useEffect(() => {
-    const vv = window.visualViewport;
-    if (!vv) return;
-    const update = () => {
-      const inset = Math.max(0, window.innerHeight - vv.height - vv.offsetTop);
-      setState((prev) => {
-        if (inset < MIN_KEYBOARD_PX) return prev ? null : prev;
-        const next = { inset: Math.round(inset), visibleHeight: vv.height };
-        return prev &&
-          prev.inset === next.inset &&
-          prev.visibleHeight === next.visibleHeight
-          ? prev
-          : next;
-      });
-    };
-    update();
-    vv.addEventListener("resize", update);
-    vv.addEventListener("scroll", update);
-    return () => {
-      vv.removeEventListener("resize", update);
-      vv.removeEventListener("scroll", update);
-    };
-  }, []);
-  return state;
 }

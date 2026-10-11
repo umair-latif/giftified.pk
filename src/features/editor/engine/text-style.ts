@@ -50,16 +50,10 @@ export function getTextStyle(obj: FabricObject | undefined): TextStyle | null {
   };
 }
 
-/**
- * Applies a partial style to the selected text and records one undo step.
- * `record: false` only redraws (live preview while typing in the text sheet):
- * no undo step and no "modified" event, so the edit becomes one step when it
- * is committed with a normal call.
- */
+/** Applies a partial style to the selected text and records one undo step. */
 export function applyTextStyle(
   canvas: Canvas,
   style: Partial<TextStyle>,
-  { record = true }: { record?: boolean } = {},
 ): void {
   const target = canvas.getActiveObject();
   if (!isTextbox(target)) return;
@@ -89,5 +83,5 @@ export function applyTextStyle(
   target.initDimensions();
   target.setCoords();
   canvas.requestRenderAll();
-  if (record) canvas.fire("object:modified", { target });
+  canvas.fire("object:modified", { target });
 }
