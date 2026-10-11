@@ -375,6 +375,12 @@ export function useFabricCanvas(
     (text: string) => applyTextStyle({ text }),
     [applyTextStyle],
   );
+  /** Shows the words on the canvas while typing, without an undo step (commit with setText). */
+  const previewText = useCallback(
+    (text: string) =>
+      run((e, dc) => e.applyTextStyle(dc.canvas, { text }, { record: false })),
+    [run],
+  );
 
   /** Validates, stores (original + preview) and places an uploaded photo (or, with `replace`, swaps the selected one). */
   const addImage = useCallback(async (file: File, replace = false) => {
@@ -555,6 +561,7 @@ export function useFabricCanvas(
     straighten,
     centre,
     applyTextStyle,
+    previewText,
     setText,
     getDesign,
   };

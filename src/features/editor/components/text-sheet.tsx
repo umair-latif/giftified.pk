@@ -1,6 +1,12 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from "react";
 import { Sheet } from "@/components/ui/sheet";
 import { SwatchGrid } from "@/components/ui/swatch";
 import { TEXT_SWATCHES } from "@/config/colours";
@@ -10,6 +16,8 @@ import type { TextStyle } from "../engine/text-style";
 interface Props {
   text: TextStyle;
   onTextStyle: (style: Partial<TextStyle>) => void;
+  /** Shows the words on the canvas while typing (no undo step). */
+  onPreviewText?: (text: string) => void;
   onClose: () => void;
 }
 
@@ -29,7 +37,12 @@ const ALIGNMENTS = [
  * "More" sheet for a selected text layer: the words, alignment and an
  * outline. Font, colour and bold/italic/underline live in the selection bar.
  */
-export function TextSheet({ text, onTextStyle, onClose }: Props) {
+export function TextSheet({
+  text,
+  onTextStyle,
+  onPreviewText,
+  onClose,
+}: Props) {
   // Self-hosted fonts (src/config/fonts.ts) load here, on demand, never on
   // first paint — one face per font, so switching in the bar's picker is instant.
   const { fontWeight, fontStyle } = text;
@@ -50,12 +63,35 @@ export function TextSheet({ text, onTextStyle, onClose }: Props) {
     }
   }, [text.text]);
 
-  const applyText = () => {
-    if (draft !== text.text) {
-      lastAppliedText.current = draft;
-      onTextStyle({ text: draft });
+  // The words are committed (one undo step) on blur AND whenever the sheet
+  // goes away. On a phone the keyboard covers the sheet, so people tap the
+  // canvas to finish: that tap never blurs the field (the canvas takes it)
+  // and the sheet closes first, so blur alone lost the words.
+  const latest = useRef({ draft, committed: text.text, onTextStyle });
+  useLayoutEffect(() => {
+    latest.current = { draft, committed: text.text, onTextStyle };
+  });
+  const applyText = useCallback(() => {
+    const l = latest.current;
+    if (l.draft !== l.committed) {
+      lastAppliedText.current = l.draft;
+      l.committed = l.draft;
+      l.onTextStyle({ text: l.draft });
     }
-  };
+  }, []);
+  useEffect(() => {
+    // Capture phase: runs before the canvas handles the tap (which may
+    // deselect the text) and before the sheet's own outside-tap close.
+    const onDown = (e: PointerEvent) => {
+      if (!(e.target as Element | null)?.closest?.('[data-testid="sheet"]'))
+        applyText();
+    };
+    document.addEventListener("pointerdown", onDown, true);
+    return () => {
+      document.removeEventListener("pointerdown", onDown, true);
+      applyText(); // closed by Escape, a drag or the selection changing
+    };
+  }, [applyText]);
 
   const outlineWidth =
     OUTLINE_WIDTHS.find((o) => Math.abs(o.mm - text.strokeWidthMm) < 0.01)
@@ -80,6 +116,7 @@ export function TextSheet({ text, onTextStyle, onClose }: Props) {
               onPointerDown={(e) => e.preventDefault()} // keep the field focused
               onClick={() => {
                 setDraft("");
+                onPreviewText?.("");
                 inputRef.current?.focus();
               }}
               className="focus-visible:ring-brand-600/20 -my-2 min-h-11 rounded px-2 text-xs font-medium text-zinc-600 underline hover:text-zinc-900 focus-visible:ring-2 focus-visible:outline-none disabled:text-zinc-300 disabled:no-underline"
@@ -92,7 +129,10 @@ export function TextSheet({ text, onTextStyle, onClose }: Props) {
             id="text-sheet-words"
             data-testid="text-sheet-input"
             value={draft}
-            onChange={(e) => setDraft(e.target.value)}
+            onChange={(e) => {
+              setDraft(e.target.value);
+              onPreviewText?.(e.target.value);
+            }}
             // Tapping in selects all the words, so typing replaces them.
             // (After the tap itself, which would otherwise place a caret.)
             onFocus={(e) => {

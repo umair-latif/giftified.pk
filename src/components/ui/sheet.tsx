@@ -11,13 +11,16 @@ interface Props {
 /**
  * Generic bottom sheet: up to 50% of the screen height, the canvas/page
  * above it stays visible and interactive. Closes on Escape, on tapping
- * anywhere outside it, or on dragging its handle down.
+ * anywhere outside it, or on dragging its handle down. While the phone's
+ * keyboard is open it sits on top of the keyboard (and gets shorter), so the
+ * field being typed in stays visible.
  */
 export function Sheet({ title, onClose, children }: Props) {
   const rootRef = useRef<HTMLDivElement>(null);
   const dragStartY = useRef<number | null>(null);
   const [dragY, setDragY] = useState(0);
   const [dragging, setDragging] = useState(false);
+  const keyboard = useKeyboardInset();
 
   useEffect(() => {
     const onDown = (e: PointerEvent) => {
@@ -64,6 +67,13 @@ export function Sheet({ title, onClose, children }: Props) {
       style={{
         transform: dragY ? `translateY(${dragY}px)` : undefined,
         transition: dragging ? "none" : "transform 150ms ease-out",
+        ...(keyboard
+          ? {
+              bottom: keyboard.inset,
+              // Leave part of the visible screen for the canvas above.
+              maxHeight: Math.round(keyboard.visibleHeight * 0.6),
+            }
+          : {}),
       }}
     >
       <div className="flex shrink-0 flex-col items-center">
@@ -99,4 +109,44 @@ export function Sheet({ title, onClose, children }: Props) {
       </div>
     </div>
   );
+}
+
+/** Below this the visual viewport shrank for something else (URL bar), not a keyboard. */
+const MIN_KEYBOARD_PX = 120;
+
+/**
+ * How much of the layout viewport the on-screen keyboard covers, from the
+ * Visual Viewport API (null when no keyboard is open). Fixed elements stay
+ * pinned to the layout viewport, which on Android Chrome and iOS Safari does
+ * not shrink for the keyboard.
+ */
+function useKeyboardInset(): { inset: number; visibleHeight: number } | null {
+  const [state, setState] = useState<{
+    inset: number;
+    visibleHeight: number;
+  } | null>(null);
+  useEffect(() => {
+    const vv = window.visualViewport;
+    if (!vv) return;
+    const update = () => {
+      const inset = Math.max(0, window.innerHeight - vv.height - vv.offsetTop);
+      setState((prev) => {
+        if (inset < MIN_KEYBOARD_PX) return prev ? null : prev;
+        const next = { inset: Math.round(inset), visibleHeight: vv.height };
+        return prev &&
+          prev.inset === next.inset &&
+          prev.visibleHeight === next.visibleHeight
+          ? prev
+          : next;
+      });
+    };
+    update();
+    vv.addEventListener("resize", update);
+    vv.addEventListener("scroll", update);
+    return () => {
+      vv.removeEventListener("resize", update);
+      vv.removeEventListener("scroll", update);
+    };
+  }, []);
+  return state;
 }
