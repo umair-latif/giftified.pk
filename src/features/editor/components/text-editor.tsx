@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { SwatchGrid } from "@/components/ui/swatch";
+import { useBackToClose } from "@/components/ui/use-back-to-close";
 import { useKeyboardInset } from "@/components/ui/use-keyboard-inset";
 import { TEXT_SWATCHES } from "@/config/colours";
 import { FONTS, fitFace } from "@/config/fonts";
@@ -49,6 +50,7 @@ export function TextEditor({ text, background, onDone, onCancel }: Props) {
   const change = (c: Partial<TextStyle>) => setStyle((s) => withRealFace(s, c));
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const keyboard = useKeyboardInset();
+  useBackToClose(onCancel); // Back = Cancel, not leaving the designer
   const { canBold, canItalic } = faceToggles(style);
 
   // Every font's face, so the font buttons and the preview are instant.

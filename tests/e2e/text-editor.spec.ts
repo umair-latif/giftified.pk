@@ -211,3 +211,50 @@ test("with the phone keyboard open the editor fits the visible part of the scree
   const field = (await page.getByTestId("text-sheet-input").boundingBox())!;
   expect(field.y + field.height).toBeLessThanOrEqual(visible);
 });
+
+test("Back closes the text editor (like Cancel) and stays in the designer", async ({
+  page,
+}) => {
+  await page.goto("/"); // so there is a page to go back to
+  await openEditorWithText(page);
+  await more(page).tap();
+  await expect(editor(page)).toBeVisible();
+
+  await page.goBack();
+  await expect(editor(page)).toHaveCount(0);
+  await expect(page).toHaveURL(/\/design\/mug$/);
+  // The text is still on the canvas, selected as before.
+  await expect(more(page)).toBeVisible();
+
+  // Back again now leaves the designer: the sheet left no entry behind.
+  await page.goBack();
+  await expect(page).toHaveURL(/\/$/);
+});
+
+test("closing the text editor with Cancel or Done leaves no extra history entry", async ({
+  page,
+}) => {
+  await openEditorWithText(page);
+  const before = await page.evaluate(() => history.length);
+  const pathBefore = new URL(page.url()).pathname;
+
+  await more(page).tap();
+  await expect(editor(page)).toBeVisible();
+  await editor(page).getByRole("button", { name: "Cancel" }).click();
+  await expect(editor(page)).toHaveCount(0);
+  // The entry is popped asynchronously: wait for it, then compare.
+  await expect
+    .poll(() => page.evaluate(() => history.state?.backOverlay))
+    .toBeUndefined();
+  expect(new URL(page.url()).pathname).toBe(pathBefore);
+
+  await more(page).tap();
+  await done(page);
+  await expect
+    .poll(() => page.evaluate(() => history.state?.backOverlay))
+    .toBeUndefined();
+  expect(new URL(page.url()).pathname).toBe(pathBefore);
+  expect(await page.evaluate(() => history.length)).toBeLessThanOrEqual(
+    before + 2, // popped entries stay in the "forward" list until replaced
+  );
+});

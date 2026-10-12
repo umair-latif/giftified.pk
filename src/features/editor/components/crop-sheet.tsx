@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useBackToClose } from "@/components/ui/use-back-to-close";
 import {
   FULL_RECT,
   MAX_CROP_ZOOM,
@@ -30,6 +31,7 @@ interface Props {
  */
 export function CropSheet({ target, onCancel, onApply }: Props) {
   const { imageAspect } = target;
+  useBackToClose(onCancel); // Back = Cancel, not leaving the designer
   const presets = useMemo(
     () => [
       { id: "original", label: "Original", aspect: imageAspect },
