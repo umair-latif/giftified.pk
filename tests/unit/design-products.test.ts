@@ -784,7 +784,6 @@ describe("design title on lines and the vendor proof", () => {
           offsetYMm: 0,
         },
         printPng: png,
-        customerCity: "Lahore",
       });
     const withTitle = await make("Happy Birthday");
     const without = await make();

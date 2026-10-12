@@ -193,12 +193,9 @@ describe("prepareOrderFiles", () => {
     const order = await t.commerce.createOrder(input(["d1"]));
     await prepareOrderFiles(order.id, t.deps);
     const proofInput = (buildProof.mock.calls[0] as unknown[])[0];
-    expect(proofInput).toMatchObject({
-      orderId: order.id,
-      customerCity: "Lahore",
-    });
-    // Vendor docs never carry the customer's phone or address.
-    expect(JSON.stringify(proofInput)).not.toMatch(/300123|Model Town/);
+    expect(proofInput).toMatchObject({ orderId: order.id });
+    // Vendor docs never carry the customer's name, phone, address or city.
+    expect(JSON.stringify(proofInput)).not.toMatch(/300123|Model Town|Lahore/);
     const after = await t.commerce.getOrder(order.id);
     expect(after?.lines[0]?.proofPdfUrl).toContain("proof.pdf");
   });

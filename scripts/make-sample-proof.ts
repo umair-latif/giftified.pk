@@ -66,7 +66,6 @@ async function main() {
     },
     printPng,
     mockupPng: new Uint8Array(preview),
-    customerCity: "Lahore",
     notes: "Gift for a birthday - please pack with extra bubble wrap.",
   });
   writeFileSync(out, pdf);

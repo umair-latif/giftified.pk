@@ -388,9 +388,6 @@ export const buildVendorProof: BuildVendorProof = async (input) => {
     size: 14,
     bold: true,
   });
-  fy += 7;
-  s.text("Delivery city:", M, fy, { size: 11, color: MUTED });
-  s.text(input.customerCity, M + 25, fy, { size: 11, bold: true });
   if (notes) {
     fy = s.para(`Notes: ${notes}`, M, fy + 6, CONTENT_W, {
       size: 11,
