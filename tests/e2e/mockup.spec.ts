@@ -1,6 +1,7 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
-import { expect, test } from "@playwright/test";
+import { expect, test, type Page } from "@playwright/test";
+import { signInEditor } from "./helpers";
 
 test("preview is a gallery of mockups (no flat design): front, left, right, lifestyle and flat lay", async ({
   page,
@@ -214,4 +215,61 @@ test("no Share button where the browser can't share photos; Download stays", asy
   await page.goto("/design/mug/preview");
   await expect(page.getByTestId("photo-download")).toBeVisible();
   await expect(page.getByTestId("photo-share")).toHaveCount(0);
+});
+
+/** Black mug on the (dark) table photo → Download → mean brightness of the bottom-right corner. */
+async function downloadTableCorner(page: Page): Promise<number> {
+  await page.goto("/design/mug");
+  await page.getByTestId("colour-black").tap();
+  await page.getByRole("button", { name: "Text", exact: true }).tap();
+  await expect(page.getByTestId("editor-status")).toContainText("textbox");
+  await page.getByRole("link", { name: "Preview", exact: true }).tap();
+  await page.getByTestId("preview-thumb-table-black").click();
+  // Wait for the strip to finish scrolling to it: the buttons act on the
+  // photo on screen.
+  await expect(page.getByTestId("preview-thumb-table-black")).toHaveAttribute(
+    "aria-current",
+    "true",
+  );
+  await expect(page.getByTestId("photo-download")).toHaveAccessibleName(
+    "Download this photo",
+  );
+  await page.waitForTimeout(700);
+  const [download] = await Promise.all([
+    page.waitForEvent("download"),
+    page.getByTestId("photo-download").click(),
+  ]);
+  const b64 = readFileSync((await download.path())!).toString("base64");
+  return page.evaluate(async (data) => {
+    const bytes = Uint8Array.from(atob(data), (c) => c.charCodeAt(0));
+    const bmp = await createImageBitmap(
+      new Blob([bytes], { type: "image/jpeg" }),
+    );
+    const c = new OffscreenCanvas(bmp.width, bmp.height);
+    const ctx = c.getContext("2d")!;
+    ctx.drawImage(bmp, 0, 0);
+    // Where the corner mark sits: bottom-right, ~25 % wide, ~10 % high.
+    const w = Math.round(bmp.width * 0.25);
+    const h = Math.round(bmp.height * 0.1);
+    const px = ctx.getImageData(
+      bmp.width - w - 40,
+      bmp.height - h - 40,
+      w,
+      h,
+    ).data;
+    let sum = 0;
+    for (let i = 0; i < px.length; i += 4)
+      sum += px[i]! + px[i + 1]! + px[i + 2]!;
+    return sum / (px.length / 4) / 3;
+  }, b64);
+}
+
+test("customers' downloads carry the corner mark; designers' are clean", async ({
+  page,
+}) => {
+  // Customer: the white mark card brightens the dark table corner.
+  expect(await downloadTableCorner(page)).toBeGreaterThan(150);
+  // Designer (template editor): no mark, the corner stays dark.
+  await signInEditor(page);
+  expect(await downloadTableCorner(page)).toBeLessThan(90);
 });

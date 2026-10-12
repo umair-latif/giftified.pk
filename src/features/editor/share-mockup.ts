@@ -1,15 +1,17 @@
 /**
  * Share / download a preview photo (Preview step). The customer gets the view
- * they're looking at as a JPEG — small enough for WhatsApp — with a small
- * DesignBanana logo in the corner: their friends see where it was made.
+ * they're looking at as a JPEG — small enough for WhatsApp — with the
+ * DesignBanana logo and "designbanana.pk" in the bottom-right corner, so
+ * friends see where it was made. Designers (template editors) get it clean.
  *
  * Phones (and browsers that can share files): the phone's own share sheet
  * (WhatsApp, Instagram, Gallery…). Everywhere: a plain download.
  */
 
 const LOGO_SRC = "/brand/designbanana-logo.png";
-/** Logo width as a share of the photo's width. */
-const LOGO_WIDTH = 0.24;
+/** Logo width as a share of the photo's width (corner mark, founder's pick). */
+const LOGO_WIDTH = 0.28;
+const SITE_TEXT = "designbanana.pk";
 const JPEG_QUALITY = 0.9;
 
 function loadImage(src: string): Promise<HTMLImageElement> {
@@ -32,8 +34,15 @@ export function shareFileName(productName: string, viewLabel: string): string {
   return `designbanana-${slug(productName)}-${slug(viewLabel) || "view"}.jpg`;
 }
 
-/** The preview photo with the logo in the bottom-right corner, as a JPEG. */
-export async function brandedPhoto(src: string): Promise<Blob> {
+/**
+ * The preview photo as a JPEG. With `watermark` (customers): a corner mark in
+ * the bottom-right, the logo with "designbanana.pk" under it on a soft white
+ * card, clear of the design in the middle. Designers share theirs clean.
+ */
+export async function brandedPhoto(
+  src: string,
+  { watermark = true }: { watermark?: boolean } = {},
+): Promise<Blob> {
   const photo = await loadImage(src);
   const canvas = document.createElement("canvas");
   canvas.width = photo.naturalWidth;
@@ -43,26 +52,7 @@ export async function brandedPhoto(src: string): Promise<Blob> {
   ctx.fillStyle = "#ffffff"; // JPEG has no transparency
   ctx.fillRect(0, 0, canvas.width, canvas.height);
   ctx.drawImage(photo, 0, 0);
-
-  try {
-    const logo = await loadImage(LOGO_SRC);
-    const w = Math.round(canvas.width * LOGO_WIDTH);
-    const h = Math.round((w * logo.naturalHeight) / logo.naturalWidth);
-    const pad = Math.round(w * 0.12);
-    const margin = Math.round(canvas.width * 0.03);
-    const x = canvas.width - margin - w - pad;
-    const y = canvas.height - margin - h - pad;
-    // A soft white pill behind it, so it reads on dark photos too.
-    ctx.globalAlpha = 0.85;
-    ctx.fillStyle = "#ffffff";
-    ctx.beginPath();
-    ctx.roundRect(x, y, w + pad * 2, h + pad * 2, (h + pad * 2) / 2);
-    ctx.fill();
-    ctx.globalAlpha = 1;
-    ctx.drawImage(logo, x + pad, y + pad, w, h);
-  } catch {
-    // No logo (offline?): share the photo as it is.
-  }
+  if (watermark) await drawCornerMark(ctx, canvas.width, canvas.height);
 
   return new Promise((resolve, reject) =>
     canvas.toBlob(
@@ -71,6 +61,50 @@ export async function brandedPhoto(src: string): Promise<Blob> {
       JPEG_QUALITY,
     ),
   );
+}
+
+async function drawCornerMark(
+  ctx: CanvasRenderingContext2D,
+  width: number,
+  height: number,
+): Promise<void> {
+  let logo: HTMLImageElement;
+  try {
+    logo = await loadImage(LOGO_SRC);
+  } catch {
+    return; // No logo (offline?): share the photo as it is.
+  }
+  const w = Math.round(width * LOGO_WIDTH);
+  const h = Math.round((w * logo.naturalHeight) / logo.naturalWidth);
+  const textSize = Math.round(h * 0.42);
+  const gap = Math.round(h * 0.18);
+  const pad = Math.round(w * 0.09);
+  const cardW = w + pad * 2;
+  const cardH = h + gap + textSize + pad * 2;
+  const margin = Math.round(width * 0.03);
+  const x = width - margin - cardW;
+  const y = height - margin - cardH;
+
+  // Soft white card, so it reads on dark photos too.
+  ctx.save();
+  ctx.globalAlpha = 0.88;
+  ctx.fillStyle = "#ffffff";
+  ctx.beginPath();
+  if (ctx.roundRect)
+    ctx.roundRect(x, y, cardW, cardH, Math.round(cardH * 0.18));
+  else ctx.rect(x, y, cardW, cardH);
+  ctx.fill();
+  ctx.restore();
+
+  ctx.drawImage(logo, x + pad, y + pad, w, h);
+  // The site's own text font (next/font gives it a generated family name).
+  const family =
+    getComputedStyle(document.body).fontFamily || "system-ui, sans-serif";
+  ctx.font = `600 ${textSize}px ${family}`;
+  ctx.fillStyle = "#121212";
+  ctx.textAlign = "center";
+  ctx.textBaseline = "top";
+  ctx.fillText(SITE_TEXT, x + cardW / 2, y + pad + h + gap, w);
 }
 
 /** Can this browser share image files (the phone's share sheet)? */

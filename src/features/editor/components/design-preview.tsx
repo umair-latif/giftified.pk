@@ -46,8 +46,11 @@ export function DesignPreview({
   colourId,
   onReady,
   sideAction,
+  watermark = true,
 }: {
   product: ProductConfig;
+  /** Corner mark on shared/downloaded photos. Off for designers. */
+  watermark?: boolean;
   /** Garment colour to show (a `baseColors` id); the first colour by default. */
   colourId?: string;
   /** Preview a saved cart design instead of the product's draft. */
@@ -256,6 +259,7 @@ export function DesignPreview({
                   productId={product.id}
                   productName={product.name}
                   viewLabel={shown.spec.label}
+                  watermark={watermark}
                 />
               )}
             </div>

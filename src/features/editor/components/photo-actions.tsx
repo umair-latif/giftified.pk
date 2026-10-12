@@ -16,15 +16,19 @@ const BUTTON =
 /**
  * Share and Download for the preview photo on screen, in its top-right
  * corner. Share only where the browser can share image files (phones, some
- * desktops); Download everywhere. Both give the branded JPEG (`share-mockup.ts`).
+ * desktops); Download everywhere. Both give the JPEG from `share-mockup.ts`:
+ * with the corner mark for customers, clean for designers.
  */
 export function PhotoActions({
   src,
   productId,
   productName,
   viewLabel,
+  watermark = true,
 }: {
   src: string;
+  /** Corner mark on the photo. Off for designers (template editors). */
+  watermark?: boolean;
   productId: string;
   productName: string;
   viewLabel: string;
@@ -41,7 +45,7 @@ export function PhotoActions({
     if (busy) return;
     setBusy(true);
     try {
-      const blob = await brandedPhoto(src);
+      const blob = await brandedPhoto(src, { watermark });
       if (mode === "share") {
         const r = await sharePhoto(
           blob,
@@ -68,7 +72,7 @@ export function PhotoActions({
       {canShare && (
         <button
           type="button"
-          aria-label={`Share the ${viewLabel.toLowerCase()} photo`}
+          aria-label="Share this photo"
           disabled={busy}
           onClick={() => void run("share")}
           className={BUTTON}
@@ -79,7 +83,7 @@ export function PhotoActions({
       )}
       <button
         type="button"
-        aria-label={`Download the ${viewLabel.toLowerCase()} photo`}
+        aria-label="Download this photo"
         disabled={busy}
         onClick={() => void run("download")}
         className={BUTTON}

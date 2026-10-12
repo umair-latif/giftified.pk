@@ -180,6 +180,8 @@ export function PreviewScreen({
           {...(item ? { designKey: item.designKey } : {})}
           onReady={setResult}
           sideAction={action}
+          // Designers show off their work without our corner mark.
+          watermark={!canPublish}
         />
         {needsSize && result && !blocked && (
           <p className="mt-3 text-sm text-zinc-700" role="status">
