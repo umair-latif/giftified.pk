@@ -397,7 +397,7 @@ export function CheckoutForm() {
                 {state === "block"
                   ? "a photo is too blurry to print — make it smaller."
                   : state === "placeholder"
-                    ? "there is still a sample photo — tap it and choose Replace to add yours."
+                    ? "there is still a sample photo — open it in the designer, tap the “Sample photo” tag and choose your own picture."
                     : state === "missing"
                       ? "this design is no longer on this device — remove it and design it again."
                       : "no longer available in this colour or size."}{" "}

@@ -99,7 +99,7 @@ export async function createDesignUpload(
 
   if (printQualityReport(design.fabric).placeholders > 0) {
     throw new DesignUploadError(
-      "This design still has a sample photo. Tap it and choose Replace to add your own.",
+      "This design still has a sample photo. Tap the “Sample photo” tag and choose your own picture.",
       422,
     );
   }

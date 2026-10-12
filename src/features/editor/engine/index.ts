@@ -38,6 +38,9 @@ export {
   replaceImage,
   clearCustomerPhoto,
   customerPhotoOf,
+  samplePhotoTags,
+  selectSamplePhoto,
+  type SamplePhotoTag,
   type CustomerPhotoRole,
   type ImageAssetMeta,
 } from "./image";

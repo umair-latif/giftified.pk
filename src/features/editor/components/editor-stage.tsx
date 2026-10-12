@@ -1,8 +1,10 @@
 import { EdgeLabels } from "./edge-labels";
+import { SamplePhotoTags } from "./sample-photo-tags";
 import type { Ref } from "react";
 import Image from "next/image";
 import type { ProductConfig } from "@/config/products";
 import type { GuideState } from "../engine/guides";
+import type { SamplePhotoTag } from "../engine";
 import type { EditorStatus } from "../hooks/use-fabric-canvas";
 import { editorGuideFor } from "../mockup/garment-guide";
 import { isDarkHex } from "../colour-utils";
@@ -13,6 +15,9 @@ interface Props {
   status: EditorStatus;
   guides: GuideState;
   busy?: boolean;
+  /** "Sample photo" tags to show (customers only), and what a tap does. */
+  sampleTags?: readonly SamplePhotoTag[];
+  onPickSample?: (index: number) => void;
   /** Garment colour (a product `baseColors` id). */
   colourId?: string;
 }
@@ -29,6 +34,8 @@ export function EditorStage({
   status,
   guides,
   busy = false,
+  sampleTags = [],
+  onPickSample,
   colourId,
 }: Props) {
   const { widthMm, heightMm, safeMarginMm } = product.printArea;
@@ -150,6 +157,14 @@ export function EditorStage({
               className="absolute inset-0 touch-none"
               data-testid="canvas-host"
             />
+            {onPickSample && (
+              <SamplePhotoTags
+                tags={sampleTags}
+                widthMm={widthMm}
+                heightMm={heightMm}
+                onPick={onPickSample}
+              />
+            )}
             {busy && (
               <div className="absolute inset-0 grid place-items-center bg-white/70 text-xs font-medium text-zinc-600">
                 Adding photo…

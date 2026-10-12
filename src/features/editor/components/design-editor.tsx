@@ -125,6 +125,18 @@ export function DesignEditor({
             status={ed.status}
             guides={ed.guides}
             busy={ed.busy}
+            // Designers fill "customer's photo" slots themselves: no tags.
+            {...(isDesigner
+              ? {}
+              : {
+                  sampleTags: ed.sampleTags,
+                  onPickSample: (index: number) => {
+                    // Select that photo, then open the picker to swap it.
+                    ed.selectSamplePhoto(index);
+                    replacing.current = true;
+                    fileInput.current?.click();
+                  },
+                })}
           />
           {!item && (
             <ColourPicker
@@ -217,9 +229,12 @@ export function DesignEditor({
               className="bg-mint-100 text-brand-900 rounded-lg px-3 py-2 text-xs"
               data-testid="placeholder-hint"
             >
-              This design has {ed.placeholders} sample{" "}
-              {ed.placeholders === 1 ? "photo" : "photos"} for your own. Tap it,
-              then choose Replace to add yours.
+              <strong>
+                {ed.placeholders} sample{" "}
+                {ed.placeholders === 1 ? "photo" : "photos"} left to replace.
+              </strong>{" "}
+              Tap the “Sample photo” tag on the design and choose your own
+              picture. It takes the sample’s place and size.
             </p>
           )}
           {/* What customers see: a plain hint (the selection bar shows the tools). */}
