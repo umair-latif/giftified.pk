@@ -3,6 +3,7 @@
 import { EdgeLabels } from "./edge-labels";
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
+import { PhotoActions } from "./photo-actions";
 import { GalleryArrows } from "@/components/ui/image-gallery";
 import { formatCm } from "@/lib/units";
 import { useSwipe } from "@/components/ui/use-swipe";
@@ -45,8 +46,11 @@ export function DesignPreview({
   colourId,
   onReady,
   sideAction,
+  watermark = true,
 }: {
   product: ProductConfig;
+  /** Corner mark on shared/downloaded photos. Off for designers. */
+  watermark?: boolean;
   /** Garment colour to show (a `baseColors` id); the first colour by default. */
   colourId?: string;
   /** Preview a saved cart design instead of the product's draft. */
@@ -249,6 +253,15 @@ export function DesignPreview({
                 onNext={() => step(1)}
                 testId="preview"
               />
+              {shown && (
+                <PhotoActions
+                  src={shown.src}
+                  productId={product.id}
+                  productName={product.name}
+                  viewLabel={shown.spec.label}
+                  watermark={watermark}
+                />
+              )}
             </div>
             {gallery.length > 1 && (
               <ul

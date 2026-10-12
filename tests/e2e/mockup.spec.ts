@@ -1,6 +1,7 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
-import { expect, test } from "@playwright/test";
+import { expect, test, type Page } from "@playwright/test";
+import { signInEditor } from "./helpers";
 
 test("preview is a gallery of mockups (no flat design): front, left, right, lifestyle and flat lay", async ({
   page,
@@ -146,4 +147,129 @@ test("black mug: black canvas in the editor, black photos in the preview, Rs 1,0
   const line = page.getByTestId("cart-line");
   await expect(line).toContainText("Gloss Black");
   await expect(line.getByTestId("line-price")).toHaveText("Rs 1,000");
+});
+
+test("preview photos: Download gives the branded JPEG; Share hands it to the phone's share sheet", async ({
+  page,
+}) => {
+  // Headless Chromium has no share sheet: stand in for the phone's.
+  await page.addInitScript(() => {
+    const w = window as unknown as {
+      __shared?: { name: string; type: string; size: number; text?: string };
+    };
+    Object.assign(navigator, {
+      canShare: (d: ShareData) => !!d.files?.length,
+      share: async (d: ShareData) => {
+        const f = d.files![0]!;
+        w.__shared = { name: f.name, type: f.type, size: f.size, text: d.text };
+      },
+    });
+  });
+  const doc: unknown = JSON.parse(
+    readFileSync(join(process.cwd(), "tests/fixtures/design-mug.json"), "utf8"),
+  );
+  await page.addInitScript((d) => {
+    localStorage.setItem("giftified:draft:mug", JSON.stringify(d));
+  }, doc);
+  await page.goto("/design/mug/preview");
+  const main = page.getByTestId("preview-mockup").getByRole("img").first();
+  await expect(main).toHaveAttribute("src", /^data:image\//);
+
+  // Download: a JPEG named after the product and view.
+  const [download] = await Promise.all([
+    page.waitForEvent("download"),
+    page.getByTestId("photo-download").click(),
+  ]);
+  expect(download.suggestedFilename()).toMatch(
+    /^designbanana-custom-mug-[a-z-]+\.jpg$/,
+  );
+  const bytes = readFileSync((await download.path())!);
+  expect(bytes.subarray(0, 3)).toEqual(Buffer.from([0xff, 0xd8, 0xff])); // JPEG
+  expect(bytes.length).toBeGreaterThan(10_000);
+
+  // Share: the photo goes to the share sheet with a line of text and the link.
+  await page.getByTestId("photo-share").click();
+  await expect
+    .poll(() =>
+      page.evaluate(() => (window as { __shared?: unknown }).__shared),
+    )
+    .toMatchObject({
+      type: "image/jpeg",
+      name: expect.stringMatching(/^designbanana-custom-mug-.+\.jpg$/),
+      text: expect.stringContaining("/products/mug"),
+    });
+});
+
+test("no Share button where the browser can't share photos; Download stays", async ({
+  page,
+}) => {
+  await page.addInitScript(() => {
+    Object.assign(navigator, { canShare: () => false });
+  });
+  const doc: unknown = JSON.parse(
+    readFileSync(join(process.cwd(), "tests/fixtures/design-mug.json"), "utf8"),
+  );
+  await page.addInitScript((d) => {
+    localStorage.setItem("giftified:draft:mug", JSON.stringify(d));
+  }, doc);
+  await page.goto("/design/mug/preview");
+  await expect(page.getByTestId("photo-download")).toBeVisible();
+  await expect(page.getByTestId("photo-share")).toHaveCount(0);
+});
+
+/** Black mug on the (dark) table photo → Download → mean brightness of the bottom-right corner. */
+async function downloadTableCorner(page: Page): Promise<number> {
+  await page.goto("/design/mug");
+  await page.getByTestId("colour-black").tap();
+  await page.getByRole("button", { name: "Text", exact: true }).tap();
+  await expect(page.getByTestId("editor-status")).toContainText("textbox");
+  await page.getByRole("link", { name: "Preview", exact: true }).tap();
+  await page.getByTestId("preview-thumb-table-black").click();
+  // Wait for the strip to finish scrolling to it: the buttons act on the
+  // photo on screen.
+  await expect(page.getByTestId("preview-thumb-table-black")).toHaveAttribute(
+    "aria-current",
+    "true",
+  );
+  await expect(page.getByTestId("photo-download")).toHaveAccessibleName(
+    "Download this photo",
+  );
+  await page.waitForTimeout(700);
+  const [download] = await Promise.all([
+    page.waitForEvent("download"),
+    page.getByTestId("photo-download").click(),
+  ]);
+  const b64 = readFileSync((await download.path())!).toString("base64");
+  return page.evaluate(async (data) => {
+    const bytes = Uint8Array.from(atob(data), (c) => c.charCodeAt(0));
+    const bmp = await createImageBitmap(
+      new Blob([bytes], { type: "image/jpeg" }),
+    );
+    const c = new OffscreenCanvas(bmp.width, bmp.height);
+    const ctx = c.getContext("2d")!;
+    ctx.drawImage(bmp, 0, 0);
+    // Where the corner mark sits: bottom-right, ~25 % wide, ~10 % high.
+    const w = Math.round(bmp.width * 0.25);
+    const h = Math.round(bmp.height * 0.1);
+    const px = ctx.getImageData(
+      bmp.width - w - 40,
+      bmp.height - h - 40,
+      w,
+      h,
+    ).data;
+    let sum = 0;
+    for (let i = 0; i < px.length; i += 4)
+      sum += px[i]! + px[i + 1]! + px[i + 2]!;
+    return sum / (px.length / 4) / 3;
+  }, b64);
+}
+
+test("customers' downloads carry the corner mark; designers' are clean", async ({
+  page,
+}) => {
+  // Customer: the white mark card brightens the dark table corner.
+  expect(await downloadTableCorner(page)).toBeGreaterThan(150);
+  // Designer (template editor): no mark, the corner stays dark.
+  await signInEditor(page);
+  expect(await downloadTableCorner(page)).toBeLessThan(90);
 });

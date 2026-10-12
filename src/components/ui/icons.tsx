@@ -162,6 +162,23 @@ export const WhatsappIcon = (p: IconProps) => (
   </svg>
 );
 
+export const ShareIcon = (p: IconProps) => (
+  <svg {...base} {...p}>
+    <circle cx="18" cy="5" r="2.5" />
+    <circle cx="6" cy="12" r="2.5" />
+    <circle cx="18" cy="19" r="2.5" />
+    <path d="M8.2 10.8l7.6-4.4M8.2 13.2l7.6 4.4" />
+  </svg>
+);
+
+export const DownloadIcon = (p: IconProps) => (
+  <svg {...base} {...p}>
+    <path d="M12 3v12" />
+    <path d="M7 10l5 5 5-5" />
+    <path d="M5 20h14" />
+  </svg>
+);
+
 export const TiktokIcon = (p: IconProps) => (
   <svg {...base} {...p}>
     <path d="M14 3v11.5a3.5 3.5 0 11-3.5-3.5" />
