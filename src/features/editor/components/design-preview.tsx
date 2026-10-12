@@ -68,7 +68,7 @@ export function DesignPreview({
   } | null>(null);
   const colour =
     product.baseColors.find((c) => c.id === colourId) ?? product.baseColors[0];
-  // Photos of this colour only (mug photos apply to every colour).
+  // Photos of this colour only.
   const specs = useMemo(
     () =>
       MOCKUP_SPECS[product.id]

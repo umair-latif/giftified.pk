@@ -68,9 +68,10 @@ test("a large photo prints sharp, and enlarging it too much turns the badge red"
   await expect(badge(page)).toHaveAttribute("data-status", "block");
   await expect(badge(page)).toContainText("Too blurry to print");
 
-  // Deselect: the editor still warns about the design as a whole.
-  const main = (await page.getByTestId("editor-main").boundingBox())!;
-  await page.mouse.click(main.x + main.width / 2, main.y + main.height - 10);
+  // Deselect (a tap on the editor's empty space): the editor still warns
+  // about the design as a whole. Dispatched on the empty space itself, so it
+  // doesn't depend on what sits where (e.g. the mug colour row).
+  await page.getByTestId("editor-main").dispatchEvent("pointerdown");
   await expect(status(page)).toHaveText(/1 layer\b/);
   await expect(page.getByTestId("quality-warning")).toContainText("too blurry");
 

@@ -50,6 +50,16 @@ export interface MockupSpec {
    * (The printed height is not here: it is the product's `printArea.heightMm`.)
    */
   topMarginMm?: number;
+  /**
+   * Mug colour this photo shows (a product `baseColors` id). The preview only
+   * uses photos of the colour the customer picked. Defaults to "white".
+   */
+  colour?: string;
+  /**
+   * Dark ceramic: the print is UV ink on a black glaze, so it keeps most of
+   * its own brightness instead of taking on the dark body's (see compose.ts).
+   */
+  darkBody?: boolean;
   /** Photo credit (Unsplash licence: attribution optional, kept for records). */
   credit: string;
 }
@@ -268,6 +278,76 @@ export const MOCKUP_SPECS: Partial<
       },
       credit: "Canva",
     },
+    // Black mug (founder's Canva set, Oct 2026). Same studio mug as the white
+    // set; the front is the white front photo with the body taken from these
+    // black side views, so all three shade alike (scratch script, not kept).
+    {
+      ...STUDIO,
+      id: "right-black",
+      label: "Right",
+      side: "right",
+      colour: "black",
+      darkBody: true,
+      src: "/mockups/mug-right-black.webp",
+      body: { left: 276, right: 759, top: 221, bottom: 834 },
+    },
+    {
+      ...STUDIO,
+      id: "front-black",
+      label: "Front",
+      side: "right",
+      colour: "black",
+      darkBody: true,
+      src: "/mockups/mug-front-black.webp",
+      body: { left: 272, right: 756, top: 221, bottom: 834 },
+      geometry: { diameterMm: 83, handleAngleDeg: 180 },
+    },
+    {
+      ...STUDIO,
+      id: "left-black",
+      label: "Left",
+      side: "left",
+      colour: "black",
+      darkBody: true,
+      src: "/mockups/mug-left-black.webp",
+      // This photo is framed ~41 px further right than the white left view.
+      body: { left: 320, right: 803, top: 221, bottom: 834 },
+    },
+    {
+      id: "hand-black",
+      label: "In hand",
+      side: "right",
+      colour: "black",
+      darkBody: true,
+      src: "/mockups/mug-hand-black.webp",
+      widthPx: 1080,
+      heightPx: 1080,
+      // Straightened 3.8° from the supplied photo so the walls are upright.
+      // Eye level: rim and base are almost straight. Handle at the silhouette.
+      body: { left: 261, right: 705, top: 299, bottom: 848 },
+      geometry: { diameterMm: 83, handleAngleDeg: 90 },
+      mugHeightMm: 96,
+      sag: { rim: 1, base: 5 },
+      credit: "Canva",
+    },
+    {
+      id: "table-black",
+      label: "On the table",
+      side: "right",
+      colour: "black",
+      darkBody: true,
+      src: "/mockups/mug-table-black.webp",
+      widthPx: 1080,
+      heightPx: 1080,
+      // Seen from above: the rim's front edge and the base curve down at the
+      // centre (measured: rim 346 → 364, base 826 → 867). "Premium quality"
+      // badge in the corner removed.
+      body: { left: 261, right: 692, top: 364, bottom: 867 },
+      geometry: { diameterMm: 83, handleAngleDeg: 90 },
+      mugHeightMm: 96,
+      sag: { rim: 18, base: 41 },
+      credit: "Canva",
+    },
   ],
   // White tee photos supplied by the founder (1080 x 1080). Each `quad` is the
   // 300 x 400 mm print rectangle the founder drew on the photo. The first is
@@ -450,14 +530,14 @@ export const PARKED_TSHIRT_SPECS: GarmentMockupSpec[] = [
 ];
 
 /**
- * The preview photos for the colour the customer picked. Garment photos show
- * one colour each (`colour`, default white); mug photos apply to every colour.
+ * The preview photos for the colour the customer picked: every photo shows
+ * one colour (`colour`, default white), mugs and garments alike.
  */
 export function specsForColour(
   productId: keyof typeof MOCKUP_SPECS,
   colourId: string,
 ): ProductMockupSpec[] {
   return (MOCKUP_SPECS[productId] ?? []).filter(
-    (s) => !isGarmentSpec(s) || (s.colour ?? "white") === colourId,
+    (s) => (s.colour ?? "white") === colourId,
   );
 }

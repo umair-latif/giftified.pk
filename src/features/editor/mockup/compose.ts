@@ -11,6 +11,11 @@ import {
 } from "./mapping";
 import { isGarmentSpec, type ProductMockupSpec } from "./specs";
 
+/** Dark mugs: how much of the body's shading darkens the ink (0 = none, 1 = all). */
+const DARK_SHADE = 0.45;
+/** Dark mugs: how strongly the glaze's brightest highlights show over the ink. */
+const GLOSS = 0.55;
+
 function loadImage(src: string): Promise<HTMLImageElement> {
   const img = new Image();
   img.src = src;
@@ -115,6 +120,11 @@ export async function composeMockup(
   }
   lums.sort((a, c) => a - c);
   const white = lums[Math.floor(lums.length * 0.97)] ?? 255;
+  // Dark ceramic (`darkBody`): UV ink on black glaze stays bright, so only
+  // part of the body's shading darkens it (DARK_SHADE), and the glaze's gloss
+  // — anything brighter than the body's typical tone — shines over the print.
+  const dark = !!spec.darkBody;
+  const typical = lums[Math.floor(lums.length * 0.5)] ?? 0;
 
   const curve = {
     top: b.top,
@@ -176,14 +186,23 @@ export async function composeMockup(
       if (aa <= 0) continue;
       const a = aa / SUB.length;
       const i = (y * W + x) * 4;
-      const shade = Math.min(
-        1,
-        (0.299 * px[i]! + 0.587 * px[i + 1]! + 0.114 * px[i + 2]!) / white,
-      );
+      const lum = 0.299 * px[i]! + 0.587 * px[i + 1]! + 0.114 * px[i + 2]!;
+      const rel = Math.min(1, lum / white);
+      const shade = dark ? 1 - DARK_SHADE * (1 - rel) : rel;
+      // Gloss over the ink (dark mugs only): 0 at the body's typical tone, 1 at its brightest.
+      const gloss = dark
+        ? GLOSS * Math.max(0, (lum - typical) / Math.max(1, white - typical))
+        : 0;
       const inv = 1 / aa;
-      px[i] = px[i]! * (1 - a) + ar * inv * shade * a;
-      px[i + 1] = px[i + 1]! * (1 - a) + ag * inv * shade * a;
-      px[i + 2] = px[i + 2]! * (1 - a) + ab * inv * shade * a;
+      for (const [k, c] of [
+        [0, ar],
+        [1, ag],
+        [2, ab],
+      ] as const) {
+        const ink = c * inv * shade;
+        const lit = ink + (255 - ink) * gloss;
+        px[i + k] = px[i + k]! * (1 - a) + lit * a;
+      }
     }
   }
   ctx.putImageData(img, 0, 0);

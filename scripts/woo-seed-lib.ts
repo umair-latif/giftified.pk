@@ -15,12 +15,18 @@ export interface SeedConfig {
   log?: (line: string) => void;
 }
 
+/**
+ * Mug: one variation per colour, each with its own price. Black: Rs 1000
+ * (founder, 12 Oct 2026). Change prices in WP admin once live, not here.
+ */
 export const MUG = {
   sku: "mug",
   name: "Custom Mug",
-  colour: "White",
-  pricePkr: 1499,
-};
+  colours: [
+    { name: "White", pricePkr: 1499 },
+    { name: "Black", pricePkr: 1000 },
+  ],
+} as const;
 
 /**
  * T-shirt: variable product, Colour (global) × Size (local) = 10 variations.
@@ -148,7 +154,9 @@ export async function seedWooCommerce(cfg: SeedConfig): Promise<void> {
     description: COD_TEXTS.description,
     settings: { instructions: COD_TEXTS.instructions },
   });
-  log("✓ Cash on Delivery enabled (English title, description, email instructions)");
+  log(
+    "✓ Cash on Delivery enabled (English title, description, email instructions)",
+  );
 
   // 3a. Global Colour attribute with one term per colour (description = hex).
   type Attr = { id: number; name: string; slug: string };
@@ -186,7 +194,9 @@ export async function seedWooCommerce(cfg: SeedConfig): Promise<void> {
     }
   }
 
-  // 3b. Mug: variable product, SKU "mug", global Colour attribute, White variation.
+  // 3b. Mug: variable product, SKU "mug", global Colour attribute, one
+  //     variation per colour (White, Black).
+  const mugColours = MUG.colours.map((c) => c.name);
   const existing = await call<Json[]>("GET", `/products?sku=${MUG.sku}`);
   let product = existing[0];
   if (!product) {
@@ -200,7 +210,7 @@ export async function seedWooCommerce(cfg: SeedConfig): Promise<void> {
           id: colourAttr.id,
           visible: true,
           variation: true,
-          options: [MUG.colour],
+          options: mugColours,
         },
       ],
     });
@@ -211,33 +221,57 @@ export async function seedWooCommerce(cfg: SeedConfig): Promise<void> {
     );
   }
   const productId = String(product.id);
+  // A product created before 3a has a LOCAL "Colour" attribute (id 0); keep
+  // using it. Colours then fall back to src/config/products in the storefront.
+  type MugAttr = { id?: number; name?: string; options?: string[] } & Json;
+  const mugAttrs = (product.attributes as MugAttr[] | undefined) ?? [];
+  const usesGlobal = mugAttrs.some((a) => a.id === colourAttr.id);
+  const colourAttrOf = (a: MugAttr) =>
+    usesGlobal ? a.id === colourAttr.id : a.name?.toLowerCase() === "colour";
+  // An older mug only offers White: add the missing colours to its attribute.
+  const offered = mugAttrs.find(colourAttrOf)?.options ?? [];
+  const missing = mugColours.filter((c) => !offered.includes(c));
+  if (missing.length) {
+    const next = mugAttrs.some(colourAttrOf)
+      ? mugAttrs.map((a) =>
+          colourAttrOf(a) ? { ...a, options: [...offered, ...missing] } : a,
+        )
+      : [
+          ...mugAttrs,
+          {
+            id: colourAttr.id,
+            visible: true,
+            variation: true,
+            options: mugColours,
+          },
+        ];
+    await call("PUT", `/products/${productId}`, { attributes: next });
+    log(`✓ Mug colours now ${[...offered, ...missing].join(", ")}`);
+  }
   const variations = await call<Json[]>(
     "GET",
     `/products/${productId}/variations`,
   );
-  const hasColour = variations.some((v) =>
-    (v.attributes as { option?: string }[] | undefined)?.some(
-      (a) => a.option === MUG.colour,
-    ),
-  );
-  if (!hasColour) {
-    // A product created before 3a has a LOCAL "Colour" attribute (id 0); keep
-    // using it. Colours then fall back to src/config/products in the storefront.
-    const usesGlobal = (
-      product.attributes as { id?: number }[] | undefined
-    )?.some((a) => a.id === colourAttr.id);
+  for (const colour of MUG.colours) {
+    const has = variations.some((v) =>
+      (v.attributes as { option?: string }[] | undefined)?.some(
+        (a) => a.option === colour.name,
+      ),
+    );
+    if (has) {
+      log(`• Variation ${colour.name} already exists`);
+      continue;
+    }
     await call("POST", `/products/${productId}/variations`, {
-      regular_price: String(MUG.pricePkr),
+      regular_price: String(colour.pricePkr),
       status: "publish",
       attributes: [
-        usesGlobal
-          ? { id: colourAttr.id, name: "Colour", option: MUG.colour }
-          : { name: "Colour", option: MUG.colour },
+        usesGlobal || missing.length === mugColours.length
+          ? { id: colourAttr.id, name: "Colour", option: colour.name }
+          : { name: "Colour", option: colour.name },
       ],
     });
-    log(`✓ Added variation ${MUG.colour} at Rs ${MUG.pricePkr}`);
-  } else {
-    log(`• Variation ${MUG.colour} already exists`);
+    log(`✓ Added variation ${colour.name} at Rs ${colour.pricePkr}`);
   }
 
   // 3c. Garments: variable products, global Colour + local Size, one variation per pair.
