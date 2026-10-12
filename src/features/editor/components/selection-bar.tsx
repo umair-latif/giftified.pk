@@ -90,21 +90,11 @@ export function SelectionBar({
       >
         {kind === "text" && text && (
           <>
-            <button
-              type="button"
-              aria-label="More"
-              title="Edit text"
-              aria-haspopup="dialog"
-              onClick={onMore}
-              className="focus-visible:ring-brand-600/20 grid size-9 shrink-0 place-items-center rounded-md text-zinc-700 hover:bg-zinc-100 focus-visible:ring-2 focus-visible:outline-none active:bg-zinc-100"
-            >
-              {/* The full text editor. Not "Aa": that is the font button. */}
-              <svg aria-hidden viewBox="0 0 24 24" width={22} height={22}>
-                <circle cx="5" cy="12" r="2" fill="currentColor" />
-                <circle cx="12" cy="12" r="2" fill="currentColor" />
-                <circle cx="19" cy="12" r="2" fill="currentColor" />
-              </svg>
-            </button>
+            {/* The full text editor, opening as a screen over the design.
+                Not "Aa": that is the font button. */}
+            <Action label="More" onClick={onMore} haspopup>
+              <MoreIcon />
+            </Action>
             <FontPicker
               text={text}
               onChange={(fontFamily) => onTextStyle({ fontFamily })}
@@ -217,12 +207,15 @@ function Action({
   danger,
   disabled,
   pressed,
+  haspopup,
   children,
 }: {
   label: string;
   onClick: () => void;
   danger?: boolean;
   disabled?: boolean;
+  /** Opens a dialog or screen. */
+  haspopup?: boolean;
   /** Set for on/off actions (shown highlighted when on). */
   pressed?: boolean;
   children: ReactNode;
@@ -232,6 +225,7 @@ function Action({
       type="button"
       aria-label={label}
       aria-pressed={pressed}
+      aria-haspopup={haspopup ? "dialog" : undefined}
       onClick={onClick}
       disabled={disabled}
       className={`focus-visible:ring-brand-600/20 flex h-11 min-w-11 shrink-0 flex-col items-center justify-center gap-0.5 rounded-md px-0.5 text-[10px] leading-none font-medium focus-visible:ring-2 focus-visible:outline-none disabled:opacity-35 disabled:hover:bg-transparent ${
@@ -243,6 +237,26 @@ function Action({
       {children}
       <span>{label}</span>
     </button>
+  );
+}
+
+/** Two up arrowheads: "opens up" into the full text editor. */
+function MoreIcon() {
+  return (
+    <svg
+      width={20}
+      height={20}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={2}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden
+    >
+      <path d="M6 11l6-6 6 6" />
+      <path d="M6 19l6-6 6 6" />
+    </svg>
   );
 }
 
