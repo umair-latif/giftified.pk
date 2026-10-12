@@ -16,6 +16,24 @@ function wooImagePatterns(): URL[] {
 
 const nextConfig: NextConfig = {
   images: { remotePatterns: wooImagePatterns() },
+  async headers() {
+    return [
+      {
+        // Browsers must always re-check the service worker for updates.
+        source: "/sw.js",
+        headers: [
+          {
+            key: "Cache-Control",
+            value: "no-cache, no-store, must-revalidate",
+          },
+          {
+            key: "Content-Type",
+            value: "application/javascript; charset=utf-8",
+          },
+        ],
+      },
+    ];
+  },
   allowedDevOrigins: ["192.168.0.32"],
   // The print renderer runs Fabric in Node with the native `canvas` module.
   serverExternalPackages: ["fabric"],

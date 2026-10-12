@@ -8,6 +8,7 @@ import {
   WhatsappIcon,
   YoutubeIcon,
 } from "@/components/ui/icons";
+import { InstallAppButton } from "@/components/pwa/install-app-button";
 import { SITE, whatsappUrl } from "@/config/site";
 
 const SOCIALS = [
@@ -67,6 +68,7 @@ export function SiteFooter() {
                 Chat on WhatsApp
               </a>
             )}
+            <InstallAppButton className="mt-3" />
           </div>
           <nav aria-label="Footer" className="contents">
             {GROUPS.map((g) => (
