@@ -85,14 +85,28 @@ describe("catalog mapping from WooCommerce", () => {
   });
 
   it("falls back to src/config/products colours when WooCommerce has no hex", () => {
-    const p = mapProduct(mug, variations)!;
-    // White is in the mug config (#ffffff); black isn't, so it has a name but no swatch.
+    // A colour WooCommerce has that the mug config doesn't: name, no swatch.
+    const raw = (fixture("variations-mug") as Record<string, unknown>[])[1]!;
+    const teal = wooVariationSchema.parse({
+      ...raw,
+      id: 1099,
+      attributes: (raw.attributes as Record<string, unknown>[]).map((a) => ({
+        ...a,
+        option: "Teal",
+      })),
+    });
+    const p = mapProduct(mug, [...variations, teal])!;
+    // White and black are in the mug config (#ffffff, #1b1b1b).
     expect(p.variants[0]).toMatchObject({
       colourName: "Gloss White",
       colourHex: "#ffffff",
     });
-    expect(p.variants[1]).toMatchObject({ colourName: "Black" });
-    expect(p.variants[1]).not.toHaveProperty("colourHex");
+    expect(p.variants[1]).toMatchObject({
+      colourName: "Black",
+      colourHex: "#1b1b1b",
+    });
+    expect(p.variants[2]).toMatchObject({ colourName: "Teal" });
+    expect(p.variants[2]).not.toHaveProperty("colourHex");
   });
 
   it("leaves optional fields out when WooCommerce has none", () => {
