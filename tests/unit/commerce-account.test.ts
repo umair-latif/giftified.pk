@@ -226,6 +226,21 @@ describe("WooCommerce account methods", () => {
     error.mockRestore();
   });
 
+  it("reads the New order email recipient (first of several)", async () => {
+    const { woo, calls } = client(() =>
+      Response.json({
+        id: "recipient",
+        value: "admin@shop.test, other@shop.test",
+      }),
+    );
+    expect(await woo.getNewOrderRecipient()).toBe("admin@shop.test");
+    expect(calls[0]!.url.pathname).toBe(
+      "/wp-json/wc/v3/settings/email_new_order/recipient",
+    );
+    const empty = client(() => Response.json({ id: "recipient", value: "" }));
+    expect(await empty.woo.getNewOrderRecipient()).toBeNull();
+  });
+
   it("lists a customer's orders newest first and never another customer's", async () => {
     const products = wooFixture<unknown[]>("products");
     const order = wooFixture<Record<string, unknown>>("order");

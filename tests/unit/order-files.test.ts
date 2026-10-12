@@ -15,6 +15,7 @@ import {
 import {
   createOrderFilesSink,
   orderFilesEvent,
+  vendorHandoffEvent,
   webhookWantsFiles,
 } from "@/server/jobs/events";
 import {
@@ -272,9 +273,12 @@ describe("webhook → queue", () => {
     await sink(event("processing"));
     await sink(event("cancelled"));
     await sink(event("completed"));
-    expect(send).toHaveBeenCalledTimes(2);
+    // Files for both live statuses, plus the vendor hand-off once confirmed.
+    expect(send).toHaveBeenCalledTimes(3);
     expect(send).toHaveBeenCalledWith(orderFilesEvent(42, "on-hold"));
     expect(send).toHaveBeenCalledWith(orderFilesEvent(42, "processing"));
+    expect(send).toHaveBeenCalledWith(vendorHandoffEvent(42));
+    expect(vendorHandoffEvent(42).id).toBe("vendor-handoff-42");
     expect(orderFilesEvent(42, "on-hold").id).toBe("order-files-42-on-hold");
     expect(webhookWantsFiles(event("completed"))).toBe(false);
   });

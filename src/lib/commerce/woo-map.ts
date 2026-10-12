@@ -10,7 +10,12 @@ import type {
   PkMobile,
 } from "@/types/order";
 import type { Coupon } from "@/lib/coupons";
-import type { CatalogProduct, CatalogVariant, RetentionOrder } from "./types";
+import type {
+  CatalogProduct,
+  CatalogVariant,
+  RetentionOrder,
+  VendorContact,
+} from "./types";
 import type {
   WooAttributeTerm,
   WooCoupon,
@@ -231,7 +236,29 @@ export function mapProduct(
     ...(p.categories?.length
       ? { categoryIds: p.categories.map((c) => c.id) }
       : {}),
+    ...vendorFromMeta(p.meta_data ?? []),
     variants,
+  };
+}
+
+/** Product custom fields for the print partner (no leading "_": WP admin's box refuses those). */
+export const VENDOR_META = {
+  name: "vendor_name",
+  email: "vendor_email",
+  whatsapp: "vendor_whatsapp",
+} as const;
+
+function vendorFromMeta(meta: WooMeta[]): { vendor?: VendorContact } {
+  const name = metaValue(meta, VENDOR_META.name)?.trim();
+  const email = metaValue(meta, VENDOR_META.email)?.trim();
+  const whatsapp = metaValue(meta, VENDOR_META.whatsapp)?.trim();
+  if (!name && !email && !whatsapp) return {};
+  return {
+    vendor: {
+      ...(name ? { name } : {}),
+      ...(email ? { email } : {}),
+      ...(whatsapp ? { whatsapp } : {}),
+    },
   };
 }
 

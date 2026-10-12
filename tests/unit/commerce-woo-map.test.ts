@@ -72,6 +72,24 @@ describe("catalog mapping", () => {
     expect(mapProduct(giftWrap, [])).toBeNull();
   });
 
+  it("reads the print partner from the product's custom fields", () => {
+    expect(mapProduct(mugProduct, variations)?.vendor).toBeUndefined();
+    const withVendor = {
+      ...mugProduct,
+      meta_data: [
+        { id: 1, key: "vendor_name", value: " Gujrat Mugs " },
+        { id: 2, key: "vendor_email", value: "mugs@vendor.test" },
+        { id: 3, key: "vendor_whatsapp", value: "0300 1112233" },
+        { id: 4, key: "something_else", value: "x" },
+      ],
+    };
+    expect(mapProduct(withVendor, variations)?.vendor).toEqual({
+      name: "Gujrat Mugs",
+      email: "mugs@vendor.test",
+      whatsapp: "0300 1112233",
+    });
+  });
+
   it("drops variations without a price", () => {
     const [first] = variations;
     const p = mapProduct(mugProduct, [{ ...first!, price: "" }]);

@@ -1,5 +1,23 @@
 # Manual dispatch checklist (MVP)
 
+**Vendors (once, and whenever a vendor changes):** in WP admin → Products, open **Custom Mug**,
+**Custom T-Shirt** and **Custom Hoodie** → **Custom Fields** box (not visible? **Screen Options** →
+tick **Custom Fields**) → **Add Custom Field** → **Enter new**, and add:
+
+| Name              | Value                                    |
+| ----------------- | ---------------------------------------- |
+| `vendor_name`     | e.g. `Gujrat Mugs`                       |
+| `vendor_email`    | the vendor's email                       |
+| `vendor_whatsapp` | e.g. `0300 1234567` or `+92 300 1234567` |
+
+Click **Update**. Products with the same vendor (same email) go in one message. Designs made from
+a product use its vendor. The product must be **published**. Changes show within an hour (at once
+if the catalog webhook is set up).
+
+The "Send to vendor" email goes to the recipient of WooCommerce's **New order** email
+(WooCommerce → Settings → Emails → New order). To send it elsewhere, set `VENDOR_HANDOFF_TO` in
+Vercel.
+
 For every new order in WP admin → WooCommerce → Orders (status **On hold**):
 
 1. **Wait for the "Print files ready" note** (usually under a minute). If there's a
@@ -23,11 +41,22 @@ For every new order in WP admin → WooCommerce → Orders (status **On hold**):
 
 4. **Confirmed?** Set the order to **Processing**. If they declined, or didn't reply within 48 h,
    set it to **Cancelled**. Never send an unconfirmed order to a vendor.
-5. **Send to the vendor:** download the PNG and the Vendor PDF and send the **files**
-   (not the links) on WhatsApp or email, together with: order number, product, colour, size,
-   quantity and the customer's city. Share the customer's phone or address only if the vendor
-   ships the parcel.
-6. **Add an order note:** "Sent to {vendor} on {date}".
+5. **Send to the vendor:** a few minutes after you set Processing, you get an email
+   **"Send to vendor: order #…"** with one block per vendor (as set on the products, see above).
+   - **Email to …** opens a page with what will be sent; press **Send by email**. The vendor gets
+     the order number, product, colour, size, quantity and print size, with the proof PDF and the
+     print PNG attached (very large PNGs as a download link). No customer name, phone or address:
+     we ship the parcels.
+   - **WhatsApp to …** opens WhatsApp with the same message and the file links (WhatsApp links
+     can't attach files). Without the vendor's number set, WhatsApp asks you which contact.
+   - No email came? Check the New order recipient (or `VENDOR_HANDOFF_TO`) and the order notes;
+     you can still send the files by hand as before (download the PNG and the PDF from the order
+     note).
+   - There's no test marking: what you send is what the vendor prints. Test vendors with real
+     test orders.
+6. **Order notes** record it: `"Send to vendor" email sent to …` and, after **Send by email**,
+   `Sent to {vendor} ({email}) by email: line(s) …`. If you sent by WhatsApp, add a note
+   yourself: "Sent to {vendor} on WhatsApp on {date}".
 7. **When you ship:** add the courier details as order **custom fields** so the customer sees
    them on their order page (the "Shipped" step). In the order screen, open the **Custom Fields**
    box (if you can't see it: **Screen Options** at the top right → tick **Custom Fields**), then

@@ -3,7 +3,13 @@ import { NonRetriableError } from "inngest";
 import { z } from "zod";
 import { inngest } from "./client";
 import { productionDeps, retentionDeps } from "./deps";
-import { ORDER_FILES_EVENT } from "./events";
+import { ORDER_FILES_EVENT, VENDOR_HANDOFF_EVENT } from "./events";
+import {
+  emailHandoff,
+  handoffRecipient,
+  sendPageUrl,
+  vendorDeps,
+} from "@/server/vendors";
 import {
   addFilesNote,
   orderNeedsFiles,
@@ -78,6 +84,56 @@ export const prepareOrderFilesFn = inngest.createFunction(
   },
 );
 
+/** How long the hand-off waits for print files (the files job runs at the same time). */
+const FILES_WAIT = { checks: 10, every: "30s" } as const;
+
+/**
+ * order/vendor.handoff → once an order is confirmed (Processing), email the
+ * admin "Send to vendor" with a block per vendor (email via a confirm page,
+ * WhatsApp link). Waits for the print files (up to ~5 minutes); if they still
+ * aren't there, the email says so. Nothing is sent to a vendor here.
+ */
+export const vendorHandoffFn = inngest.createFunction(
+  {
+    id: "vendor-handoff",
+    triggers: [{ event: VENDOR_HANDOFF_EVENT }],
+    concurrency: { limit: 1, key: "event.data.orderId" },
+    retries: 3,
+  },
+  async ({ event, step }) => {
+    const parsed = dataSchema.safeParse(event.data);
+    if (!parsed.success)
+      throw new NonRetriableError("order/vendor.handoff without an orderId");
+    const { orderId } = parsed.data;
+    const to = await step.run("recipient", () => handoffRecipient());
+    if (!to)
+      return {
+        orderId,
+        skipped:
+          "no recipient (WooCommerce New order email recipient or VENDOR_HANDOFF_TO)",
+      };
+
+    for (let i = 1; i <= FILES_WAIT.checks; i++) {
+      const ready = await step.run(`files-ready-${i}`, async () => {
+        const order = await productionDeps().commerce.getOrder(orderId);
+        return !order || order.lines.every((l) => !!l.printPngUrl);
+      });
+      if (ready) break;
+      if (i < FILES_WAIT.checks)
+        await step.sleep(`wait-files-${i}`, FILES_WAIT.every);
+    }
+
+    return step.run("email-admin", async () => ({
+      orderId,
+      ...(await emailHandoff(orderId, {
+        ...(await vendorDeps()),
+        to,
+        sendUrl: (vendorId) => sendPageUrl(orderId, vendorId),
+      })),
+    }));
+  },
+);
+
 const DESIGN_BATCH = 25;
 
 /**
@@ -119,4 +175,8 @@ export const dataRetentionFn = inngest.createFunction(
   },
 );
 
-export const functions = [prepareOrderFilesFn, dataRetentionFn];
+export const functions = [
+  prepareOrderFilesFn,
+  vendorHandoffFn,
+  dataRetentionFn,
+];
