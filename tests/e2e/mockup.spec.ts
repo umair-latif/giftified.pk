@@ -147,3 +147,71 @@ test("black mug: black canvas in the editor, black photos in the preview, Rs 1,0
   await expect(line).toContainText("Gloss Black");
   await expect(line.getByTestId("line-price")).toHaveText("Rs 1,000");
 });
+
+test("preview photos: Download gives the branded JPEG; Share hands it to the phone's share sheet", async ({
+  page,
+}) => {
+  // Headless Chromium has no share sheet: stand in for the phone's.
+  await page.addInitScript(() => {
+    const w = window as unknown as {
+      __shared?: { name: string; type: string; size: number; text?: string };
+    };
+    Object.assign(navigator, {
+      canShare: (d: ShareData) => !!d.files?.length,
+      share: async (d: ShareData) => {
+        const f = d.files![0]!;
+        w.__shared = { name: f.name, type: f.type, size: f.size, text: d.text };
+      },
+    });
+  });
+  const doc: unknown = JSON.parse(
+    readFileSync(join(process.cwd(), "tests/fixtures/design-mug.json"), "utf8"),
+  );
+  await page.addInitScript((d) => {
+    localStorage.setItem("giftified:draft:mug", JSON.stringify(d));
+  }, doc);
+  await page.goto("/design/mug/preview");
+  const main = page.getByTestId("preview-mockup").getByRole("img").first();
+  await expect(main).toHaveAttribute("src", /^data:image\//);
+
+  // Download: a JPEG named after the product and view.
+  const [download] = await Promise.all([
+    page.waitForEvent("download"),
+    page.getByTestId("photo-download").click(),
+  ]);
+  expect(download.suggestedFilename()).toMatch(
+    /^designbanana-custom-mug-[a-z-]+\.jpg$/,
+  );
+  const bytes = readFileSync((await download.path())!);
+  expect(bytes.subarray(0, 3)).toEqual(Buffer.from([0xff, 0xd8, 0xff])); // JPEG
+  expect(bytes.length).toBeGreaterThan(10_000);
+
+  // Share: the photo goes to the share sheet with a line of text and the link.
+  await page.getByTestId("photo-share").click();
+  await expect
+    .poll(() =>
+      page.evaluate(() => (window as { __shared?: unknown }).__shared),
+    )
+    .toMatchObject({
+      type: "image/jpeg",
+      name: expect.stringMatching(/^designbanana-custom-mug-.+\.jpg$/),
+      text: expect.stringContaining("/products/mug"),
+    });
+});
+
+test("no Share button where the browser can't share photos; Download stays", async ({
+  page,
+}) => {
+  await page.addInitScript(() => {
+    Object.assign(navigator, { canShare: () => false });
+  });
+  const doc: unknown = JSON.parse(
+    readFileSync(join(process.cwd(), "tests/fixtures/design-mug.json"), "utf8"),
+  );
+  await page.addInitScript((d) => {
+    localStorage.setItem("giftified:draft:mug", JSON.stringify(d));
+  }, doc);
+  await page.goto("/design/mug/preview");
+  await expect(page.getByTestId("photo-download")).toBeVisible();
+  await expect(page.getByTestId("photo-share")).toHaveCount(0);
+});
