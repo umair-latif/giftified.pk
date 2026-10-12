@@ -119,6 +119,24 @@ test("a designer marks a customer's photo with a library sample and publishes; c
     "1 sample photo",
   );
   await expect(cp).toHaveURL(/\/design\/mug$/); // ?template= dropped
+  // The sample photo is tagged on the canvas; tapping the tag opens the picker
+  // for that photo, and the tag and hint go once it is replaced.
+  const tag = cp.getByTestId("sample-photo-tag");
+  await expect(tag).toHaveText("Sample photo");
+  await expect(cp.getByTestId("placeholder-hint")).toContainText(
+    "Tap the “Sample photo” tag",
+  );
+  const chooser = cp.waitForEvent("filechooser");
+  await tag.tap();
+  await (
+    await chooser
+  ).setFiles({
+    name: "mine.png",
+    mimeType: "image/png",
+    buffer: await makePng(cp, 900, 900),
+  });
+  await expect(cp.getByTestId("placeholder-hint")).toHaveCount(0);
+  await expect(tag).toHaveCount(0);
   await customer.close();
 
   // A design still for sale can't be deleted here: trash it in WP admin first.
@@ -271,7 +289,9 @@ test("a template editor publishes a design as a product from the preview; others
     ep.getByRole("heading", { level: 1, name: "Ready-made designs" }),
   ).toBeVisible();
   const grid = ep.getByTestId("template-grid");
-  await expect(grid.getByRole("link", { name: /Happy Birthday/ })).toBeVisible();
+  await expect(
+    grid.getByRole("link", { name: /Happy Birthday/ }),
+  ).toBeVisible();
   // The product page's shelf links to the same page, filtered to the product.
   await ep.goto("/products/mug");
   await expect(ep.getByTestId("product-designs-more")).toHaveAttribute(

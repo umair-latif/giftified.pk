@@ -254,6 +254,40 @@ export function clearCustomerPhoto(canvas: Canvas): void {
   canvas.requestRenderAll();
 }
 
+/** Where to put a "Sample photo" tag: the photo's centre, in scene units (mm). */
+export interface SamplePhotoTag {
+  /** Position among the design's sample photos (see `selectSamplePhoto`). */
+  index: number;
+  xMm: number;
+  yMm: number;
+  /** The photo is the selected layer (the selection bar already offers Replace). */
+  selected: boolean;
+}
+
+function samplePhotos(canvas: Canvas): AssetImage[] {
+  return canvas
+    .getObjects()
+    .filter((o): o is AssetImage => isAssetImage(o) && o.placeholder === true);
+}
+
+/** The photos a customer still has to replace, for the on-canvas tags. */
+export function samplePhotoTags(canvas: Canvas): SamplePhotoTag[] {
+  const active = canvas.getActiveObject();
+  return samplePhotos(canvas).map((img, index) => {
+    const c = img.getCenterPoint();
+    return { index, xMm: c.x, yMm: c.y, selected: img === active };
+  });
+}
+
+/** Selects the `index`-th sample photo, so Replace swaps that one. */
+export function selectSamplePhoto(canvas: Canvas, index: number): boolean {
+  const img = samplePhotos(canvas)[index];
+  if (!img) return false;
+  canvas.setActiveObject(img);
+  canvas.requestRenderAll();
+  return true;
+}
+
 /** Selected photo's role: a customer's photo (with its sample) or artwork. */
 export function customerPhotoOf(
   obj: FabricObject | undefined,

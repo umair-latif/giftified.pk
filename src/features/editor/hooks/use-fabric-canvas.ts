@@ -11,6 +11,7 @@ import type {
   DesignDocument,
   GuideState,
   NormRect,
+  SamplePhotoTag,
   TextStyle,
 } from "../engine";
 import { dpiStatus, type DpiStatus } from "@/lib/dpi";
@@ -107,6 +108,7 @@ export function useFabricCanvas(
     status: "ok",
   });
   const [placeholders, setPlaceholders] = useState(0);
+  const [sampleTags, setSampleTags] = useState<SamplePhotoTag[]>([]);
   const [busy, setBusy] = useState(false);
   const [notice, setNotice] = useState<string | null>(null);
 
@@ -182,6 +184,21 @@ export function useFabricCanvas(
               (o) => engine.isAssetImage(o) && o.placeholder === true,
             ).length,
           );
+          setSampleTags((prev) => {
+            const next = engine.samplePhotoTags(canvas);
+            const same =
+              prev.length === next.length &&
+              prev.every((t, i) => {
+                const n = next[i];
+                return (
+                  !!n &&
+                  t.selected === n.selected &&
+                  Math.abs(t.xMm - n.xMm) < 0.05 &&
+                  Math.abs(t.yMm - n.yMm) < 0.05
+                );
+              });
+            return same ? prev : next;
+          });
           // Customer's photos (samples) are replaced before printing: not graded.
           const dpis = objects
             .filter((o) => !(engine.isAssetImage(o) && o.placeholder === true))
@@ -508,6 +525,13 @@ export function useFabricCanvas(
     [run, product.id],
   );
 
+  /** Selects the index-th sample photo, so the next Replace swaps that one. */
+  const selectSamplePhoto = useCallback(
+    (index: number) =>
+      run((e, dc) => void e.selectSamplePhoto(dc.canvas, index)),
+    [run],
+  );
+
   /** Clear the selection (e.g. tap on empty space around the canvas). */
   const deselect = useCallback(
     () =>
@@ -533,6 +557,8 @@ export function useFabricCanvas(
     background,
     setBackgroundColour,
     placeholders,
+    sampleTags,
+    selectSamplePhoto,
     selection,
     guides,
     canUndo,
