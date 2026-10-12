@@ -59,6 +59,8 @@ describe("catalog mapping", () => {
         {
           colourId: "black",
           colourName: "Black",
+          // No hex in WooCommerce: the swatch comes from the mug config.
+          colourHex: "#1b1b1b",
           wooVariationId: 1012,
           pricePkr: 1699,
           inStock: false,

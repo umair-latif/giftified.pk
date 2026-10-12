@@ -101,7 +101,10 @@ describe("catalog cards", () => {
       fromPricePkr: null,
       fromRegularPricePkr: null,
       image: null,
-      swatches: [{ name: "Gloss White", hex: "#ffffff" }],
+      swatches: [
+        { name: "Gloss White", hex: "#ffffff" },
+        { name: "Gloss Black", hex: "#1b1b1b" },
+      ],
     });
     expect(teeCard).toMatchObject({
       name: "T-Shirt",

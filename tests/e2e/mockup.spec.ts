@@ -101,3 +101,49 @@ test("preview gallery: arrows and swiping move between views", async ({
   await drag(0.2, 0.8);
   await current("right");
 });
+
+test("black mug: black canvas in the editor, black photos in the preview, Rs 1,000 in the cart", async ({
+  page,
+}) => {
+  await page.goto("/design/mug");
+  await expect(page.getByTestId("colour-white")).toHaveAttribute(
+    "aria-checked",
+    "true",
+  );
+  await page.getByTestId("colour-black").tap();
+  await expect(page.getByTestId("colour-picker")).toContainText(
+    "Mug colour: Gloss Black",
+  );
+  await page.getByRole("button", { name: "Text", exact: true }).tap();
+  await expect(page.getByTestId("editor-status")).toContainText("textbox");
+  await page.getByRole("link", { name: "Preview", exact: true }).tap();
+
+  await expect(page.getByTestId("preview-colour")).toContainText("Black");
+  // Only the black photos: the three studio views, in hand, on the table.
+  for (const id of [
+    "front-black",
+    "left-black",
+    "right-black",
+    "hand-black",
+    "table-black",
+  ]) {
+    await page.getByTestId(`preview-thumb-${id}`).click();
+    const main = page.getByTestId("preview-mockup").getByRole("img");
+    await expect(main).toHaveAttribute("src", /^data:image\//);
+    await page.getByTestId("preview-mockup").screenshot({
+      path: `test-results/mockup-mug-${id}.png`,
+    });
+  }
+  await expect(page.getByTestId("preview-thumb-front")).toHaveCount(0);
+  await expect(page.getByTestId("preview-thumb-lifestyle")).toHaveCount(0);
+
+  await page
+    .getByRole("button", { name: "Add to cart" })
+    .filter({ visible: true })
+    .first()
+    .tap();
+  await expect(page).toHaveURL(/\/cart$/);
+  const line = page.getByTestId("cart-line");
+  await expect(line).toContainText("Gloss Black");
+  await expect(line.getByTestId("line-price")).toHaveText("Rs 1,000");
+});

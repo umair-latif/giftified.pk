@@ -11,7 +11,7 @@ import type { ProductConfig } from "./types";
 export const mug = {
   id: "mug",
   name: "Custom Mug",
-  subtitle: "11oz gloss white ceramic · full wrap",
+  subtitle: "11oz gloss ceramic, white or black · full wrap",
   printArea: {
     /** Printable width in mm — the unrolled wrap, handle edge to handle edge. (Printful: 22.8 cm, 9") */
     widthMm: 228,
@@ -22,7 +22,11 @@ export const mug = {
   },
   /** Resolution of the print file sent to the vendor. Leave at 300 unless the vendor asks. */
   printDpi: PRINT_DPI,
-  baseColors: [{ id: "white", name: "Gloss White", hex: "#ffffff" }],
+  baseColors: [
+    { id: "white", name: "Gloss White", hex: "#ffffff" },
+    // Black: own preview photos (mockup/specs.ts), Rs 1000 in WooCommerce.
+    { id: "black", name: "Gloss Black", hex: "#1b1b1b" },
+  ],
   wooSku: null,
   /** Labels under the editor canvas: where the handle is on the unrolled wrap. */
   edgeLabels: { left: "Handle", right: "Handle" },
