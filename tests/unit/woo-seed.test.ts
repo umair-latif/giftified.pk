@@ -65,6 +65,11 @@ function fakeWoo() {
       variations.set(p.id as number, []);
       return ok(p);
     }
+    if ((m = path.match(/^\/products\/(\d+)$/)) && method === "PUT") {
+      const p = products.find((x) => x.id === Number(m![1]))!;
+      Object.assign(p, body);
+      return ok(p);
+    }
     if ((m = path.match(/^\/products\/(\d+)\/variations$/))) {
       const list = variations.get(Number(m[1]))!;
       if (method === "GET") return ok(list);
@@ -176,7 +181,7 @@ describe("woo:seed", () => {
       settings: { instructions: COD_TEXTS.instructions },
     });
 
-    // The adapter maps the seeded product to our mug with a white variant.
+    // The adapter maps the seeded product to our mug: white and black variants.
     const product = wooProductSchema.parse(wc.products[0]);
     const vars = wc.variations
       .get(product.id)!
@@ -186,10 +191,16 @@ describe("woo:seed", () => {
     expect(mapped?.variants).toEqual([
       expect.objectContaining({
         colourId: "white",
-        pricePkr: MUG.pricePkr,
+        pricePkr: 1499,
+        inStock: true,
+      }),
+      expect.objectContaining({
+        colourId: "black",
+        pricePkr: 1000,
         inStock: true,
       }),
     ]);
+    expect(MUG.colours.map((c) => c.pricePkr)).toEqual([1499, 1000]);
 
     // The swatch comes from the global Colour attribute's term description.
     const colourTerms = wooAttributeTermSchema
@@ -208,6 +219,37 @@ describe("woo:seed", () => {
     expect(quoteFromZones("Rawalpindi", withRates)).toBe(250);
     expect(quoteFromZones("Multan", withRates)).toBe(300);
     expect(wc.zones).toHaveLength(ZONES.length + 1);
+  });
+
+  it("adds Black to a store whose mug only has White (and leaves White alone)", async () => {
+    const wc = fakeWoo();
+    // First run with a White-only mug (as stores seeded before Oct 2026 have).
+    await seedWooCommerce({ ...base, fetch: wc.fetch });
+    const mug = wc.products.find((p) => p.sku === "mug")!;
+    const list = wc.variations.get(mug.id as number)!;
+    list.splice(
+      list.findIndex((v) =>
+        (v.attributes as { option: string }[]).some(
+          (a) => a.option === "Black",
+        ),
+      ),
+      1,
+    );
+    (mug.attributes as { options: string[] }[])[0]!.options = ["White"];
+
+    await seedWooCommerce({ ...base, fetch: wc.fetch });
+    expect((mug.attributes as { options: string[] }[])[0]!.options).toEqual([
+      "White",
+      "Black",
+    ]);
+    const vars = wc.variations
+      .get(mug.id as number)!
+      .map((v) => wooVariationSchema.parse(v));
+    const mapped = mapProduct(wooProductSchema.parse(mug), vars);
+    expect(mapped?.variants.map((v) => [v.colourId, v.pricePkr])).toEqual([
+      ["white", 1499],
+      ["black", 1000],
+    ]);
   });
 
   it("keeps going when a store setting is rejected, and says how to set it by hand", async () => {

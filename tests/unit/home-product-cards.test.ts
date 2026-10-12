@@ -30,7 +30,8 @@ describe("home product cards", () => {
     );
     expect(cards.map((c) => c.productId)).toEqual(["mug", "tshirt", "hoodie"]);
     const [mug, tshirt, hoodie] = cards;
-    expect(mug).toMatchObject({ href: "/products/mug", fromPricePkr: 1499 });
+    // "From" = the cheapest colour: black (Rs 1000) since Oct 2026.
+    expect(mug).toMatchObject({ href: "/products/mug", fromPricePkr: 1000 });
     expect(tshirt).toMatchObject({
       href: "/products/tshirt",
       fromPricePkr: 1999,
