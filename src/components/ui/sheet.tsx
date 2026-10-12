@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { useBackToClose } from "./use-back-to-close";
 import { useKeyboardInset } from "./use-keyboard-inset";
 
 interface Props {
@@ -22,6 +23,7 @@ export function Sheet({ title, onClose, children }: Props) {
   const [dragY, setDragY] = useState(0);
   const [dragging, setDragging] = useState(false);
   const keyboard = useKeyboardInset();
+  useBackToClose(onClose);
 
   useEffect(() => {
     const onDown = (e: PointerEvent) => {
