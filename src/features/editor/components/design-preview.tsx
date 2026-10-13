@@ -4,6 +4,7 @@ import { EdgeLabels } from "./edge-labels";
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { PhotoActions } from "./photo-actions";
+import { shareFileName } from "../share-mockup";
 import { GalleryArrows } from "@/components/ui/image-gallery";
 import { formatCm } from "@/lib/units";
 import { useSwipe } from "@/components/ui/use-swipe";
@@ -256,10 +257,13 @@ export function DesignPreview({
               {shown && (
                 <PhotoActions
                   src={shown.src}
-                  productId={product.id}
-                  productName={product.name}
-                  viewLabel={shown.spec.label}
+                  fileName={shareFileName(product.name, shown.spec.label)}
                   watermark={watermark}
+                  // Their own design has no public page: the photo only.
+                  share={{
+                    text: "My design on DesignBanana. Kuch khaas banao!",
+                  }}
+                  download
                 />
               )}
             </div>

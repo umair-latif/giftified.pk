@@ -1,6 +1,7 @@
 /**
- * Share / download a preview photo (Preview step). The customer gets the view
- * they're looking at as a JPEG — small enough for WhatsApp — with the
+ * Share / download a product photo (Preview step: share + download, no link;
+ * published design pages: share with the design's link). The view on screen
+ * becomes a JPEG — small enough for WhatsApp — with the
  * DesignBanana logo and "designbanana.pk" in the bottom-right corner, so
  * friends see where it was made. Designers (template editors) get it clean.
  *
@@ -132,24 +133,52 @@ export function downloadBlob(blob: Blob, fileName: string): void {
 }
 
 /**
- * Opens the share sheet with the photo. Resolves "shared", "cancelled" (the
- * customer closed the sheet) or "unsupported" (caller falls back to download).
+ * Opens the share sheet with the photo (and the link, if any). Resolves
+ * "shared", "cancelled" (the customer closed the sheet) or "unsupported".
  */
 export async function sharePhoto(
   blob: Blob,
   fileName: string,
   text: string,
-  url: string,
+  url?: string,
 ): Promise<"shared" | "cancelled" | "unsupported"> {
   const file = new File([blob], fileName, { type: "image/jpeg" });
   if (!navigator.canShare?.({ files: [file] })) return "unsupported";
   try {
-    // WhatsApp drops `url` when files are attached, so it's in the text too.
-    await navigator.share({ files: [file], text: `${text} ${url}` });
+    // WhatsApp drops `url` when files are attached, so it goes in the text.
+    await navigator.share({
+      files: [file],
+      text: url ? `${text} ${url}` : text,
+    });
     return "shared";
   } catch (err) {
     if (err instanceof DOMException && err.name === "AbortError")
       return "cancelled";
     return "unsupported";
+  }
+}
+
+/**
+ * Where photos can't be shared (most computers): share just the link, or
+ * copy it when there's no share sheet at all.
+ */
+export async function shareLink(
+  text: string,
+  url: string,
+): Promise<"shared" | "copied" | "cancelled" | "failed"> {
+  if (navigator.share) {
+    try {
+      await navigator.share({ text, url });
+      return "shared";
+    } catch (err) {
+      if (err instanceof DOMException && err.name === "AbortError")
+        return "cancelled";
+    }
+  }
+  try {
+    await navigator.clipboard.writeText(url);
+    return "copied";
+  } catch {
+    return "failed";
   }
 }

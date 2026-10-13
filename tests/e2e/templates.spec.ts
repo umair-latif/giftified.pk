@@ -348,3 +348,88 @@ test("a design whose photo is artwork can be bought as it is", async ({
   await expect(page.getByTestId("line-title")).toHaveText("Lantern art");
   await expect(page.getByText("1,599").first()).toBeVisible();
 });
+
+test("a published design's page: Share sends the photo with a link to that design; no Download", async ({
+  page,
+  browser,
+}) => {
+  await signInEditor(page);
+  await page.goto("/design/mug");
+  await expect(
+    page.getByRole("button", { name: "Image", exact: true }),
+  ).toBeEnabled();
+  await page.getByTestId("image-input").setInputFiles({
+    name: "art.png",
+    mimeType: "image/png",
+    buffer: await makePng(page, 2000, 1000),
+  });
+  await expect(page.getByRole("button", { name: "Replace" })).toBeVisible();
+  await page.getByRole("link", { name: /Preview/ }).click();
+  await page
+    .getByRole("button", { name: "Publish as product" })
+    .first()
+    .click();
+  const pub = page.getByRole("dialog", { name: "Publish as product" });
+  await pub.getByLabel("Name").fill("Share me");
+  await pub.getByLabel("Description").fill("A mug to share.");
+  await pub.getByLabel("Price (Rs)").fill("1599");
+  await pub.getByRole("button", { name: "Publish product" }).click();
+  await expect(page.getByTestId("template-saved")).toContainText(
+    "Product saved",
+  );
+  await page.getByRole("link", { name: "View the product page" }).click();
+  await expect(page).toHaveURL(/\/designs\/[\w-]+$/);
+  const designUrl = page.url();
+
+  // A visitor on a phone: the share sheet gets the photo and the design's link.
+  const phone = await browser.newContext({
+    viewport: { width: 360, height: 740 },
+    isMobile: true,
+    hasTouch: true,
+  });
+  const visitor = await phone.newPage();
+  await visitor.addInitScript(() => {
+    const w = window as unknown as {
+      __shared?: { type?: string; name?: string; text?: string };
+    };
+    Object.assign(navigator, {
+      canShare: (d: ShareData) => !!d.files?.length,
+      share: async (d: ShareData) => {
+        const f = d.files?.[0];
+        w.__shared = { type: f?.type, name: f?.name, text: d.text };
+      },
+    });
+  });
+  await visitor.goto(designUrl);
+  await expect(visitor.getByTestId("photo-download")).toHaveCount(0);
+  await visitor.getByTestId("photo-share").tap();
+  await expect
+    .poll(() =>
+      visitor.evaluate(() => (window as { __shared?: unknown }).__shared),
+    )
+    .toMatchObject({
+      type: "image/jpeg",
+      name: expect.stringMatching(/^designbanana-share-me-.+\.jpg$/),
+      text: `Share me on DesignBanana. Kuch khaas banao! ${designUrl}`,
+    });
+  await phone.close();
+
+  // A computer that can't share photos or open a share sheet: the link is copied.
+  const desk = await browser.newContext({
+    viewport: { width: 1280, height: 800 },
+  });
+  await desk.grantPermissions(["clipboard-read", "clipboard-write"]);
+  const pc = await desk.newPage();
+  await pc.addInitScript(() => {
+    Object.assign(navigator, { canShare: () => false, share: undefined });
+  });
+  await pc.goto(designUrl);
+  await pc.getByTestId("photo-share").click();
+  await expect(
+    pc.getByRole("status").filter({ hasText: "Link copied" }),
+  ).toBeVisible();
+  expect(await pc.evaluate(() => navigator.clipboard.readText())).toBe(
+    designUrl,
+  );
+  await desk.close();
+});
