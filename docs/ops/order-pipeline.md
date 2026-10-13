@@ -38,14 +38,53 @@ Inngest's Quickstart tabs (.env.local, route, client, function) are already done
    - `{"message":"Unauthorized"}` → correct (only Inngest may call it).
    - `{"code":"internal_server_error"}` → the deployment has no `INNGEST_SIGNING_KEY`: check it's
      set for Production and redeploy.
-4. Inngest dashboard → **Apps**: you should see `giftified` with the function
-   `prepare-order-files`. If not, click **Sync new app** and use
-   `https://designbanana.pk/api/inngest`.
+4. Inngest dashboard → **Apps**: you should see `giftified` with the jobs
+   `prepare-order-files`, `vendor-handoff` and `data-retention`. If not, click **Sync new app** and
+   use `https://designbanana.pk/api/inngest`. See _Resync_ below.
 5. Optional env vars (Production):
    - `FILES_LINK_SECRET`: signs the download links. If it isn't set, a secret is derived from
      `WC_WEBHOOK_SECRET`. Changing either one breaks existing links, which you can recreate with
      `pnpm order:files`.
    - `APP_URL`: base URL for the links. Default: Vercel's production domain.
+
+## Resync: after a new job or a domain change
+
+**Deploying is not enough.** Inngest stores the list of jobs and the app's URL at the moment the app
+was last synced. A new job in `src/server/jobs/functions.ts` goes live on Vercel but stays invisible
+to Inngest until the app is resynced: its event is accepted, nothing matches it, and nothing runs —
+no error anywhere. The same applies after a domain change, because the stored URL is the one Inngest
+calls.
+
+So resync whenever you **add a job** or **change the domain**:
+
+Inngest → **Apps** → the `giftified` card → **⋮** → **Resync** (set the URL to
+`https://designbanana.pk/api/inngest` if it offers to).
+
+The card then shows **Last synced at** (just now) and every job, each with its trigger. Check the
+count: if a job you expect is missing, the resync didn't pick up the deployment you think it did.
+
+**This happened on 13 Oct 2026:** the "Send to vendor" email never arrived. The app had last been
+synced on 28 Sep, under the old `giftified.microw.me` domain, and listed only `prepare-order-files`.
+`vendor-handoff` was written afterwards, so Inngest had never heard of it. One resync fixed it.
+
+### Which Inngest account?
+
+Installing Inngest from Vercel's marketplace creates an Inngest account with an auto-generated name
+(ours is `account-citrine-village`, shown on the Vercel integration page under _Connect to_). That is
+**not** the same as an account you create yourself at inngest.com with GitHub. Signing in directly
+can land you in the other account, where the app and its history don't exist — and keys from one
+account never work against the other.
+
+To be sure you're in the right one: Vercel → **Integrations** → the Inngest row → **Manage** →
+**Open in Inngest**. If your browser is already signed in to a different Inngest account it may keep
+that session, so use a private window when in doubt.
+
+Keep exactly **one** Inngest integration in Vercel. A second one overwrites `INNGEST_EVENT_KEY` and
+`INNGEST_SIGNING_KEY` with its own account's keys, and then nothing matches anything.
+
+The four `INNGEST_*` variables in Vercel are managed by the integration and have no **Edit** option,
+only _Manage Connection_, _Rotate Integration Secrets_, _View History_ and _Delete_. To replace them,
+use the integration's **Update Project Connection**, then redeploy.
 
 ## Test it
 
@@ -59,6 +98,8 @@ Inngest's Quickstart tabs (.env.local, route, client, function) are already done
 | Note / symptom                                  | Meaning and fix                                                                                                                                       |
 | ----------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
 | No note at all                                  | Check Vercel logs for `[commerce-webhook]`. "couldn't queue" means the Inngest integration or its keys are missing. Then run `pnpm order:files <id>`. |
+| A job never runs, no error anywhere             | The app wasn't resynced after the job was added: Inngest → Apps shows an old **Last synced at** and too few jobs. **Resync** (see above).             |
+| `401` when syncing or validating the app URL    | The signing key of the Inngest account you're in isn't the one the live site has. Usually the wrong account (see above), or a redeploy is missing.    |
 | "Couldn't make print files: design … not found" | The customer's upload didn't finish. Ask them to order again.                                                                                         |
 | "photo … was never uploaded"                    | Same as above, for a single photo.                                                                                                                    |
 | "Print files failed after several tries"        | Temporary problem (R2 or WooCommerce unreachable). Setting the order to Processing retries once; otherwise run `pnpm order:files <id>`.               |
