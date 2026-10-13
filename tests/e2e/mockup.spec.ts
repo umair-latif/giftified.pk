@@ -196,7 +196,8 @@ test("preview photos: Download gives the branded JPEG; Share hands it to the pho
     .toMatchObject({
       type: "image/jpeg",
       name: expect.stringMatching(/^designbanana-custom-mug-.+\.jpg$/),
-      text: expect.stringContaining("/products/mug"),
+      // Their own design has no public page: the photo and a line, no link.
+      text: "My design on DesignBanana. Kuch khaas banao!",
     });
 });
 

@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useRef, useState, type ReactNode } from "react";
 import { ArrowLeftIcon, ArrowRightIcon } from "@/components/ui/icons";
 import { useSwipe } from "@/components/ui/use-swipe";
 
@@ -74,11 +74,14 @@ export function ImageGallery({
   testId,
   unoptimized = false,
   sizes = "(max-width: 768px) 100vw, 520px",
+  actions,
 }: {
   items: GalleryItem[];
   testId: string;
   unoptimized?: boolean;
   sizes?: string;
+  /** Buttons over the big picture (e.g. Share), for the picture on screen. */
+  actions?: (item: GalleryItem, index: number) => ReactNode;
 }) {
   const [index, setIndex] = useState(0);
   const strip = useRef<HTMLDivElement>(null);
@@ -136,6 +139,7 @@ export function ImageGallery({
           onNext={() => goTo(index + 1)}
           testId={testId}
         />
+        {actions && items[index] && actions(items[index], index)}
       </div>
       {items.length > 1 && (
         <ul
