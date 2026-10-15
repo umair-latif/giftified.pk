@@ -1,5 +1,6 @@
 import { OCCASIONS } from "@/features/home/occasions";
 import type { TemplateMeta } from "@/server/templates/types";
+import { occasionsOf } from "../design-filters";
 import { withLiveDesigns } from "../load-design-prices";
 import { templateHref, tileImage } from "../tile-image";
 import { DeleteTemplateButton } from "./delete-template-button";
@@ -33,7 +34,10 @@ export async function TemplateGrid({
               href={templateHref(t)}
               name={t.name}
               subtitle={
-                [productNames?.[t.productId], ...t.occasions.map(occasionLabel)]
+                [
+                  productNames?.[t.productId],
+                  ...occasionsOf(t).map(occasionLabel),
+                ]
                   .filter(Boolean)
                   .join(" · ") || "Personalise this design"
               }

@@ -20,6 +20,8 @@ export function DesignTile({
   price,
   testId,
   variant = "card",
+  imageAlt = "",
+  eager = false,
 }: {
   href: string;
   name: string;
@@ -34,6 +36,10 @@ export function DesignTile({
    * price underneath — the home page's "New designs" marketplace shelf.
    */
   variant?: "card" | "shelf";
+  /** Describes the picture ("Markhor – Mug on a mug"); empty = decorative. */
+  imageAlt?: string;
+  /** Load the picture straight away (tiles in the first screen); else lazily. */
+  eager?: boolean;
 }) {
   const reduced =
     price?.regularPricePkr != null && price.regularPricePkr > price.pricePkr;
@@ -59,9 +65,10 @@ export function DesignTile({
         {image && (
           <Image
             src={image.src}
-            alt=""
+            alt={imageAlt}
             fill
             unoptimized
+            loading={eager ? "eager" : "lazy"}
             sizes="(min-width: 1024px) 200px, (min-width: 640px) 30vw, 45vw"
             className={
               image.kind === "mockup"

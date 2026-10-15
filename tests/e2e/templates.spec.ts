@@ -298,13 +298,28 @@ test("a template editor publishes a design as a product from the preview; others
     "href",
     "/designs?product=mug",
   );
-  // A filter with nothing behind it says so and offers the way back.
-  await ep.goto("/designs?product=hoodie");
+  // Search, count and filters (chips are toggle buttons that combine).
+  await ep.goto("/designs");
+  await expect(ep.getByTestId("design-count")).toHaveText(/^\d+ designs?$/);
+  await ep.getByTestId("design-search").fill("happy birthday");
+  await expect(ep.getByTestId("design-count")).toHaveText("1 design");
+  await expect(ep).toHaveURL(/q=happy/);
+  // Published without an occasion: it counts as Everyday.
+  const everyday = ep
+    .getByRole("group", { name: "Filter by occasion" })
+    .getByRole("button", { name: "Everyday" });
+  await everyday.tap();
+  await expect(everyday).toHaveAttribute("aria-pressed", "true");
+  await expect(ep.getByTestId("design-count")).toHaveText("1 design");
+  await ep.getByTestId("design-search").fill("zzzz");
   await expect(ep.getByTestId("no-templates")).toContainText(
     "No designs match",
   );
-  await ep.getByRole("link", { name: "See all designs" }).click();
+  await ep.getByRole("button", { name: "Clear filters" }).tap();
   await expect(ep).toHaveURL(/\/designs$/);
+  await expect(
+    grid.getByRole("link", { name: /Happy Birthday/ }),
+  ).toBeVisible();
   await editorCtx.close();
 });
 

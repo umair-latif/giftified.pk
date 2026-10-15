@@ -1,17 +1,20 @@
 import type { Metadata } from "next";
-import type { ReactNode } from "react";
-import Link from "next/link";
-import { buttonClass } from "@/components/ui/button";
 import { Page, PageTitle } from "@/components/ui/page";
 import { editableProductIds, getProduct } from "@/config/products";
 import { OCCASIONS } from "@/features/home/occasions";
-import { TemplateGrid } from "@/features/templates/components/template-grid";
 import {
-  designsHref,
+  DesignCatalog,
+  type CatalogCard,
+} from "@/features/templates/components/design-catalog";
+import {
+  DESIGN_SORTS,
+  occasionsOf,
   parseDesignFilters,
+  type DesignSort,
 } from "@/features/templates/design-filters";
+import { withLiveDesigns } from "@/features/templates/load-design-prices";
 import { loadTemplates } from "@/features/templates/load-templates";
-import type { OccasionSlug } from "@/server/templates/types";
+import { templateHref, tileImage } from "@/features/templates/tile-image";
 
 export const metadata: Metadata = {
   title: "Ready-made designs",
@@ -21,39 +24,56 @@ export const metadata: Metadata = {
 };
 
 const productName = (id: string) => getProduct(id)?.name ?? id;
+const occasionLabel = (slug: string) =>
+  OCCASIONS.find((o) => o.slug === slug)?.label ?? slug;
+
+const first = (v: string | string[] | undefined) =>
+  (Array.isArray(v) ? v[0] : v) ?? "";
 
 /**
- * All published designs (the marketplace), newest first, with filters by
- * product and occasion as plain links (`?product=mug&occasion=eid`), so they
- * work without JavaScript and can be shared. Linked from the home page's "New
- * designs" and the product pages' "Ready-made designs" shelves.
+ * All published designs (the marketplace) with search, sort, a result count
+ * and product/occasion filters that combine. The address carries the state
+ * (`?product=mug&occasion=eid&q=markhor&sort=price-asc`), so the first render
+ * comes from the server and links can be shared. Designs without an occasion
+ * count as "Everyday".
  */
 export default async function DesignsPage({
   searchParams,
 }: PageProps<"/designs">) {
-  const filters = parseDesignFilters(await searchParams);
-  const all = await loadTemplates();
+  const params = await searchParams;
+  const filters = parseDesignFilters(params);
+  const { templates: all, prices } = await withLiveDesigns(
+    await loadTemplates(),
+  );
+  const designs: CatalogCard[] = all.map((t) => {
+    const occasions = occasionsOf(t);
+    const price = prices[t.id];
+    return {
+      id: t.id,
+      name: t.name,
+      productId: t.productId,
+      productName: productName(t.productId),
+      occasions,
+      occasionLabels: occasions.map(occasionLabel),
+      pricePkr: price?.pricePkr ?? null,
+      createdAt: t.createdAt,
+      href: templateHref(t),
+      subtitle: [
+        productName(t.productId),
+        ...occasions.map(occasionLabel),
+      ].join(" · "),
+      image: tileImage(t),
+      ...(price ? { price } : {}),
+    };
+  });
   // Only offer filters that have designs behind them.
-  const products = editableProductIds().filter((id) =>
-    all.some((t) => t.productId === id),
-  );
+  const products = editableProductIds()
+    .filter((id) => all.some((t) => t.productId === id))
+    .map((id) => ({ id, label: productName(id) }));
   const occasions = OCCASIONS.filter((o) =>
-    all.some(
-      (t) =>
-        (!filters.product || t.productId === filters.product) &&
-        (t.occasions as readonly string[]).includes(o.slug),
-    ),
+    designs.some((d) => d.occasions.includes(o.slug)),
   );
-  const shown = all.filter(
-    (t) =>
-      (!filters.product || t.productId === filters.product) &&
-      (!filters.occasion ||
-        (t.occasions as readonly string[]).includes(filters.occasion)),
-  );
-  const productNames = Object.fromEntries(
-    shown.map((t) => [t.productId, productName(t.productId)]),
-  );
-  const filtered = !!(filters.product || filters.occasion);
+  const sort = first(params.sort);
 
   return (
     <Page width="wide">
@@ -61,117 +81,22 @@ export default async function DesignsPage({
       <p className="text-ink/70 mt-1 text-sm">
         Made by our designers. Pick one, swap in your own photos, names and
         words, and order. Cash on Delivery.
+        {/* TODO(owner): confirm the shown price includes your own photos and
+            words; then say so here ("Price includes your personalisation"). */}
       </p>
-
-      {products.length > 1 && (
-        <FilterRow label="Product">
-          {/* Changing the product clears the occasion: its list depends on it. */}
-          <Chip href={designsHref()} active={!filters.product}>
-            All
-          </Chip>
-          {products.map((id) => (
-            <Chip
-              key={id}
-              href={designsHref({ product: id })}
-              active={filters.product === id}
-            >
-              {productName(id)}
-            </Chip>
-          ))}
-        </FilterRow>
-      )}
-      {occasions.length > 0 && (
-        <FilterRow label="Occasion">
-          <Chip
-            href={designsHref(
-              filters.product ? { product: filters.product } : {},
-            )}
-            active={!filters.occasion}
-          >
-            Any
-          </Chip>
-          {occasions.map((o) => (
-            <Chip
-              key={o.slug}
-              href={designsHref({
-                ...filters,
-                occasion: o.slug as OccasionSlug,
-              })}
-              active={filters.occasion === o.slug}
-            >
-              {o.label}
-            </Chip>
-          ))}
-        </FilterRow>
-      )}
-
-      <div className="mt-5">
-        {shown.length > 0 ? (
-          <TemplateGrid templates={shown} productNames={productNames} />
-        ) : (
-          <div className="card p-5 text-sm" data-testid="no-templates">
-            <p className="text-ink">
-              {filtered
-                ? "No designs match these filters yet."
-                : "Ready-made designs are on the way."}
-            </p>
-            <div className="mt-4 flex flex-col gap-3 sm:flex-row">
-              {filtered && (
-                <Link href="/designs" className={buttonClass("secondary")}>
-                  See all designs
-                </Link>
-              )}
-              <Link href="/products" className={buttonClass("primary")}>
-                Design your own
-              </Link>
-            </div>
-          </div>
-        )}
-      </div>
+      <DesignCatalog
+        designs={designs}
+        products={products}
+        occasions={occasions}
+        initial={{
+          product: filters.product ?? "",
+          occasion: filters.occasion ?? "",
+          q: first(params.q).slice(0, 60),
+          sort: DESIGN_SORTS.some((o) => o.id === sort)
+            ? (sort as DesignSort)
+            : "newest",
+        }}
+      />
     </Page>
-  );
-}
-
-function FilterRow({
-  label,
-  children,
-}: {
-  label: string;
-  children: ReactNode;
-}) {
-  return (
-    <nav aria-label={`Filter by ${label.toLowerCase()}`} className="mt-4">
-      <p className="text-ink/70 text-xs font-semibold tracking-wide uppercase">
-        {label}
-      </p>
-      <ul className="-mx-4 mt-1.5 flex [scrollbar-width:none] gap-2 overflow-x-auto px-4 pb-1 sm:mx-0 sm:flex-wrap sm:px-0 [&::-webkit-scrollbar]:hidden">
-        {children}
-      </ul>
-    </nav>
-  );
-}
-
-function Chip({
-  href,
-  active,
-  children,
-}: {
-  href: string;
-  active: boolean;
-  children: ReactNode;
-}) {
-  return (
-    <li className="shrink-0">
-      <Link
-        href={href}
-        aria-current={active ? "page" : undefined}
-        scroll={false}
-        className={`border-ink inline-flex h-9 items-center rounded-full border-2 px-3.5 text-sm font-semibold no-underline! ${
-          active ? "bg-ink text-white" : "text-ink hover:bg-soft bg-white"
-        }`}
-      >
-        {children}
-      </Link>
-    </li>
   );
 }
