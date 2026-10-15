@@ -68,6 +68,17 @@ export function SiteFooter() {
                 Chat on WhatsApp
               </a>
             )}
+            {wa && (
+              <p className="mt-2">
+                <a
+                  href={`tel:+${SITE.whatsapp}`}
+                  className="font-semibold text-white hover:underline"
+                  data-testid="footer-whatsapp-number"
+                >
+                  {SITE.whatsappDisplay}
+                </a>
+              </p>
+            )}
             <InstallAppButton className="mt-3" />
           </div>
           <nav aria-label="Footer" className="contents">
@@ -106,7 +117,7 @@ export function SiteFooter() {
                   href={url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  aria-label={label}
+                  aria-label={`DesignBanana on ${label}`}
                   data-testid={`social-${key}`}
                   className="inline-flex size-12 items-center justify-center rounded-full border-2 border-white/25 text-white transition-colors hover:border-white hover:bg-white/10"
                 >
@@ -121,38 +132,10 @@ export function SiteFooter() {
             © {new Date().getFullYear()} {SITE.name}
           </p>
           <p className="mt-1" data-testid="made-in">
-            Made with <span aria-label="love">💚</span> in <PakistanFlag />
+            Made with care in Pakistan
           </p>
         </div>
       </div>
     </footer>
-  );
-}
-
-/**
- * Pakistan's flag as a tiny SVG: the 🇵🇰 emoji shows as the letters "PK" on
- * Windows. Proportions 3:2, white hoist band a quarter of the width.
- */
-function PakistanFlag() {
-  return (
-    <svg
-      viewBox="0 0 30 20"
-      width={21}
-      height={14}
-      role="img"
-      aria-label="Pakistan"
-      className="inline-block rounded-[2px] align-[-2px] ring-1 ring-white/30"
-    >
-      <rect width="30" height="20" fill="#01411C" />
-      <rect width="7.5" height="20" fill="#fff" />
-      {/* Crescent: a white disc with a green disc cut out of it. */}
-      <circle cx="19.2" cy="10" r="5.4" fill="#fff" />
-      <circle cx="20.6" cy="8.7" r="4.6" fill="#01411C" />
-      <polygon
-        fill="#fff"
-        transform="translate(22.4 7.4) rotate(-40)"
-        points="0,-1.9 0.45,-0.6 1.8,-0.6 0.7,0.25 1.1,1.55 0,0.75 -1.1,1.55 -0.7,0.25 -1.8,-0.6 -0.45,-0.6"
-      />
-    </svg>
   );
 }

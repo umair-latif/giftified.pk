@@ -15,9 +15,9 @@ function CardBody({ card }: { card: HomeProductCard }) {
         sizes="(min-width: 640px) 200px, 112px"
         className="bg-soft size-28 shrink-0 rounded-xl object-cover sm:size-auto sm:w-full"
       />
-      <span className="flex min-w-0 flex-col justify-center">
-        <span className="type-card-title text-ink">{card.name}</span>
-        <span className="text-ink text-sm">{card.note}</span>
+      <div className="flex min-w-0 flex-col justify-center">
+        <h3 className="type-card-title text-ink">{card.name}</h3>
+        <p className="text-ink text-sm">{card.note}</p>
         {card.href ? (
           card.fromPricePkr !== null && (
             <PriceTag
@@ -32,7 +32,7 @@ function CardBody({ card }: { card: HomeProductCard }) {
             Coming soon
           </span>
         )}
-      </span>
+      </div>
     </>
   );
 }

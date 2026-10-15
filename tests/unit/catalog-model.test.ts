@@ -44,7 +44,7 @@ const tee: CatalogProduct = {
   ...mug,
   productId: "tshirt",
   slug: "t-shirt",
-  name: "T-Shirt",
+  name: "T-shirt",
   variants: [
     {
       colourId: "black",
@@ -107,7 +107,7 @@ describe("catalog cards", () => {
       ],
     });
     expect(teeCard).toMatchObject({
-      name: "T-Shirt",
+      name: "T-shirt",
       href: "/products/tshirt",
       swatches: getProduct("tshirt")!.baseColors.map(({ name, hex }) => ({
         name,

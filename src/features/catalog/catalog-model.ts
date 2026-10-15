@@ -21,7 +21,7 @@ export const CATALOG_INFO: readonly CatalogInfo[] = [
     name: "Custom Mug",
     spec: "11oz gloss ceramic · full wrap",
   },
-  { productId: "tshirt", name: "T-Shirt", spec: "180–200 GSM combed cotton" },
+  { productId: "tshirt", name: "T-shirt", spec: "180–200 GSM combed cotton" },
   { productId: "hoodie", name: "Hoodie", spec: "320+ GSM heavy fleece" },
 ];
 

@@ -65,7 +65,7 @@ const CATALOG: CatalogProduct[] = [
     wooProductId: 102,
     slug: "tshirt",
     images: [],
-    name: "Custom T-Shirt",
+    name: "Custom T-shirt",
     shortDescription:
       "Soft combed-cotton tee with your design printed on the front.",
     descriptionHtml:

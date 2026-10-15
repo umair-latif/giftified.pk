@@ -34,7 +34,6 @@ export function HowItWorks() {
               </span>
               <span>
                 <span className="type-card-title text-ink block">
-                  <span className="sr-only">{i + 1}. </span>
                   {step.title}
                 </span>
                 <span className="text-ink/70 block text-sm">{step.text}</span>

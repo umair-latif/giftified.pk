@@ -2,25 +2,30 @@
  * Site-wide contact details and links (header, footer, contact page).
  * Founder-owned: these are the real published details, edit them here.
  */
+function isPreviewSite(): boolean {
+  const flag = process.env.SITE_PREVIEW;
+  if (flag === "1" || flag === "0") return flag === "1";
+  if (process.env.VERCEL_ENV) return process.env.VERCEL_ENV !== "production";
+  return process.env.NODE_ENV === "development";
+}
+
 export const SITE = {
   name: "DesignBanana",
   /**
-   * Pre-launch "working pitch" phase (founder, 8 Oct 2026): products, photos
-   * and prices are placeholders and orders are not shipped. Shows the thin
-   * preview banner on shop pages. Set to false on launch day.
+   * The thin "orders aren't shipped" banner. Launched 15 Oct 2026: never in
+   * production; shown on Vercel preview deploys and in local dev so test
+   * orders there are obvious. `SITE_PREVIEW=1` / `=0` overrides.
    */
-  preview: true,
+  preview: isPreviewSite(),
   /**
    * The one tagline (brand decision, 8 Oct 2026): sentence case, "khaas" with a
    * double a, no exclamation mark. Browser title, hero label, footer next to the logo.
    */
   tagline: "Kuch khaas banao",
-  /**
-   * E.164 without "+", for https://wa.me/<number>. Empty = hide WhatsApp links.
-   * TODO(founder): this is a German number; swap it for a Pakistani one when
-   * there is one, so COD customers see a local contact.
-   */
-  whatsapp: "4915209144535",
+  /** E.164 without "+", for https://wa.me/<number>. Empty = hide WhatsApp links. */
+  whatsapp: "923369005786",
+  /** The same number as people read and dial it (footer, Contact, Help). */
+  whatsappDisplay: "+92 336 9005786",
   /** TODO(founder): switch to an address on designbanana.pk once the domain has email. */
   email: "designbanana.admin@gmail.com",
   /** Shown on /contact. Pakistan Standard Time. */
@@ -29,9 +34,8 @@ export const SITE = {
   social: {
     instagram: "https://instagram.com/designbananapk",
     tiktok: "https://tiktok.com/@designbananapk",
-    // TODO(founder): placeholders so the icons show; put the real profile URLs here.
-    facebook: "https://facebook.com",
-    youtube: "https://youtube.com",
+    facebook: "https://www.facebook.com/DesignBananaPakistan/",
+    youtube: "https://www.youtube.com/@DesignBananaPK",
   },
 } as const;
 
@@ -39,3 +43,11 @@ export const whatsappUrl = (text?: string): string | null =>
   SITE.whatsapp
     ? `https://wa.me/${SITE.whatsapp}${text ? `?text=${encodeURIComponent(text)}` : ""}`
     : null;
+
+/** Accessible names for the social links ("DesignBanana on Facebook"). */
+export const SOCIAL_LABELS: Record<keyof typeof SITE.social, string> = {
+  instagram: "Instagram",
+  tiktok: "TikTok",
+  facebook: "Facebook",
+  youtube: "YouTube",
+};

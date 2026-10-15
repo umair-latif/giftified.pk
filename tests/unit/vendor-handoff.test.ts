@@ -69,7 +69,7 @@ const catalog = [
     email: "Mugs@Vendor.test",
     whatsapp: "0300 1112233",
   }),
-  product("tshirt", "Custom T-Shirt", { name: "Sialkot DTF" }),
+  product("tshirt", "Custom T-shirt", { name: "Sialkot DTF" }),
   product("hoodie", "Custom Hoodie", { name: "Sialkot DTF" }),
 ];
 const vendors = vendorsFromCatalog(catalog);
@@ -135,7 +135,7 @@ describe("vendor hand-off content", () => {
     expect(mugText).toContain("order #1234");
     expect(mugText).toContain("Custom Mug · Gloss White · 2 pcs · print");
     expect(mugText).toContain("https://a.test/api/files/png1");
-    expect(mugText).not.toContain("T-Shirt");
+    expect(mugText).not.toContain("T-shirt");
     expect(vendorMessage(o, apparel!)).toContain("size L");
   });
 

@@ -3,7 +3,7 @@ import type { CatalogProduct } from "@/lib/commerce/types";
 
 /**
  * Print partners come from WP admin (founder, 11 Oct): each base product
- * (Custom Mug, Custom T-Shirt, Custom Hoodie) has custom fields
+ * (Custom Mug, Custom T-shirt, Custom Hoodie) has custom fields
  * `vendor_name`, `vendor_email`, `vendor_whatsapp`. Products with the same
  * vendor (same email, else number, else name) are grouped, so a T-shirt and
  * a hoodie for one apparel printer go in one message. Designs made from a

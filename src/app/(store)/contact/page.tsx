@@ -1,9 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { SITE, whatsappUrl } from "@/config/site";
+import { SITE, SOCIAL_LABELS, whatsappUrl } from "@/config/site";
+import { WhatsappHelp } from "@/components/site/whatsapp-help";
 import { InfoPage, InfoSection } from "@/features/info/info-page";
-import { buttonClass } from "@/components/ui/button";
-import { WhatsappIcon } from "@/components/ui/icons";
 
 export const metadata: Metadata = {
   title: "Contact us",
@@ -11,11 +10,13 @@ export const metadata: Metadata = {
     "Reach DesignBanana on WhatsApp or email about your custom mug, t-shirt or hoodie order.",
 };
 
+const WA_MESSAGE = "Assalam o Alaikum! I have a question about my order.";
+
 export default function ContactPage() {
-  const wa = whatsappUrl(
-    "Assalam o Alaikum! I have a question about my order.",
-  );
-  const socials = Object.entries(SITE.social).filter(([, url]) => url);
+  const wa = whatsappUrl(WA_MESSAGE);
+  const socials = (
+    Object.entries(SITE.social) as [keyof typeof SITE.social, string][]
+  ).filter(([, url]) => url);
 
   return (
     <InfoPage
@@ -28,10 +29,7 @@ export default function ContactPage() {
           have one.
         </p>
         {wa ? (
-          <a href={wa} className={buttonClass("primary", "text-ink!")}>
-            <WhatsappIcon width={22} height={22} />
-            Chat on WhatsApp
-          </a>
+          <WhatsappHelp message={WA_MESSAGE} />
         ) : (
           <p>
             WhatsApp is temporarily unavailable &ndash; please email us instead.
@@ -65,8 +63,11 @@ export default function ContactPage() {
           <ul>
             {socials.map(([name, url]) => (
               <li key={name}>
-                <a href={url} className="capitalize">
-                  {name}
+                <a
+                  href={url}
+                  aria-label={`DesignBanana on ${SOCIAL_LABELS[name]}`}
+                >
+                  {SOCIAL_LABELS[name]}
                 </a>
               </li>
             ))}
