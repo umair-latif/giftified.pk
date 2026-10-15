@@ -4,9 +4,8 @@ test("home page: hero, products, sections, no horizontal scroll", async ({
   page,
 }) => {
   await page.goto("/");
-  await expect(page.getByTestId("preview-banner")).toContainText(
-    "aren't shipped yet",
-  );
+  // Launched: the "not shipped" banner never shows in a production build.
+  await expect(page.getByTestId("preview-banner")).toHaveCount(0);
   await expect(
     page.getByRole("heading", {
       level: 1,

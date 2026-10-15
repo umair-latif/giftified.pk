@@ -29,8 +29,15 @@ test("site header shows the cart count and the footer links", async ({
   ).toBeVisible();
   const info = page.getByRole("contentinfo");
   await expect(info).toContainText("Kuch khaas banao");
-  await expect(info.getByTestId("made-in")).toContainText("Made with");
-  await expect(info.getByRole("img", { name: "Pakistan" })).toBeVisible();
+  await expect(info.getByTestId("made-in")).toHaveText(
+    "Made with care in Pakistan",
+  );
+  await expect(info.getByTestId("footer-whatsapp-number")).toHaveText(
+    "+92 336 9005786",
+  );
+  await expect(
+    info.getByRole("link", { name: "DesignBanana on Facebook" }),
+  ).toHaveAttribute("href", "https://www.facebook.com/DesignBananaPakistan/");
   const footer = page.getByRole("navigation", { name: "Footer" });
   for (const name of ["Help & FAQ", "Contact", "Privacy", "Terms"])
     await expect(footer.getByRole("link", { name })).toBeVisible();

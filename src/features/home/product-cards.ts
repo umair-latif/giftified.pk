@@ -26,7 +26,7 @@ export const HOME_PRODUCTS: readonly HomeProductInfo[] = [
   },
   {
     productId: "tshirt",
-    name: "T-Shirt",
+    name: "T-shirt",
     note: "Soft combed cotton, in white or black",
     image: "/home/tshirt-placeholder.webp",
   },

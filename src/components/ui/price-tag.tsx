@@ -27,7 +27,7 @@ export function PriceTag({
       className={`inline-flex flex-wrap items-baseline gap-x-1.5 ${className}`}
       data-testid={testId}
     >
-      {from && <span className="text-ink/70">from</span>}
+      {from && <span className="text-ink/70">from </span>}
       <span className="text-accent-text font-semibold">{formatPkr(pkr)}</span>
       {reduced && (
         <>

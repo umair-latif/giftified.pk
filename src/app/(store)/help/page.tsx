@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { mug } from "@/config/products/mug";
+import { SITE } from "@/config/site";
+import { WhatsappHelp } from "@/components/site/whatsapp-help";
 import { Faq, type FaqItem } from "@/features/info/faq";
 import { InfoPage, InfoSection } from "@/features/info/info-page";
 import { DEFAULT_DPI_THRESHOLDS } from "@/lib/dpi";
@@ -247,6 +249,10 @@ export default function HelpPage() {
       </InfoSection>
       <InfoSection title="Photos and print quality">
         <Faq items={QUALITY} />
+      </InfoSection>
+      <InfoSection title="Still stuck?">
+        <p>Chat with us on WhatsApp, {SITE.hours}.</p>
+        <WhatsappHelp message="Assalam o Alaikum! I have a question." />
       </InfoSection>
     </InfoPage>
   );

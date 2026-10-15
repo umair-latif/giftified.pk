@@ -4,7 +4,7 @@ import type { ProductConfig } from "./types";
 /** Front-only DTF development config. Task 27 defaults, not production specs. */
 export const tshirt = {
   id: "tshirt",
-  name: "Custom T-Shirt",
+  name: "Custom T-shirt",
   subtitle: "Front print · DTF",
   printArea: {
     widthMm: 300,
