@@ -10,6 +10,8 @@ export const spaceGrotesk = localFont({
     { path: "./fonts/space-grotesk-latin-400-normal.woff2", weight: "400" },
     { path: "./fonts/space-grotesk-latin-500-normal.woff2", weight: "500" },
     { path: "./fonts/space-grotesk-latin-600-normal.woff2", weight: "600" },
+    // 700: card titles and eyebrows only (docs/brand.md type scale).
+    { path: "./fonts/space-grotesk-latin-700-normal.woff2", weight: "700" },
   ],
   variable: "--font-space-grotesk",
   display: "swap",

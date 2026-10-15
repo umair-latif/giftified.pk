@@ -1,15 +1,44 @@
 @import "tailwindcss";
 
 /*
- * Brand tokens (docs/brand.md): DesignBanana v7 theme — Giftified teal with
- * pink, banana yellow and near-black. brand-600 is the button colour
- * (white text 5.5:1, WCAG AA).
+ * DesignBanana theme (docs/brand.md). Neo-brutalist "sticker" look, but only
+ * the important things get the full treatment. 8 colours, one job each:
+ *   ink          text, outlines, the hard shadow
+ *   action       primary buttons and the current step. Nothing else.
+ *   brand        hero and feature bands (large surfaces, ink text only)
+ *   highlight    logo "banana", New/Sale badges, cart count, tip labels.
+ *                Never body text; as text only at 24px or larger.
+ *   accent-text  prices, text links, the focus ring
+ *   deep         footer, trust/help panels, section headings
+ *   soft         info panels, delivery estimate, hover/selected tints
+ *   page         page background
+ * plus white (cards, inputs, secondary buttons) and on-deep / on-deep-muted
+ * for text on `deep`. Greys are ink at an opacity (text-ink/65 etc).
+ * Status colours (red errors, amber warnings, emerald "OK") stay Tailwind's.
  */
 @theme {
   --font-sans: var(--font-space-grotesk), system-ui, Roboto, Arial, sans-serif;
   --font-display:
     var(--font-bagel), var(--font-space-grotesk), system-ui, sans-serif;
+  --font-urdu: "Noto Nastaliq Urdu", serif;
 
+  --color-ink: #121212;
+  --color-action: #ffe135;
+  --color-brand: #14b8a6;
+  --color-highlight: #ff3d8b;
+  --color-accent-text: #0f766e;
+  --color-deep: #0b3b37;
+  --color-soft: #ddf4ef;
+  --color-page: #f3fbf9;
+  --color-on-deep: #f0fdfa;
+  --color-on-deep-muted: #99f6e4;
+
+  /* The one shadow. Primary buttons wear it at rest; cards, secondary
+     buttons and chips only on hover / keyboard focus. */
+  --shadow-hard: 4px 4px 0 var(--color-ink);
+
+  /* Deprecated: old v7 names, kept until every component uses the tokens
+     above (removed in the follow-up migration PR). */
   /* Teal (big shapes = 500, buttons/links = 600) */
   --color-brand-50: #f0fdfa;
   --color-brand-100: #ccfbf1;
@@ -35,9 +64,9 @@
 }
 
 /*
- * Cards (docs/brand.md): every card on the site is white with the same 3px
- * black outline and 16px corners. `card-pop` adds the 4px hard shadow and is
- * for cards you can tap (product cards, design tiles); info cards stay flat.
+ * Shape: 16px (rounded-2xl) cards, buttons, panels; 12px (rounded-xl) inputs,
+ * selects, image tiles inside cards; rounded-full chips, filters, badges.
+ * Outline: 3px ink on buttons, cards, panels; 2px on chips, inputs, badges.
  */
 @utility card {
   background-color: #fff;
@@ -45,18 +74,107 @@
   border-radius: var(--radius-2xl);
 }
 
+/* Shared motion for anything that lifts or presses: 120ms ease-out on
+   transform and shadow, off with reduced motion. Pressed = slides 4px into
+   where the shadow was and drops it. */
+@utility press {
+  transition-property: transform, translate, box-shadow;
+  transition-duration: 120ms;
+  transition-timing-function: ease-out;
+  &:active:not(:disabled, [aria-disabled="true"]) {
+    transform: translate(4px, 4px);
+    box-shadow: none;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
+  }
+}
+
+/* Lift: outline only at rest, the hard shadow on hover and keyboard focus
+   (also when a link inside it has focus). For secondary buttons, chips and
+   tappable cards (product cards, design tiles, occasions). */
+@utility lift {
+  &:hover:not(:disabled, [aria-disabled="true"]),
+  &:focus-visible,
+  &:has(:focus-visible) {
+    box-shadow: var(--shadow-hard);
+  }
+}
+
+/* A tappable card = card + lift + press. */
 @utility card-pop {
-  box-shadow: 4px 4px 0 var(--color-ink);
+  transition-property: transform, translate, box-shadow;
+  transition-duration: 120ms;
+  transition-timing-function: ease-out;
+  &:hover,
+  &:focus-visible,
+  &:has(:focus-visible) {
+    box-shadow: var(--shadow-hard);
+  }
+  &:active {
+    transform: translate(4px, 4px);
+    box-shadow: none;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
+  }
+}
+
+/*
+ * Type scale: 7 styles. Body (text-base, 16/24), small (text-sm, 14/20) and
+ * button/label (text-base font-semibold) are plain Tailwind; the rest are
+ * these. Bagel Fat One only at 24px+, only for page and section titles.
+ */
+@utility type-display {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-synthesis: none;
+  font-size: 32px;
+  line-height: 1.05;
+  @media (width >= 48rem) {
+    font-size: 48px;
+  }
+}
+
+@utility type-section {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-synthesis: none;
+  font-size: 24px;
+  line-height: 1.1;
+  @media (width >= 48rem) {
+    font-size: 28px;
+  }
+}
+
+@utility type-card-title {
+  font-family: var(--font-sans);
+  font-weight: 700;
+  font-size: 17px;
+  line-height: 1.3;
+  @media (width >= 48rem) {
+    font-size: 20px;
+  }
+}
+
+@utility type-eyebrow {
+  font-family: var(--font-sans);
+  font-weight: 700;
+  font-size: 12px;
+  line-height: 1.4;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
 }
 
 body {
-  background: var(--color-cream);
+  background: var(--color-page);
   color: var(--color-ink);
   font-family: var(--font-sans);
   -webkit-tap-highlight-color: transparent;
 }
 
-/* Bagel Fat One has one weight; never let the browser fake a bold or italic. */
+/* Bagel Fat One has one weight; never let the browser fake a bold or italic.
+   Deprecated h1/h2 default: removed in the migration PR (use type-section). */
 h1,
 h2,
 .font-display {
@@ -65,12 +183,29 @@ h2,
   font-synthesis: none;
 }
 
-/* Small UI headings (editor header, sheet titles, form sections) stay in the
-   text font so the editor and forms remain calm. */
 h1.font-semibold,
 h2.font-semibold {
   font-family: var(--font-sans);
   font-weight: 600;
+}
+
+/* Urdu script: neither brand font has the glyphs. Use with lang="ur" dir="rtl". */
+:lang(ur) {
+  font-family: var(--font-urdu);
+  line-height: 2;
+}
+
+/* One visible focus ring for every link, button, input and card, shown on
+   keyboard focus only. Don't add focus-visible:outline-none in components. */
+@layer base {
+  :focus-visible {
+    outline: 3px solid var(--color-accent-text);
+    outline-offset: 4px;
+  }
+  /* On dark surfaces (footer, crop screen) the teal ring disappears. */
+  .on-dark :focus-visible {
+    outline-color: var(--color-on-deep-muted);
+  }
 }
 
 /* ---- Page transitions (components/site/page-transition.tsx) ----------------
