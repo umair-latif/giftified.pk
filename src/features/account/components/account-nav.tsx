@@ -30,10 +30,10 @@ export function AccountNav() {
               <Link
                 href={s.href}
                 aria-current={active ? "page" : undefined}
-                className={`focus-visible:ring-brand-600/20 flex h-11 items-center rounded-xl px-3 font-medium transition-colors focus-visible:ring-2 focus-visible:outline-none ${
+                className={`flex h-11 items-center rounded-xl px-3 font-semibold transition-colors ${
                   active
-                    ? "bg-brand-600 text-white"
-                    : "text-ink hover:bg-mint-100 active:bg-mint-100"
+                    ? "bg-ink text-white"
+                    : "text-ink hover:bg-soft active:bg-soft"
                 }`}
                 data-testid={`account-nav-${s.id}`}
               >

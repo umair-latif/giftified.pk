@@ -13,10 +13,10 @@ export function StepBar({
   const currentIndex = STEPS.indexOf(current);
   return (
     <ol
-      className={`flex items-center gap-2 text-[11px] ${
+      className={`flex items-center gap-2 text-sm ${
         inPage
           ? "mb-3"
-          : "mx-auto w-full max-w-md justify-center px-4 py-2 lg:py-3 lg:text-sm"
+          : "mx-auto w-full max-w-md justify-center px-4 py-2 lg:py-3"
       }`}
       aria-label="Order steps"
     >
@@ -27,23 +27,25 @@ export function StepBar({
           aria-current={i === currentIndex ? "step" : undefined}
         >
           <span
-            className={`grid size-5 place-items-center rounded-full text-[10px] font-semibold ${
-              i <= currentIndex
-                ? "bg-brand-600 text-white"
-                : "bg-zinc-200 text-zinc-500"
+            className={`grid size-6 place-items-center rounded-full border-2 text-xs font-semibold ${
+              i === currentIndex
+                ? "bg-action border-ink text-ink"
+                : i < currentIndex
+                  ? "bg-ink border-ink text-white"
+                  : "border-ink/25 text-ink/65 bg-white"
             }`}
           >
             {i + 1}
           </span>
           <span
             className={
-              i === currentIndex ? "font-medium text-zinc-900" : "text-zinc-500"
+              i === currentIndex ? "text-ink font-semibold" : "text-ink/65"
             }
           >
             {step}
           </span>
           {i < STEPS.length - 1 && (
-            <span className="h-px w-5 bg-zinc-300" aria-hidden />
+            <span className="bg-ink/20 h-px w-5" aria-hidden />
           )}
         </li>
       ))}

@@ -28,10 +28,7 @@ export default function ContactPage() {
           have one.
         </p>
         {wa ? (
-          <a
-            href={wa}
-            className={buttonClass("primary", "text-white! hover:text-white!")}
-          >
+          <a href={wa} className={buttonClass("primary", "text-ink!")}>
             <WhatsappIcon width={22} height={22} />
             Chat on WhatsApp
           </a>

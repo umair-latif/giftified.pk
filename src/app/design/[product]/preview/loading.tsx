@@ -12,13 +12,13 @@ export default function Loading() {
       <AppHeader title="Preview" />
       <StepBar current="Preview" />
       <div className="mx-auto w-full max-w-md flex-1 animate-pulse px-4 py-4 motion-reduce:animate-none">
-        <div className="aspect-square rounded-2xl bg-zinc-200" />
+        <div className="bg-ink/10 aspect-square rounded-2xl" />
         <div className="mt-4 flex gap-2">
           {[0, 1, 2, 3].map((i) => (
-            <div key={i} className="size-14 rounded-xl bg-zinc-200" />
+            <div key={i} className="bg-ink/10 size-14 rounded-xl" />
           ))}
         </div>
-        <div className="mt-6 h-12 rounded-2xl bg-zinc-200" />
+        <div className="bg-ink/10 mt-6 h-12 rounded-2xl" />
       </div>
       <span className="sr-only">Loading the preview…</span>
     </div>

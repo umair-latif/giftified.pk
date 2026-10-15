@@ -16,7 +16,7 @@ const LINKS = [
 ] as const;
 
 const row =
-  "text-ink focus-visible:ring-brand-600/20 flex h-10 items-center rounded-xl px-3 text-base font-medium transition-colors hover:bg-mint-100 active:bg-mint-100 focus-visible:ring-2 focus-visible:outline-none";
+  "text-ink flex h-10 items-center rounded-xl px-3 text-base font-semibold transition-colors hover:bg-soft active:bg-soft ";
 
 /** The three burger lines; they turn into an ×. */
 const LINE =
@@ -64,7 +64,7 @@ export function MobileMenu() {
         aria-expanded={open}
         aria-controls={panelId}
         onClick={() => setOpen((o) => !o)}
-        className="text-ink hover:bg-mint-100 active:bg-mint-100 focus-visible:ring-brand-600/20 grid size-11 place-items-center rounded-full transition-colors focus-visible:ring-2 focus-visible:outline-none"
+        className="text-ink hover:bg-soft active:bg-soft grid size-11 place-items-center rounded-full transition-colors"
         data-testid="menu-button"
       >
         <span aria-hidden className="relative block h-4 w-5">
@@ -90,7 +90,7 @@ export function MobileMenu() {
         <nav
           id={panelId}
           aria-label="Menu"
-          className={`border-ink bg-cream absolute inset-x-0 top-full mt-[3px] max-h-[calc(100dvh-5rem)] origin-top overflow-y-auto border-b-[3px] px-4 pt-3 pb-5 transition-[opacity,transform,visibility] duration-200 ease-out motion-reduce:transition-none ${
+          className={`border-ink bg-page absolute inset-x-0 top-full mt-[3px] max-h-[calc(100dvh-5rem)] origin-top overflow-y-auto border-b-[3px] px-4 pt-3 pb-5 transition-[opacity,transform,visibility] duration-200 ease-out motion-reduce:transition-none ${
             open
               ? "visible translate-y-0 opacity-100"
               : "invisible -translate-y-3 opacity-0"
@@ -103,7 +103,7 @@ export function MobileMenu() {
                 <Link
                   href={l.href}
                   aria-current={path === l.href ? "page" : undefined}
-                  className={`${row} ${path === l.href ? "bg-mint-100" : ""}`}
+                  className={`${row} ${path === l.href ? "bg-soft" : ""}`}
                   onClick={() => setOpen(false)}
                 >
                   {l.label}
@@ -128,7 +128,7 @@ export function MobileMenu() {
               <li key={o.slug}>
                 <Link
                   href={`/occasions/${o.slug}`}
-                  className="border-ink text-ink hover:bg-sunny focus-visible:ring-brand-600/20 inline-flex h-9 items-center rounded-full border-2 bg-white px-3 text-sm font-medium transition-colors focus-visible:ring-2 focus-visible:outline-none"
+                  className="border-ink text-ink lift press inline-flex h-9 items-center rounded-full border-2 bg-white px-3 text-sm font-semibold"
                   onClick={() => setOpen(false)}
                 >
                   {o.label}

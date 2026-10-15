@@ -61,9 +61,5 @@ export function PageTitle({
   className?: string;
   children: ReactNode;
 }) {
-  return (
-    <h1 className={`font-display text-brand-900 text-2xl ${className}`}>
-      {children}
-    </h1>
-  );
+  return <h1 className={`type-section text-deep ${className}`}>{children}</h1>;
 }

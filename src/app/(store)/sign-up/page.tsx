@@ -24,24 +24,22 @@ export default async function SignUpPage(props: PageProps<"/sign-up">) {
   return (
     <Page width="narrow" className="flex flex-col gap-4">
       <PageTitle>Create an account</PageTitle>
-      <p className="text-sm text-zinc-600">
+      <p className="text-ink/70 text-sm">
         Keep your orders and designs in one place. You can always order without
         an account too.
       </p>
       {googleConfigFromEnv() && (
         <>
           <GoogleButton next={nextPath} />
-          <p className="text-center text-sm text-zinc-500">
-            or with your email
-          </p>
+          <p className="text-ink/65 text-center text-sm">or with your email</p>
         </>
       )}
       <SignUpForm next={nextPath} />
-      <p className="text-center text-sm text-zinc-600">
+      <p className="text-ink/70 text-center text-sm">
         Already have an account?{" "}
         <Link
           href={signInHref}
-          className="text-brand-700 hover:text-brand-800 focus-visible:ring-brand-600/20 rounded font-medium focus-visible:ring-2 focus-visible:outline-none"
+          className="text-accent-text hover:text-deep rounded-xl font-semibold"
         >
           Sign in
         </Link>

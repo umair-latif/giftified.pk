@@ -49,7 +49,7 @@ export function OrderAgainButton({
       >
         {busy ? "Adding to cart…" : "Order again"}
       </button>
-      <p className="text-center text-xs text-zinc-500">
+      <p className="text-ink/65 text-center text-xs">
         Adds the same designs to your cart. You can change them, the colour or
         the size before you order.
       </p>

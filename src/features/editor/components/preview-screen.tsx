@@ -108,7 +108,7 @@ export function PreviewScreen({
         type="button"
         onClick={() => void submit()}
         disabled={!canSubmit}
-        className="focus-visible:ring-brand-600/20 h-9 w-full rounded-full text-sm text-zinc-600 underline hover:bg-zinc-100 focus-visible:ring-2 focus-visible:outline-none disabled:text-zinc-300"
+        className="text-ink/70 hover:bg-soft disabled:text-ink/40 h-9 w-full rounded-full text-sm underline"
       >
         {busy ? "Saving…" : "Add to cart instead"}
       </button>
@@ -126,7 +126,7 @@ export function PreviewScreen({
 
   return (
     <div
-      className={`bg-cream min-h-dvh lg:pb-10 ${publishing ? "pb-48" : "pb-28"}`}
+      className={`bg-page min-h-dvh lg:pb-10 ${publishing ? "pb-48" : "pb-28"}`}
     >
       <AppHeader
         title={item ? "Preview changes" : "Preview"}
@@ -154,7 +154,7 @@ export function PreviewScreen({
             data-testid="preview-colour"
           >
             <span
-              className="size-4 rounded-full border border-zinc-300"
+              className="border-ink/25 size-4 rounded-full border"
               style={{ backgroundColor: colourHex }}
               aria-hidden
             />
@@ -162,7 +162,7 @@ export function PreviewScreen({
             {!item && (
               <Link
                 href={editHref}
-                className="text-brand-700 underline underline-offset-2"
+                className="text-accent-text underline underline-offset-2"
               >
                 Change in editor
               </Link>
@@ -184,7 +184,7 @@ export function PreviewScreen({
           watermark={!canPublish}
         />
         {needsSize && result && !blocked && (
-          <p className="mt-3 text-sm text-zinc-700" role="status">
+          <p className="text-ink/80 mt-3 text-sm" role="status">
             Choose your size to add it to your cart.
           </p>
         )}
@@ -226,7 +226,7 @@ export function PreviewScreen({
           onClose={() => setPublishOpen(false)}
         />
       )}
-      <div className="fixed inset-x-0 bottom-0 z-20 border-t border-zinc-200 bg-white/95 px-4 pt-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] backdrop-blur lg:hidden">
+      <div className="border-ink/15 fixed inset-x-0 bottom-0 z-20 border-t bg-white/95 px-4 pt-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] backdrop-blur lg:hidden">
         {action}
       </div>
     </div>

@@ -38,18 +38,18 @@ export function RecentOrders() {
   if (orders.length === 0) return null;
   return (
     <section aria-labelledby="recent-orders" data-testid="recent-orders">
-      <h2 id="recent-orders" className="font-display text-ink text-lg">
+      <h2 id="recent-orders" className="type-card-title text-ink">
         Your recent orders on this device
       </h2>
-      <ul className="card mt-2 divide-y divide-zinc-200 overflow-hidden">
+      <ul className="card divide-ink/15 mt-2 divide-y overflow-hidden">
         {orders.map((o) => (
           <li key={o.id}>
             <Link
               href={recentOrderUrl(o)}
-              className="focus-visible:ring-brand-600/20 flex min-h-12 items-center justify-between gap-2 px-4 py-2 hover:bg-zinc-50 focus-visible:ring-2 focus-visible:outline-none focus-visible:ring-inset active:bg-zinc-50"
+              className="hover:bg-soft active:bg-soft flex min-h-12 items-center justify-between gap-2 px-4 py-2"
             >
-              <span className="font-medium text-zinc-900">Order #{o.id}</span>
-              <span className="text-sm text-zinc-500">
+              <span className="text-ink font-semibold">Order #{o.id}</span>
+              <span className="text-ink/65 text-sm">
                 {placedOn(o.createdAt)}
               </span>
             </Link>

@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 
 export const inputClass = (invalid: boolean) =>
-  `block h-12 w-full rounded-xl border-2 bg-white px-3 text-base text-zinc-900 placeholder:text-zinc-400 focus:border-brand-600 focus:ring-2 focus:ring-brand-600/20 focus:outline-none ${
+  `block h-12 w-full rounded-xl border-2 bg-white px-3 text-base text-ink placeholder:text-ink/60 focus:border-ink ${
     invalid ? "border-red-500" : "border-ink"
   }`;
 
@@ -21,9 +21,9 @@ export function Field({
 }) {
   return (
     <div className="flex flex-col gap-1">
-      <label htmlFor={id} className="text-sm font-medium text-zinc-800">
+      <label htmlFor={id} className="text-ink text-sm font-semibold">
         {label}
-        {hint && <span className="font-normal text-zinc-500"> · {hint}</span>}
+        {hint && <span className="text-ink/65 font-normal"> · {hint}</span>}
       </label>
       {children}
       {error && (

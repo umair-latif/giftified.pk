@@ -15,13 +15,13 @@ export function WhyDesignBanana() {
   return (
     <section aria-labelledby="home-why" className="pt-10">
       <Container width="wide">
-        <div className="card bg-mint-100! p-5">
-          <h2 id="home-why" className="text-brand-900 text-2xl">
+        <div className="on-dark border-ink bg-deep rounded-2xl border-[3px] p-5">
+          <h2 id="home-why" className="type-section text-on-deep">
             Why DesignBanana
           </h2>
           <ul className="mt-3 space-y-2">
             {WHY_DESIGNBANANA.map((claim) => (
-              <li key={claim} className="text-ink flex items-start gap-2">
+              <li key={claim} className="text-on-deep flex items-start gap-2">
                 <svg
                   width="20"
                   height="20"
@@ -32,7 +32,7 @@ export function WhyDesignBanana() {
                   strokeLinecap="round"
                   strokeLinejoin="round"
                   aria-hidden="true"
-                  className="text-brand-600 mt-0.5 shrink-0"
+                  className="text-on-deep-muted mt-0.5 shrink-0"
                 >
                   <path d="M5 12l5 5L20 7" />
                 </svg>

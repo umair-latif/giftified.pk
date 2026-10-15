@@ -55,11 +55,11 @@ export function TextColourPicker({ value, onChange }: Props) {
         aria-expanded={open}
         aria-haspopup="true"
         onClick={() => setOpen((o) => !o)}
-        className="focus-visible:ring-brand-600/20 grid size-9 place-items-center rounded-md hover:bg-zinc-100 focus-visible:ring-2 focus-visible:outline-none active:bg-zinc-100"
+        className="hover:bg-soft active:bg-soft grid size-9 place-items-center rounded-xl"
       >
         <span
           aria-hidden
-          className="size-6 rounded-full ring-1 ring-zinc-300 ring-offset-1"
+          className="ring-ink/25 size-6 rounded-full ring-1 ring-offset-1"
           style={{ backgroundColor: value }}
         />
       </button>
@@ -68,7 +68,7 @@ export function TextColourPicker({ value, onChange }: Props) {
           role="group"
           aria-label="Choose text colour"
           data-testid="colour-panel"
-          className="absolute inset-x-0 bottom-full z-20 border-t border-zinc-200 bg-white px-3 py-3 shadow-[0_-4px_12px_rgba(0,0,0,0.06)] lg:top-full lg:bottom-auto lg:mt-2 lg:rounded-2xl lg:border lg:shadow-lg"
+          className="border-ink absolute inset-x-0 bottom-full z-20 border-t-2 bg-white px-3 py-3 lg:top-full lg:bottom-auto lg:mt-2 lg:rounded-2xl lg:border-2"
         >
           <div className="mx-auto grid max-w-md grid-cols-8 gap-2 lg:grid-cols-6 lg:justify-items-center">
             {TEXT_SWATCHES.map((s) => (
@@ -78,16 +78,16 @@ export function TextColourPicker({ value, onChange }: Props) {
                 aria-label={s.name}
                 aria-pressed={s.hex.toLowerCase() === current}
                 onClick={() => pick(s.hex)}
-                className={`hover:ring-brand-400 focus-visible:ring-brand-600/40 size-9 rounded-full ring-1 ring-zinc-300 hover:ring-2 focus-visible:ring-2 focus-visible:outline-none ${
+                className={`hover:ring-ink ring-ink/25 size-9 rounded-full ring-1 hover:ring-2 ${
                   s.hex.toLowerCase() === current
-                    ? "outline-brand-600 outline-2 outline-offset-2"
+                    ? "outline-ink outline-2 outline-offset-2"
                     : ""
                 }`}
                 style={{ backgroundColor: s.hex }}
               />
             ))}
             <label
-              className="relative grid size-9 cursor-pointer place-items-center rounded-full bg-[conic-gradient(red,yellow,lime,cyan,blue,magenta,red)] ring-1 ring-zinc-300"
+              className="ring-ink/25 relative grid size-9 cursor-pointer place-items-center rounded-full bg-[conic-gradient(red,yellow,lime,cyan,blue,magenta,red)] ring-1"
               title="Custom colour"
             >
               <span className="sr-only">Custom colour</span>
@@ -138,18 +138,18 @@ export function HexField({
     >
       <span
         aria-hidden
-        className="size-9 shrink-0 rounded-full ring-1 ring-zinc-300"
+        className="ring-ink/25 size-9 shrink-0 rounded-full ring-1"
         style={{ backgroundColor: parsed ?? value }}
       />
       <label htmlFor={id} className="sr-only">
         Colour code
       </label>
       <div
-        className={`flex h-10 flex-1 items-center rounded-md border px-2 font-mono text-sm ${
-          invalid ? "border-red-500" : "border-zinc-300"
+        className={`has-[:focus-visible]:outline-accent-text flex h-10 flex-1 items-center rounded-xl border px-2 font-mono text-sm has-[:focus-visible]:outline-3 has-[:focus-visible]:outline-offset-4 ${
+          invalid ? "border-red-500" : "border-ink/25"
         }`}
       >
-        <span className="text-zinc-400">#</span>
+        <span className="text-ink/60">#</span>
         <input
           id={id}
           value={draft}
@@ -171,7 +171,7 @@ export function HexField({
       </div>
       <button
         type="submit"
-        className="bg-brand-600 hover:bg-brand-700 active:bg-brand-700 focus-visible:ring-brand-600/40 h-10 shrink-0 rounded-md px-3 text-sm font-medium text-white focus-visible:ring-2 focus-visible:outline-none"
+        className="bg-action shadow-hard text-ink press border-ink disabled:border-ink/40 disabled:bg-page disabled:text-ink/50 h-10 shrink-0 rounded-2xl border-[3px] px-3 text-sm font-semibold disabled:cursor-not-allowed disabled:shadow-none"
       >
         Apply
       </button>

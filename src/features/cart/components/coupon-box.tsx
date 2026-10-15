@@ -25,7 +25,7 @@ export function CouponBox({
   if (appliedCode)
     return (
       <div
-        className="bg-mint-100 text-brand-900 flex items-center justify-between gap-2 rounded-lg px-3 py-2 text-sm"
+        className="bg-soft text-deep flex items-center justify-between gap-2 rounded-xl px-3 py-2 text-sm"
         data-testid="coupon-applied"
       >
         <span>
@@ -35,7 +35,7 @@ export function CouponBox({
         <button
           type="button"
           onClick={onRemove}
-          className="focus-visible:ring-brand-600/20 h-9 rounded-full px-3 underline focus-visible:ring-2 focus-visible:outline-none"
+          className="h-9 rounded-full px-3 underline"
         >
           Remove
         </button>
@@ -51,7 +51,7 @@ export function CouponBox({
     >
       <label
         htmlFor="coupon-code"
-        className="block text-sm font-medium text-zinc-900"
+        className="text-ink block text-sm font-semibold"
       >
         Coupon code
       </label>
@@ -63,12 +63,12 @@ export function CouponBox({
           autoCapitalize="characters"
           autoComplete="off"
           maxLength={60}
-          className="focus:border-brand-600 h-11 min-w-0 flex-1 rounded-lg border border-zinc-300 bg-white px-3 text-base uppercase"
+          className="focus:border-ink border-ink/25 h-11 min-w-0 flex-1 rounded-xl border bg-white px-3 text-base uppercase"
         />
         <button
           type="submit"
           disabled={!typed.trim()}
-          className="text-ink border-ink hover:bg-mint-100 h-11 rounded-2xl border-[3px] bg-white px-4 text-sm font-semibold focus-visible:ring-2 focus-visible:outline-none disabled:text-zinc-300 disabled:ring-zinc-200"
+          className="text-ink border-ink disabled:text-ink/40 disabled:ring-ink/15 lift press h-11 rounded-2xl border-[3px] bg-white px-4 text-sm font-semibold"
         >
           Apply
         </button>

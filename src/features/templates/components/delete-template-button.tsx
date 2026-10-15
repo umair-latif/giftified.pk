@@ -49,7 +49,7 @@ export function DeleteTemplateButton({
         onClick={remove}
         disabled={busy}
         data-testid="delete-template"
-        className="min-h-11 text-sm font-medium text-red-700 underline disabled:opacity-50"
+        className="min-h-11 text-sm font-semibold text-red-700 underline disabled:opacity-50"
       >
         {busy ? "Deleting…" : "Delete design"}
       </button>

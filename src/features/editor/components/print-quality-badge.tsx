@@ -35,7 +35,7 @@ export function PrintQualityBadge({
       role="status"
       data-testid="dpi-badge"
       data-status={status}
-      className={`rounded-md px-3 py-2 text-xs ring-1 ${c.className}`}
+      className={`rounded-xl px-3 py-2 text-xs ring-1 ${c.className}`}
     >
       <span className="font-semibold">{c.label}</span> · {dpi} DPI
       {c.hint && <span className="block">{c.hint}</span>}

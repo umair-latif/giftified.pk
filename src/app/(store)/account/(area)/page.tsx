@@ -47,11 +47,11 @@ export default async function AccountPage() {
       </PageTitle>
       <section className={`p-4 ${card} lg:hidden`}>
         {name && (
-          <p className="text-ink font-medium" data-testid="account-name">
+          <p className="text-ink font-semibold" data-testid="account-name">
             {name}
           </p>
         )}
-        <p className="text-sm text-zinc-600" data-testid="account-email">
+        <p className="text-ink/70 text-sm" data-testid="account-email">
           {customer.email}
         </p>
       </section>
@@ -59,25 +59,25 @@ export default async function AccountPage() {
       {latest ? (
         <Link
           href={`/account/orders/${latest.id}`}
-          className={`focus-visible:ring-brand-600/20 hover:bg-mint-100 flex items-center justify-between gap-3 p-4 transition-colors focus-visible:ring-2 focus-visible:outline-none ${card}`}
+          className={`hover:bg-soft flex items-center justify-between gap-3 p-4 transition-colors ${card}`}
           data-testid="account-latest-order"
         >
           <span>
-            <span className="block text-sm text-zinc-500">Latest order</span>
-            <span className="text-ink font-medium">Order #{latest.id}</span>
-            <span className="block text-sm text-zinc-500">
+            <span className="text-ink/65 block text-sm">Latest order</span>
+            <span className="text-ink font-semibold">Order #{latest.id}</span>
+            <span className="text-ink/65 block text-sm">
               {formatDate(latest.createdAt)}
             </span>
           </span>
           <StatusPill>{orderStatusLabel(latest)}</StatusPill>
         </Link>
       ) : (
-        <p className={`hidden p-4 text-zinc-600 lg:block ${card}`}>
+        <p className={`text-ink/70 hidden p-4 lg:block ${card}`}>
           No orders yet. When you order while signed in, you can follow it here.
         </p>
       )}
 
-      <p className="hidden text-sm text-zinc-600 lg:block">
+      <p className="text-ink/70 hidden text-sm lg:block">
         Choose a section on the left to see your orders, saved designs, delivery
         address or settings.
       </p>

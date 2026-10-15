@@ -21,7 +21,7 @@ export default async function ProductsPage() {
   return (
     <Page width="wide">
       <PageTitle>Design your own gift</PageTitle>
-      <p className="mt-1 text-sm text-zinc-600">
+      <p className="text-ink/70 mt-1 text-sm">
         Pick a product, add your photos and words — pay cash when it arrives.
       </p>
       <ul className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-3">

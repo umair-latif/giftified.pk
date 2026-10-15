@@ -242,7 +242,7 @@ export function DesignPreview({
                     </div>
                   ))
                 ) : (
-                  <span className="grid w-full place-items-center text-xs text-zinc-400">
+                  <span className="text-ink/60 grid w-full place-items-center text-xs">
                     Rendering preview…
                   </span>
                 )}
@@ -280,10 +280,10 @@ export function DesignPreview({
                       aria-label={g.spec.label}
                       aria-current={g.spec.id === shown?.spec.id}
                       data-testid={`preview-thumb-${g.spec.id}`}
-                      className={`focus-visible:ring-brand-600/60 block h-16 overflow-hidden rounded-xl border-2 bg-white transition duration-150 focus-visible:ring-2 focus-visible:outline-none lg:h-auto lg:w-full ${
+                      className={`block h-16 overflow-hidden rounded-xl border-2 bg-white transition-shadow duration-[120ms] motion-reduce:transition-none lg:h-auto lg:w-full ${
                         g.spec.id === shown?.spec.id
-                          ? "border-brand-600 ring-brand-600 translate-x-0.5 translate-y-0.5 ring-2"
-                          : "border-ink shadow-[3px_3px_0_var(--color-ink)] hover:-translate-y-px"
+                          ? "border-ink ring-ink ring-2 ring-offset-2"
+                          : "border-ink hover:shadow-hard"
                       }`}
                       style={{
                         aspectRatio: `${g.spec.widthPx} / ${g.spec.heightPx}`,
@@ -300,7 +300,7 @@ export function DesignPreview({
         )}
         <div
           hidden={!showFlat}
-          className="relative grid w-full place-items-center overflow-hidden rounded-2xl shadow-sm ring-1 ring-zinc-300"
+          className="ring-ink/25 relative grid w-full place-items-center overflow-hidden rounded-2xl ring-1"
           style={{
             aspectRatio: `${widthMm} / ${heightMm}`,
             backgroundColor: base,
@@ -316,7 +316,7 @@ export function DesignPreview({
             />
           )}
           {state.kind === "loading" && (
-            <span className="text-xs text-zinc-400">Rendering preview…</span>
+            <span className="text-ink/60 text-xs">Rendering preview…</span>
           )}
           {state.kind === "error" && (
             <span className="p-4 text-center text-xs text-red-600">
@@ -324,11 +324,11 @@ export function DesignPreview({
             </span>
           )}
           {state.kind === "empty" && (
-            <span className="p-4 text-center text-xs text-zinc-500">
+            <span className="text-ink/65 p-4 text-center text-xs">
               Nothing designed yet.{" "}
               <Link
                 href={`/design/${product.id}`}
-                className="text-brand-600 font-medium underline"
+                className="text-accent-text font-semibold underline"
               >
                 Go back and add some text
               </Link>
@@ -341,19 +341,19 @@ export function DesignPreview({
       </div>
       <div className="flex flex-col gap-3 lg:sticky lg:top-24">
         <dl className="card grid grid-cols-2 gap-y-1 p-3 text-xs">
-          <dt className="text-zinc-500">Product</dt>
-          <dd className="text-right text-zinc-900">{product.subtitle}</dd>
-          <dt className="text-zinc-500">Print size</dt>
-          <dd className="text-right text-zinc-900">
+          <dt className="text-ink/65">Product</dt>
+          <dd className="text-ink text-right">{product.subtitle}</dd>
+          <dt className="text-ink/65">Print size</dt>
+          <dd className="text-ink text-right">
             Up to {formatCm(widthMm)} × {formatCm(heightMm)} cm
           </dd>
-          <dt className="text-zinc-500">Layers</dt>
-          <dd className="text-right text-zinc-900" data-testid="preview-layers">
+          <dt className="text-ink/65">Layers</dt>
+          <dd className="text-ink text-right" data-testid="preview-layers">
             {state.kind === "ready" ? state.layers : 0}
           </dd>
           {state.kind === "ready" && state.quality.worstDpi !== null && (
             <>
-              <dt className="text-zinc-500">Photo quality</dt>
+              <dt className="text-ink/65">Photo quality</dt>
               <dd
                 className={`text-right ${QUALITY[state.quality.status].className}`}
                 data-testid="preview-quality"

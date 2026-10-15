@@ -24,7 +24,7 @@ export function EditorToolbar({
   return (
     <nav
       aria-label="Editor tools"
-      className="fixed inset-x-0 bottom-0 z-10 border-t border-zinc-200 bg-white/95 pb-[env(safe-area-inset-bottom)] backdrop-blur lg:static lg:rounded-2xl lg:border lg:pb-0 lg:shadow-sm"
+      className="border-ink/15 lg:border-ink fixed inset-x-0 bottom-0 z-10 border-t bg-white/95 pb-[env(safe-area-inset-bottom)] backdrop-blur lg:static lg:rounded-2xl lg:border-2 lg:pb-0"
     >
       <div className="mx-auto flex max-w-md items-stretch justify-around px-2 lg:max-w-none lg:gap-1 lg:p-1">
         <ToolButton
@@ -55,7 +55,7 @@ export function EditorToolbar({
 function ColourDot({ colour }: { colour: string | null }) {
   return (
     <span
-      className={`block size-[18px] rounded-full ring-1 ring-zinc-400 ${
+      className={`ring-ink/40 block size-[18px] rounded-full ring-1 ${
         colour
           ? ""
           : "bg-[conic-gradient(#ff3d8b,#ffe135,#14b8a6,#1d4ed8,#ff3d8b)]"
@@ -84,7 +84,7 @@ function ToolButton({
       onClick={onClick}
       disabled={disabled}
       aria-haspopup={haspopup ? "dialog" : undefined}
-      className="focus-visible:ring-brand-600/20 flex min-h-14 min-w-14 flex-col items-center justify-center gap-0.5 text-zinc-800 hover:bg-zinc-100 focus-visible:ring-2 focus-visible:outline-none focus-visible:ring-inset disabled:text-zinc-300 disabled:hover:bg-transparent lg:flex-1 lg:rounded-xl"
+      className="text-ink hover:bg-soft disabled:text-ink/40 flex min-h-14 min-w-14 flex-col items-center justify-center gap-0.5 disabled:hover:bg-transparent lg:flex-1 lg:rounded-xl"
     >
       <span
         aria-hidden
@@ -92,7 +92,7 @@ function ToolButton({
       >
         {icon}
       </span>
-      <span className="text-[11px] whitespace-nowrap">{label}</span>
+      <span className="text-xs whitespace-nowrap">{label}</span>
     </button>
   );
 }

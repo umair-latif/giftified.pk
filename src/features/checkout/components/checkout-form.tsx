@@ -352,7 +352,7 @@ export function CheckoutForm() {
 
   if (placed)
     return (
-      <p className="py-8 text-center text-zinc-700" aria-live="polite">
+      <p className="text-ink/80 py-8 text-center" aria-live="polite">
         Order placed — opening your order…
       </p>
     );
@@ -360,7 +360,7 @@ export function CheckoutForm() {
   if (items.length === 0)
     return (
       <div className="card p-5 text-center" data-testid="checkout-empty">
-        <p className="text-zinc-700">Your cart is empty.</p>
+        <p className="text-ink/80">Your cart is empty.</p>
         <Link href="/products" className={buttonClass("primary", "mt-4")}>
           Browse products
         </Link>
@@ -387,7 +387,7 @@ export function CheckoutForm() {
       <div className="contents lg:flex lg:flex-col lg:gap-4">
         {problems.length > 0 && (
           <div
-            className="space-y-1 rounded-lg bg-red-50 p-3 text-sm text-red-800 ring-1 ring-red-200"
+            className="space-y-1 rounded-xl bg-red-50 p-3 text-sm text-red-800 ring-1 ring-red-200"
             data-testid="checkout-blocked"
             role="alert"
           >
@@ -407,7 +407,7 @@ export function CheckoutForm() {
                       ? `/design/${item.productId}?item=${encodeURIComponent(item.id)}`
                       : "/cart"
                   }
-                  className="focus-visible:ring-brand-600/20 rounded font-medium underline hover:text-red-900 focus-visible:ring-2 focus-visible:outline-none"
+                  className="rounded-xl font-semibold underline hover:text-red-900"
                 >
                   {state === "block" || state === "placeholder"
                     ? "Edit design"
@@ -418,12 +418,12 @@ export function CheckoutForm() {
           </div>
         )}
         {anyWarn && problems.length === 0 && (
-          <p className="rounded-lg bg-amber-50 p-3 text-sm text-amber-900 ring-1 ring-amber-200">
+          <p className="rounded-xl bg-amber-50 p-3 text-sm text-amber-900 ring-1 ring-amber-200">
             A photo may look a little soft when printed. You can still order, or
             edit the design from your{" "}
             <Link
               href="/cart"
-              className="focus-visible:ring-brand-600/20 rounded font-medium underline hover:text-amber-950 focus-visible:ring-2 focus-visible:outline-none"
+              className="rounded-xl font-semibold underline hover:text-amber-950"
             >
               cart
             </Link>{" "}
@@ -515,7 +515,7 @@ export function CheckoutForm() {
             className="card flex flex-col gap-4 p-4"
             data-testid="delivery-block"
           >
-            <legend className="px-1 text-sm font-semibold text-zinc-900">
+            <legend className="text-ink px-1 text-sm font-semibold">
               Delivery details
             </legend>
             <Field
@@ -589,19 +589,19 @@ export function CheckoutForm() {
           />
         </div>
         <dl className="card grid grid-cols-2 gap-y-1 p-4 text-sm">
-          <dt className="text-zinc-500">Items</dt>
+          <dt className="text-ink/65">Items</dt>
           <dd className="text-right" data-testid="subtotal">
             {quote ? formatPkr(quote.subtotalPkr) : "…"}
           </dd>
           {quote && quote.discountPkr > 0 && (
             <>
-              <dt className="text-zinc-500">Coupon</dt>
+              <dt className="text-ink/65">Coupon</dt>
               <dd className="text-right" data-testid="discount">
                 −{formatPkr(quote.discountPkr)}
               </dd>
             </>
           )}
-          <dt className="text-zinc-500">Delivery</dt>
+          <dt className="text-ink/65">Delivery</dt>
           <dd className="text-right" data-testid="shipping">
             {quote?.shippingPkr != null
               ? formatPkr(quote.shippingPkr)
@@ -609,11 +609,14 @@ export function CheckoutForm() {
                 ? "Choose the delivery city"
                 : "Choose your city"}
           </dd>
-          <dt className="font-semibold text-zinc-900">Total</dt>
-          <dd className="text-right font-semibold" data-testid="total">
+          <dt className="text-ink font-semibold">Total</dt>
+          <dd
+            className="text-accent-text text-right font-semibold"
+            data-testid="total"
+          >
             {quote?.shippingPkr != null ? formatPkr(quote.totalPkr) : "…"}
           </dd>
-          <dd className="col-span-2 mt-2 text-xs text-zinc-500">
+          <dd className="text-ink/65 col-span-2 mt-2 text-xs">
             Pay in cash when it arrives. We’ll contact you to confirm before we
             print.
           </dd>
@@ -689,17 +692,17 @@ function OrderSummary({
       className={`card p-4 ${className}`}
     >
       <div className="flex items-baseline justify-between">
-        <h2 id="summary-heading" className="font-semibold text-zinc-900">
+        <h2 id="summary-heading" className="text-ink font-semibold">
           Your order
         </h2>
         <Link
           href="/cart"
-          className="text-brand-700 hover:text-brand-800 focus-visible:ring-brand-600/20 rounded text-sm underline focus-visible:ring-2 focus-visible:outline-none"
+          className="text-accent-text hover:text-deep rounded-xl text-sm underline"
         >
           Edit cart
         </Link>
       </div>
-      <ul className="mt-2 divide-y divide-zinc-100">
+      <ul className="divide-ink/10 mt-2 divide-y">
         {items.map((item, i) => {
           const unit = quote?.unitPricePkr[i];
           const thumb = thumbs[item.designKey];
@@ -709,7 +712,7 @@ function OrderSummary({
               className="flex items-center gap-3 py-2"
               data-testid="checkout-line"
             >
-              <div className="grid size-12 shrink-0 place-items-center overflow-hidden rounded-md bg-zinc-100">
+              <div className="bg-ink/5 grid size-12 shrink-0 place-items-center overflow-hidden rounded-xl">
                 {thumb ? (
                   // eslint-disable-next-line @next/next/no-img-element -- local data-URL thumbnail
                   <img
@@ -720,10 +723,10 @@ function OrderSummary({
                 ) : null}
               </div>
               <div className="min-w-0 flex-1 text-sm">
-                <p className="font-medium text-zinc-900">
+                <p className="text-ink font-semibold">
                   {quote?.lineTitles[i] ?? productName(item)}
                 </p>
-                <p className="text-xs text-zinc-500">
+                <p className="text-ink/65 text-xs">
                   {quote?.lineTitles[i] ? `${productName(item)} · ` : ""}
                   {colourName(item)}
                   {item.size ? ` · ${item.size}` : ""} · Qty {item.quantity}

@@ -36,7 +36,7 @@ export function SamplePhotoTags({
               left: `${clamp((t.xMm / widthMm) * 100)}%`,
               top: `${clamp((t.yMm / heightMm) * 100)}%`,
             }}
-            className="bg-sunny text-ink border-ink focus-visible:ring-brand-600/40 absolute z-10 inline-flex min-h-8 -translate-x-1/2 -translate-y-1/2 items-center gap-1 rounded-full border-2 px-2.5 text-[11px] leading-none font-semibold whitespace-nowrap shadow-sm focus-visible:ring-2 focus-visible:outline-none"
+            className="bg-highlight text-ink border-ink absolute z-10 inline-flex min-h-8 -translate-x-1/2 -translate-y-1/2 items-center gap-1 rounded-full border-2 px-2.5 text-xs leading-none font-semibold whitespace-nowrap"
           >
             <ImageIcon width={14} height={14} />
             Sample photo

@@ -64,11 +64,11 @@ export default function AboutPage() {
 
       <p className="text-sm">
         Ready to make something?{" "}
-        <Link href="/products" className="text-brand-700 underline">
+        <Link href="/products" className="text-accent-text underline">
           See our products
         </Link>{" "}
         or{" "}
-        <Link href="/contact" className="text-brand-700 underline">
+        <Link href="/contact" className="text-accent-text underline">
           get in touch
         </Link>
         .

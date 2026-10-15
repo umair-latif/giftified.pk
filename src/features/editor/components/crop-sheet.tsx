@@ -116,13 +116,13 @@ export function CropSheet({ target, onCancel, onApply }: Props) {
       role="dialog"
       aria-modal="true"
       aria-label="Crop and frame photo"
-      className="fixed inset-0 z-40 flex flex-col bg-zinc-950 text-white"
+      className="on-dark bg-ink fixed inset-0 z-40 flex flex-col text-white"
     >
       <header className="flex h-14 items-center justify-between px-2 pt-[env(safe-area-inset-top)]">
         <button
           type="button"
           onClick={onCancel}
-          className="h-10 rounded-md px-3 text-sm text-zinc-300 hover:bg-white/10 focus-visible:ring-2 focus-visible:ring-white/40 focus-visible:outline-none"
+          className="h-10 rounded-xl px-3 text-sm text-white/80 hover:bg-white/10"
         >
           Cancel
         </button>
@@ -130,7 +130,7 @@ export function CropSheet({ target, onCancel, onApply }: Props) {
         <button
           type="button"
           onClick={() => onApply(viewToRect(imageAspect, view), shape)}
-          className="bg-brand-500 hover:bg-brand-400 h-9 rounded-full px-4 text-sm font-medium focus-visible:ring-2 focus-visible:ring-white/40 focus-visible:outline-none"
+          className="bg-action text-ink press h-10 rounded-full px-5 text-sm font-semibold"
         >
           Done
         </button>
@@ -214,7 +214,7 @@ export function CropSheet({ target, onCancel, onApply }: Props) {
       </div>
 
       <div className="space-y-3 px-4 pt-2 pb-[calc(1rem+env(safe-area-inset-bottom))]">
-        <div className="flex items-center gap-3 text-xs text-zinc-300">
+        <div className="flex items-center gap-3 text-sm text-white/80">
           <label htmlFor="crop-zoom">Zoom</label>
           <input
             id="crop-zoom"
@@ -229,13 +229,13 @@ export function CropSheet({ target, onCancel, onApply }: Props) {
                 zoom: clampZoom(Number(e.target.value)),
               }))
             }
-            className="accent-brand-400 flex-1"
+            className="accent-action flex-1"
             aria-label="Zoom"
           />
           <button
             type="button"
             onClick={() => setView(rectToView(imageAspect, FULL_RECT))}
-            className="h-9 shrink-0 rounded-full px-2 text-xs text-zinc-300 underline hover:bg-white/10 focus-visible:ring-2 focus-visible:ring-white/40 focus-visible:outline-none"
+            className="h-9 shrink-0 rounded-full px-2 text-sm text-white/80 underline hover:bg-white/10"
           >
             Reset
           </button>
@@ -291,8 +291,6 @@ export function CropSheet({ target, onCancel, onApply }: Props) {
 const clampZoom = (z: number) => Math.min(MAX_CROP_ZOOM, Math.max(1, z));
 
 const chipClass = (on: boolean) =>
-  `h-9 shrink-0 rounded-full px-3 text-xs font-medium focus-visible:ring-2 focus-visible:ring-white/40 focus-visible:outline-none ${
-    on
-      ? "bg-white text-zinc-900 hover:bg-zinc-200"
-      : "bg-zinc-800 text-zinc-200 hover:bg-zinc-700"
+  `h-9 shrink-0 rounded-full px-3 text-sm font-semibold ${
+    on ? "bg-white text-ink" : "bg-white/10 text-white hover:bg-white/20"
   }`;

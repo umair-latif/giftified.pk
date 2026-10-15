@@ -16,10 +16,10 @@ export default function TrackPage() {
       <PageTitle>Track your order</PageTitle>
       <RecentOrders />
       <section aria-labelledby="find-order" className="flex flex-col gap-2">
-        <h2 id="find-order" className="font-display text-ink text-lg">
+        <h2 id="find-order" className="type-card-title text-ink">
           Find an order
         </h2>
-        <p className="text-sm text-zinc-600">
+        <p className="text-ink/70 text-sm">
           Enter the order number from your confirmation and the mobile number
           you ordered with.
         </p>

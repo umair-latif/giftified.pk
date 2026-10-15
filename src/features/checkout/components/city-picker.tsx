@@ -71,7 +71,7 @@ export function CityPicker({
           id={listId}
           role="listbox"
           aria-label="Cities"
-          className="absolute inset-x-0 top-full z-10 mt-1 max-h-60 overflow-y-auto rounded-lg bg-white py-1 shadow-lg ring-1 ring-zinc-200"
+          className="border-ink absolute inset-x-0 top-full z-10 mt-1 max-h-60 overflow-y-auto rounded-xl border-2 bg-white py-1"
           // Keep focus in the input so the tap lands on the option.
           onMouseDown={(e) => e.preventDefault()}
         >
@@ -80,7 +80,7 @@ export function CityPicker({
               key={city}
               role="option"
               aria-selected={city === typed}
-              className="hover:bg-brand-50 active:bg-brand-50 flex min-h-11 items-center px-4 text-base text-zinc-900"
+              className="hover:bg-soft active:bg-soft text-ink flex min-h-11 items-center px-4 text-base"
               onClick={() => pick(city)}
             >
               {city}
@@ -90,7 +90,7 @@ export function CityPicker({
             <li
               role="option"
               aria-selected={false}
-              className="text-brand-700 hover:bg-brand-50 active:bg-brand-50 flex min-h-11 items-center px-4 text-base"
+              className="text-accent-text hover:bg-soft active:bg-soft flex min-h-11 items-center px-4 text-base"
               onClick={() => pick(typed)}
             >
               Other: use “{typed}”

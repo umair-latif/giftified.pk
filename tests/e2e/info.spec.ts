@@ -104,6 +104,6 @@ test("WhatsApp buttons show the WhatsApp icon; the Contact one stays readable", 
     .getByRole("main")
     .getByRole("link", { name: "Chat on WhatsApp" });
   await expect(contact.locator("svg")).toHaveCount(1);
-  // Info sections colour links teal; the teal button must keep white text.
-  await expect(contact).toHaveCSS("color", "rgb(255, 255, 255)");
+  // Info sections colour links teal; the yellow button must keep ink text.
+  await expect(contact).toHaveCSS("color", "rgb(18, 18, 18)");
 });

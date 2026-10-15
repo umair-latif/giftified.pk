@@ -101,12 +101,12 @@ export function TextEditor({ text, background, onDone, onCancel }: Props) {
           : undefined
       }
     >
-      <div className="flex h-full w-full flex-col bg-white pt-[env(safe-area-inset-top)] lg:h-auto lg:max-h-[90vh] lg:max-w-lg lg:rounded-2xl lg:border-[3px] lg:border-zinc-900 lg:pt-0 lg:shadow-[6px_6px_0_var(--color-ink)]">
-        <header className="flex h-14 shrink-0 items-center justify-between gap-2 border-b border-zinc-200 px-2">
+      <div className="lg:border-ink flex h-full w-full flex-col bg-white pt-[env(safe-area-inset-top)] lg:h-auto lg:max-h-[90vh] lg:max-w-lg lg:rounded-2xl lg:border-[3px] lg:pt-0">
+        <header className="border-ink/15 flex h-14 shrink-0 items-center justify-between gap-2 border-b px-2">
           <button
             type="button"
             onClick={onCancel}
-            className="focus-visible:ring-brand-600/30 h-11 rounded-xl px-3 text-base font-medium text-zinc-700 hover:bg-zinc-100 focus-visible:ring-2 focus-visible:outline-none active:bg-zinc-100"
+            className="text-ink/80 hover:bg-soft active:bg-soft h-11 rounded-xl px-3 text-base font-semibold"
           >
             Cancel
           </button>
@@ -114,7 +114,7 @@ export function TextEditor({ text, background, onDone, onCancel }: Props) {
           <button
             type="button"
             onClick={done}
-            className="bg-brand-600 hover:bg-brand-700 active:bg-brand-700 focus-visible:ring-brand-600/40 border-ink h-10 rounded-xl border-2 px-4 text-base font-semibold text-white focus-visible:ring-2 focus-visible:outline-none"
+            className="bg-action shadow-hard text-ink press border-ink disabled:border-ink/40 disabled:bg-page disabled:text-ink/50 h-10 rounded-2xl border-[3px] px-4 text-base font-semibold disabled:cursor-not-allowed disabled:shadow-none"
           >
             Done
           </button>
@@ -126,7 +126,7 @@ export function TextEditor({ text, background, onDone, onCancel }: Props) {
             <div
               data-testid="text-editor-preview"
               aria-hidden
-              className="grid max-h-[28dvh] min-h-24 place-items-center overflow-hidden rounded-xl border border-zinc-300 px-4 py-4"
+              className="border-ink/25 grid max-h-[28dvh] min-h-24 place-items-center overflow-hidden rounded-xl border px-4 py-4"
               style={{ backgroundColor: background }}
             >
               <p
@@ -156,7 +156,7 @@ export function TextEditor({ text, background, onDone, onCancel }: Props) {
             <div className="flex items-center justify-between">
               <label
                 htmlFor="text-editor-words"
-                className="text-xs font-semibold text-zinc-600"
+                className="text-ink/70 text-xs font-semibold"
               >
                 Words
               </label>
@@ -169,7 +169,7 @@ export function TextEditor({ text, background, onDone, onCancel }: Props) {
                   change({ text: "" });
                   inputRef.current?.focus();
                 }}
-                className="focus-visible:ring-brand-600/20 -my-2 min-h-11 rounded px-2 text-xs font-medium text-zinc-600 underline hover:text-zinc-900 focus-visible:ring-2 focus-visible:outline-none disabled:text-zinc-300 disabled:no-underline"
+                className="text-ink/70 hover:text-ink disabled:text-ink/40 -my-2 min-h-11 rounded-xl px-2 text-xs font-semibold underline disabled:no-underline"
               >
                 Clear
               </button>
@@ -187,7 +187,7 @@ export function TextEditor({ text, background, onDone, onCancel }: Props) {
                 setTimeout(() => el.select(), 0);
               }}
               rows={2}
-              className="min-h-[52px] resize-none rounded-xl border border-zinc-300 px-3 py-2 text-base text-zinc-900"
+              className="border-ink/25 text-ink min-h-[52px] resize-none rounded-xl border px-3 py-2 text-base"
             />
           </div>
 
@@ -208,10 +208,10 @@ export function TextEditor({ text, background, onDone, onCancel }: Props) {
                     aria-label={f.label}
                     data-testid="text-editor-font"
                     onClick={() => change({ fontFamily: f.family })}
-                    className={`focus-visible:ring-brand-600/30 flex h-14 shrink-0 flex-col items-center justify-center rounded-xl border px-3 focus-visible:ring-2 focus-visible:outline-none ${
+                    className={`flex h-14 shrink-0 flex-col items-center justify-center rounded-xl border px-3 ${
                       selected
-                        ? "border-brand-600 bg-brand-50 ring-brand-600 ring-1"
-                        : "border-zinc-300 hover:bg-zinc-50"
+                        ? "border-ink bg-soft ring-ink ring-1"
+                        : "border-ink/25 hover:bg-soft"
                     }`}
                   >
                     <span
@@ -225,7 +225,7 @@ export function TextEditor({ text, background, onDone, onCancel }: Props) {
                     >
                       {f.scripts[0] === "arabic" ? "اردو" : "Aa"}
                     </span>
-                    <span className="mt-1 text-[11px] font-medium text-zinc-500">
+                    <span className="text-ink/65 mt-1 text-xs font-semibold">
                       {f.label}
                     </span>
                   </button>
@@ -283,7 +283,7 @@ export function TextEditor({ text, background, onDone, onCancel }: Props) {
               >
                 <span className="underline">U</span>
               </Toggle>
-              <span aria-hidden className="mx-1 h-7 w-px bg-zinc-200" />
+              <span aria-hidden className="bg-ink/10 mx-1 h-7 w-px" />
               <div
                 role="radiogroup"
                 aria-label="Alignment"
@@ -297,10 +297,10 @@ export function TextEditor({ text, background, onDone, onCancel }: Props) {
                     aria-checked={style.textAlign === a.value}
                     aria-label={a.label}
                     onClick={() => change({ textAlign: a.value })}
-                    className={`focus-visible:ring-brand-600/20 grid size-11 place-items-center rounded-xl border focus-visible:ring-2 focus-visible:outline-none ${
+                    className={`grid size-11 place-items-center rounded-xl border ${
                       style.textAlign === a.value
-                        ? "border-brand-600 bg-brand-100 text-brand-700"
-                        : "border-zinc-300 text-zinc-700 hover:bg-zinc-100"
+                        ? "border-ink bg-ink text-white"
+                        : "border-ink/25 text-ink/80 hover:bg-soft"
                     }`}
                   >
                     <AlignIcon value={a.value} />
@@ -328,10 +328,10 @@ export function TextEditor({ text, background, onDone, onCancel }: Props) {
                       stroke: o.mm > 0 ? outlineColour : null,
                     })
                   }
-                  className={`focus-visible:ring-brand-600/20 h-11 shrink-0 rounded-full border px-4 text-sm font-medium focus-visible:ring-2 focus-visible:outline-none ${
+                  className={`h-11 shrink-0 rounded-full border px-4 text-sm font-semibold ${
                     outlineWidth === o.id
-                      ? "border-brand-600 bg-brand-100 text-brand-700"
-                      : "border-zinc-300 text-zinc-700 hover:bg-zinc-100"
+                      ? "border-ink bg-ink text-white"
+                      : "border-ink/25 text-ink/80 hover:bg-soft"
                   }`}
                 >
                   {o.label}
@@ -340,7 +340,7 @@ export function TextEditor({ text, background, onDone, onCancel }: Props) {
             </div>
             {outlineWidth !== "off" && (
               <div className="flex flex-col gap-2 pt-3">
-                <p className="text-xs text-zinc-600">Outline colour</p>
+                <p className="text-ink/70 text-xs">Outline colour</p>
                 <SwatchGrid
                   label="Outline colour"
                   swatches={TEXT_SWATCHES}
@@ -359,7 +359,7 @@ export function TextEditor({ text, background, onDone, onCancel }: Props) {
 function Section({ title, children }: { title: string; children: ReactNode }) {
   return (
     <section className="mt-5 flex flex-col gap-2">
-      <h3 className="text-xs font-semibold text-zinc-600">{title}</h3>
+      <h3 className="text-ink/70 text-xs font-semibold">{title}</h3>
       {children}
     </section>
   );
@@ -388,10 +388,10 @@ function Toggle({
         disabled ? `This font has no ${label.toLowerCase()} style` : undefined
       }
       onClick={onClick}
-      className={`focus-visible:ring-brand-600/20 grid size-11 place-items-center rounded-xl border text-lg focus-visible:ring-2 focus-visible:outline-none disabled:opacity-35 ${
+      className={`grid size-11 place-items-center rounded-xl border text-lg disabled:opacity-35 ${
         pressed
-          ? "border-brand-600 bg-brand-100 text-brand-700"
-          : "border-zinc-300 text-zinc-700 hover:bg-zinc-100"
+          ? "border-ink bg-ink text-white"
+          : "border-ink/25 text-ink/80 hover:bg-soft"
       }`}
     >
       {children}

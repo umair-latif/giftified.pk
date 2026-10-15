@@ -23,10 +23,8 @@ export default async function AccountLayout({
     >
       <aside className="sticky top-28 hidden flex-col gap-4 lg:flex">
         <div className="px-3">
-          <p className="text-brand-900 font-display text-lg">
-            {name || "Your account"}
-          </p>
-          <p className="truncate text-sm text-zinc-600">{customer.email}</p>
+          <p className="type-card-title text-deep">{name || "Your account"}</p>
+          <p className="text-ink/70 truncate text-sm">{customer.email}</p>
         </div>
         <AccountNav />
         <SignOutButton className="px-1" testId="sign-out-desktop" />

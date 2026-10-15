@@ -15,7 +15,6 @@ export default function PrintingGuidelinesPage() {
       title="Printing guidelines"
       intro="Custom prints and prohibited content policy."
     >
-
       <InfoSection id="policy" title="Our policy">
         <p>
           As a print-on-demand service operating under the laws of the Islamic
@@ -86,7 +85,7 @@ export default function PrintingGuidelinesPage() {
         </p>
       </InfoSection>
 
-      <p className="text-xs text-zinc-600">Last updated: September 2026</p>
+      <p className="text-ink/70 text-xs">Last updated: September 2026</p>
     </InfoPage>
   );
 }

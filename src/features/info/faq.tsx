@@ -15,13 +15,13 @@ export interface FaqItem {
  */
 export function Faq({ items }: { items: readonly FaqItem[] }) {
   return (
-    <div className="card divide-y divide-zinc-200 overflow-hidden">
+    <div className="card divide-ink/15 divide-y overflow-hidden">
       {items.map((item) => (
         <Disclosure
           key={item.id}
           id={item.id}
           summary={item.question}
-          bodyClassName="[&_a]:text-brand-700 space-y-3 text-sm text-ink [&_a]:underline [&_li]:ml-5 [&_ul]:list-disc [&_ul]:space-y-1"
+          bodyClassName="[&_a]:text-accent-text space-y-3 text-sm text-ink [&_a]:underline [&_li]:ml-5 [&_ul]:list-disc [&_ul]:space-y-1"
         >
           {item.answer}
         </Disclosure>

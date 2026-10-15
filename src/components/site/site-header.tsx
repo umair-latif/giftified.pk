@@ -23,25 +23,25 @@ export function SiteHeader() {
         <Link
           href="/"
           aria-label="DesignBanana home"
-          className="focus-visible:ring-brand-600/20 mr-auto ml-1 rounded focus-visible:ring-2 focus-visible:outline-none sm:ml-0"
+          className="mr-auto ml-1 rounded-xl sm:ml-0"
         >
           <Wordmark />
         </Link>
         <Link
           href="/products"
-          className="text-ink hover:bg-mint-100 active:bg-mint-100 focus-visible:ring-brand-600/20 hidden h-11 items-center rounded-full px-3 text-sm font-medium focus-visible:ring-2 focus-visible:outline-none sm:flex"
+          className="text-ink hover:bg-soft active:bg-soft hidden h-11 items-center rounded-full px-3 text-sm font-semibold sm:flex"
         >
           Products
         </Link>
         <Link
           href="/designs"
-          className="text-ink hover:bg-mint-100 active:bg-mint-100 focus-visible:ring-brand-600/20 hidden h-11 items-center rounded-full px-3 text-sm font-medium focus-visible:ring-2 focus-visible:outline-none sm:flex"
+          className="text-ink hover:bg-soft active:bg-soft hidden h-11 items-center rounded-full px-3 text-sm font-semibold sm:flex"
         >
           Designs
         </Link>
         <Link
           href="/help"
-          className="text-ink hover:bg-mint-100 active:bg-mint-100 focus-visible:ring-brand-600/20 hidden h-11 items-center rounded-full px-3 text-sm font-medium focus-visible:ring-2 focus-visible:outline-none sm:flex"
+          className="text-ink hover:bg-soft active:bg-soft hidden h-11 items-center rounded-full px-3 text-sm font-semibold sm:flex"
         >
           Help
         </Link>
@@ -49,7 +49,7 @@ export function SiteHeader() {
         <Link
           href="/track"
           aria-label="Track your order"
-          className="text-ink hover:bg-mint-100 active:bg-mint-100 focus-visible:ring-brand-600/20 hidden size-11 place-items-center rounded-full focus-visible:ring-2 focus-visible:outline-none sm:grid"
+          className="text-ink hover:bg-soft active:bg-soft hidden size-11 place-items-center rounded-full sm:grid"
         >
           <TruckIcon />
         </Link>

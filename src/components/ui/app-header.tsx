@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { ArrowLeftIcon, ArrowRightIcon } from "./icons";
+import { BUTTON_SKIN, iconButtonClass } from "./button";
 
 interface NextAction {
   label: string;
@@ -34,21 +35,21 @@ export function AppHeader({
   return (
     <header
       style={{ viewTransitionName: "app-header" }}
-      className="sticky top-0 z-20 border-b border-zinc-200 bg-white/95 pt-[env(safe-area-inset-top)] backdrop-blur"
+      className="border-ink/15 sticky top-0 z-20 border-b bg-white/95 pt-[env(safe-area-inset-top)] backdrop-blur"
     >
       <div className="mx-auto flex h-14 max-w-md items-center gap-1 px-1 lg:h-16 lg:max-w-[76rem] lg:gap-2 lg:px-5">
         {backHref ? (
           <Link
             href={backHref}
             aria-label={backLabel}
-            className="border-ink text-ink focus-visible:ring-brand-600/40 hover:bg-mint-100 mr-1.5 ml-1 grid size-10 shrink-0 place-items-center rounded-full border-2 bg-white shadow-[2px_2px_0_var(--color-ink)] transition duration-150 focus-visible:ring-2 focus-visible:outline-none active:translate-x-px active:translate-y-px active:shadow-none lg:size-11"
+            className={`${iconButtonClass} mr-1.5 ml-1 size-10 lg:size-11`}
           >
             <ArrowLeftIcon />
           </Link>
         ) : (
           <span className="w-3 shrink-0" />
         )}
-        <h1 className="min-w-0 flex-1 truncate text-base font-semibold text-zinc-900 lg:text-xl">
+        <h1 className="text-ink min-w-0 flex-1 truncate text-base font-semibold lg:text-xl">
           {title}
         </h1>
         {actions}
@@ -56,7 +57,7 @@ export function AppHeader({
           (next.href ? (
             <Link
               href={next.href}
-              className="bg-brand-600 hover:bg-brand-700 active:bg-brand-700 focus-visible:ring-brand-600/40 border-ink ml-1 flex h-9 shrink-0 items-center gap-0.5 rounded-xl border-2 pr-2 pl-3.5 text-sm font-medium text-white focus-visible:ring-2 focus-visible:outline-none lg:h-11 lg:gap-1 lg:pr-3 lg:pl-5 lg:text-base"
+              className={`${BUTTON_SKIN.primary} border-ink text-ink press mr-1 ml-1 flex h-10 shrink-0 items-center gap-0.5 rounded-2xl border-[3px] pr-2 pl-3.5 text-base font-semibold lg:h-11 lg:gap-1 lg:pr-3 lg:pl-5`}
             >
               {next.label}
               <ArrowRightIcon width={18} height={18} />
@@ -64,7 +65,7 @@ export function AppHeader({
           ) : (
             <span
               aria-disabled
-              className="bg-brand-300 border-ink ml-1 flex h-9 shrink-0 items-center gap-0.5 rounded-xl border-2 pr-2 pl-3.5 text-sm font-medium text-white"
+              className="bg-page border-ink/40 text-ink/50 mr-1 ml-1 flex h-10 shrink-0 cursor-not-allowed items-center gap-0.5 rounded-2xl border-[3px] pr-2 pl-3.5 text-base font-semibold lg:h-11"
             >
               {next.label}
               <ArrowRightIcon width={18} height={18} />

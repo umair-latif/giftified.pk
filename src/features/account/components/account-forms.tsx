@@ -99,7 +99,7 @@ function Status({ state, saved }: { state: FormState; saved: string }) {
   if (state.status === "error" && state.message)
     return (
       <p
-        className="rounded-lg bg-red-50 p-3 text-sm text-red-800 ring-1 ring-red-200"
+        className="rounded-xl bg-red-50 p-3 text-sm text-red-800 ring-1 ring-red-200"
         role="alert"
       >
         {state.message}
@@ -214,20 +214,20 @@ export function ProfileForm({
         error={e.lastName}
       />
       <div className="flex flex-col gap-1">
-        <span className="text-sm font-medium text-zinc-800">Email</span>
+        <span className="text-ink text-sm font-semibold">Email</span>
         <p className="text-ink" data-testid="profile-email">
           {initial.email}
         </p>
-        <p className="text-xs text-zinc-500">
+        <p className="text-ink/65 text-xs">
           To change your email, message us from the Contact page.
         </p>
       </div>
-      <label className="flex items-start gap-3 text-sm text-zinc-700">
+      <label className="text-ink/80 flex items-start gap-3 text-sm">
         <input
           type="checkbox"
           name="marketingOptIn"
           defaultChecked={initial.marketingOptIn}
-          className="accent-brand-600 mt-0.5 size-5 shrink-0"
+          className="accent-ink mt-0.5 size-5 shrink-0"
           data-testid="profile-marketing"
         />
         <span>
@@ -256,7 +256,7 @@ export function PasswordLinkForm({
     <form action={action} className={frame(framed)}>
       <div>
         <h2 className="text-ink font-semibold">Password</h2>
-        <p className="text-sm text-zinc-600">
+        <p className="text-ink/70 text-sm">
           We’ll email a link to {email} to choose a new password. It works for 1
           hour.
         </p>
@@ -280,7 +280,7 @@ export function DeleteAccountForm({ framed = true }: { framed?: boolean }) {
         <h2 id="delete-account" className="font-semibold text-red-700">
           Delete my account
         </h2>
-        <p className="text-sm text-zinc-600">
+        <p className="text-ink/70 text-sm">
           Deletes your account, your saved designs and all their photos. Records
           of past orders are kept for accounting (see our privacy notice). This
           can’t be undone.
@@ -290,7 +290,7 @@ export function DeleteAccountForm({ framed = true }: { framed?: boolean }) {
         <button
           type="button"
           onClick={() => setOpen(true)}
-          className="border-ink h-12 rounded-2xl border-[3px] bg-white font-semibold text-red-700 hover:bg-red-50"
+          className="border-ink lift press h-12 rounded-2xl border-[3px] bg-white font-semibold text-red-700"
           data-testid="delete-account-start"
         >
           Delete my account
@@ -316,7 +316,7 @@ export function DeleteAccountForm({ framed = true }: { framed?: boolean }) {
           <button
             type="submit"
             disabled={pending}
-            className="border-ink h-12 rounded-2xl border-[3px] bg-red-700 font-semibold text-white hover:bg-red-800 disabled:opacity-60"
+            className="border-ink lift press h-12 rounded-2xl border-[3px] bg-red-700 font-semibold text-white disabled:opacity-60"
             data-testid="delete-account-confirm"
           >
             {pending ? "Deleting…" : "Delete my account for good"}

@@ -16,7 +16,7 @@ export default function CheckoutPage() {
       <StepBar current="Order" inPage />
       <Link
         href="/cart"
-        className="text-brand-700 hover:text-brand-800 focus-visible:ring-brand-600/20 rounded text-sm font-medium focus-visible:ring-2 focus-visible:outline-none"
+        className="text-accent-text hover:text-deep rounded-xl text-sm font-semibold"
       >
         ← Back to cart
       </Link>

@@ -126,7 +126,7 @@ function Bar() {
       className="pointer-events-none fixed inset-x-0 top-0 z-[100] h-[3px]"
     >
       <div
-        className={`bg-brand-500 h-full shadow-[0_0_8px_var(--color-brand-400)] transition-[width,opacity] duration-200 ease-out ${
+        className={`bg-accent-text h-full transition-[width,opacity] duration-200 ease-out ${
           fading || width === 0 ? "opacity-0" : "opacity-100"
         }`}
         style={{ width: `${width}%` }}

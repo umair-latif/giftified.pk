@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { DownloadIcon, ShareIcon } from "@/components/ui/icons";
+import { iconButtonClass } from "@/components/ui/button";
 import {
   brandedPhoto,
   canShareFiles,
@@ -10,8 +11,7 @@ import {
   shareLink,
 } from "../share-mockup";
 
-const BUTTON =
-  "focus-visible:ring-brand-600/40 grid size-11 place-items-center rounded-full border-2 border-ink bg-white text-ink shadow-[3px_3px_0_var(--color-ink)] hover:bg-mint-100 active:translate-y-0.5 active:shadow-none focus-visible:ring-2 focus-visible:outline-none disabled:opacity-60";
+const BUTTON = `${iconButtonClass} size-11`;
 
 /**
  * Share / Download buttons for the photo on screen, in its top-right corner.
@@ -91,7 +91,7 @@ export function PhotoActions({
       {copied && (
         <span
           role="status"
-          className="bg-ink rounded-full px-3 py-1 text-xs font-medium text-white"
+          className="bg-ink rounded-full px-3 py-1 text-xs font-semibold text-white"
         >
           Link copied
         </span>

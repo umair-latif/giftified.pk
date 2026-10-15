@@ -44,7 +44,7 @@ export function SavedDesignCard({
     >
       <Link
         href={`/design/${design.productId}?saved=${encodeURIComponent(design.id)}`}
-        className="bg-cream grid aspect-[5/2] place-items-center"
+        className="bg-page grid aspect-[5/2] place-items-center"
         aria-label={`Open ${design.name}`}
       >
         {thumbnailUrl ? (
@@ -56,7 +56,7 @@ export function SavedDesignCard({
             loading="lazy"
           />
         ) : (
-          <span className="text-xs text-zinc-500">{productName}</span>
+          <span className="text-ink/65 text-xs">{productName}</span>
         )}
       </Link>
       <div className="flex flex-1 flex-col gap-2 p-3">
@@ -77,22 +77,25 @@ export function SavedDesignCard({
               onChange={(e) => setName(e.target.value)}
               maxLength={SAVED_DESIGN_NAME_MAX}
               autoFocus
-              className="text-ink focus:ring-brand-600/20 border-ink h-11 min-w-0 flex-1 rounded-xl border-2 px-3 text-sm focus:ring-2 focus:outline-none"
+              className="text-ink border-ink h-11 min-w-0 flex-1 rounded-xl border-2 px-3 text-sm"
             />
             <button
               type="submit"
               disabled={pending || !name.trim()}
-              className="bg-brand-600 hover:bg-brand-700 active:bg-brand-700 disabled:bg-brand-300 disabled:hover:bg-brand-300 border-ink h-11 rounded-xl border-2 px-4 text-sm font-semibold text-white"
+              className="bg-action shadow-hard text-ink press border-ink disabled:border-ink/40 disabled:bg-page disabled:text-ink/50 h-11 rounded-2xl border-[3px] px-4 text-sm font-semibold disabled:cursor-not-allowed disabled:shadow-none"
             >
               Save
             </button>
           </form>
         ) : (
           <div>
-            <p className="text-ink font-medium" data-testid="saved-design-name">
+            <p
+              className="text-ink font-semibold"
+              data-testid="saved-design-name"
+            >
               {design.name}
             </p>
-            <p className="text-xs text-zinc-500">
+            <p className="text-ink/65 text-xs">
               {productName} · {updated}
               {design.source === "order" && design.orderId
                 ? ` · from order #${design.orderId}`
@@ -103,7 +106,7 @@ export function SavedDesignCard({
 
         {mode === "confirm-delete" ? (
           <div className="flex flex-col gap-2" role="group">
-            <p className="text-sm text-zinc-600">
+            <p className="text-ink/70 text-sm">
               Delete this design and its photos? This can’t be undone.
             </p>
             <div className="flex gap-2">
@@ -111,7 +114,7 @@ export function SavedDesignCard({
                 type="button"
                 disabled={pending}
                 onClick={() => run(() => deleteSavedDesignAction(design.id))}
-                className="border-ink h-11 flex-1 rounded-xl border-2 bg-red-700 text-sm font-semibold text-white hover:bg-red-800 disabled:opacity-60"
+                className="border-ink lift press h-11 flex-1 rounded-2xl border-[3px] bg-red-700 text-sm font-semibold text-white disabled:opacity-60"
                 data-testid="saved-design-confirm-delete"
               >
                 {pending ? "Deleting…" : "Delete"}
@@ -119,7 +122,7 @@ export function SavedDesignCard({
               <button
                 type="button"
                 onClick={() => setMode("view")}
-                className="text-ink border-ink h-11 flex-1 rounded-xl border-2 bg-white text-sm font-medium hover:bg-zinc-50"
+                className="text-ink border-ink lift press h-11 flex-1 rounded-2xl border-[3px] bg-white text-sm font-semibold"
               >
                 Keep it
               </button>
@@ -129,7 +132,7 @@ export function SavedDesignCard({
           <div className="mt-auto flex flex-wrap gap-2">
             <Link
               href={`/design/${design.productId}?saved=${encodeURIComponent(design.id)}`}
-              className="bg-brand-600 hover:bg-brand-700 active:bg-brand-700 border-ink inline-flex h-11 items-center rounded-xl border-2 px-4 text-sm font-semibold text-white"
+              className="bg-action shadow-hard text-ink press border-ink disabled:border-ink/40 disabled:bg-page disabled:text-ink/50 inline-flex h-11 items-center rounded-2xl border-[3px] px-4 text-sm font-semibold disabled:cursor-not-allowed disabled:shadow-none"
               data-testid="saved-design-open"
             >
               Open
@@ -138,7 +141,7 @@ export function SavedDesignCard({
               <button
                 type="button"
                 onClick={() => setMode("rename")}
-                className="text-ink border-ink h-11 rounded-xl border-2 bg-white px-4 text-sm font-medium hover:bg-zinc-50"
+                className="text-ink border-ink lift press h-11 rounded-2xl border-[3px] bg-white px-4 text-sm font-semibold"
               >
                 Rename
               </button>
@@ -149,7 +152,7 @@ export function SavedDesignCard({
                   setName(design.name);
                   setMode("view");
                 }}
-                className="text-ink border-ink h-11 rounded-xl border-2 bg-white px-4 text-sm font-medium hover:bg-zinc-50"
+                className="text-ink border-ink lift press h-11 rounded-2xl border-[3px] bg-white px-4 text-sm font-semibold"
               >
                 Cancel
               </button>
@@ -157,7 +160,7 @@ export function SavedDesignCard({
             <button
               type="button"
               onClick={() => setMode("confirm-delete")}
-              className="border-ink h-11 rounded-xl border-2 px-3 text-sm font-medium text-red-700 hover:bg-red-50"
+              className="border-ink lift press h-11 rounded-2xl border-[3px] px-3 text-sm font-semibold text-red-700"
               data-testid="saved-design-delete"
             >
               Delete

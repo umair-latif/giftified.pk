@@ -27,7 +27,7 @@ export default async function SignInPage(props: PageProps<"/sign-in">) {
       <PageTitle>Sign in</PageTitle>
       {error === "google" && (
         <p
-          className="rounded-lg bg-red-50 p-3 text-sm text-red-800"
+          className="rounded-xl bg-red-50 p-3 text-sm text-red-800"
           role="alert"
         >
           We couldn’t sign you in with Google. Please try again or use your
@@ -37,19 +37,17 @@ export default async function SignInPage(props: PageProps<"/sign-in">) {
       {googleConfigFromEnv() && (
         <>
           <GoogleButton next={nextPath} />
-          <p className="text-center text-sm text-zinc-500">
-            or with your email
-          </p>
+          <p className="text-ink/65 text-center text-sm">or with your email</p>
         </>
       )}
       <SignInForm next={nextPath} />
-      <p className="text-center text-sm text-zinc-600">
+      <p className="text-ink/70 text-center text-sm">
         New here?{" "}
-        <Link href={signUpHref} className="text-brand-700 font-medium">
+        <Link href={signUpHref} className="text-accent-text font-semibold">
           Create an account
         </Link>
       </p>
-      <p className="text-center text-sm text-zinc-500">
+      <p className="text-ink/65 text-center text-sm">
         You don’t need an account to order.{" "}
         <Link href="/products" className="underline">
           Keep shopping

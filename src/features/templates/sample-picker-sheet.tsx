@@ -131,7 +131,7 @@ export function SamplePickerSheet({
   return (
     <Sheet title="Placeholder images" onClose={onClose}>
       <div className="space-y-3 pt-1 pb-2 text-sm" data-testid="sample-picker">
-        <p className="text-zinc-600">
+        <p className="text-ink/70">
           Pick a placeholder for this photo. New placeholders: no real people,
           logos or copyrighted images.
         </p>
@@ -150,7 +150,7 @@ export function SamplePickerSheet({
           }}
         />
         {samples === null ? (
-          <p className="text-zinc-500">Loading…</p>
+          <p className="text-ink/65">Loading…</p>
         ) : (
           <ul
             className="grid grid-cols-3 gap-2 sm:grid-cols-4"
@@ -161,7 +161,7 @@ export function SamplePickerSheet({
                 type="button"
                 disabled={busy}
                 onClick={() => fileInput.current?.click()}
-                className="border-brand-300 text-brand-700 focus-visible:ring-brand-600/20 grid aspect-square w-full place-items-center rounded-xl border-2 border-dashed text-xs font-medium focus-visible:ring-2 focus-visible:outline-none disabled:opacity-50"
+                className="border-ink/40 text-accent-text grid aspect-square w-full place-items-center rounded-xl border-2 border-dashed text-xs font-semibold disabled:opacity-50"
               >
                 + Add image
               </button>
@@ -174,10 +174,10 @@ export function SamplePickerSheet({
                   onClick={() => void pick(s)}
                   aria-label={`Placeholder image ${i + 1}`}
                   aria-pressed={current?.sampleId === s.id}
-                  className={`focus-visible:ring-brand-600/40 block aspect-square w-full overflow-hidden rounded-xl bg-zinc-100 focus-visible:ring-2 focus-visible:outline-none disabled:opacity-50 ${
+                  className={`bg-ink/5 block aspect-square w-full overflow-hidden rounded-xl disabled:opacity-50 ${
                     current?.sampleId === s.id
-                      ? "ring-brand-600 ring-2"
-                      : "ring-1 ring-zinc-200"
+                      ? "ring-ink ring-2"
+                      : "ring-ink/15 ring-1"
                   }`}
                 >
                   {/* eslint-disable-next-line @next/next/no-img-element -- short-lived signed URL */}
@@ -194,7 +194,7 @@ export function SamplePickerSheet({
                   disabled={busy}
                   onClick={() => void remove(s)}
                   aria-label={`Remove placeholder image ${i + 1}`}
-                  className="absolute top-1 right-1 grid size-7 place-items-center rounded-full bg-white/90 text-xs text-zinc-600 shadow ring-1 ring-zinc-200"
+                  className="text-ink/70 ring-ink/15 absolute top-1 right-1 grid size-7 place-items-center rounded-full bg-white/90 text-xs shadow ring-1"
                 >
                   ✕
                 </button>
@@ -203,7 +203,7 @@ export function SamplePickerSheet({
           </ul>
         )}
         {samples?.length === 0 && !error && (
-          <p className="text-xs text-zinc-500">
+          <p className="text-ink/65 text-xs">
             No placeholder images yet. Add the first one.
           </p>
         )}
@@ -219,7 +219,7 @@ export function SamplePickerSheet({
               onClear();
               onClose();
             }}
-            className="focus-visible:ring-brand-600/20 h-10 w-full rounded-full border border-zinc-300 bg-white text-sm font-medium text-zinc-700 hover:bg-zinc-100 focus-visible:ring-2 focus-visible:outline-none"
+            className="border-ink/25 text-ink/80 hover:bg-soft h-10 w-full rounded-full border bg-white text-sm font-semibold"
           >
             Make it part of the design
           </button>

@@ -77,7 +77,7 @@ export function FontPicker({ text, onChange }: Props) {
         onPointerEnter={() =>
           void loadPickerFonts(text.fontWeight, text.fontStyle)
         }
-        className="focus-visible:ring-brand-600/20 flex h-9 w-14 items-center justify-between gap-0.5 rounded-md border border-zinc-300 bg-white pr-1 pl-2 text-sm text-zinc-800 hover:bg-zinc-50 focus-visible:ring-2 focus-visible:outline-none lg:w-28"
+        className="border-ink/25 text-ink hover:bg-soft flex h-9 w-14 items-center justify-between gap-0.5 rounded-xl border bg-white pr-1 pl-2 text-sm lg:w-28"
       >
         {/* Phone: "Aa" in the current font (the bar is tight at 360 px);
             desktop: the font's name. */}
@@ -99,7 +99,7 @@ export function FontPicker({ text, onChange }: Props) {
           viewBox="0 0 20 20"
           width={16}
           height={16}
-          className={`shrink-0 text-zinc-500 transition-transform ${open ? "rotate-180" : ""}`}
+          className={`text-ink/65 shrink-0 transition-transform ${open ? "rotate-180" : ""}`}
         >
           <path
             d="M5 8l5 5 5-5"
@@ -116,7 +116,7 @@ export function FontPicker({ text, onChange }: Props) {
           role="group"
           aria-label="Choose font"
           data-testid="font-panel"
-          className="absolute inset-x-0 bottom-full z-20 max-h-[45dvh] overflow-y-auto overscroll-contain border-t border-zinc-200 bg-white px-2 py-2 shadow-[0_-4px_12px_rgba(0,0,0,0.06)] lg:top-full lg:bottom-auto lg:mt-2 lg:max-h-[60vh] lg:rounded-2xl lg:border lg:shadow-lg"
+          className="border-ink absolute inset-x-0 bottom-full z-20 max-h-[45dvh] overflow-y-auto overscroll-contain border-t-2 bg-white px-2 py-2 lg:top-full lg:bottom-auto lg:mt-2 lg:max-h-[60vh] lg:rounded-2xl lg:border-2"
         >
           <ul className="mx-auto max-w-md space-y-1">
             {FONTS.map((f) => {
@@ -130,8 +130,8 @@ export function FontPicker({ text, onChange }: Props) {
                     aria-label={f.label}
                     data-testid="font-option"
                     onClick={() => pick(f)}
-                    className={`focus-visible:ring-brand-600/30 flex min-h-12 w-full items-center gap-3 rounded-xl px-3 py-1.5 text-left hover:bg-zinc-50 focus-visible:ring-2 focus-visible:outline-none active:bg-zinc-100 ${
-                      selected ? "bg-brand-50 ring-brand-600 ring-2" : ""
+                    className={`hover:bg-soft active:bg-soft flex min-h-12 w-full items-center gap-3 rounded-xl px-3 py-1.5 text-left ${
+                      selected ? "bg-soft ring-ink ring-2" : ""
                     }`}
                   >
                     <span
@@ -151,7 +151,7 @@ export function FontPicker({ text, onChange }: Props) {
                     >
                       {previewText(f, text.text)}
                     </span>
-                    <span className="shrink-0 text-xs font-medium text-zinc-500">
+                    <span className="text-ink/65 shrink-0 text-xs font-semibold">
                       {f.label}
                     </span>
                   </button>

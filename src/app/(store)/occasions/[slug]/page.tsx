@@ -40,7 +40,7 @@ export default async function OccasionPage({
   return (
     <Page width="wide">
       <PageTitle>{labelOf(slug)}</PageTitle>
-      <p className="mt-1 text-sm text-zinc-600">
+      <p className="text-ink/70 mt-1 text-sm">
         Pick a design, swap in your photos and words, and order. Cash on
         Delivery.
       </p>

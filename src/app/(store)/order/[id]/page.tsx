@@ -36,12 +36,9 @@ export default async function OrderStatusPage(props: PageProps<"/order/[id]">) {
       <RememberOrder id={view.id} t={t} createdAt={view.createdAt} />
       <section className="card p-4">
         <PageTitle>{justPlaced ? "Thank you!" : "Your order"}</PageTitle>
-        <p className="mt-1 text-sm text-zinc-500">
+        <p className="text-ink/65 mt-1 text-sm">
           Order number{" "}
-          <span
-            className="font-semibold text-zinc-900"
-            data-testid="order-number"
-          >
+          <span className="text-ink font-semibold" data-testid="order-number">
             #{view.id}
           </span>
         </p>
@@ -52,11 +49,11 @@ export default async function OrderStatusPage(props: PageProps<"/order/[id]">) {
 
       <OrderSummary view={view} />
 
-      <p className="text-center text-sm text-zinc-600">
+      <p className="text-ink/70 text-center text-sm">
         Keep this page’s link to check your order later, or find it any time on{" "}
         <Link
           href="/track"
-          className="text-brand-700 hover:text-brand-800 focus-visible:ring-brand-600/20 rounded font-medium underline focus-visible:ring-2 focus-visible:outline-none"
+          className="text-accent-text hover:text-deep rounded-xl font-semibold underline"
         >
           Track your order
         </Link>

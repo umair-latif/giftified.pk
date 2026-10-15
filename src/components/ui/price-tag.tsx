@@ -27,18 +27,18 @@ export function PriceTag({
       className={`inline-flex flex-wrap items-baseline gap-x-1.5 ${className}`}
       data-testid={testId}
     >
-      {from && <span className="text-xs text-zinc-600">from</span>}
-      <span className="font-semibold">{formatPkr(pkr)}</span>
+      {from && <span className="text-ink/70">from</span>}
+      <span className="text-accent-text font-semibold">{formatPkr(pkr)}</span>
       {reduced && (
         <>
           <s
-            className="text-xs text-zinc-500"
+            className="text-ink/65"
             aria-label={`was ${formatPkr(regularPkr)}`}
           >
             {formatPkr(regularPkr)}
           </s>
           {showSale && (
-            <span className="bg-magenta rounded-full px-1.5 py-px text-[11px] font-semibold text-ink">
+            <span className="bg-highlight text-ink rounded-full px-2 py-px text-xs font-semibold">
               Sale
             </span>
           )}

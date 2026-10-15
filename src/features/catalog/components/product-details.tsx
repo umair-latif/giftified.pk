@@ -31,9 +31,7 @@ export function ProductDetails({
       summaryClassName="lg:px-6 lg:py-4"
       bodyClassName="lg:px-6 lg:pb-6"
       summary={
-        <h2 className="font-display text-ink text-lg">
-          Details about the product
-        </h2>
+        <h2 className="type-card-title text-ink">Details about the product</h2>
       }
       testId="product-details"
     >
@@ -48,18 +46,18 @@ export function ProductDetails({
         )}
         <div className="min-w-0 space-y-4">
           <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-2 text-sm">
-            <dt className="text-zinc-500">Print area</dt>
+            <dt className="text-ink/65">Print area</dt>
             <dd>
               Up to {formatCm(cfg.printArea.widthMm)} ×{" "}
               {formatCm(cfg.printArea.heightMm)} cm
             </dd>
             {extraFacts}
-            <dt className="text-zinc-500">Reprints</dt>
+            <dt className="text-ink/65">Reprints</dt>
             <dd>
               Arrives damaged or misprinted? We&apos;ll put it right —{" "}
               <Link
                 href="/help"
-                className="text-brand-700 hover:text-brand-800 focus-visible:ring-brand-600/20 rounded underline focus-visible:ring-2 focus-visible:outline-none"
+                className="text-accent-text hover:text-deep rounded-xl underline"
               >
                 see Help
               </Link>
