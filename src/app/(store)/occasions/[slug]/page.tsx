@@ -7,6 +7,7 @@ import { OCCASIONS } from "@/features/home/occasions";
 import { TemplateGrid } from "@/features/templates/components/template-grid";
 import { loadTemplates } from "@/features/templates/load-templates";
 import { OCCASION_SLUGS, type OccasionSlug } from "@/server/templates/types";
+import { occasionsOf } from "@/features/templates/design-filters";
 import { buttonClass } from "@/components/ui/button";
 
 export const revalidate = 300;
@@ -33,7 +34,13 @@ export default async function OccasionPage({
 }: PageProps<"/occasions/[slug]">) {
   const { slug } = await params;
   if (!(OCCASION_SLUGS as readonly string[]).includes(slug)) notFound();
-  const templates = await loadTemplates({ occasion: slug as OccasionSlug });
+  // "Everyday" also lists designs saved without any occasion.
+  const templates =
+    slug === "everyday"
+      ? (await loadTemplates()).filter((t) =>
+          occasionsOf(t).includes("everyday"),
+        )
+      : await loadTemplates({ occasion: slug as OccasionSlug });
   const productNames = Object.fromEntries(
     templates.map((t) => [t.productId, getProduct(t.productId)?.name ?? ""]),
   );

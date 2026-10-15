@@ -10,6 +10,7 @@ export const OCCASIONS: readonly { slug: string; label: string }[] = [
   { slug: "mothers-day", label: "Mother's Day" },
   { slug: "14-august", label: "14 August" },
   { slug: "team-corporate", label: "Team / Corporate" },
+  { slug: "everyday", label: "Everyday" },
 ];
 
 export function Occasions() {
@@ -28,7 +29,9 @@ export function Occasions() {
             <li
               key={o.slug}
               className={
-                i === OCCASIONS.length - 1 ? "col-span-2 sm:col-span-1" : ""
+                OCCASIONS.length % 2 === 1 && i === OCCASIONS.length - 1
+                  ? "col-span-2 sm:col-span-1"
+                  : ""
               }
             >
               <Link

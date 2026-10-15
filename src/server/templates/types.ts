@@ -19,6 +19,8 @@ export const OCCASION_SLUGS = [
   "mothers-day",
   "14-august",
   "team-corporate",
+  /** Designs that suit any day. Designs saved without an occasion count as this too. */
+  "everyday",
 ] as const;
 export type OccasionSlug = (typeof OCCASION_SLUGS)[number];
 

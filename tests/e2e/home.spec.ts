@@ -90,7 +90,7 @@ test("occasion tiles are white outlined cards: no colour fill, no shadow at rest
       shadow: getComputedStyle(el).boxShadow,
     })),
   );
-  expect(styles).toHaveLength(7);
+  expect(styles).toHaveLength(8);
   for (const { bg, shadow } of styles) {
     expect(bg).toBe("rgb(255, 255, 255)");
     expect(shadow).toBe("none");
