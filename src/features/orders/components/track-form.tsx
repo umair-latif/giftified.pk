@@ -2,10 +2,13 @@
 
 import { useActionState } from "react";
 import {
+  describedById,
   errorId,
   Field,
   inputClass,
+  noteId,
 } from "@/features/checkout/components/field";
+import { whatsappUrl } from "@/config/site";
 import { trackOrderAction } from "../actions";
 import type { TrackState } from "../track";
 import { buttonClass } from "@/components/ui/button";
@@ -24,7 +27,7 @@ export function TrackForm() {
       <Field
         id="track-order"
         label="Order number"
-        hint="from your confirmation"
+        description="On your confirmation screen and message"
         error={fieldErrors?.orderNumber}
       >
         <input
@@ -37,16 +40,20 @@ export function TrackForm() {
           maxLength={14}
           required
           aria-invalid={!!fieldErrors?.orderNumber}
-          aria-describedby={
-            fieldErrors?.orderNumber ? errorId("track-order") : undefined
-          }
+          aria-describedby={[
+            describedById("track-order"),
+            fieldErrors?.orderNumber ? errorId("track-order") : "",
+          ]
+            .filter(Boolean)
+            .join(" ")}
           className={inputClass(!!fieldErrors?.orderNumber)}
         />
       </Field>
       <Field
         id="track-phone"
         label="Mobile number"
-        hint="the one you ordered with"
+        description="The one you ordered with · e.g. 0300 1234567"
+        note="Only used to find your order."
         error={fieldErrors?.phone}
       >
         <input
@@ -60,9 +67,13 @@ export function TrackForm() {
           maxLength={20}
           required
           aria-invalid={!!fieldErrors?.phone}
-          aria-describedby={
-            fieldErrors?.phone ? errorId("track-phone") : undefined
-          }
+          aria-describedby={[
+            describedById("track-phone"),
+            noteId("track-phone"),
+            fieldErrors?.phone ? errorId("track-phone") : "",
+          ]
+            .filter(Boolean)
+            .join(" ")}
           className={inputClass(!!fieldErrors?.phone)}
         />
       </Field>
@@ -72,7 +83,15 @@ export function TrackForm() {
           role="alert"
           data-testid="track-error"
         >
-          {message}
+          {message}{" "}
+          {whatsappUrl() && (
+            <a
+              href={whatsappUrl("Assalam o Alaikum! I can't find my order.")!}
+              className="font-semibold underline"
+            >
+              Chat on WhatsApp
+            </a>
+          )}
         </p>
       )}
       <button

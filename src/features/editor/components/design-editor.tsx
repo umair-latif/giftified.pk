@@ -80,6 +80,7 @@ export function DesignEditor({
         title={item ? "Edit design" : "Design"}
         backHref={item ? "/cart" : `/products/${product.id}`}
         backLabel={item ? "Back to cart" : "Back to product"}
+        prefetch={false}
         next={{
           label: "Preview",
           href: `/design/${product.id}/preview${item ? `?item=${encodeURIComponent(item.id)}` : ""}`,

@@ -13,6 +13,11 @@ import { getDraftSaved, loadDraft } from "../draft";
 import { writeProductSize } from "../size";
 import { buttonClass } from "@/components/ui/button";
 
+// Start downloading the drawing engine as soon as this module loads, not
+// after the editor has mounted: the canvas is what the shopper waits for.
+// The editor's own `import("../engine")` reuses this download.
+if (typeof window !== "undefined") void import("../engine");
+
 /**
  * `/design/<product>` edits the product's draft; `?item=<cart line id>` edits
  * that cart line's design instead.

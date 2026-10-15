@@ -110,6 +110,13 @@ test("two cart items → checkout → one order with both lines", async ({
   );
   expect(scrollWidth).toBeLessThanOrEqual(360);
 
+  // The confirmation call: from which number, and the shopper can pick WhatsApp.
+  await expect(page.getByTestId("confirm-call")).toContainText(
+    "+92 336 9005786",
+  );
+  await page.getByText("WhatsApp me").tap();
+  await expect(page.getByRole("radio", { name: "WhatsApp me" })).toBeChecked();
+
   const uploads: string[] = [];
   page.on("response", async (r) => {
     if (r.url().endsWith("/api/designs") && r.request().method() === "POST")
