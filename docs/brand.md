@@ -1,26 +1,43 @@
 # Brand: DesignBanana (v7 theme)
 
-Branch `feat/designbanana-theme`. The previous Giftified brand (teal `#2B8496`, Poppins/Nunito) is
-on `main`; to go back, don't merge this branch. Brand decision and name history: the claude.ai
+Brand decision and name history: the claude.ai
 project note `brand/designbanana-brand-decision.md`; visual boards in the "DesignBanana Brand Sheet"
 canvas. Tokens live in `src/app/globals.css` (`@theme`), fonts in `src/app/fonts.ts`.
 
-| Role          | Token                | Hex       | Use                                                 |
-| ------------- | -------------------- | --------- | --------------------------------------------------- |
-| Teal          | `brand-500`          | `#14B8A6` | Big shapes: hero, banners, step numbers             |
-| Deep teal     | `brand-600` / `-700` | `#0F766E` | Buttons (white text 5.5:1), links; pressed `-700`   |
-| Mint paper    | `cream`, `mint-*`    | `#F3FBF9` | Page background; mint tints for image wells         |
-| Pink          | `magenta`            | `#FF3D8B` | "banana" in the logo, badges, stickers (black text) |
-| Banana yellow | `sunny`              | `#FFE135` | Hero button, highlights, "New" badges (black text)  |
-| Ink           | `ink`                | `#121212` | Text, outlines, hard shadows                        |
+**Theme rules (Oct 2026 refinement):** keep the neo-brutalist "sticker" look, but only the important
+things get the full treatment. Source: `designbanana-theme-handoff.md` (UX review of 15 Oct 2026).
 
-Accessibility: pink and yellow always take **black** text (white on pink is 3.3:1). White text only
-on `brand-600` or darker. `brand-500` is a background colour; text on it is `ink`.
+**Colour: 8 tokens, one job each.** Don't hard-code hex values in components.
 
-**Fonts:** Space Grotesk (400/500/600) for text; Bagel Fat One for the logo and headings
-(`font-display`, one weight only, so headings never ask for bold — `font-synthesis: none`). Small UI
-headings with `font-semibold` (editor header, sheet titles) stay in Space Grotesk. Both OFL,
-self-hosted, Latin subset. Editor/print fonts are a separate list (`src/config/fonts.ts`).
+| Token         | Hex       | Use for                                                | Never for                                   |
+| ------------- | --------- | ------------------------------------------------------ | ------------------------------------------- |
+| `ink`         | `#121212` | All text, outlines, the hard shadow                    | —                                           |
+| `action`      | `#FFE135` | Primary buttons, the current step in a flow            | Banners, backgrounds, notices, decoration   |
+| `brand`       | `#14B8A6` | Hero, feature bands (large surfaces, ink text)         | Text; white text on it (2.5:1)              |
+| `highlight`   | `#FF3D8B` | Logo "banana", New/Sale badges, cart count, Tip labels | Body text, prices, large areas; text < 24px |
+| `accent-text` | `#0F766E` | Prices, text links, the focus ring                     | Large backgrounds                           |
+| `deep`        | `#0B3B37` | Footer, trust/help panels, section headings            | —                                           |
+| `soft`        | `#DDF4EF` | Info panels, delivery estimate, hover tints            | —                                           |
+| `page`        | `#F3FBF9` | Page background                                        | —                                           |
+| white         | `#FFFFFF` | Cards, inputs, secondary buttons                       | —                                           |
+
+Text on `deep`: `on-deep` (`#F0FDFA`, 11.9:1) for main text, `on-deep-muted` (`#99F6E4`, 9.8:1) for
+secondary text. Greys are ink at an opacity (`text-ink/65` muted, `border-ink/25` hairlines), never
+`zinc-*`. Announcement bars are `ink` with white text, never yellow. Selected options (chips, tabs,
+toggles) are `bg-ink text-white`. Status colours (red danger, amber warning, emerald OK) stay Tailwind's.
+
+**Type: 7 styles.** Display (`type-display`, Bagel 48/32 px: home hero, 404), Section title
+(`type-section`, Bagel 28/24 px: page titles via `PageTitle`, home sections, shelves), Card title
+(`type-card-title`, Space Grotesk 700 20/17 px), Button/label (`text-base font-semibold`), Body
+(`text-base`, 16/24), Small (`text-sm`, 14/20), Eyebrow (`type-eyebrow`, 12 px 700 uppercase).
+Bagel Fat One only at 24 px or larger and only for page/section titles (plus the 24 px footer
+wordmark); headings don't get it automatically. No 500 weight, no new sizes. Urdu script: wrap it in
+`lang="ur" dir="rtl"`; `:lang(ur)` switches to `--font-urdu` (Noto Nastaliq Urdu, line-height 2),
+which still has to be self-hosted the first time Urdu copy ships.
+
+**Fonts:** Space Grotesk (400/600/700; the 500 file is loaded but not for body text) and Bagel Fat
+One (one weight, `font-synthesis: none`). Both OFL, self-hosted, Latin subset, in `src/app/fonts.ts`.
+Editor/print fonts are a separate list (`src/config/fonts.ts`).
 
 **Logo:** founder's PNG in `public/brand/designbanana-logo.png` (2×, 352×72), used by
 `components/ui/wordmark.tsx`. Footer (dark teal) uses the text version `WordmarkOnDark`. Replace
@@ -32,10 +49,18 @@ the home page: `DesignBanana – Kuch khaas banao`; other pages: `<Page> · Desi
 sits under the logo in the footer and as the label above the home headline. No English tagline, and no
 "on your phone" in copy: the site is phone-first but works on any device.
 
-**Style:** one outline everywhere: **3 px black** on cards and buttons, 2 px on inputs and small
-controls. Hard black shadows (4 px, 6 px on the hero image) only on things you tap: buttons, product
-cards and design tiles. Info cards stay flat. The editor canvas and toolbars stay calm. The occasion
-tiles keep their solid pink/yellow look with no outline.
+**Shape:** radius 16 px (`rounded-2xl`) for cards, buttons, panels; 12 px (`rounded-xl`) for inputs,
+selects and image tiles inside cards; `rounded-full` for chips, filters, badges. Nothing else.
+Outline (always ink): 3 px on buttons, cards, panels; 2 px on chips, inputs, badges, image tiles.
+**One shadow:** `shadow-hard` (4 px 4 px 0 ink). Only primary buttons wear it at rest; secondary
+buttons, chips and tappable cards get it on hover / keyboard focus (`lift`, `card-pop`). No blurred
+shadows, no 6 px variant, no glow. Sheets and popovers use an ink top border instead of a shadow.
+
+**States:** pressed (`press`) slides 4 px into the shadow and drops it; 120 ms ease-out on transform
+and shadow, off under `prefers-reduced-motion`. Focus: one global ring (`:focus-visible`, 3 px
+`accent-text`, offset 4 px; `on-deep-muted` inside `.on-dark` surfaces) — never add
+`focus-visible:outline-none` or `focus-visible:ring-*` in components. Disabled: `page` fill, ink
+outline at 40%, no shadow, `cursor-not-allowed`.
 
 **Customer-facing name:** "DesignBanana" / "DesignBanana.pk" on every page, email and the vendor PDF
 (no "Giftified" anywhere a customer or vendor reads it). No legal-registration or street-address text
@@ -48,19 +73,18 @@ not change. The email sender name comes from `EMAIL_FROM` on the host.
 One pattern per idea, so new pages don't pick a random existing one.
 
 - **Buttons:** always `buttonClass()` (`components/ui/button.tsx`): `rounded-2xl`, **`h-12`**, 3 px
-  black outline, 4 px hard shadow that presses in on tap. `primary` = deep teal + white text,
-  `secondary` = white, `sunny` = banana yellow (on coloured backgrounds: hero, footer). The compact
-  header "Next" button is the one exception (`h-9`, 2 px outline). **Disabled = same button,
-  desaturated:** `bg-brand-300`, no shadow (never grey, never just `opacity`).
-- **Content card:** the `card` utility (`globals.css`): white, 3 px black outline, `rounded-2xl`.
-  Add `card-pop` (4 px hard shadow) only when the whole card is a link. "Coming soon" cards add
-  `border-dashed!`. Accordions use the same frame. Alert banners (`rounded-lg`) are not cards.
+  ink outline. `primary` = banana yellow + hard shadow (one per screen), `secondary` = white, outline
+  only. `compactButtonClass()` is the 44 px version for cards and sheets; `chipClass` the 36 px pill;
+  `iconButtonClass` the round icon button. `BUTTON_SKIN` gives the colours for one-off sizes (the
+  header "Next"). Disabled = `page` fill and faded outline, never just `opacity`.
+- **Content card:** the `card` utility (`globals.css`): white, 3 px ink outline, `rounded-2xl`, flat.
+  Add `card-pop` only when the whole card is a link (shadow on hover/focus, press on tap). "Coming
+  soon" cards add `border-dashed!`. Accordions use the same frame. Alert banners are not cards.
 - **Inputs:** `inputClass()` (`features/checkout/components/field.tsx`): `h-12 rounded-xl border-2
 border-ink`, red when invalid.
 - **Accordion:** `components/ui/disclosure.tsx` (FAQ, product Details). Don't hand-roll `<details>`.
-- **Text colour:** body `text-ink`, headings `text-brand-900`. `text-zinc-500/600` is the deliberate
-  _muted_ tier (captions, help text, meta). Transactional pages (cart, checkout, order, track) share
-  this with marketing pages; avoid `zinc-700/800/900` for new body/heading text.
+- **Text colour:** body `text-ink`, section headings `text-deep`. `text-ink/65`–`/70` is the deliberate
+  _muted_ tier (captions, help text, meta); prices and links `text-accent-text`.
 - **Touch targets:** two named tiers. **Primary 44 px** (buttons, header actions, tab/toolbar buttons,
   standalone controls). **Secondary 36 px** only for dense in-row controls: the selection bar's text
   tools, quantity steppers, colour swatches, sheet close, and the editor's Centre/Straighten chips.
