@@ -3,6 +3,7 @@ import Link from "next/link";
 import { buttonClass } from "@/components/ui/button";
 import { Container } from "@/components/ui/page";
 import { SITE } from "@/config/site";
+import { DELIVERY_DAYS } from "@/lib/delivery";
 
 /**
  * Founder's Canva picture (designer → preview → delivered box), with the
@@ -41,6 +42,23 @@ export function Hero() {
               How it works
             </a>
           </div>
+          <ul
+            className="text-ink mt-5 flex flex-wrap gap-x-4 gap-y-1 text-sm font-semibold"
+            aria-label="Why order here"
+            data-testid="hero-trust"
+          >
+            <li>Cash on delivery</li>
+            <li aria-hidden className="max-sm:hidden">
+              ·
+            </li>
+            <li>
+              Arrives in {DELIVERY_DAYS.min}–{DELIVERY_DAYS.max} days
+            </li>
+            <li aria-hidden className="max-sm:hidden">
+              ·
+            </li>
+            <li>Free reprint if misprinted</li>
+          </ul>
         </div>
         <Image
           src={HERO_IMAGE}

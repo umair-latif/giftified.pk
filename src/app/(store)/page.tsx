@@ -1,3 +1,5 @@
+import { featuredOccasion } from "@/config/occasion-dates";
+import { HelpBlock } from "@/features/home/help-block";
 import { Hero } from "@/features/home/hero";
 import { HowItWorks } from "@/features/home/how-it-works";
 import { loadHomeProductCards } from "@/features/home/load-product-cards";
@@ -21,8 +23,9 @@ export default async function Home() {
       <ProductsSection cards={cards} />
       <RecentTemplatesSection templates={templates} />
       <HowItWorks />
-      <Occasions />
+      <Occasions featured={featuredOccasion(new Date())} />
       <WhyDesignBanana />
+      <HelpBlock />
     </main>
   );
 }

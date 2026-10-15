@@ -21,7 +21,7 @@ export const HOME_PRODUCTS: readonly HomeProductInfo[] = [
   {
     productId: "mug",
     name: "Custom Mug",
-    note: "11oz white ceramic, printed all the way round",
+    note: "11oz gloss ceramic, white or black, printed all the way round",
     image: "/home/mug-placeholder.webp",
   },
   {
@@ -45,6 +45,8 @@ export interface HomeProductCard extends HomeProductInfo {
   fromPricePkr: number | null;
   /** Regular price of the cheapest variant when it is reduced, else null. */
   fromRegularPricePkr: number | null;
+  /** Show "from" only when variants cost different amounts. */
+  priceVaries: boolean;
 }
 
 /** Lowest variant price (the "from" price), falling back to the base price. */
@@ -81,6 +83,9 @@ export function buildHomeProductCards(
         : null,
       fromPricePkr: entry ? fromPrice(entry) : null,
       fromRegularPricePkr: entry ? fromRegularPrice(entry) : null,
+      priceVaries: entry
+        ? new Set(entry.variants.map((v) => v.pricePkr)).size > 1
+        : false,
     };
   });
 }

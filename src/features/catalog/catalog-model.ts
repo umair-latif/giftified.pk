@@ -39,6 +39,8 @@ export interface CatalogCard {
   fromPricePkr: number | null;
   /** Regular price of that cheapest variant when it is reduced, else null. */
   fromRegularPricePkr: number | null;
+  /** Show "from": only when colours or sizes really cost different amounts. */
+  priceVaries: boolean;
   image: { src: string; alt: string } | null;
   swatches: Swatch[];
 }
@@ -47,6 +49,11 @@ export interface CatalogCard {
 export function fromPrice(product: CatalogProduct): number {
   const prices = product.variants.map((v) => v.pricePkr);
   return prices.length > 0 ? Math.min(...prices) : product.basePricePkr;
+}
+
+/** True when the variants have different prices (then the card says "from"). */
+export function priceVaries(product: CatalogProduct): boolean {
+  return new Set(product.variants.map((v) => v.pricePkr)).size > 1;
 }
 
 /** Regular price of the cheapest variant, only when it is reduced (a sale). */
@@ -116,6 +123,7 @@ export function buildCatalogCards(
         : null,
       fromPricePkr: entry ? fromPrice(entry) : null,
       fromRegularPricePkr: entry ? fromRegularPrice(entry) : null,
+      priceVaries: entry ? priceVaries(entry) : false,
       image: img ? { src: img.src, alt: img.alt } : null,
       swatches: swatches(entry, cfg?.baseColors),
     };
