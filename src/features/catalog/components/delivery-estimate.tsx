@@ -1,9 +1,17 @@
 "use client";
 
-import { useEffect, useState, useTransition } from "react";
+import { useState, useSyncExternalStore } from "react";
 import { CityPicker } from "@/features/checkout/components/city-picker";
 import { formatPkr } from "@/features/checkout/format";
-import { quoteDeliveryAction, type DeliveryQuote } from "../actions";
+import { useDeliveryRates } from "@/features/checkout/use-delivery-rates";
+import {
+  arrivalRange,
+  DELIVERY_DAYS,
+  feeFor,
+  formatArrival,
+  maxFee,
+  type DeliveryRates,
+} from "@/lib/delivery";
 
 const CITY_KEY = "giftified:city";
 
@@ -15,6 +23,8 @@ function readCity(): string {
   }
 }
 
+const noopSubscribe = () => () => {};
+
 function saveCity(city: string) {
   try {
     localStorage.setItem(CITY_KEY, city);
@@ -23,63 +33,81 @@ function saveCity(city: string) {
   }
 }
 
-/** "Delivery to Lahore: Rs 200" — city remembered on this phone. */
-export function DeliveryEstimate() {
-  const [city, setCity] = useState("");
-  const [quote, setQuote] = useState<DeliveryQuote | null>(null);
-  const [pending, startTransition] = useTransition();
+/**
+ * "Delivery to Khanewal · Rs 300 · arrives 21–25 Oct". Before a city is set it
+ * says what's true everywhere (rendered on the server, so never empty). The
+ * fee follows the same rule as checkout: the city's own rate, else the rate
+ * for everywhere else. The city is remembered on this phone and pre-fills checkout.
+ */
+export function DeliveryEstimate({
+  rates: serverRates,
+}: {
+  rates: DeliveryRates | null;
+}) {
+  const rates = useDeliveryRates(serverRates);
+  // The city remembered on this phone ("" on the server and first paint).
+  const saved = useSyncExternalStore(noopSubscribe, readCity, () => "");
+  const [typed, setTyped] = useState<string | null>(null);
+  const [picked, setPicked] = useState<string | null>(null);
+  const city = typed ?? saved;
+  const committed = picked ?? saved;
 
   const commit = (c: string) => {
-    const typed = c.trim();
-    if (typed.length < 2) return;
-    startTransition(async () => {
-      const q = await quoteDeliveryAction(typed);
-      setQuote(q);
-      if (q.ok) {
-        setCity(q.city);
-        saveCity(q.city);
-      }
-    });
+    const t = c.trim();
+    if (t.length < 2) return;
+    setPicked(t);
+    saveCity(t);
   };
 
-  // Re-quote the city remembered on this phone; the field fills in with the answer.
-  useEffect(() => {
-    const saved = readCity();
-    if (saved) commit(saved);
-  }, []);
+  const top = rates ? maxFee(rates) : null;
+  const quote = committed && rates ? feeFor(committed, rates) : null;
+  const days = `${DELIVERY_DAYS.min}–${DELIVERY_DAYS.max} days`;
 
   return (
     <div className="space-y-2">
       <label htmlFor="city" className="text-ink block text-sm font-semibold">
-        Delivery estimate — your city
+        Delivery to your city
       </label>
       <CityPicker
         value={city}
-        onChange={(c) => {
-          setCity(c);
-          setQuote(null);
-        }}
+        onChange={setTyped}
         onCommit={commit}
-        invalid={quote?.ok === false}
+        invalid={false}
         describedBy="delivery-result"
+        rates={rates}
       />
-      <p id="delivery-result" className="min-h-6 text-sm" aria-live="polite">
-        {pending ? (
-          <span className="text-ink/65">Checking…</span>
-        ) : quote?.ok ? (
+      <p
+        id="delivery-result"
+        className="text-ink min-h-6 text-sm"
+        aria-live="polite"
+        data-testid="delivery-result"
+      >
+        {quote ? (
           <>
-            Delivery to {quote.city}:{" "}
+            Delivery to {quote.city}
+            {quote.shippingPkr !== null && (
+              <>
+                {" · "}
+                <strong className="font-semibold">
+                  {formatPkr(quote.shippingPkr)}
+                </strong>
+              </>
+            )}
+            {" · "}
             <strong className="font-semibold">
-              {formatPkr(quote.shippingPkr)}
+              Arrives {formatArrival(arrivalRange(new Date()))}
             </strong>
-            <span className="text-ink/70"> · pay cash when it arrives</span>
           </>
-        ) : quote ? (
-          <span className="text-red-700">
-            We couldn&apos;t get a price for that city. You&apos;ll see it at
-            checkout.
-          </span>
-        ) : null}
+        ) : (
+          <>
+            Delivery anywhere in Pakistan
+            {top !== null && ` · ${formatPkr(top)} or less`} · arrives in {days}
+          </>
+        )}
+      </p>
+      <p className="text-ink/70 text-sm">
+        Pay cash when it arrives. We call or WhatsApp you to confirm before
+        printing.
       </p>
     </div>
   );

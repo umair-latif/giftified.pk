@@ -252,6 +252,14 @@ export function createMockCommerce(
       for (const p of designProducts.values())
         if (p.wooProductId === wooProductId) p.status = "publish";
     },
+    shippingRates: async () => ({
+      cities: Object.entries(SHIPPING_PKR).map(([city, shippingPkr]) => ({
+        city,
+        shippingPkr,
+      })),
+      otherCitiesPkr: DEFAULT_SHIPPING_PKR,
+    }),
+
     quoteShipping: async (city) => ({
       city,
       shippingPkr: SHIPPING_PKR[city] ?? DEFAULT_SHIPPING_PKR,

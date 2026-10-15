@@ -5,7 +5,7 @@ async function noSideScroll(page: Page) {
   expect(w).toBeLessThanOrEqual(360);
 }
 
-test("catalog → mug page → Design your own opens the editor", async ({
+test("catalog → mug page: options, price, one way to start, studio gets the colour", async ({
   page,
 }) => {
   await page.goto("/products");
@@ -26,22 +26,42 @@ test("catalog → mug page → Design your own opens the editor", async ({
   await expect(page.getByRole("heading", { level: 1 })).toHaveText(
     "Custom Mug",
   );
-  await expect(page.getByText("Cash on Delivery").first()).toBeVisible();
   await noSideScroll(page);
 
-  // The first card on the page is always "Design your own".
-  const first = page.locator("main section").first();
-  await expect(first).toHaveAttribute("data-testid", "design-your-own");
-  await expect(first.getByRole("heading")).toHaveText("Design your own");
-  // Gallery slot (task 19): "coming soon" until a template is published.
+  // (Prices come from the store; the e2e build has none — see catalog-model tests.)
+  await expect(page.getByTestId("product-spec")).toContainText("Gloss White");
+
+  // Colour is a radio group; picking Black swaps the main photo and the spec.
+  const colours = page.getByRole("group", { name: /Colour/ });
+  await colours.getByText("Gloss Black").tap();
+  await expect(page.getByRole("radio", { name: "Gloss Black" })).toBeChecked();
+  await expect(page.getByTestId("product-spec")).toContainText("Gloss Black");
+  await expect(
+    page.getByRole("img", { name: "Plain gloss black mug" }).first(),
+  ).toBeVisible();
+
+  // Before a city is chosen the delivery box says what's true everywhere.
+  await expect(page.getByTestId("delivery-result")).toHaveText(
+    "Delivery anywhere in Pakistan · Rs 300 or less · arrives in 6–10 days",
+  );
+  await expect(page.getByTestId("reprint-promise")).toContainText(
+    "Free reprint if it arrives misprinted or damaged",
+  );
+  await expect(page.getByTestId("photo-tips")).toContainText(
+    "about 1,800 px wide",
+  );
   await expect(page.locator("#designs")).toContainText("Ready-made designs");
 
-  await first.getByRole("link", { name: "Start designing" }).tap();
+  await page.getByRole("link", { name: "Add your photo or text" }).tap();
   await expect(page).toHaveURL(/\/design\/mug$/);
   await expect(page.getByTestId("editor-status")).toBeAttached();
+  // The studio opened in the colour picked on the product page.
+  await expect(
+    page.getByRole("radio", { name: /Black/ }).first(),
+  ).toBeChecked();
 });
 
-test("delivery estimate: Lahore costs Rs 200 and the city is remembered", async ({
+test("delivery: any town is accepted at Rs 300, known cities keep their rate, the city is remembered", async ({
   page,
 }) => {
   await page.goto("/products/mug");
@@ -52,21 +72,45 @@ test("delivery estimate: Lahore costs Rs 200 and the city is remembered", async 
   await page.getByText("Details about the product").tap();
   await expect(details).toHaveAttribute("open", "");
   await expect(page.getByText("Up to 22.8 × 8.9 cm")).toBeVisible();
-  // The delivery estimate is outside the details, visible either way.
   await page.getByText("Details about the product").tap();
   await expect(details).not.toHaveAttribute("open");
 
-  const city = page.getByLabel("Delivery estimate — your city");
-  await city.fill("lah");
-  await page.getByRole("option", { name: "Lahore" }).tap();
-  await expect(page.locator("#delivery-result")).toHaveText(
-    "Delivery to Lahore: Rs 200 · pay cash when it arrives",
+  const city = page.getByLabel("Delivery to your city");
+  await expect(page.locator("#city-hint")).toHaveText(
+    "We deliver to every city and town in Pakistan.",
   );
+  // Empty and focused: "anywhere else" comes first.
+  await city.focus();
+  await expect(page.getByTestId("city-anywhere")).toHaveText(
+    "Anywhere else in Pakistan · Rs 300",
+  );
+
+  // A made-up town: offered as typed, at the rate for everywhere else.
+  await city.fill("Chak Jhumra Khurd");
+  await expect(page.getByTestId("city-own")).toHaveText(
+    "Deliver to Chak Jhumra KhurdRs 300",
+  );
+  await page.getByTestId("city-own").tap();
+  const result = page.getByTestId("delivery-result");
+  await expect(result).toContainText(
+    "Delivery to Chak Jhumra Khurd · Rs 300 · Arrives",
+  );
+
+  // A known city with its own rate; an alias finds it.
+  await city.fill("lah");
+  await page.getByRole("option", { name: /^Lahore/ }).tap();
+  await expect(result).toContainText("Delivery to Lahore · Rs 200 · Arrives");
   await noSideScroll(page);
 
+  // Keyboard: arrow down + Enter picks the first suggestion.
+  await city.fill("Pindi");
+  await city.press("Enter");
+  await expect(city).toHaveValue("Rawalpindi");
+  await expect(result).toContainText("Delivery to Rawalpindi · Rs 300");
+
   await page.reload();
-  await expect(city).toHaveValue("Lahore");
-  await expect(page.locator("#delivery-result")).toContainText("Rs 200");
+  await expect(city).toHaveValue("Rawalpindi");
+  await expect(result).toContainText("Rawalpindi");
 });
 
 // Not-found is streamed after loading.tsx, so Next sends it as a "soft 404"
@@ -80,6 +124,6 @@ test("unknown product slugs get the not-found page", async ({ page }) => {
     expect(
       await page.locator('meta[name="robots"][content*="noindex"]').count(),
     ).toBeGreaterThan(0);
-    await expect(page.getByTestId("design-your-own")).toHaveCount(0);
+    await expect(page.getByTestId("start-designing")).toHaveCount(0);
   }
 });

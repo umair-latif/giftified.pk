@@ -14,6 +14,7 @@ import type {
   CatalogProduct,
   CatalogVariant,
   RetentionOrder,
+  ShippingRates,
   VendorContact,
 } from "./types";
 import type {
@@ -179,6 +180,9 @@ export function mapVariation(
     colourId,
     ...colourDisplay(productId, colourId, colour?.option, hexes),
     ...(size ? { size: size.option } : {}),
+    ...(v.image?.src
+      ? { image: { src: v.image.src, alt: v.image.alt ?? "" } }
+      : {}),
     wooVariationId: v.id,
     pricePkr,
     ...regularIfReduced(v.regular_price, pricePkr),
@@ -610,6 +614,37 @@ export function quoteFromZones(
     if (cost !== null) return cost;
   }
   return null;
+}
+
+/** All rates from the zones (see `quoteFromZones` for the naming convention). */
+export function ratesFromZones(zones: ZoneWithRates[]): ShippingRates {
+  const ordered = [...zones].sort((a, b) => a.zone.order - b.zone.order);
+  const cities: ShippingRates["cities"] = [];
+  const seen = new Set<string>();
+  for (const z of ordered) {
+    if (z.zone.id === 0 || /\b(rest of|other)\b/i.test(z.zone.name)) continue;
+    const cost = flatRateCost(z.methods);
+    if (cost === null) continue;
+    for (const name of z.zone.name.split(/[,/|]/)) {
+      const city = name.trim().replace(/\s+/g, " ");
+      if (!city || seen.has(normCity(city))) continue;
+      seen.add(normCity(city));
+      cities.push({ city, shippingPkr: cost });
+    }
+  }
+  const rest = ordered.find(
+    (z) => z.zone.id !== 0 && /\b(rest of|other)\b/i.test(z.zone.name),
+  );
+  const notCovered = ordered.find((z) => z.zone.id === 0);
+  let otherCitiesPkr: number | null = null;
+  for (const z of [rest, notCovered]) {
+    const cost = z ? flatRateCost(z.methods) : null;
+    if (cost !== null) {
+      otherCitiesPkr = cost;
+      break;
+    }
+  }
+  return { cities, otherCitiesPkr };
 }
 
 // ---------------------------------------------------------------------------

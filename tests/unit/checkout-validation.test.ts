@@ -276,17 +276,30 @@ describe("cities", () => {
     expect(new Set(CITIES).size).toBe(30);
   });
 
-  it("canonicalises known cities, keeps others", () => {
+  it("canonicalises known cities and common other names, keeps the rest", () => {
     expect(canonicalCity(" rahim yar khan")).toBe("Rahim Yar Khan");
-    expect(canonicalCity("DG Khan")).toBe("DG Khan");
+    expect(canonicalCity("D.G. Khan")).toBe("Dera Ghazi Khan");
+    expect(canonicalCity("DI Khan")).toBe("Dera Ismail Khan");
+    expect(canonicalCity("Pindi")).toBe("Rawalpindi");
+    expect(canonicalCity("ISB")).toBe("Islamabad");
+    expect(canonicalCity("Lyallpur")).toBe("Faisalabad");
+    expect(canonicalCity("KHI")).toBe("Karachi");
+    expect(canonicalCity("lhr")).toBe("Lahore");
     expect(canonicalCity("Abbottabad")).toBe("Abbottabad");
+    expect(canonicalCity("  Khanewal ")).toBe("Khanewal");
+    expect(canonicalCity("jhelum", ["Jhelum"])).toBe("Jhelum");
   });
 
-  it("searches by prefix first, then substring", () => {
+  it("matches generously: word starts, aliases and small typos", () => {
     expect(searchCities("")).toHaveLength(30);
     expect(searchCities("guj")).toEqual(["Gujranwala", "Gujrat"]);
-    expect(searchCities("abad")[0]).toBe("Faisalabad");
     expect(searchCities("khan")).toEqual(["Rahim Yar Khan", "Dera Ghazi Khan"]);
+    expect(searchCities("pindi")).toContain("Rawalpindi");
+    expect(searchCities("isb")).toEqual(["Islamabad"]);
+    expect(searchCities("lahor")[0]).toBe("Lahore");
+    expect(searchCities("faislabad")).toContain("Faisalabad");
+    expect(searchCities("karchi")).toContain("Karachi");
+    expect(searchCities("jhe", ["Jhelum"])).toEqual(["Jhelum"]);
     expect(searchCities("zzz")).toEqual([]);
   });
 });

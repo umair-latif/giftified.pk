@@ -6,7 +6,7 @@ test("t-shirt configuration opens a portrait editor and preserves its draft", as
   const errors: string[] = [];
   page.on("pageerror", (error) => errors.push(error.message));
   await page.goto("/products/tshirt");
-  await page.getByRole("link", { name: "Start designing" }).tap();
+  await page.getByRole("link", { name: "Add your photo or text" }).tap();
   await expect(page).toHaveURL(/\/design\/tshirt$/);
   const guide = page.getByTestId("garment-guide");
   await expect(guide).toBeVisible();

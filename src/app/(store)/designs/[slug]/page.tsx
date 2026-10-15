@@ -8,6 +8,7 @@ import { sizes as sizesOf } from "@/features/catalog/catalog-model";
 import { DeliveryEstimate } from "@/features/catalog/components/delivery-estimate";
 import { ProductDetails } from "@/features/catalog/components/product-details";
 import { loadCatalog } from "@/features/catalog/load-catalog";
+import { loadDeliveryRates } from "@/features/catalog/load-rates";
 import { DesignGallery } from "@/features/templates/components/design-gallery";
 import { DesignBuyBox } from "@/features/templates/components/design-buy-box";
 import { loadTemplates } from "@/features/templates/load-templates";
@@ -61,6 +62,7 @@ export default async function DesignProductPage({
   const cfg = getProduct(info.baseProductId);
   if (!cfg) notFound();
   const catalog = await loadCatalog();
+  const rates = await loadDeliveryRates();
   const base = catalog.find((p) => p.productId === info.baseProductId);
   const tid = encodeURIComponent(meta.id);
   const image = meta.images?.length
@@ -149,7 +151,7 @@ export default async function DesignProductPage({
             className="card bg-soft! p-4"
             data-testid="delivery-estimate"
           >
-            <DeliveryEstimate />
+            <DeliveryEstimate rates={rates} />
           </section>
         </div>
       </div>

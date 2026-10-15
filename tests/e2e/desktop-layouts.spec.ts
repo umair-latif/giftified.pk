@@ -37,14 +37,14 @@ async function seedCart(page: Page) {
   }, store);
 }
 
-test("product page: gallery left, title and Start designing right, details full width below", async ({
+test("product page: gallery left, title and Add your photo right, details full width below", async ({
   page,
 }) => {
   await page.goto("/products/mug");
   const image = await page.locator("main svg, main img").first().boundingBox();
   const title = await page.getByRole("heading", { level: 1 }).boundingBox();
   const start = await page
-    .getByRole("link", { name: "Start designing" })
+    .getByRole("link", { name: "Add your photo or text" })
     .boundingBox();
   const details = await page.getByTestId("product-details").boundingBox();
   expect(image!.width).toBeGreaterThan(380);

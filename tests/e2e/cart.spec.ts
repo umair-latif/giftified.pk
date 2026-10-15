@@ -61,7 +61,7 @@ test("two designs → cart → edit one → quantities → reload keeps it", asy
   await page.getByRole("link", { name: "Design another one" }).tap();
   await expect(page).toHaveURL(/\/products$/);
   await page.getByTestId("product-card-mug").tap();
-  await page.getByRole("link", { name: "Start designing" }).tap();
+  await page.getByRole("link", { name: "Add your photo or text" }).tap();
   // A second design starts from an empty editor.
   await expect(status(page)).toHaveText(/0 layers/);
   await expect(

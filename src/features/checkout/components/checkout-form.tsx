@@ -106,6 +106,7 @@ export function CheckoutForm() {
   const [signedIn, setSignedIn] = useState(false);
   const [saveToAccount, setSaveToAccount] = useState(false);
   const [quote, setQuote] = useState<CartQuote | null>(null);
+
   const [coupon, setCoupon] = useState("");
   const [designs, setDesigns] = useState<Map<string, DesignState> | null>(null);
   const [errors, setErrors] = useState<FieldErrors>({});
@@ -478,7 +479,7 @@ export function CheckoutForm() {
           <input
             {...input("addressLine")}
             autoComplete="street-address"
-            placeholder="House, street, area"
+            placeholder="House, street, area or village"
           />
         </Field>
         <Field

@@ -17,6 +17,7 @@ import { useTemplateEditor } from "@/features/templates/use-template-editor";
 import { CropSheet } from "./crop-sheet";
 import { BackgroundSheet } from "./background-sheet";
 import { EditorTip } from "./editor-tip";
+import { PhotoTips } from "@/features/catalog/components/photo-tips";
 import { SelectionBar } from "./selection-bar";
 import { TextEditor } from "./text-editor";
 import { ACCEPTED_IMAGE_TYPES } from "../assets/prepare-image";
@@ -273,6 +274,10 @@ export function DesignEditor({
           )}
 
           <EditorTip />
+          {/* Before the first photo goes in: the same tips as the product page. */}
+          {ed.quality.worstDpi === null && !ed.selection && (
+            <PhotoTips cfg={product} />
+          )}
         </aside>
       </main>
 

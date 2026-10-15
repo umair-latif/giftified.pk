@@ -23,6 +23,8 @@ export interface CatalogVariant {
   /** Display name and swatch from WooCommerce (task 11); fall back to config. */
   colourName?: string;
   colourHex?: `#${string}`;
+  /** The variation's own photo in WooCommerce, when it has one. */
+  image?: CatalogImage;
   size?: string;
   /** WooCommerce variation ID. */
   wooVariationId: number;
@@ -68,6 +70,16 @@ export interface VendorContact {
 export interface ShippingQuote {
   city: string;
   shippingPkr: number;
+}
+
+/**
+ * Every delivery rate, for the city field (product page and checkout): the
+ * cities that have their own rate, and the rate for everywhere else.
+ */
+export interface ShippingRates {
+  cities: { city: string; shippingPkr: number }[];
+  /** "Rest of Pakistan" rate; null when the store has none set up. */
+  otherCitiesPkr: number | null;
 }
 
 /** A WooCommerce customer (the account store, task 20). */
@@ -236,6 +248,7 @@ export interface CommerceClient {
   listProducts(): Promise<CatalogProduct[]>;
   getProduct(productId: ProductId): Promise<CatalogProduct | null>;
   quoteShipping(city: string): Promise<ShippingQuote>;
+  shippingRates(): Promise<ShippingRates>;
   /** The WooCommerce coupon with this code (case-insensitive), or null. Never cached: usage counts change. */
   findCoupon(code: string): Promise<Coupon | null>;
 
