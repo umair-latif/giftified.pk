@@ -21,7 +21,7 @@ export const TRACK_WINDOW_MS = 60 * 60 * 1000;
 export const TRACK_FAILURE_MIN_MS = 1000;
 
 export const NOT_FOUND_MESSAGE =
-  "We couldn’t find an order with that number and mobile number. Please check both and try again.";
+  "We couldn’t find that order. Check both numbers, or chat with us on WhatsApp.";
 export const TOO_MANY_MESSAGE =
   "Too many tries. Please wait an hour, or message us on WhatsApp and we’ll help.";
 export const UNAVAILABLE_MESSAGE =

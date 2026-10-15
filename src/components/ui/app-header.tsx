@@ -17,6 +17,11 @@ interface Props {
   next?: NextAction;
   /** Extra actions shown before the Next button (e.g. undo/redo). */
   actions?: ReactNode;
+  /**
+   * Prefetch the back/next pages (Next's default). The studio turns it off:
+   * on a slow phone network those requests delay the drawing engine.
+   */
+  prefetch?: boolean;
 }
 
 /**
@@ -31,6 +36,7 @@ export function AppHeader({
   backLabel = "Back",
   next,
   actions,
+  prefetch = true,
 }: Props) {
   return (
     <header
@@ -41,6 +47,7 @@ export function AppHeader({
         {backHref ? (
           <Link
             href={backHref}
+            prefetch={prefetch ? null : false}
             aria-label={backLabel}
             className={`${iconButtonClass} mr-1.5 ml-1 size-10 lg:size-11`}
           >
@@ -57,6 +64,7 @@ export function AppHeader({
           (next.href ? (
             <Link
               href={next.href}
+              prefetch={prefetch ? null : false}
               className={`${BUTTON_SKIN.primary} border-ink text-ink press mr-1 ml-1 flex h-10 shrink-0 items-center gap-0.5 rounded-2xl border-[3px] pr-2 pl-3.5 text-base font-semibold lg:h-11 lg:gap-1 lg:pr-3 lg:pl-5`}
             >
               {next.label}

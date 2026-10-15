@@ -10,12 +10,19 @@ export function Field({
   id,
   label,
   hint,
+  description,
+  note,
   error,
   children,
 }: {
   id: string;
   label: string;
+  /** Short aside inside the label ("optional"). */
   hint?: string;
+  /** Help on its own line under the label; the control should use `describedById(id)`. */
+  description?: string;
+  /** Small print under the control (e.g. what the number is used for); `noteId(id)`. */
+  note?: string;
   error?: string;
   children: ReactNode;
 }) {
@@ -25,7 +32,17 @@ export function Field({
         {label}
         {hint && <span className="text-ink/65 font-normal"> · {hint}</span>}
       </label>
+      {description && (
+        <p id={describedById(id)} className="text-ink/70 -mt-0.5 text-sm">
+          {description}
+        </p>
+      )}
       {children}
+      {note && (
+        <p id={noteId(id)} className="text-ink/70 text-sm">
+          {note}
+        </p>
+      )}
       {error && (
         <p id={errorId(id)} className="text-sm text-red-700" role="alert">
           {error}
@@ -36,3 +53,5 @@ export function Field({
 }
 
 export const errorId = (id: string) => `${id}-error`;
+export const describedById = (id: string) => `${id}-hint`;
+export const noteId = (id: string) => `${id}-note`;

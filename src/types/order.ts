@@ -74,6 +74,12 @@ export interface CreateOrderInput {
    * `_marketing_optin` = "yes" only when `marketingOptIn` is true.
    */
   consents?: { contentConfirmedAt: string; marketingOptIn: boolean };
+  /**
+   * How the customer wants the confirmation before printing (Part 4, C2).
+   * Stored as visible order meta `confirm_by` ("Call" / "WhatsApp") so the
+   * founder sees it in WP admin. Absent = a call.
+   */
+  confirmBy?: "call" | "whatsapp";
   lines: OrderLineInput[];
   /**
    * Coupon code (task 26). The server has already checked it (`evaluateCoupon`);

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState, type FormEvent } from "react";
 import { getProduct } from "@/config/products";
+import { SITE } from "@/config/site";
 import { quoteCart, type CartQuote } from "@/features/cart/actions";
 import { clearCart, useCart } from "@/features/cart/cart";
 import { distinctDesigns } from "@/features/cart/cart-lines";
@@ -117,6 +118,7 @@ export function CheckoutForm() {
   // Both unticked by default; the confirmation is required, the opt-in never is.
   const [contentConfirmed, setContentConfirmed] = useState(false);
   const [marketingOptIn, setMarketingOptIn] = useState(false);
+  const [confirmBy, setConfirmBy] = useState<"call" | "whatsapp">("call");
   const inFlight = useRef(false);
   // designKey → uploaded designId, kept for the visit so a retry never re-uploads.
   const uploaded = useRef(new Map<string, string>());
@@ -259,6 +261,7 @@ export function CheckoutForm() {
       values,
       items,
       marketingOptIn,
+      confirmBy,
       deliveryDifferent,
       saveToAccount,
     });
@@ -302,6 +305,7 @@ export function CheckoutForm() {
         ...(signedIn ? { saveToAccount } : {}),
         contentConfirmed,
         marketingOptIn,
+        confirmBy,
         checkoutId: attempt.current.id,
         lines: items.map((i) => ({
           productId: i.productId,
@@ -618,10 +622,50 @@ export function CheckoutForm() {
             {quote?.shippingPkr != null ? formatPkr(quote.totalPkr) : "…"}
           </dd>
           <dd className="text-ink/65 col-span-2 mt-2 text-xs">
-            Pay in cash when it arrives. We’ll contact you to confirm before we
-            print.
+            Pay in cash when it arrives.
           </dd>
         </dl>
+
+        {/* TODO(owner): confirm the confirmation calls come from this number. */}
+        <fieldset
+          className="bg-soft border-ink rounded-2xl border-2 p-4"
+          data-testid="confirm-call"
+        >
+          <legend className="sr-only">How should we confirm your order?</legend>
+          <p className="text-ink text-sm">
+            <strong className="font-semibold">
+              We&apos;ll confirm before printing
+            </strong>{" "}
+            from {SITE.whatsappDisplay}. Please keep your phone on: we wait
+            about a week, then cancel orders we can&apos;t confirm.
+          </p>
+          <p className="text-ink mt-3 text-sm font-semibold" aria-hidden>
+            How should we reach you?
+          </p>
+          <div className="mt-1 flex flex-wrap gap-2">
+            {(
+              [
+                ["call", "Call me"],
+                ["whatsapp", "WhatsApp me"],
+              ] as const
+            ).map(([value, label]) => (
+              <label
+                key={value}
+                className="border-ink text-ink has-[:checked]:bg-ink has-[:focus-visible]:outline-accent-text inline-flex min-h-11 cursor-pointer items-center rounded-full border-2 bg-white px-4 text-sm font-semibold has-[:checked]:text-white has-[:focus-visible]:outline-3 has-[:focus-visible]:outline-offset-4"
+              >
+                <input
+                  type="radio"
+                  name="confirmBy"
+                  value={value}
+                  checked={confirmBy === value}
+                  onChange={() => setConfirmBy(value)}
+                  className="sr-only"
+                />
+                {label}
+              </label>
+            ))}
+          </div>
+        </fieldset>
 
         <Consents
           contentConfirmed={contentConfirmed}

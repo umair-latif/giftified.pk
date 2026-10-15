@@ -51,6 +51,29 @@ export function EditorToolbar({
   );
 }
 
+/**
+ * The same bar, greyed out, for the server-rendered studio skeleton (before
+ * the editor's JavaScript has loaded). No handlers, so it renders on the server.
+ */
+export function EditorToolbarSkeleton() {
+  return (
+    <nav
+      aria-label="Editor tools"
+      className="border-ink/15 lg:border-ink fixed inset-x-0 bottom-0 z-10 border-t bg-white/95 pb-[env(safe-area-inset-bottom)] lg:static lg:rounded-2xl lg:border-2 lg:pb-0"
+    >
+      <div className="mx-auto flex max-w-md items-stretch justify-around px-2 lg:max-w-none lg:gap-1 lg:p-1">
+        <ToolButton label="Text" icon="T" disabled />
+        <ToolButton label="Image" icon="▣" disabled />
+        <ToolButton
+          label="Background colour"
+          icon={<ColourDot colour={null} />}
+          disabled
+        />
+      </div>
+    </nav>
+  );
+}
+
 /** The current background colour; a colour wheel when there is none. */
 function ColourDot({ colour }: { colour: string | null }) {
   return (

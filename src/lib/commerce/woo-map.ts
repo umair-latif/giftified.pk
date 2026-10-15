@@ -52,6 +52,8 @@ export const META = {
   retentionDone: "_retention_done",
   templateId: "_template_id",
   baseProduct: "_base_product",
+  /** Visible in WP admin → order → Custom fields: "Call" or "WhatsApp". */
+  confirmBy: "confirm_by",
 } as const;
 
 /**
@@ -458,6 +460,14 @@ export function buildOrderBody(
         : []),
       ...(input.consents?.marketingOptIn
         ? [{ key: META.marketingOptIn, value: "yes" }]
+        : []),
+      ...(input.confirmBy
+        ? [
+            {
+              key: META.confirmBy,
+              value: input.confirmBy === "whatsapp" ? "WhatsApp" : "Call",
+            },
+          ]
         : []),
     ],
   };

@@ -394,3 +394,12 @@ test("typing into new text keeps it in place (no slide down per letter)", async 
   }
   expect((await readout(page)).w).toBeGreaterThan(before.w);
 });
+
+test("the studio's server HTML already shows its outline (no blank page before JS)", async ({
+  request,
+}) => {
+  const html = await (await request.get("/design/mug")).text();
+  expect(html).toContain('data-testid="editor-skeleton"');
+  expect(html).toContain("Background colour");
+  expect(html).toContain("print area");
+});

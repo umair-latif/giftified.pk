@@ -60,6 +60,7 @@ describe("parseCheckout (whole cart → one order)", () => {
           contentConfirmedAt: "2026-09-29T08:30:00.000Z",
           marketingOptIn: false,
         },
+        confirmBy: "call",
         customer: {
           fullName: "Ayesha Khan",
           phone: "+923001234567",

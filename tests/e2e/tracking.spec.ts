@@ -38,11 +38,22 @@ test("/track: an unknown order gets the generic message and keeps the typed valu
   page,
 }) => {
   await page.goto("/track");
+  // Each label has its hint on its own line, read with the field.
+  await expect(page.getByLabel("Order number")).toHaveAccessibleDescription(
+    /On your confirmation screen and message/,
+  );
+  await expect(page.getByLabel("Mobile number")).toHaveAccessibleDescription(
+    /The one you ordered with.*Only used to find your order/,
+  );
+  await expect(page.getByLabel("Mobile number")).toHaveAttribute(
+    "autocomplete",
+    "tel",
+  );
   await page.getByLabel("Order number").fill("987654321");
   await page.getByLabel("Mobile number").fill("0300 1234567");
   await page.getByRole("button", { name: "Show my order" }).tap();
   await expect(page.getByTestId("track-error")).toHaveText(
-    /couldn’t find an order/,
+    /couldn’t find that order/,
   );
   await expect(page).toHaveURL(/\/track$/);
   await expect(page.getByLabel("Order number")).toHaveValue("987654321");
@@ -176,7 +187,7 @@ test.describe("with a placed order", () => {
 
     await submit("987654321", "0300 1234567");
     await expect(error).toHaveText(wrongPhone!);
-    expect(wrongPhone).toMatch(/couldn’t find an order/);
+    expect(wrongPhone).toMatch(/couldn’t find that order/);
     await expect(page).toHaveURL(/\/track$/);
 
     await submit(`#${orderId}`, "+92 300 1234567");

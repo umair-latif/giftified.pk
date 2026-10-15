@@ -166,6 +166,8 @@ export const checkoutSchema = z
     contentConfirmed: z.literal(true, CONTENT_NOT_CONFIRMED),
     /** Optional, unticked by default: offers and discounts. */
     marketingOptIn: z.boolean().optional().default(false),
+    /** How to confirm the order before printing; a call unless WhatsApp is chosen. */
+    confirmBy: z.enum(["call", "whatsapp"]).optional().default("call"),
     /** Coupon the customer applied (re-checked by `placeOrder`). */
     couponCode: z.string().max(60).optional(),
   })
@@ -257,6 +259,7 @@ export function parseCheckout(
         contentConfirmedAt: now.toISOString(),
         marketingOptIn: v.marketingOptIn,
       },
+      confirmBy: v.confirmBy,
       ...(v.couponCode?.trim()
         ? { couponCode: v.couponCode.trim().toLowerCase() }
         : {}),

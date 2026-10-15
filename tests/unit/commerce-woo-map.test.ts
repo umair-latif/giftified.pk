@@ -183,6 +183,18 @@ describe("order body consents (checkout legal)", () => {
   const meta = (input: CreateOrderInput) =>
     buildOrderBody(input, [], 200).meta_data;
 
+  it("records how the customer wants the confirmation, visibly in WP admin", () => {
+    expect(meta({ ...base, confirmBy: "whatsapp" })).toContainEqual({
+      key: "confirm_by",
+      value: "WhatsApp",
+    });
+    expect(meta({ ...base, confirmBy: "call" })).toContainEqual({
+      key: "confirm_by",
+      value: "Call",
+    });
+    expect(meta(base).some((m) => m.key === "confirm_by")).toBe(false);
+  });
+
   it("writes _content_confirmed and _marketing_optin when opted in", () => {
     expect(
       meta({
