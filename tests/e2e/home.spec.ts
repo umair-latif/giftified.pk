@@ -12,9 +12,16 @@ test("home page: hero, products, sections, no horizontal scroll", async ({
       name: "Design it yourself. See it before you buy.",
     }),
   ).toBeVisible();
-  // Payment and the confirmation call are explained in How it works and on
-  // product pages, not in the hero.
-  await expect(page.getByTestId("hero-trust")).toHaveCount(0);
+  // Trust strip under the hero.
+  await expect(page.getByTestId("hero-trust")).toHaveText(
+    /Cash on delivery.*Arrives in 6–10 days.*Free reprint if misprinted/,
+  );
+  // Help block with the number as text.
+  await expect(
+    page
+      .getByRole("region", { name: "Questions? Ask us" })
+      .getByTestId("whatsapp-number"),
+  ).toHaveText("+92 336 9005786");
   await expect(
     page.getByRole("region", { name: "How it works" }),
   ).toContainText("Pay cash when it arrives");
@@ -77,22 +84,17 @@ test("how it works: no 3D promise; ready-made designs, easy customising and inst
   await expect(page.getByTestId("home-template")).toHaveCount(0); // none yet
 });
 
-test("occasion tiles are white outlined cards: no colour fill, no shadow at rest", async ({
-  page,
-}) => {
+test("occasions: one featured tile, the rest as chips", async ({ page }) => {
   await page.goto("/");
-  const tiles = page
-    .getByRole("region", { name: "Make it for any moment" })
-    .getByRole("link");
-  const styles = await tiles.evaluateAll((els) =>
-    els.map((el) => ({
-      bg: getComputedStyle(el).backgroundColor,
-      shadow: getComputedStyle(el).boxShadow,
-    })),
-  );
-  expect(styles).toHaveLength(8);
-  for (const { bg, shadow } of styles) {
-    expect(bg).toBe("rgb(255, 255, 255)");
-    expect(shadow).toBe("none");
-  }
+  const region = page.getByRole("region", { name: "Make it for any moment" });
+  const featured = region.getByTestId("featured-occasion");
+  await expect(featured).toHaveAttribute("href", /\/occasions\/[\w-]+$/);
+  const chips = region.getByRole("list", { name: "More occasions" });
+  await expect(chips.getByRole("link")).toHaveCount(7);
+  // Chips are outlined, no shadow at rest.
+  const shadow = await chips
+    .getByRole("link")
+    .first()
+    .evaluate((el) => getComputedStyle(el).boxShadow);
+  expect(shadow).toBe("none");
 });

@@ -41,7 +41,7 @@ export function ProductCard({
         {card.fromPricePkr !== null && (
           <p className="text-ink text-sm">
             <PriceTag
-              from
+              from={card.priceVaries}
               pkr={card.fromPricePkr}
               regularPkr={card.fromRegularPricePkr}
             />

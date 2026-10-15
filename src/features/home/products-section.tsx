@@ -21,7 +21,7 @@ function CardBody({ card }: { card: HomeProductCard }) {
         {card.href ? (
           card.fromPricePkr !== null && (
             <PriceTag
-              from
+              from={card.priceVaries}
               pkr={card.fromPricePkr}
               regularPkr={card.fromRegularPricePkr}
               className="mt-1 text-sm"
