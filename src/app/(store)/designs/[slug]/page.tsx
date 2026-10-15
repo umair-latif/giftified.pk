@@ -96,7 +96,7 @@ export default async function DesignProductPage({
       />
       <Link
         href={`/products/${base?.slug ?? cfg.id}#designs`}
-        className="text-brand-700 hover:text-brand-800 focus-visible:ring-brand-600/20 w-fit rounded text-sm font-medium focus-visible:ring-2 focus-visible:outline-none"
+        className="text-accent-text hover:text-deep w-fit rounded-xl text-sm font-semibold"
       >
         ← {cfg.name} designs
       </Link>
@@ -111,24 +111,21 @@ export default async function DesignProductPage({
         <div className="min-w-0 space-y-4">
           <header className="space-y-1">
             <PageTitle>{info.name}</PageTitle>
-            <p className="text-brand-900">
+            <p className="text-deep">
               <PriceTag
                 pkr={info.pricePkr}
                 regularPkr={info.regularPricePkr}
                 className="text-xl font-semibold"
                 testId="design-price"
               />{" "}
-              <span className="bg-mint-300 text-ink ml-1 rounded-full px-2.5 py-0.5 text-xs font-semibold">
+              <span className="bg-soft text-ink ml-1 rounded-full px-2.5 py-0.5 text-xs font-semibold">
                 Cash on Delivery
               </span>
             </p>
           </header>
           {info.descriptionHtml && (
             <section aria-labelledby="about-design" className="space-y-1">
-              <h2
-                id="about-design"
-                className="text-brand-900 text-sm font-semibold"
-              >
+              <h2 id="about-design" className="text-deep text-sm font-semibold">
                 About this design
               </h2>
               <div
@@ -149,7 +146,7 @@ export default async function DesignProductPage({
           />
           <section
             aria-label="Delivery estimate"
-            className="card p-4"
+            className="card bg-soft! p-4"
             data-testid="delivery-estimate"
           >
             <DeliveryEstimate />

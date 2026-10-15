@@ -45,15 +45,15 @@ export function DesignTile({
       data-testid={testId}
       className={
         shelf
-          ? "group focus-visible:ring-ink/40 flex h-full flex-col rounded-xl focus-visible:ring-2 focus-visible:outline-none"
-          : "hover:bg-mint-100 active:bg-mint-100 focus-visible:ring-brand-600/40 card card-pop flex h-full flex-col p-2 focus-visible:ring-2 focus-visible:outline-none"
+          ? "group flex h-full flex-col rounded-xl"
+          : "card card-pop flex h-full flex-col p-2"
       }
     >
       <div
         className={`relative aspect-square overflow-hidden rounded-xl ${
           shelf
-            ? "border-ink border-2 bg-white transition duration-150 group-hover:-translate-y-0.5 group-hover:shadow-[3px_3px_0_var(--color-ink)]"
-            : "bg-cream"
+            ? "border-ink group-hover:shadow-hard group-focus-visible:shadow-hard border-2 bg-white transition-shadow duration-[120ms] motion-reduce:transition-none"
+            : "bg-page"
         }`}
       >
         {image && (
@@ -73,20 +73,20 @@ export function DesignTile({
           />
         )}
         {reduced && (
-          <span className="bg-magenta text-ink absolute top-2 left-2 rounded-full px-2 py-0.5 text-[11px] font-semibold">
+          <span className="bg-highlight text-ink absolute top-2 left-2 rounded-full px-2 py-0.5 text-xs font-semibold">
             Sale
           </span>
         )}
       </div>
-      <p className="text-ink mt-2 line-clamp-2 min-h-[2.5em] px-1 text-sm leading-tight font-medium">
+      <p className="text-ink mt-2 line-clamp-2 min-h-[2.5em] px-1 text-sm leading-tight font-semibold">
         {name}
       </p>
       <p
-        className={`truncate px-1 text-xs ${shelf ? "text-zinc-800" : "text-zinc-500"}`}
+        className={`truncate px-1 text-xs ${shelf ? "text-ink" : "text-ink/65"}`}
       >
         {subtitle}
       </p>
-      <div className="mt-auto min-h-6 px-1 pt-1 pb-1 text-sm text-zinc-900">
+      <div className="text-ink mt-auto min-h-6 px-1 pt-1 pb-1 text-sm">
         {price && (
           <PriceTag
             pkr={price.pricePkr}

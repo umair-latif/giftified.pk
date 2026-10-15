@@ -51,7 +51,7 @@ export function SiteFooter() {
     SITE.social[s.key] ? [{ ...s, url: SITE.social[s.key] }] : [],
   );
   return (
-    <footer className="bg-brand-900 text-brand-50 mt-12 pt-8 pb-[calc(2rem+env(safe-area-inset-bottom))] text-sm">
+    <footer className="on-dark bg-deep text-on-deep mt-12 pt-8 pb-[calc(2rem+env(safe-area-inset-bottom))] text-sm">
       <div className={pageWidthClass("wide")}>
         <div className="grid grid-cols-2 gap-x-4 gap-y-6 md:grid-cols-[1.6fr_1fr_1fr_1fr] md:gap-x-8">
           <div className="col-span-2 md:col-span-1">
@@ -62,7 +62,7 @@ export function SiteFooter() {
             {wa && (
               <a
                 href={wa}
-                className="bg-sunny text-ink border-ink focus-visible:ring-sunny/60 mt-4 inline-flex h-11 items-center gap-2 rounded-2xl border-[3px] px-5 font-semibold hover:bg-[#ffd814] focus-visible:ring-2 focus-visible:outline-none"
+                className="text-ink border-ink lift press mt-4 inline-flex h-11 items-center gap-2 rounded-2xl border-[3px] bg-white px-5 font-semibold"
               >
                 <WhatsappIcon width={22} height={22} />
                 Chat on WhatsApp
@@ -78,15 +78,13 @@ export function SiteFooter() {
                   g.title === "Legal" ? "col-span-2 md:col-span-1" : ""
                 }
               >
-                <p className="text-mint-300 text-xs font-semibold tracking-wide uppercase">
-                  {g.title}
-                </p>
+                <p className="type-eyebrow text-on-deep-muted">{g.title}</p>
                 <ul className="mt-1">
                   {g.links.map((l) => (
                     <li key={l.href}>
                       <Link
                         href={l.href}
-                        className="focus-visible:ring-mint-300/60 inline-flex min-h-8 items-center rounded hover:text-white focus-visible:ring-2 focus-visible:outline-none"
+                        className="inline-flex min-h-8 items-center hover:text-white hover:underline"
                       >
                         {l.label}
                       </Link>
@@ -110,7 +108,7 @@ export function SiteFooter() {
                   rel="noopener noreferrer"
                   aria-label={label}
                   data-testid={`social-${key}`}
-                  className="focus-visible:ring-mint-300/60 inline-flex size-12 items-center justify-center rounded-full border-2 border-white/25 text-white transition-colors hover:border-white hover:bg-white/10 focus-visible:ring-2 focus-visible:outline-none"
+                  className="inline-flex size-12 items-center justify-center rounded-full border-2 border-white/25 text-white transition-colors hover:border-white hover:bg-white/10"
                 >
                   <Icon width={26} height={26} />
                 </a>
@@ -118,7 +116,7 @@ export function SiteFooter() {
             ))}
           </ul>
         )}
-        <div className="text-brand-200 mt-6 border-t border-white/15 pt-5 text-center text-xs leading-relaxed">
+        <div className="text-on-deep-muted mt-6 border-t border-white/15 pt-5 text-center text-xs leading-relaxed">
           <p>
             © {new Date().getFullYear()} {SITE.name}
           </p>

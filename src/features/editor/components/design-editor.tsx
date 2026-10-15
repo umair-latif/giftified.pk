@@ -73,7 +73,7 @@ export function DesignEditor({
 
   return (
     <div
-      className={`bg-cream flex min-h-dvh flex-col ${selectionKind ? "pb-48" : "pb-24"} lg:pb-8`}
+      className={`bg-page flex min-h-dvh flex-col ${selectionKind ? "pb-48" : "pb-24"} lg:pb-8`}
     >
       <AppHeader
         title={item ? "Edit design" : "Design"}
@@ -113,8 +113,8 @@ export function DesignEditor({
         }}
       >
         <div className="flex min-w-0 flex-col gap-3 lg:pb-8">
-          <p className="text-xs text-zinc-500">
-            <span className="font-medium text-zinc-700">{product.name}</span> ·{" "}
+          <p className="text-ink/65 text-xs">
+            <span className="text-ink/80 font-semibold">{product.name}</span> ·{" "}
             {product.subtitle} · print area {formatCm(widthMm)} ×{" "}
             {formatCm(heightMm)} cm
           </p>
@@ -167,13 +167,13 @@ export function DesignEditor({
             <div
               role="alert"
               data-testid="editor-notice"
-              className="flex items-start gap-2 rounded-md bg-red-50 px-3 py-2 text-xs text-red-800 ring-1 ring-red-200"
+              className="flex items-start gap-2 rounded-xl bg-red-50 px-3 py-2 text-xs text-red-800 ring-1 ring-red-200"
             >
               <span className="flex-1">{ed.notice}</span>
               <button
                 type="button"
                 onClick={ed.dismissNotice}
-                className="focus-visible:ring-brand-600/20 rounded font-medium underline hover:text-red-900 focus-visible:ring-2 focus-visible:outline-none"
+                className="rounded-xl font-semibold underline hover:text-red-900"
               >
                 OK
               </button>
@@ -226,7 +226,7 @@ export function DesignEditor({
           )}
           {ed.placeholders > 0 && (
             <p
-              className="bg-mint-100 text-brand-900 rounded-lg px-3 py-2 text-xs"
+              className="bg-soft text-deep rounded-xl px-3 py-2 text-xs"
               data-testid="placeholder-hint"
             >
               <strong>
@@ -238,10 +238,7 @@ export function DesignEditor({
             </p>
           )}
           {/* What customers see: a plain hint (the selection bar shows the tools). */}
-          <p
-            className="min-h-5 text-xs text-zinc-500"
-            data-testid="editor-hint"
-          >
+          <p className="text-ink/65 min-h-5 text-xs" data-testid="editor-hint">
             {ed.selection
               ? ""
               : ed.layerCount === 0
@@ -347,7 +344,7 @@ function IconButton({
       aria-label={label}
       onClick={onClick}
       disabled={disabled}
-      className="focus-visible:ring-brand-600/20 grid size-11 shrink-0 place-items-center rounded-full text-zinc-700 hover:bg-zinc-100 focus-visible:ring-2 focus-visible:outline-none active:bg-zinc-100 disabled:text-zinc-300 disabled:hover:bg-transparent lg:size-12"
+      className="text-ink/80 hover:bg-soft active:bg-soft disabled:text-ink/40 grid size-11 shrink-0 place-items-center rounded-full disabled:hover:bg-transparent lg:size-12"
     >
       {children}
     </button>

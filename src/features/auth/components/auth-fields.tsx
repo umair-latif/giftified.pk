@@ -75,7 +75,7 @@ export function TextField({
             aria-label={shown ? "Hide password" : "Show password"}
             aria-pressed={shown}
             aria-controls={id}
-            className="absolute top-0 right-0 grid size-12 place-items-center rounded-full text-zinc-500 active:text-zinc-900"
+            className="text-ink/65 active:text-ink absolute top-0 right-0 grid size-12 place-items-center rounded-full"
             data-testid={`${id}-toggle`}
           >
             {shown ? <EyeOffIcon /> : <EyeIcon />}
@@ -92,7 +92,7 @@ export function FormMessage({ children }: { children?: ReactNode }) {
   if (!children) return null;
   return (
     <p
-      className="rounded-lg bg-red-50 p-3 text-sm text-red-800"
+      className="rounded-xl bg-red-50 p-3 text-sm text-red-800"
       role="alert"
       data-testid="auth-error"
     >

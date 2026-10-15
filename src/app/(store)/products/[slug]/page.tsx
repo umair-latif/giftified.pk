@@ -92,7 +92,7 @@ export default async function ProductPage({
         )}
         <Link
           href="/products"
-          className="text-brand-700 hover:text-brand-800 focus-visible:ring-brand-600/20 w-fit rounded text-sm font-medium focus-visible:ring-2 focus-visible:outline-none"
+          className="text-accent-text hover:text-deep w-fit rounded-xl text-sm font-semibold"
         >
           ← All products
         </Link>
@@ -110,14 +110,14 @@ export default async function ProductPage({
             <header className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
               <PageTitle>{name}</PageTitle>
               {product && (
-                <p className="text-brand-900">
+                <p className="text-deep">
                   from{" "}
-                  <span className="font-semibold">
+                  <span className="text-accent-text font-semibold">
                     {formatPkr(fromPrice(product))}
                   </span>
                 </p>
               )}
-              <span className="bg-mint-300 text-ink rounded-full px-2.5 py-0.5 text-xs font-semibold">
+              <span className="bg-soft text-ink rounded-full px-2.5 py-0.5 text-xs font-semibold">
                 Cash on Delivery
               </span>
             </header>
@@ -125,10 +125,10 @@ export default async function ProductPage({
             {/* First card, always: Design your own. */}
             <section
               aria-labelledby="design-own"
-              className="card card-pop space-y-3 p-4"
+              className="card space-y-3 p-4"
               data-testid="design-your-own"
             >
-              <h2 id="design-own" className="font-display text-ink text-xl">
+              <h2 id="design-own" className="type-card-title text-ink">
                 Design your own
               </h2>
               <p className="text-ink">
@@ -144,7 +144,7 @@ export default async function ProductPage({
             </section>
             <section
               aria-label="Delivery estimate"
-              className="card p-4"
+              className="card bg-soft! p-4"
               data-testid="delivery-estimate"
             >
               <DeliveryEstimate />
@@ -158,13 +158,13 @@ export default async function ProductPage({
           className="mt-6"
           extraFacts={
             <>
-              <dt className="text-zinc-500">Colours</dt>
+              <dt className="text-ink/65">Colours</dt>
               <dd>
                 <Swatches swatches={colours} size="md" />
               </dd>
               {productSizes.length > 0 && (
                 <>
-                  <dt className="text-zinc-500">Sizes</dt>
+                  <dt className="text-ink/65">Sizes</dt>
                   <dd>
                     {productSizes.join(" · ")}
                     {/* TODO(founder): size chart (chest/length in inches) for apparel. */}

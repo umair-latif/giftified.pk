@@ -43,11 +43,13 @@ export function EditorTip() {
 
   return (
     <div
-      className="bg-mint-100 border-ink flex items-center gap-2 rounded-xl border-2 p-3 text-xs text-zinc-700"
+      className="bg-soft border-ink text-ink/80 flex items-center gap-2 rounded-2xl border-2 p-3 text-sm"
       data-testid="editor-tip"
     >
       <p className="flex-1 leading-relaxed">
-        <span className="text-ink font-semibold">Tip: </span>
+        <span className="bg-highlight text-ink mr-1 rounded-full px-2 py-px text-xs font-semibold">
+          Tip
+        </span>
         {touch
           ? "Drag to move (it lines up with the centre and other items). Two fingers to resize and rotate. Double-tap text to change it."
           : "Drag to move (it lines up with the centre and other items). Use the handles to resize and rotate. Double-click text to change it."}
@@ -55,7 +57,7 @@ export function EditorTip() {
       <button
         type="button"
         onClick={dismiss}
-        className="border-ink text-ink focus-visible:ring-brand-600/40 shrink-0 rounded-lg border-2 bg-white px-2 py-1 text-xs font-semibold hover:bg-white/70 focus-visible:ring-2 focus-visible:outline-none"
+        className="border-ink text-ink lift press h-9 shrink-0 rounded-full border-2 bg-white px-3 text-sm font-semibold"
       >
         Got it
       </button>

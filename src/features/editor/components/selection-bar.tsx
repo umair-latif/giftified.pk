@@ -58,12 +58,12 @@ export function SelectionBar({
             : "Selection tools"
       }
       data-testid="selection-bar"
-      className="fixed inset-x-0 bottom-[calc(3.5rem+1px+env(safe-area-inset-bottom))] z-10 border-t border-zinc-200 bg-white lg:relative lg:inset-x-auto lg:bottom-auto lg:rounded-2xl lg:border lg:shadow-sm"
+      className="border-ink/15 lg:border-ink fixed inset-x-0 bottom-[calc(3.5rem+1px+env(safe-area-inset-bottom))] z-10 border-t bg-white lg:relative lg:inset-x-auto lg:bottom-auto lg:rounded-2xl lg:border-2"
     >
       {/* Position: its own small row just above the tools (phone: floating
           over the page; desktop: the top of the panel). */}
       <div
-        className="pointer-events-none absolute inset-x-0 bottom-full flex justify-center gap-2 pb-2 lg:pointer-events-auto lg:static lg:justify-start lg:border-b lg:border-zinc-200 lg:px-1.5 lg:py-2"
+        className="lg:border-ink/15 pointer-events-none absolute inset-x-0 bottom-full flex justify-center gap-2 pb-2 lg:pointer-events-auto lg:static lg:justify-start lg:border-b lg:px-1.5 lg:py-2"
         data-testid="position-row"
       >
         <button
@@ -190,10 +190,10 @@ function Toggle({
         disabled ? `This font has no ${label.toLowerCase()} style` : undefined
       }
       onClick={onClick}
-      className={`focus-visible:ring-brand-600/20 grid size-9 shrink-0 place-items-center rounded-md text-base focus-visible:ring-2 focus-visible:outline-none disabled:opacity-35 ${
+      className={`grid size-9 shrink-0 place-items-center rounded-xl text-base disabled:opacity-35 ${
         pressed
-          ? "bg-brand-100 text-brand-700 hover:bg-brand-200"
-          : "text-zinc-700 hover:bg-zinc-100 active:bg-zinc-100"
+          ? "bg-ink text-white"
+          : "text-ink/80 hover:bg-soft active:bg-soft"
       }`}
     >
       {children}
@@ -228,10 +228,10 @@ function Action({
       aria-haspopup={haspopup ? "dialog" : undefined}
       onClick={onClick}
       disabled={disabled}
-      className={`focus-visible:ring-brand-600/20 flex h-11 min-w-11 shrink-0 flex-col items-center justify-center gap-0.5 rounded-md px-0.5 text-[10px] leading-none font-medium focus-visible:ring-2 focus-visible:outline-none disabled:opacity-35 disabled:hover:bg-transparent ${
+      className={`flex h-11 min-w-11 shrink-0 flex-col items-center justify-center gap-0.5 rounded-xl px-0.5 text-xs leading-none font-semibold disabled:opacity-35 disabled:hover:bg-transparent ${
         pressed
-          ? "bg-brand-100 text-brand-700 hover:bg-brand-200"
-          : `hover:bg-zinc-100 active:bg-zinc-100 ${danger ? "text-red-600" : "text-zinc-700"}`
+          ? "bg-ink text-white"
+          : `hover:bg-soft active:bg-soft ${danger ? "text-red-600" : "text-ink/80"}`
       }`}
     >
       {children}
@@ -318,7 +318,7 @@ function StraightenIcon() {
 }
 
 function Divider() {
-  return <span aria-hidden className="mx-1 h-6 w-px shrink-0 bg-zinc-200" />;
+  return <span aria-hidden className="bg-ink/10 mx-1 h-6 w-px shrink-0" />;
 }
 
 /** A portrait in a frame: "the customer's own photo goes here". */

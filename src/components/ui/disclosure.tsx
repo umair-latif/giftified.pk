@@ -10,7 +10,7 @@ export function Disclosure({
   summary,
   children,
   className = "",
-  summaryClassName = "font-medium",
+  summaryClassName = "font-semibold",
   bodyClassName = "",
   testId,
 }: {
@@ -26,7 +26,7 @@ export function Disclosure({
   return (
     <details id={id} className={`group ${className}`} data-testid={testId}>
       <summary
-        className={`text-ink hover:bg-mint-100 active:bg-mint-100 focus-visible:ring-brand-600/20 flex min-h-12 cursor-pointer list-none items-center gap-3 px-4 py-3 focus-visible:ring-2 focus-visible:outline-none [&::-webkit-details-marker]:hidden ${summaryClassName}`}
+        className={`text-ink hover:bg-soft active:bg-soft flex min-h-12 cursor-pointer list-none items-center gap-3 px-4 py-3 [&::-webkit-details-marker]:hidden ${summaryClassName}`}
       >
         <span className="flex-1">{summary}</span>
         <svg
@@ -39,7 +39,7 @@ export function Disclosure({
           strokeWidth={2}
           strokeLinecap="round"
           strokeLinejoin="round"
-          className="text-brand-600 shrink-0 transition-transform group-open:rotate-180"
+          className="text-accent-text shrink-0 transition-transform group-open:rotate-180"
         >
           <path d="M6 9l6 6 6-6" />
         </svg>

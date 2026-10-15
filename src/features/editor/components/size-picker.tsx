@@ -19,7 +19,7 @@ export function SizePicker({
   if (options.length === 0) return null;
   return (
     <div className="space-y-1" data-testid="size-picker">
-      <span className="text-xs font-medium text-zinc-700">
+      <span className="text-ink/80 text-xs font-semibold">
         Size: <span className="font-normal">{value ?? "choose your size"}</span>
       </span>
       <div role="radiogroup" aria-label="Size" className="flex flex-wrap gap-2">
@@ -34,10 +34,10 @@ export function SizePicker({
               disabled={!o.inStock}
               data-testid={`size-${o.size}`}
               onClick={() => onChange(o.size)}
-              className={`focus-visible:ring-brand-600/40 h-11 min-w-11 rounded-full border px-3 text-sm font-medium focus-visible:ring-2 focus-visible:outline-none disabled:text-zinc-300 disabled:line-through ${
+              className={`disabled:text-ink/40 h-11 min-w-11 rounded-full border px-3 text-sm font-semibold disabled:line-through ${
                 on
                   ? "border-ink bg-ink text-white"
-                  : "border-zinc-300 bg-white text-zinc-800"
+                  : "border-ink/25 text-ink bg-white"
               }`}
             >
               {o.size}

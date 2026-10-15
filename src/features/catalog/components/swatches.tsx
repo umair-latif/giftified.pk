@@ -18,12 +18,12 @@ export function Swatches({
       {swatches.map((s) => (
         <li key={s.name} className="flex items-center gap-1.5">
           <span
-            className={`${dot} inline-block rounded-full border border-zinc-300`}
+            className={`${dot} border-ink/25 inline-block rounded-full border`}
             style={{ backgroundColor: s.hex ?? "#e4e4e7" }}
             title={s.name}
           />
           {size === "md" && (
-            <span className="text-sm text-zinc-700">{s.name}</span>
+            <span className="text-ink/80 text-sm">{s.name}</span>
           )}
         </li>
       ))}

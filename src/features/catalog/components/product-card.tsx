@@ -30,18 +30,16 @@ export function ProductCard({
           <ProductArt productId={card.productId} />
         )}
         {!card.href && (
-          <span className="bg-sunny text-ink absolute top-2 left-2 rounded-full px-2 py-0.5 text-xs font-semibold">
+          <span className="border-ink text-ink absolute top-2 left-2 rounded-full border-2 bg-white px-2 py-0.5 text-xs font-semibold">
             Coming soon
           </span>
         )}
       </div>
       <div className="min-w-0 space-y-1 self-center px-0.5 sm:mt-2 sm:self-auto">
-        <h2 className="font-display text-ink text-base leading-tight">
-          {card.name}
-        </h2>
-        <p className="text-xs leading-snug text-zinc-600">{card.spec}</p>
+        <h2 className="type-card-title text-ink">{card.name}</h2>
+        <p className="text-ink/70 text-sm">{card.spec}</p>
         {card.fromPricePkr !== null && (
-          <p className="text-sm text-zinc-900">
+          <p className="text-ink text-sm">
             <PriceTag
               from
               pkr={card.fromPricePkr}
@@ -57,7 +55,7 @@ export function ProductCard({
   return card.href ? (
     <Link
       href={card.href}
-      className="focus-visible:ring-brand-600/40 card card-pop hover:bg-mint-100 active:bg-mint-100 flex gap-3 p-2 focus-visible:ring-2 focus-visible:outline-none sm:block"
+      className="card card-pop flex gap-3 p-2 sm:block"
       data-testid={`product-card-${card.productId}`}
     >
       {body}

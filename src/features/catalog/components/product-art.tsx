@@ -20,7 +20,7 @@ export function ProductArt({
       width={640}
       height={640}
       sizes="(max-width: 640px) 112px, 320px"
-      className={`bg-mint-100 w-full object-cover ${className}`}
+      className={`bg-soft w-full object-cover ${className}`}
     />
   );
 }

@@ -10,7 +10,7 @@ export default function OrderNotFound() {
   return (
     <Page width="content" className="flex flex-col gap-4 text-center">
       <PageTitle>We can’t open this order link</PageTitle>
-      <p className="text-zinc-700">
+      <p className="text-ink/80">
         The link may be incomplete. Find your order with its number and your
         mobile number instead.
       </p>

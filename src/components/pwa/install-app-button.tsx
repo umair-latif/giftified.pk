@@ -72,12 +72,12 @@ export function InstallAppButton({ className }: { className?: string }) {
         onClick={install}
         aria-expanded={env === "ios" ? showIosHelp : undefined}
         data-testid="install-app"
-        className="focus-visible:ring-mint-300/60 inline-flex min-h-11 items-center gap-2 rounded-2xl border-2 border-white/40 px-4 font-semibold text-white hover:border-white hover:bg-white/10 focus-visible:ring-2 focus-visible:outline-none"
+        className="inline-flex min-h-11 items-center gap-2 rounded-2xl border-2 border-white/40 px-4 font-semibold text-white hover:border-white hover:bg-white/10"
       >
         <span aria-hidden>📲</span> Install the app
       </button>
       {env === "ios" && showIosHelp && (
-        <p className="text-brand-100 mt-2 max-w-xs text-xs leading-relaxed">
+        <p className="text-on-deep-muted mt-2 max-w-xs text-xs leading-relaxed">
           In Safari, tap the Share button (the square with an arrow), then{" "}
           <strong>Add to Home Screen</strong>.
         </p>

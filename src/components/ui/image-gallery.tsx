@@ -4,6 +4,7 @@ import Image from "next/image";
 import { useCallback, useRef, useState, type ReactNode } from "react";
 import { ArrowLeftIcon, ArrowRightIcon } from "@/components/ui/icons";
 import { useSwipe } from "@/components/ui/use-swipe";
+import { iconButtonClass } from "@/components/ui/button";
 
 export interface GalleryItem {
   src: string;
@@ -14,8 +15,7 @@ export interface GalleryItem {
   className?: string;
 }
 
-const ARROW =
-  "focus-visible:ring-brand-600/40 absolute top-1/2 z-10 grid size-11 -translate-y-1/2 place-items-center border-ink text-ink rounded-full border-2 bg-white shadow-[3px_3px_0_var(--color-ink)] hover:bg-mint-100 active:translate-y-[calc(-50%+2px)] active:shadow-none focus-visible:ring-2 focus-visible:outline-none disabled:hidden";
+const ARROW = `${iconButtonClass} absolute top-1/2 z-10 size-11 -translate-y-1/2 disabled:hidden`;
 
 /**
  * Previous / next buttons laid over a picture (any screen size). Put them in a
@@ -100,7 +100,7 @@ export function ImageGallery({
   );
 
   if (items.length === 0)
-    return <div className="card bg-cream! aspect-square" />;
+    return <div className="card bg-page! aspect-square" />;
 
   return (
     <div className="min-w-0 space-y-3" data-testid={`${testId}-gallery`}>
@@ -154,10 +154,10 @@ export function ImageGallery({
                 aria-label={s.label}
                 aria-current={i === index}
                 data-testid={`${testId}-thumb-${i}`}
-                className={`focus-visible:ring-brand-600/60 relative block overflow-hidden focus-visible:ring-2 focus-visible:outline-none max-md:size-2.5 max-md:rounded-full max-md:after:absolute max-md:after:-inset-2 md:size-16 md:rounded-xl md:border-2 md:bg-white md:transition md:duration-150 ${
+                className={`relative block overflow-hidden max-md:size-2.5 max-md:rounded-full max-md:after:absolute max-md:after:-inset-2 md:size-16 md:rounded-xl md:border-2 md:bg-white md:transition-shadow md:duration-[120ms] ${
                   i === index
-                    ? "bg-brand-600 md:border-brand-600 md:ring-brand-600 md:translate-x-0.5 md:translate-y-0.5 md:ring-2"
-                    : "md:border-ink bg-zinc-300 hover:bg-zinc-400 md:shadow-[3px_3px_0_var(--color-ink)] md:hover:-translate-y-px"
+                    ? "bg-ink md:border-ink md:ring-ink md:ring-2 md:ring-offset-2"
+                    : "md:border-ink bg-ink/20 hover:bg-ink/30 md:hover:shadow-hard"
                 }`}
               >
                 <Image

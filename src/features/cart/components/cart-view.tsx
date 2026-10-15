@@ -88,13 +88,13 @@ export function CartView() {
   }, [linesKey, quoteCity, coupon]);
 
   if (cart === null)
-    return <p className="mt-6 text-sm text-zinc-500">Loading your cart…</p>;
+    return <p className="text-ink/65 mt-6 text-sm">Loading your cart…</p>;
 
   if (cart.length === 0)
     return (
       <div className="card mt-6 p-5 text-sm" data-testid="cart-empty">
-        <p className="text-zinc-700">Your cart is empty.</p>
-        <p className="mt-1 text-zinc-500">
+        <p className="text-ink/80">Your cart is empty.</p>
+        <p className="text-ink/65 mt-1">
           Pick a mug, T-shirt or hoodie and add your photos and words — it takes
           a minute.
         </p>
@@ -126,10 +126,7 @@ export function CartView() {
       {/* Summary column (from lg); on phones the wrapper dissolves and everything stacks. */}
       <div className="contents lg:sticky lg:top-24 lg:flex lg:flex-col lg:gap-4">
         <section aria-label="Order summary" className="card p-4 text-sm">
-          <label
-            htmlFor="city"
-            className="mb-1 block font-medium text-zinc-900"
-          >
+          <label htmlFor="city" className="text-ink mb-1 block font-semibold">
             Delivery city
           </label>
           <CityPicker
@@ -145,7 +142,7 @@ export function CartView() {
             }}
             invalid={false}
           />
-          <div className="mt-3 border-t border-zinc-100 pt-3">
+          <div className="border-ink/10 mt-3 border-t pt-3">
             <CouponBox
               {...(quote?.couponCode ? { appliedCode: quote.couponCode } : {})}
               discountPkr={quote?.discountPkr ?? 0}
@@ -159,31 +156,34 @@ export function CartView() {
               }}
             />
           </div>
-          <dl className="mt-3 grid grid-cols-2 gap-y-1 border-t border-zinc-100 pt-3">
-            <dt className="text-zinc-500">Subtotal</dt>
+          <dl className="border-ink/10 mt-3 grid grid-cols-2 gap-y-1 border-t pt-3">
+            <dt className="text-ink/65">Subtotal</dt>
             <dd className="text-right" data-testid="cart-subtotal">
               {quote ? formatPkr(quote.subtotalPkr) : "…"}
             </dd>
             {quote && quote.discountPkr > 0 && (
               <>
-                <dt className="text-zinc-500">Coupon</dt>
+                <dt className="text-ink/65">Coupon</dt>
                 <dd className="text-right" data-testid="cart-discount">
                   −{formatPkr(quote.discountPkr)}
                 </dd>
               </>
             )}
-            <dt className="text-zinc-500">Delivery</dt>
+            <dt className="text-ink/65">Delivery</dt>
             <dd className="text-right" data-testid="cart-shipping">
               {quote?.shippingPkr != null
                 ? formatPkr(quote.shippingPkr)
                 : "Choose your city"}
             </dd>
-            <dt className="font-semibold text-zinc-900">Total</dt>
-            <dd className="text-right font-semibold" data-testid="cart-total">
+            <dt className="text-ink font-semibold">Total</dt>
+            <dd
+              className="text-accent-text text-right font-semibold"
+              data-testid="cart-total"
+            >
               {quote ? formatPkr(quote.totalPkr) : "…"}
             </dd>
           </dl>
-          <p className="mt-2 text-xs text-zinc-500">
+          <p className="text-ink/65 mt-2 text-xs">
             Pay in cash when it arrives. We’ll contact you to confirm before we
             print.
           </p>
@@ -203,7 +203,7 @@ export function CartView() {
         </Link>
         <Link
           href="/products"
-          className="text-brand-700 hover:text-brand-800 focus-visible:ring-brand-600/20 rounded text-center text-sm font-medium underline focus-visible:ring-2 focus-visible:outline-none"
+          className="text-accent-text hover:text-deep rounded-xl text-center text-sm font-semibold underline"
         >
           Design another one
         </Link>
@@ -237,7 +237,7 @@ function CartLine({
 
   return (
     <li className="card flex gap-3 p-3" data-testid="cart-line">
-      <div className="grid h-16 w-24 shrink-0 place-items-center overflow-hidden rounded bg-zinc-50 ring-1 ring-zinc-200">
+      <div className="bg-page ring-ink/15 grid h-16 w-24 shrink-0 place-items-center overflow-hidden rounded-xl ring-1">
         {thumb ? (
           // eslint-disable-next-line @next/next/no-img-element -- local data URL
           <img
@@ -246,27 +246,27 @@ function CartLine({
             className="size-full object-contain"
           />
         ) : (
-          <span className="text-[10px] text-zinc-400">Your design</span>
+          <span className="text-ink/60 text-xs">Your design</span>
         )}
       </div>
       <div className="min-w-0 flex-1">
-        <p className="font-medium text-zinc-900" data-testid="line-title">
+        <p className="text-ink font-semibold" data-testid="line-title">
           {title ?? product?.name ?? item.productId}
         </p>
-        <p className="text-xs text-zinc-500">
+        <p className="text-ink/65 text-xs">
           {title ? `${product?.name ?? item.productId} · ` : ""}
           {colour}
           {item.size && sizes.length === 0 ? ` · ${item.size}` : ""}
         </p>
         {sizes.length > 0 && (
           // Change the size right here: no need to open the designer for it.
-          <label className="mt-1 flex items-center gap-2 text-xs text-zinc-600">
+          <label className="text-ink/70 mt-1 flex items-center gap-2 text-xs">
             Size
             <select
               value={item.size ?? ""}
               onChange={(e) => changeSize(item.id, e.target.value)}
               data-testid="line-size"
-              className="focus-visible:ring-brand-600/20 h-9 rounded-lg border border-zinc-300 bg-white px-2 text-sm text-zinc-900 focus-visible:ring-2 focus-visible:outline-none"
+              className="border-ink/25 text-ink h-9 rounded-xl border bg-white px-2 text-sm"
             >
               {!item.size && (
                 <option value="" disabled>
@@ -302,7 +302,7 @@ function CartLine({
               aria-label="One less"
               disabled={item.quantity <= 1}
               onClick={() => updateQuantity(item.id, item.quantity - 1)}
-              className="focus-visible:ring-brand-600/20 size-9 rounded-full text-lg text-zinc-700 hover:bg-zinc-100 focus-visible:ring-2 focus-visible:outline-none active:bg-zinc-100 disabled:text-zinc-300 disabled:hover:bg-transparent"
+              className="text-ink/80 hover:bg-soft active:bg-soft disabled:text-ink/40 size-9 rounded-full text-lg disabled:hover:bg-transparent"
             >
               −
             </button>
@@ -317,15 +317,15 @@ function CartLine({
               aria-label="One more"
               disabled={item.quantity >= MAX_LINE_QUANTITY}
               onClick={() => updateQuantity(item.id, item.quantity + 1)}
-              className="focus-visible:ring-brand-600/20 size-9 rounded-full text-lg text-zinc-700 hover:bg-zinc-100 focus-visible:ring-2 focus-visible:outline-none active:bg-zinc-100 disabled:text-zinc-300 disabled:hover:bg-transparent"
+              className="text-ink/80 hover:bg-soft active:bg-soft disabled:text-ink/40 size-9 rounded-full text-lg disabled:hover:bg-transparent"
             >
               +
             </button>
           </div>
-          <div className="flex gap-3 text-xs font-medium">
+          <div className="flex gap-3 text-xs font-semibold">
             <Link
               href={`/design/${item.productId}?item=${encodeURIComponent(item.id)}`}
-              className="text-brand-700 hover:text-brand-800 focus-visible:ring-brand-600/20 rounded underline focus-visible:ring-2 focus-visible:outline-none"
+              className="text-accent-text hover:text-deep rounded-xl underline"
             >
               {/* A ready-made design is fine as it is; changing it is optional. */}
               {item.templateId ? "Customise" : "Edit design"}
@@ -333,7 +333,7 @@ function CartLine({
             <button
               type="button"
               onClick={() => removeFromCart(item.id)}
-              className="focus-visible:ring-brand-600/20 rounded text-zinc-500 underline hover:text-zinc-700 focus-visible:ring-2 focus-visible:outline-none"
+              className="text-ink/65 hover:text-ink rounded-xl underline"
             >
               Remove
             </button>

@@ -118,7 +118,7 @@ export function SaveDesignButton({
           state.kind === "error" ||
           (saving && state.progress)) && (
           <p
-            className={`card card-pop pointer-events-auto max-w-sm px-3 py-2 text-sm ${
+            className={`card pointer-events-auto max-w-sm px-3 py-2 text-sm ${
               state.kind === "error" ? "text-red-700" : "text-ink"
             }`}
             data-testid={
@@ -130,7 +130,7 @@ export function SaveDesignButton({
                 Saved as “{state.name}”.{" "}
                 <Link
                   href="/account/designs"
-                  className="text-brand-700 font-semibold underline"
+                  className="text-accent-text font-semibold underline"
                 >
                   My designs
                 </Link>
@@ -157,7 +157,7 @@ export function SaveDesignButton({
       {askOpen && (
         <Sheet title="Save your design" onClose={() => setAskOpen(false)}>
           <div className="space-y-4" data-testid="save-design">
-            <p className="text-sm text-zinc-700">
+            <p className="text-ink/80 text-sm">
               Sign up to keep designs in your account and open them on any
               device. Until then, this design stays on this device.
             </p>

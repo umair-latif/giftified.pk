@@ -35,7 +35,7 @@ export function EditorEntry({ product }: { product: ProductConfig }) {
 export function MissingItem() {
   return (
     <main className="mx-auto max-w-md p-6 text-sm" data-testid="missing-item">
-      <p className="text-zinc-700">This design is no longer in your cart.</p>
+      <p className="text-ink/80">This design is no longer in your cart.</p>
       <Link href="/cart" className={buttonClass("primary", "mt-4")}>
         Go to cart
       </Link>
@@ -89,12 +89,12 @@ function TemplateStart({
   return (
     <main className="mx-auto max-w-md p-6 text-sm" data-testid="template-start">
       {state === "loading" ? (
-        <p className="text-zinc-500" role="status">
+        <p className="text-ink/65" role="status">
           Loading template…
         </p>
       ) : (
         <>
-          <p className="text-zinc-700" role="alert">
+          <p className="text-ink/80" role="alert">
             We couldn&apos;t open that template.
           </p>
           <Link
@@ -161,12 +161,12 @@ function SavedStart({
   return (
     <main className="mx-auto max-w-md p-6 text-sm" data-testid="saved-start">
       {state === "loading" ? (
-        <p className="text-zinc-500" role="status">
+        <p className="text-ink/65" role="status">
           Opening your design…
         </p>
       ) : state === "signed-out" ? (
         <>
-          <p className="text-zinc-700" role="alert">
+          <p className="text-ink/80" role="alert">
             Sign in to open your saved designs.
           </p>
           <Link href="/sign-in?next=/account/designs" className={link}>
@@ -175,7 +175,7 @@ function SavedStart({
         </>
       ) : (
         <>
-          <p className="text-zinc-700" role="alert">
+          <p className="text-ink/80" role="alert">
             We couldn&apos;t open that design. Check your connection and try
             again.
           </p>
@@ -184,7 +184,7 @@ function SavedStart({
           </Link>
           <Link
             href={`/design/${product.id}`}
-            className="mt-3 block text-zinc-600 underline"
+            className="text-ink/70 mt-3 block underline"
           >
             Design something new
           </Link>

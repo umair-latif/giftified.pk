@@ -22,11 +22,11 @@ import {
 
 export const card = "card";
 const rowLink =
-  "focus-visible:ring-brand-600/20 flex items-center justify-between gap-3 px-4 py-3 transition-colors hover:bg-mint-100 focus-visible:ring-2 focus-visible:outline-none focus-visible:ring-inset active:bg-mint-100";
+  "flex items-center justify-between gap-3 px-4 py-3 transition-colors hover:bg-soft active:bg-soft";
 
 export function StatusPill({ children }: { children: React.ReactNode }) {
   return (
-    <span className="bg-mint-100 text-brand-900 shrink-0 rounded-full px-3 py-1 text-sm font-medium">
+    <span className="bg-soft text-deep shrink-0 rounded-full px-3 py-1 text-sm font-semibold">
       {children}
     </span>
   );
@@ -53,7 +53,7 @@ export async function OrdersSection({
     return (
       <div data-testid="account-orders-empty">
         <p className="text-ink">No orders yet.</p>
-        <p className="mt-1 text-sm text-zinc-600">
+        <p className="text-ink/70 mt-1 text-sm">
           Orders placed as a guest are on{" "}
           <Link href="/track" className="underline">
             Track your order
@@ -68,7 +68,7 @@ export async function OrdersSection({
   return (
     <div className="flex flex-col gap-3">
       <ul
-        className={`divide-y divide-zinc-200 overflow-hidden ${framed ? card : "-mx-4 border-y border-zinc-200"}`}
+        className={`divide-ink/15 divide-y overflow-hidden ${framed ? card : "border-ink/15 -mx-4 border-y"}`}
         data-testid="account-orders"
       >
         {orders.map((o) => (
@@ -79,10 +79,10 @@ export async function OrdersSection({
               data-testid="account-order"
             >
               <span className="min-w-0">
-                <span className="text-ink block font-medium">
+                <span className="text-ink block font-semibold">
                   Order #{o.id}
                 </span>
-                <span className="block text-sm text-zinc-500">
+                <span className="text-ink/65 block text-sm">
                   {formatDate(o.createdAt)} ·{" "}
                   {o.lines.reduce((s, l) => s + l.quantity, 0)} item(s) ·{" "}
                   {formatPkr(o.totalPkr)}
@@ -96,7 +96,7 @@ export async function OrdersSection({
       {limit && (all.length > limit || totalPages > 1) && (
         <Link
           href="/account/orders"
-          className="text-brand-700 text-sm font-medium underline"
+          className="text-accent-text text-sm font-semibold underline"
         >
           See all orders
         </Link>
@@ -137,7 +137,7 @@ export async function DesignsSection({ customerId }: { customerId: number }) {
       {designs.length === 0 ? (
         <div data-testid="saved-designs-empty">
           <p className="text-ink">No saved designs yet.</p>
-          <p className="mt-1 text-sm text-zinc-600">
+          <p className="text-ink/70 mt-1 text-sm">
             In the editor, tap <strong>Save design</strong>.
           </p>
           <Link href="/design/mug" className={buttonClass("primary", "mt-3")}>
@@ -156,7 +156,7 @@ export async function DesignsSection({ customerId }: { customerId: number }) {
           ))}
         </ul>
       )}
-      <p className="text-xs text-zinc-500">
+      <p className="text-ink/65 text-xs">
         {designs.length} of {MAX_SAVED_DESIGNS} designs. Deleting a design also
         deletes its photos from our storage. Designs on an order we’re still
         making can be deleted once it’s delivered. See our{" "}
@@ -202,7 +202,7 @@ export function ProfileSection({
   customer: Customer;
   framed?: boolean;
 }) {
-  const divider = framed ? "" : "border-t border-zinc-200 pt-4";
+  const divider = framed ? "" : "border-t border-ink/15 pt-4";
   return (
     <div className="flex flex-col gap-4">
       <ProfileForm
@@ -227,7 +227,7 @@ export function ProfileSection({
 /** Placeholder while a section's data loads (streamed with Suspense). */
 export function SectionLoading() {
   return (
-    <p className="text-sm text-zinc-500" role="status">
+    <p className="text-ink/65 text-sm" role="status">
       Loading…
     </p>
   );

@@ -13,7 +13,7 @@ interface Props {
 }
 
 const TILE =
-  "focus-visible:ring-brand-600/40 relative size-10 rounded-full ring-1 ring-zinc-300 hover:ring-2 hover:ring-zinc-400 focus-visible:ring-2 focus-visible:outline-none";
+  "relative size-10 rounded-full ring-1 ring-ink/25 hover:ring-2 hover:ring-ink/40 ";
 const PICKED = "outline-ink outline-[3px] outline-offset-2";
 
 /**
@@ -92,7 +92,7 @@ export function BackgroundSheet({ value, onChange, onClose }: Props) {
           value={current ?? "#ffffff"}
           onApply={pick}
         />
-        <p className="text-xs text-zinc-500">
+        <p className="text-ink/65 text-xs">
           Fills the whole print area, edge to edge.
         </p>
       </div>

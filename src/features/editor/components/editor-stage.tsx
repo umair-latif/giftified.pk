@@ -50,7 +50,7 @@ export function EditorStage({
   const line = (active: boolean) =>
     active
       ? "border-pink-500 border-solid opacity-100"
-      : "border-zinc-400/60 border-dashed";
+      : "border-ink/25 border-dashed";
 
   return (
     // Desktop: fill the column, but never taller than the window (tall print
@@ -94,7 +94,7 @@ export function EditorStage({
             />
           )}
           <div
-            className={`${garment ? "absolute" : "relative w-full"} overflow-hidden rounded-md shadow-sm ring-1 ring-zinc-300`}
+            className={`${garment ? "absolute" : "relative w-full"} ring-ink/25 overflow-hidden rounded-xl ring-1`}
             style={{
               aspectRatio: `${widthMm} / ${heightMm}`,
               backgroundColor: garment
@@ -143,7 +143,7 @@ export function EditorStage({
                 />
               ))}
               <div
-                className="absolute rounded-sm border border-dashed border-sky-400/70"
+                className="absolute rounded-xl border border-dashed border-sky-400/70"
                 style={{
                   left: insetX,
                   right: insetX,
@@ -166,12 +166,12 @@ export function EditorStage({
               />
             )}
             {busy && (
-              <div className="absolute inset-0 grid place-items-center bg-white/70 text-xs font-medium text-zinc-600">
+              <div className="text-ink/70 absolute inset-0 grid place-items-center bg-white/70 text-xs font-semibold">
                 Adding photo…
               </div>
             )}
             {status === "loading" && (
-              <div className="absolute inset-0 grid place-items-center text-xs text-zinc-400">
+              <div className="text-ink/60 absolute inset-0 grid place-items-center text-xs">
                 Loading editor…
               </div>
             )}

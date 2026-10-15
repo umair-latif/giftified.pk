@@ -58,7 +58,7 @@ export default async function DesignsPage({
   return (
     <Page width="wide">
       <PageTitle>Ready-made designs</PageTitle>
-      <p className="mt-1 text-sm text-zinc-600">
+      <p className="text-ink/70 mt-1 text-sm">
         Made by our designers. Pick one, swap in your own photos, names and
         words, and order. Cash on Delivery.
       </p>
@@ -141,7 +141,7 @@ function FilterRow({
 }) {
   return (
     <nav aria-label={`Filter by ${label.toLowerCase()}`} className="mt-4">
-      <p className="text-xs font-semibold tracking-wide text-zinc-600 uppercase">
+      <p className="text-ink/70 text-xs font-semibold tracking-wide uppercase">
         {label}
       </p>
       <ul className="-mx-4 mt-1.5 flex [scrollbar-width:none] gap-2 overflow-x-auto px-4 pb-1 sm:mx-0 sm:flex-wrap sm:px-0 [&::-webkit-scrollbar]:hidden">
@@ -166,8 +166,8 @@ function Chip({
         href={href}
         aria-current={active ? "page" : undefined}
         scroll={false}
-        className={`border-ink focus-visible:ring-brand-600/40 inline-flex h-9 items-center rounded-full border-2 px-3.5 text-sm font-semibold no-underline! focus-visible:ring-2 focus-visible:outline-none ${
-          active ? "bg-ink text-white" : "text-ink hover:bg-mint-100 bg-white"
+        className={`border-ink inline-flex h-9 items-center rounded-full border-2 px-3.5 text-sm font-semibold no-underline! ${
+          active ? "bg-ink text-white" : "text-ink hover:bg-soft bg-white"
         }`}
       >
         {children}

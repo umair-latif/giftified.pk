@@ -168,7 +168,7 @@ export default function PrivacyPage() {
         </p>
       </InfoSection>
 
-      <p className="text-xs text-zinc-600">Last updated: September 2026</p>
+      <p className="text-ink/70 text-xs">Last updated: September 2026</p>
     </InfoPage>
   );
 }

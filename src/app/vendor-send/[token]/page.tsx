@@ -41,7 +41,7 @@ export default async function VendorSendPage({
       {q.sent && (
         <p
           role="status"
-          className="rounded-xl bg-emerald-50 px-4 py-3 font-medium text-emerald-800"
+          className="rounded-xl bg-emerald-50 px-4 py-3 font-semibold text-emerald-800"
         >
           Sent to {part.vendor.name}. A note was added to the order.
         </p>
@@ -49,7 +49,7 @@ export default async function VendorSendPage({
       {q.error && (
         <p
           role="alert"
-          className="rounded-xl bg-red-50 px-4 py-3 font-medium text-red-800"
+          className="rounded-xl bg-red-50 px-4 py-3 font-semibold text-red-800"
         >
           Sending failed. Please try again; if it keeps failing, use WhatsApp or
           send the files yourself.
@@ -63,7 +63,7 @@ export default async function VendorSendPage({
           <li key={index}>{lineSummary(line)}</li>
         ))}
       </ul>
-      <p className="text-sm text-zinc-600">
+      <p className="text-ink/70 text-sm">
         To: {part.vendor.email ?? "no email address set"} · the PDF and the
         print file are attached when they fit (otherwise links). No customer
         details are sent.
@@ -77,8 +77,8 @@ export default async function VendorSendPage({
           . Sending again emails the vendor a second time.
         </p>
       )}
-      <details className="rounded-xl border border-zinc-300 p-3 text-sm">
-        <summary className="cursor-pointer font-medium">
+      <details className="border-ink/25 rounded-xl border p-3 text-sm">
+        <summary className="cursor-pointer font-semibold">
           Message to the vendor
         </summary>
         <pre className="mt-2 font-sans whitespace-pre-wrap">{text}</pre>
@@ -105,7 +105,7 @@ export default async function VendorSendPage({
 function Shell({ children }: { children: React.ReactNode }) {
   return (
     <main className="mx-auto flex max-w-lg flex-col gap-4 px-4 py-8 text-base">
-      <p className="text-xs font-semibold tracking-wide text-zinc-500 uppercase">
+      <p className="text-ink/65 text-xs font-semibold tracking-wide uppercase">
         DesignBanana · Send to vendor
       </p>
       {children}

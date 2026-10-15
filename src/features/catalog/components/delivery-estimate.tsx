@@ -50,7 +50,7 @@ export function DeliveryEstimate() {
 
   return (
     <div className="space-y-2">
-      <label htmlFor="city" className="block text-sm font-medium text-zinc-800">
+      <label htmlFor="city" className="text-ink block text-sm font-semibold">
         Delivery estimate — your city
       </label>
       <CityPicker
@@ -65,14 +65,14 @@ export function DeliveryEstimate() {
       />
       <p id="delivery-result" className="min-h-6 text-sm" aria-live="polite">
         {pending ? (
-          <span className="text-zinc-500">Checking…</span>
+          <span className="text-ink/65">Checking…</span>
         ) : quote?.ok ? (
           <>
             Delivery to {quote.city}:{" "}
             <strong className="font-semibold">
               {formatPkr(quote.shippingPkr)}
             </strong>
-            <span className="text-zinc-600"> · pay cash when it arrives</span>
+            <span className="text-ink/70"> · pay cash when it arrives</span>
           </>
         ) : quote ? (
           <span className="text-red-700">

@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { Container } from "@/components/ui/page";
-import { tileClass } from "./tile-style";
 
 /** Each tile opens `/occasions/<slug>` (task 19): the templates for that occasion. */
 export const OCCASIONS: readonly { slug: string; label: string }[] = [
@@ -17,7 +16,7 @@ export function Occasions() {
   return (
     <section aria-labelledby="home-occasions" className="pt-10">
       <Container width="wide">
-        <h2 id="home-occasions" className="text-brand-900 text-2xl">
+        <h2 id="home-occasions" className="type-section text-deep">
           Make it for any moment
         </h2>
         <p className="text-ink mt-1 text-sm">
@@ -34,7 +33,7 @@ export function Occasions() {
             >
               <Link
                 href={`/occasions/${o.slug}`}
-                className={`${tileClass(i)} focus-visible:ring-brand-600/40 flex min-h-16 items-center justify-center rounded-2xl px-3 text-center font-medium shadow-sm hover:opacity-90 focus-visible:ring-2 focus-visible:outline-none active:opacity-80`}
+                className={`border-ink text-ink lift press flex min-h-16 items-center justify-center rounded-2xl border-[3px] bg-white px-3 text-center font-semibold`}
               >
                 {o.label}
               </Link>

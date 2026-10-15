@@ -23,9 +23,9 @@ export function SwatchGrid({ label, swatches, value, onChange }: Props) {
           aria-label={s.name}
           aria-pressed={s.hex.toLowerCase() === current}
           onClick={() => onChange(s.hex)}
-          className={`hover:ring-brand-400 focus-visible:ring-brand-600/40 size-9 shrink-0 rounded-full ring-1 ring-zinc-300 hover:ring-2 focus-visible:ring-2 focus-visible:outline-none ${
+          className={`hover:ring-ink ring-ink/25 size-9 shrink-0 rounded-full ring-1 hover:ring-2 ${
             s.hex.toLowerCase() === current
-              ? "outline-brand-600 outline-2 outline-offset-2"
+              ? "outline-ink outline-2 outline-offset-2"
               : ""
           }`}
           style={{ backgroundColor: s.hex }}

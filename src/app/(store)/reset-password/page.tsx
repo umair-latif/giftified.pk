@@ -32,7 +32,7 @@ export default async function ResetPasswordPage(
         <NewPasswordForm token={token} />
       ) : (
         <>
-          <p className="text-sm text-zinc-600">
+          <p className="text-ink/70 text-sm">
             {hasToken
               ? "This link has expired or isn’t valid. Enter your email and we’ll send a new one."
               : "Enter your email and we’ll send you a link to choose a new password."}
@@ -40,10 +40,10 @@ export default async function ResetPasswordPage(
           <ForgotPasswordForm />
         </>
       )}
-      <p className="text-center text-sm text-zinc-600">
+      <p className="text-ink/70 text-center text-sm">
         <Link
           href="/sign-in"
-          className="text-brand-700 hover:text-brand-800 focus-visible:ring-brand-600/20 rounded font-medium focus-visible:ring-2 focus-visible:outline-none"
+          className="text-accent-text hover:text-deep rounded-xl font-semibold"
         >
           Back to sign in
         </Link>

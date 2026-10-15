@@ -18,11 +18,11 @@ export function Wordmark() {
   );
 }
 
-/** Text version for dark backgrounds (footer): white "design", pink "banana". */
+/** Text version for dark backgrounds (footer): white "design", pink "banana". 24px: pink text is never smaller. */
 export function WordmarkOnDark() {
   return (
-    <span className="font-display text-xl text-white">
-      design<span className="text-magenta">banana</span>
+    <span className="font-display text-2xl text-white">
+      design<span className="text-highlight">banana</span>
     </span>
   );
 }

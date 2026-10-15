@@ -31,7 +31,7 @@ export function ColourPicker({
   const current = colours.find((c) => c.id === value) ?? colours[0];
   return (
     <div className="flex items-center gap-3" data-testid="colour-picker">
-      <span className="text-xs font-medium text-zinc-700">
+      <span className="text-ink/80 text-xs font-semibold">
         {label}: <span className="font-normal">{current?.name}</span>
       </span>
       <div role="radiogroup" aria-label={label} className="flex gap-2">
@@ -46,11 +46,11 @@ export function ColourPicker({
               aria-label={c.name}
               data-testid={`colour-${c.id}`}
               onClick={() => onChange(c.id)}
-              className={`focus-visible:ring-brand-600/40 grid size-11 place-items-center rounded-full focus-visible:ring-2 focus-visible:outline-none`}
+              className={`grid size-11 place-items-center rounded-full`}
             >
               <span
                 className={`block size-8 rounded-full ring-2 ring-offset-2 ${
-                  on ? "ring-ink ring-[3px]" : "ring-zinc-300"
+                  on ? "ring-ink ring-[3px]" : "ring-ink/25"
                 }`}
                 style={{ backgroundColor: c.hex }}
               />

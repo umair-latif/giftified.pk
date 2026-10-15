@@ -14,7 +14,7 @@ export function EdgeLabels({
 }) {
   return (
     <div
-      className={`grid grid-cols-3 items-center text-[10px] font-medium tracking-wide text-zinc-500 uppercase ${className}`}
+      className={`text-ink/65 grid grid-cols-3 items-center text-xs font-semibold tracking-wide uppercase ${className}`}
       data-testid="edge-labels"
     >
       <span className="flex items-center gap-1">
@@ -45,7 +45,7 @@ function MugSide({ handle }: { handle: "left" | "right" }) {
       strokeWidth={1.6}
       strokeLinejoin="round"
       aria-hidden
-      className="shrink-0 text-zinc-400"
+      className="text-ink/60 shrink-0"
       style={handle === "right" ? { transform: "scaleX(-1)" } : undefined}
     >
       <path d="M8 6.5H5.5A2.5 2.5 0 0 0 3 9v2.5A2.5 2.5 0 0 0 5.5 14H8" />
@@ -66,7 +66,7 @@ function MugFront() {
       strokeWidth={1.6}
       strokeLinejoin="round"
       aria-hidden
-      className="text-brand-600 shrink-0"
+      className="text-accent-text shrink-0"
     >
       <rect x="1.5" y="3" width="13" height="15" rx="1.5" />
       <rect

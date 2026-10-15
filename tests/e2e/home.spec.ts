@@ -78,22 +78,22 @@ test("how it works: no 3D promise; ready-made designs, easy customising and inst
   await expect(page.getByTestId("home-template")).toHaveCount(0); // none yet
 });
 
-test("occasion tiles: no column is a single colour on a phone", async ({
+test("occasion tiles are white outlined cards: no colour fill, no shadow at rest", async ({
   page,
 }) => {
   await page.goto("/");
   const tiles = page
     .getByRole("region", { name: "Make it for any moment" })
     .getByRole("link");
-  const colours = await tiles.evaluateAll((els) =>
+  const styles = await tiles.evaluateAll((els) =>
     els.map((el) => ({
       bg: getComputedStyle(el).backgroundColor,
-      x: Math.round(el.getBoundingClientRect().left),
+      shadow: getComputedStyle(el).boxShadow,
     })),
   );
-  expect(colours).toHaveLength(7);
-  const byColumn = new Map<number, Set<string>>();
-  for (const { bg, x } of colours)
-    byColumn.set(x, (byColumn.get(x) ?? new Set()).add(bg));
-  for (const set of byColumn.values()) expect(set.size).toBe(2);
+  expect(styles).toHaveLength(7);
+  for (const { bg, shadow } of styles) {
+    expect(bg).toBe("rgb(255, 255, 255)");
+    expect(shadow).toBe("none");
+  }
 });

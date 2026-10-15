@@ -66,7 +66,7 @@ export function Sheet({ title, onClose, children }: Props) {
       aria-modal="true"
       aria-label={title}
       data-testid="sheet"
-      className="fixed inset-x-0 bottom-0 z-30 flex max-h-[50dvh] flex-col rounded-t-2xl bg-white shadow-[0_-4px_16px_rgba(0,0,0,0.12)]"
+      className="border-ink fixed inset-x-0 bottom-0 z-30 flex max-h-[50dvh] flex-col rounded-t-2xl border-t-[3px] bg-white"
       style={{
         transform: dragY ? `translateY(${dragY}px)` : undefined,
         transition: dragging ? "none" : "transform 150ms ease-out",
@@ -90,18 +90,15 @@ export function Sheet({ title, onClose, children }: Props) {
           onPointerUp={endDrag}
           onPointerCancel={endDrag}
         >
-          <span
-            aria-hidden
-            className="block h-1 w-10 rounded-full bg-zinc-300"
-          />
+          <span aria-hidden className="bg-ink/20 block h-1 w-10 rounded-full" />
         </div>
         <div className="flex w-full items-center justify-between px-4 pb-2">
-          <h2 className="text-sm font-semibold text-zinc-900">{title}</h2>
+          <h2 className="text-ink text-sm font-semibold">{title}</h2>
           <button
             type="button"
             onClick={onClose}
             aria-label="Close"
-            className="focus-visible:ring-brand-600/20 -mr-2 grid size-9 place-items-center rounded-full text-lg text-zinc-500 hover:bg-zinc-100 focus-visible:ring-2 focus-visible:outline-none active:bg-zinc-100"
+            className="text-ink/65 hover:bg-soft active:bg-soft -mr-2 grid size-9 place-items-center rounded-full text-lg"
           >
             ×
           </button>

@@ -15,10 +15,10 @@ export function OrderTimeline({
         const cancelled = step.id === "cancelled";
         const dot =
           step.state === "upcoming"
-            ? "border-2 border-zinc-300 bg-white"
+            ? "border-2 border-ink/25 bg-white"
             : cancelled
               ? "bg-red-700"
-              : "bg-brand-600";
+              : "bg-accent-text";
         return (
           <li
             key={step.id}
@@ -30,7 +30,7 @@ export function OrderTimeline({
               <span
                 aria-hidden
                 className={`absolute top-5 left-[9px] h-[calc(100%-1.25rem)] w-0.5 ${
-                  step.state === "done" ? "bg-brand-600" : "bg-zinc-200"
+                  step.state === "done" ? "bg-accent-text" : "bg-ink/10"
                 }`}
               />
             )}
@@ -42,8 +42,8 @@ export function OrderTimeline({
               <p
                 className={
                   step.state === "upcoming"
-                    ? "text-zinc-500"
-                    : "font-semibold text-zinc-900"
+                    ? "text-ink/65"
+                    : "text-ink font-semibold"
                 }
               >
                 {step.label}
@@ -53,26 +53,26 @@ export function OrderTimeline({
               </p>
               {step.id === "placed" && step.state === "current" && (
                 <p
-                  className="text-sm text-zinc-700"
+                  className="text-ink/80 text-sm"
                   data-testid="confirm-message"
                 >
                   We’ll contact you on{" "}
-                  <span className="font-medium whitespace-nowrap">
+                  <span className="font-semibold whitespace-nowrap">
                     {maskedPhone}
                   </span>{" "}
                   before printing.
                 </p>
               )}
               {step.id === "confirmed" && step.state === "current" && (
-                <p className="text-sm text-zinc-700">
+                <p className="text-ink/80 text-sm">
                   Your order is being printed.
                 </p>
               )}
               {step.tracking && (
-                <div className="text-sm text-zinc-700" data-testid="tracking">
+                <div className="text-ink/80 text-sm" data-testid="tracking">
                   <p>
                     {step.tracking.courier} · tracking number{" "}
-                    <span className="font-medium break-all">
+                    <span className="font-semibold break-all">
                       {step.tracking.number}
                     </span>
                   </p>
@@ -81,7 +81,7 @@ export function OrderTimeline({
                       href={step.tracking.url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-brand-700 mt-1 inline-flex min-h-11 items-center font-medium underline"
+                      className="text-accent-text mt-1 inline-flex min-h-11 items-center font-semibold underline"
                     >
                       Track parcel
                     </a>
@@ -89,7 +89,7 @@ export function OrderTimeline({
                 </div>
               )}
               {cancelled && (
-                <p className="text-sm text-zinc-700">
+                <p className="text-ink/80 text-sm">
                   This order was cancelled. Questions? Message us on WhatsApp.
                 </p>
               )}

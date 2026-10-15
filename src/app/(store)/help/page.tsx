@@ -235,7 +235,7 @@ export default function HelpPage() {
       intro={
         <>
           Quick answers about ordering, delivery and printing. Still stuck?{" "}
-          <Link href="/contact" className="text-brand-700 underline">
+          <Link href="/contact" className="text-accent-text underline">
             Contact us
           </Link>
           .

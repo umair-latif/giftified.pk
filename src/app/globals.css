@@ -36,31 +36,6 @@
   /* The one shadow. Primary buttons wear it at rest; cards, secondary
      buttons and chips only on hover / keyboard focus. */
   --shadow-hard: 4px 4px 0 var(--color-ink);
-
-  /* Deprecated: old v7 names, kept until every component uses the tokens
-     above (removed in the follow-up migration PR). */
-  /* Teal (big shapes = 500, buttons/links = 600) */
-  --color-brand-50: #f0fdfa;
-  --color-brand-100: #ccfbf1;
-  --color-brand-200: #99f6e4;
-  --color-brand-300: #5eead4;
-  --color-brand-400: #2dd4bf;
-  --color-brand-500: #14b8a6;
-  --color-brand-600: #0f766e;
-  --color-brand-700: #115e59;
-  --color-brand-800: #134e4a;
-  --color-brand-900: #0b3b37;
-
-  /* Mint paper */
-  --color-mint-100: #ddf4ef;
-  --color-mint-300: #9fe3d3;
-  --color-mint-500: #5ccdb6;
-
-  /* Secondary: pink and yellow take black text, never white */
-  --color-magenta: #ff3d8b;
-  --color-sunny: #ffe135;
-  --color-ink: #121212;
-  --color-cream: #f3fbf9;
 }
 
 /*
@@ -173,20 +148,11 @@ body {
   -webkit-tap-highlight-color: transparent;
 }
 
-/* Bagel Fat One has one weight; never let the browser fake a bold or italic.
-   Deprecated h1/h2 default: removed in the migration PR (use type-section). */
-h1,
-h2,
+/* Bagel Fat One has one weight; never let the browser fake a bold or italic. */
 .font-display {
   font-family: var(--font-display);
   font-weight: 400;
   font-synthesis: none;
-}
-
-h1.font-semibold,
-h2.font-semibold {
-  font-family: var(--font-sans);
-  font-weight: 600;
 }
 
 /* Urdu script: neither brand font has the glyphs. Use with lang="ur" dir="rtl". */

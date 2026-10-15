@@ -121,7 +121,7 @@ export function SaveTemplateSheet({
           className="space-y-2 pt-1 pb-2 text-sm"
           data-testid="template-saved"
         >
-          <p className="text-brand-900 font-medium">
+          <p className="text-deep font-semibold">
             {asProduct ? "Product saved." : "Template saved."}
           </p>
           {state.warning && (
@@ -129,7 +129,7 @@ export function SaveTemplateSheet({
               {state.warning}
             </p>
           )}
-          <p className="text-zinc-500">
+          <p className="text-ink/65">
             {published
               ? "It is published."
               : "It is a draft: only editors can see it until you publish it."}{" "}
@@ -139,7 +139,7 @@ export function SaveTemplateSheet({
                 {" "}
                 <a
                   href={`/designs/${state.slug}`}
-                  className="text-brand-700 underline"
+                  className="text-accent-text underline"
                 >
                   View the product page
                 </a>
@@ -156,30 +156,30 @@ export function SaveTemplateSheet({
           }}
         >
           <label className="block space-y-1">
-            <span className="text-ink font-medium">Name</span>
+            <span className="text-ink font-semibold">Name</span>
             <input
               value={name}
               onChange={(e) => setName(e.target.value)}
               maxLength={80}
               required
-              className="focus:border-brand-600 h-11 w-full rounded-lg border border-zinc-300 bg-white px-3 text-base"
+              className="focus:border-ink border-ink/25 h-11 w-full rounded-xl border bg-white px-3 text-base"
             />
           </label>
           {asProduct && (
             <>
               <label className="block space-y-1">
-                <span className="text-ink font-medium">Description</span>
+                <span className="text-ink font-semibold">Description</span>
                 <textarea
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
                   rows={3}
                   maxLength={2000}
                   required
-                  className="focus:border-brand-600 w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-base"
+                  className="focus:border-ink border-ink/25 w-full rounded-xl border bg-white px-3 py-2 text-base"
                 />
               </label>
               <label className="block space-y-1">
-                <span className="text-ink font-medium">Price (Rs)</span>
+                <span className="text-ink font-semibold">Price (Rs)</span>
                 <input
                   value={price}
                   placeholder={basePrice ? String(basePrice) : undefined}
@@ -187,12 +187,12 @@ export function SaveTemplateSheet({
                   onChange={(e) => setPrice(e.target.value.replace(/\D/g, ""))}
                   inputMode="numeric"
                   required
-                  className="focus:border-brand-600 h-11 w-full rounded-lg border border-zinc-300 bg-white px-3 text-base"
+                  className="focus:border-ink border-ink/25 h-11 w-full rounded-xl border bg-white px-3 text-base"
                 />
                 {basePrice && (
                   <span
                     id="base-price-hint"
-                    className="block text-xs text-zinc-500"
+                    className="text-ink/65 block text-xs"
                     data-testid="base-price-hint"
                   >
                     A plain {getProduct(productId!)?.name ?? "product"} costs{" "}
@@ -203,15 +203,15 @@ export function SaveTemplateSheet({
             </>
           )}
           <fieldset className="space-y-1">
-            <legend className="text-ink font-medium">Occasions</legend>
+            <legend className="text-ink font-semibold">Occasions</legend>
             <div className="flex flex-wrap gap-2">
               {OCCASIONS.map((o) => (
                 <label
                   key={o.slug}
-                  className={`relative inline-flex h-9 cursor-pointer items-center rounded-full px-3 text-xs font-medium ${
+                  className={`relative inline-flex h-9 cursor-pointer items-center rounded-full px-3 text-xs font-semibold ${
                     occasions.includes(o.slug as OccasionSlug)
-                      ? "bg-brand-600 text-white"
-                      : "bg-zinc-100 text-zinc-700"
+                      ? "bg-ink text-white"
+                      : "bg-ink/5 text-ink/80"
                   }`}
                 >
                   <input
@@ -234,7 +234,7 @@ export function SaveTemplateSheet({
             />
             <span>Publish (visible to customers)</span>
           </label>
-          <p className="text-xs text-zinc-500">
+          <p className="text-ink/65 text-xs">
             Customers can buy it as it is or change anything. Customer&apos;s
             photos must be replaced before they order.
           </p>

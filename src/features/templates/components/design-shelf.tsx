@@ -53,12 +53,12 @@ export function DesignShelf({
     <section
       id={id}
       aria-labelledby={headingId}
-      className={`bg-sunny border-ink border-y-[3px] py-8 ${className}`}
+      className={`bg-brand border-ink border-y-[3px] py-8 ${className}`}
       data-testid={testId}
     >
       <Container width="wide">
         <div className="flex flex-wrap items-end justify-between gap-x-4 gap-y-2">
-          <h2 id={headingId} className="text-ink text-2xl">
+          <h2 id={headingId} className="type-section text-ink">
             {title}
           </h2>
           {items.length > 0 && (

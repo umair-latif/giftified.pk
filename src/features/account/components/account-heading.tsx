@@ -15,12 +15,12 @@ export function AccountHeading({
       {/* Phones only: on desktop the account menu is always beside the page. */}
       <Link
         href="/account"
-        className="focus-visible:ring-brand-600/20 mb-1 inline-block rounded text-sm text-zinc-600 underline focus-visible:ring-2 focus-visible:outline-none lg:hidden"
+        className="text-ink/70 mb-1 inline-block rounded-xl text-sm underline lg:hidden"
       >
         ← Your account
       </Link>
       <PageTitle>{title}</PageTitle>
-      {children && <p className="mt-1 text-sm text-zinc-600">{children}</p>}
+      {children && <p className="text-ink/70 mt-1 text-sm">{children}</p>}
     </div>
   );
 }
