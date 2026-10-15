@@ -8,7 +8,9 @@ import { useCart } from "@/features/cart/cart";
 import { importTemplate } from "@/features/templates/import-template";
 import { DesignEditor } from "./design-editor";
 import { openSavedDesign } from "@/features/saved-designs/open-saved-design";
+import { writeProductColour } from "../colour";
 import { getDraftSaved, loadDraft } from "../draft";
+import { writeProductSize } from "../size";
 import { buttonClass } from "@/components/ui/button";
 
 /**
@@ -17,6 +19,7 @@ import { buttonClass } from "@/components/ui/button";
  */
 export function EditorEntry({ product }: { product: ProductConfig }) {
   const params = useSearchParams();
+  useOptionsFromProductPage(product, params.get("colour"), params.get("size"));
   const itemId = params.get("item");
   const templateId = params.get("template");
   const savedId = params.get("saved");
@@ -30,6 +33,30 @@ export function EditorEntry({ product }: { product: ProductConfig }) {
   const item = cart.find((i) => i.id === itemId && i.productId === product.id);
   if (!item) return <MissingItem />;
   return <DesignEditor key={item.designKey} product={product} item={item} />;
+}
+
+/**
+ * `?colour=black&size=M` from the product page: remember them (the editor
+ * reads the colour, the preview the size), then drop them from the address.
+ */
+function useOptionsFromProductPage(
+  product: ProductConfig,
+  colour: string | null,
+  size: string | null,
+) {
+  const router = useRouter();
+  const params = useSearchParams();
+  useEffect(() => {
+    if (!colour && !size) return;
+    if (colour && product.baseColors.some((c) => c.id === colour))
+      writeProductColour(product.id, colour);
+    if (size) writeProductSize(product.id, size);
+    const rest = new URLSearchParams(params);
+    rest.delete("colour");
+    rest.delete("size");
+    const q = rest.toString();
+    router.replace(`/design/${product.id}${q ? `?${q}` : ""}`);
+  }, [colour, size, product, params, router]);
 }
 
 export function MissingItem() {

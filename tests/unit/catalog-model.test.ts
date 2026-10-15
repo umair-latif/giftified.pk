@@ -7,6 +7,9 @@ import {
   resolveSlug,
   sizes,
   swatches,
+  productGalleryItems,
+  productOptions,
+  selectionPrice,
 } from "@/features/catalog/catalog-model";
 import type { CatalogProduct } from "@/lib/commerce/types";
 
@@ -195,5 +198,100 @@ describe("structured data", () => {
     expect(JSON.parse(s)).toEqual({
       name: "</script><script>alert(1)</script>",
     });
+  });
+});
+
+describe("product page options", () => {
+  const white = { id: "white", name: "Gloss White", hex: "#ffffff" } as const;
+  const black = { id: "black", name: "Gloss Black", hex: "#1b1b1b" } as const;
+  const variant = (
+    colourId: string,
+    pricePkr: number,
+    extra: Partial<CatalogProduct["variants"][number]> = {},
+  ) => ({ colourId, wooVariationId: 1, pricePkr, inStock: true, ...extra });
+
+  it("swaps to the variation's own photo, else a plain photo for other colours", () => {
+    const product = {
+      ...mug,
+      variants: [
+        variant("white", 1000),
+        variant("black", 1500, {
+          image: { src: "https://shop/black.jpg", alt: "" },
+        }),
+      ],
+    } as CatalogProduct;
+    const o = productOptions(product, "mug", [white, black]);
+    expect(o.colours.map((c) => c.id)).toEqual(["white", "black"]);
+    expect(o.colours[0]!.photo).toBeNull(); // the Woo gallery stays as is
+    expect(o.colours[1]!.photo?.src).toBe("https://shop/black.jpg");
+    const plain = productOptions(
+      {
+        ...product,
+        variants: [variant("white", 1000), variant("black", 1000)],
+      },
+      "mug",
+      [white, black],
+    );
+    expect(plain.colours[1]!.photo).toEqual({
+      src: "/mockups/mug-front-black.webp",
+      alt: "Plain gloss black mug",
+    });
+  });
+
+  it("shows one exact price; 'from' only when the size really changes it", () => {
+    const mugOpts = productOptions(
+      {
+        ...mug,
+        variants: [variant("white", 1000), variant("black", 1500)],
+      } as CatalogProduct,
+      "mug",
+      [white, black],
+    );
+    expect(selectionPrice(mugOpts, "black", null)).toEqual({
+      pricePkr: 1500,
+      regularPricePkr: null,
+      from: false,
+    });
+    const shirt = productOptions(
+      {
+        ...mug,
+        productId: "tshirt",
+        variants: [
+          variant("white", 850, { size: "M" }),
+          variant("white", 950, { size: "XXL" }),
+          variant("black", 850, { size: "M" }),
+        ],
+      } as CatalogProduct,
+      "tshirt",
+      [],
+    );
+    expect(shirt.sizes).toEqual(["M", "XXL"]);
+    expect(shirt.sizeChangesPrice).toBe(true);
+    expect(selectionPrice(shirt, "white", null)).toMatchObject({
+      pricePkr: 850,
+      from: true,
+    });
+    expect(selectionPrice(shirt, "white", "XXL")).toMatchObject({
+      pricePkr: 950,
+      from: false,
+    });
+    expect(selectionPrice(shirt, "black", null)).toMatchObject({ from: false });
+  });
+
+  it("drops repeated photos and gives every photo its own alt", () => {
+    const items = productGalleryItems(
+      [
+        { src: "a.jpg", alt: "Custom Mug" },
+        { src: "b.jpg", alt: "Mug on a desk" },
+        { src: "a.jpg", alt: "Custom Mug" },
+        { src: "c.jpg", alt: "" },
+      ],
+      "Custom Mug",
+    );
+    expect(items.map((i) => [i.src, i.alt])).toEqual([
+      ["a.jpg", "Custom Mug, photo 1 of 3"],
+      ["b.jpg", "Mug on a desk"],
+      ["c.jpg", "Custom Mug, photo 3 of 3"],
+    ]);
   });
 });

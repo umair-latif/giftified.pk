@@ -30,7 +30,7 @@ export const addressSchema = z.object({
     60,
     "Please choose your city.",
     "That city name is too long.",
-  ).transform(canonicalCity),
+  ).transform((c) => canonicalCity(c)),
   addressLine: text(
     8,
     200,

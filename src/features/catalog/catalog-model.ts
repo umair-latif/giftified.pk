@@ -1,5 +1,5 @@
 import type { BaseColor, ProductConfig, ProductId } from "@/config/products";
-import type { CatalogProduct } from "@/lib/commerce/types";
+import type { CatalogImage, CatalogProduct } from "@/lib/commerce/types";
 
 /**
  * Catalog view model. WooCommerce supplies names, prices, images, slugs and
@@ -190,4 +190,161 @@ export function jsonLdScript(data: unknown): string {
     .replace(/</g, "\\u003c")
     .replace(/>/g, "\\u003e")
     .replace(/&/g, "\\u0026");
+}
+
+// ---------------------------------------------------------------------------
+// Product page options (colour, size, price for the selection)
+// ---------------------------------------------------------------------------
+
+/**
+ * Plain product photos per colour (public/mockups), shown when a colour is
+ * picked and WooCommerce has no photo of that colour's variation.
+ */
+const COLOUR_PHOTOS: Partial<Record<ProductId, Record<string, string>>> = {
+  mug: {
+    white: "/mockups/mug-front.webp",
+    black: "/mockups/mug-front-black.webp",
+  },
+  tshirt: {
+    white: "/mockups/tshirt-front.webp",
+    black: "/mockups/tshirt-front-black.webp",
+  },
+  hoodie: {
+    white: "/mockups/hoodie-front.webp",
+    grey: "/mockups/hoodie-front-grey.webp",
+  },
+};
+
+const NOUN: Record<ProductId, string> = {
+  mug: "mug",
+  tshirt: "T-shirt",
+  hoodie: "hoodie",
+};
+
+export interface ColourOption {
+  id: string;
+  name: string;
+  hex: string | null;
+  /** Main photo for this colour, or null to keep the product gallery as is. */
+  photo: CatalogImage | null;
+}
+
+export interface VariantOption {
+  colourId: string;
+  size: string | null;
+  pricePkr: number;
+  regularPricePkr: number | null;
+  inStock: boolean;
+}
+
+export interface ProductOptions {
+  colours: ColourOption[];
+  /** Distinct sizes in store order; empty for products without sizes. */
+  sizes: string[];
+  variants: VariantOption[];
+  /** True when the price depends on the size (then "from" until one is picked). */
+  sizeChangesPrice: boolean;
+}
+
+/** Colours, sizes and prices for the product page, from WooCommerce + config. */
+export function productOptions(
+  product: CatalogProduct | undefined,
+  productId: ProductId,
+  configColours: readonly BaseColor[],
+): ProductOptions {
+  const variants: VariantOption[] = (product?.variants ?? []).map((v) => ({
+    colourId: v.colourId,
+    size: v.size ?? null,
+    pricePkr: v.pricePkr,
+    regularPricePkr: v.regularPricePkr ?? null,
+    inStock: v.inStock,
+  }));
+  const ids = variants.length
+    ? [...new Set(variants.map((v) => v.colourId))]
+    : configColours.map((c) => c.id);
+  const firstId = ids[0];
+  const colours = ids.map((id): ColourOption => {
+    const cfg = configColours.find((c) => c.id === id);
+    const v = product?.variants.find((x) => x.colourId === id);
+    const name = v?.colourName ?? cfg?.name ?? id;
+    const own = product?.variants.find((x) => x.colourId === id && x.image);
+    const fallback = COLOUR_PHOTOS[productId]?.[id];
+    const photo: CatalogImage | null = own?.image
+      ? {
+          src: own.image.src,
+          alt: own.image.alt || `${product?.name}, ${name}`,
+        }
+      : id !== firstId && fallback
+        ? {
+            src: fallback,
+            alt: `Plain ${name.toLowerCase()} ${NOUN[productId]}`,
+          }
+        : null;
+    return { id, name, hex: v?.colourHex ?? cfg?.hex ?? null, photo };
+  });
+  const sizeList = sizes(product);
+  const sizeChangesPrice = colours.some((c) => {
+    const p = new Set(
+      variants.filter((v) => v.colourId === c.id).map((v) => v.pricePkr),
+    );
+    return p.size > 1;
+  });
+  return { colours, sizes: sizeList, variants, sizeChangesPrice };
+}
+
+/**
+ * Price for the current selection: exact when it's known (or when the size
+ * doesn't change the price), else the lowest for that colour with `from`.
+ */
+export function selectionPrice(
+  opts: Pick<ProductOptions, "variants">,
+  colourId: string,
+  size: string | null,
+): { pricePkr: number; regularPricePkr: number | null; from: boolean } | null {
+  const forColour = opts.variants.filter((v) => v.colourId === colourId);
+  const exact = size ? forColour.find((v) => v.size === size) : undefined;
+  if (exact)
+    return {
+      pricePkr: exact.pricePkr,
+      regularPricePkr: exact.regularPricePkr,
+      from: false,
+    };
+  if (forColour.length === 0) return null;
+  const cheapest = [...forColour].sort((a, b) => a.pricePkr - b.pricePkr)[0]!;
+  const differs = new Set(forColour.map((v) => v.pricePkr)).size > 1;
+  return {
+    pricePkr: cheapest.pricePkr,
+    regularPricePkr: cheapest.regularPricePkr,
+    from: differs,
+  };
+}
+
+/**
+ * The product's WooCommerce photos for the gallery: the same photo added twice
+ * shows once, and every alt is unique: the Woo alt when it is the photo's own
+ * (not just the product name, not shared), else "<name>, photo 2 of 4".
+ */
+export function productGalleryItems(
+  images: readonly CatalogImage[],
+  name: string,
+): { src: string; alt: string; label: string; className: string }[] {
+  const unique = images.filter(
+    (img, i) => images.findIndex((o) => o.src === img.src) === i,
+  );
+  const norm = (a: string) => a.trim().toLowerCase();
+  const count = new Map<string, number>();
+  for (const img of unique)
+    count.set(norm(img.alt), (count.get(norm(img.alt)) ?? 0) + 1);
+  return unique.map((img, i) => {
+    const own =
+      norm(img.alt) !== "" &&
+      norm(img.alt) !== norm(name) &&
+      count.get(norm(img.alt)) === 1;
+    return {
+      src: img.src,
+      alt: own ? img.alt.trim() : `${name}, photo ${i + 1} of ${unique.length}`,
+      label: `Photo ${i + 1}`,
+      className: "object-cover",
+    };
+  });
 }

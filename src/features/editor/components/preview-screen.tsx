@@ -13,6 +13,7 @@ import { useTemplateEditor } from "@/features/templates/use-template-editor";
 import { useProductColour } from "../colour";
 import { loadDraft, saveThumbnail } from "../draft";
 import { garmentColourLabel } from "./colour-picker";
+import { useProductSize } from "../size";
 import { SizePicker, sizeOptionsFor } from "./size-picker";
 import { DesignPreview, type PreviewResult } from "./design-preview";
 import { MissingItem } from "./editor-entry";
@@ -41,7 +42,14 @@ export function PreviewScreen({
   const [pickedColour] = useProductColour(product);
   const canPublish = useTemplateEditor();
   const [publishOpen, setPublishOpen] = useState(false);
-  const [pickedSize, setSize] = useState<string>();
+  // Starts with the size picked on the product page (if any).
+  const [storedSize, setStoredSize] = useProductSize(product.id);
+  const [chosenSize, setChosenSize] = useState<string>();
+  const pickedSize = chosenSize ?? storedSize ?? undefined;
+  const setSize = (s: string) => {
+    setChosenSize(s);
+    setStoredSize(s);
+  };
 
   const item = itemId
     ? (cart?.find((i) => i.id === itemId && i.productId === product.id) ?? null)

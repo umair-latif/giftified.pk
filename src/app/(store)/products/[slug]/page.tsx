@@ -3,8 +3,10 @@ import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { editableProductIds, getProduct } from "@/config/products";
 import {
-  fromPrice,
+  CATALOG_INFO,
   jsonLdScript,
+  productGalleryItems,
+  productOptions,
   productJsonLd,
   resolveSlug,
   sizes as sizesOf,
@@ -14,15 +16,20 @@ import {
 import { DeliveryEstimate } from "@/features/catalog/components/delivery-estimate";
 import { ProductDetails } from "@/features/catalog/components/product-details";
 import { ProductArt } from "@/features/catalog/components/product-art";
-import { ProductGallery } from "@/features/catalog/components/product-gallery";
+import { ProductBuy } from "@/features/catalog/components/product-buy";
+import { PhotoTips } from "@/features/catalog/components/photo-tips";
+import { Disclosure } from "@/components/ui/disclosure";
+import { COURIER_DAYS, maxFee, PRINT_DAYS } from "@/lib/delivery";
+import { withLiveDesigns } from "@/features/templates/load-design-prices";
+import { designsHref } from "@/features/templates/design-filters";
 import { Swatches } from "@/features/catalog/components/swatches";
 import { loadCatalog } from "@/features/catalog/load-catalog";
+import { loadDeliveryRates } from "@/features/catalog/load-rates";
 import { formatPkr } from "@/features/checkout/format";
 import { appBaseUrl } from "@/server/files/links";
-import { Container, PageTitle } from "@/components/ui/page";
+import { Container } from "@/components/ui/page";
 import { ProductDesignsShelf } from "@/features/templates/components/product-designs-shelf";
 import { loadTemplates } from "@/features/templates/load-templates";
-import { buttonClass } from "@/components/ui/button";
 
 export const revalidate = 3600;
 
@@ -74,10 +81,16 @@ export default async function ProductPage({
   const { productId, product } = m;
   const cfg = getProduct(productId)!;
   const templates = await loadTemplates({ productId });
+  const { templates: liveTemplates, prices } = await withLiveDesigns(templates);
+  const designPrices = Object.values(prices).map((p) => p.pricePkr);
   const name = product?.name ?? cfg.name;
+  const options = productOptions(product, productId, cfg.baseColors);
   const colours = swatches(product, cfg.baseColors);
   const productSizes = sizesOf(product);
+  const info = CATALOG_INFO.find((c) => c.productId === productId);
+  const rates = await loadDeliveryRates();
   const url = `${appBaseUrl()}/products/${product?.slug ?? productId}`;
+  const top = rates ? maxFee(rates) : null;
 
   return (
     <main>
@@ -92,90 +105,141 @@ export default async function ProductPage({
         )}
         <Link
           href="/products"
-          className="text-accent-text hover:text-deep w-fit rounded-xl text-sm font-semibold"
+          className="text-accent-text hover:text-deep w-fit text-sm font-semibold"
         >
           ← All products
         </Link>
 
-        <div className="mt-2 grid grid-cols-[minmax(0,1fr)] gap-5 lg:grid-cols-2 lg:gap-10">
-          {product && product.images.length > 0 ? (
-            <ProductGallery images={product.images} name={name} />
-          ) : (
+        <ProductBuy
+          productId={productId}
+          name={name}
+          spec={info?.spec ?? cfg.subtitle}
+          options={options}
+          gallery={productGalleryItems(product?.images ?? [], name)}
+          fallbackArt={
             <ProductArt
               productId={productId}
               className="card aspect-square overflow-hidden"
             />
-          )}
-          <div className="min-w-0 space-y-4">
-            <header className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-              <PageTitle>{name}</PageTitle>
-              {product && (
-                <p className="text-deep">
-                  from{" "}
-                  <span className="text-accent-text font-semibold">
-                    {formatPkr(fromPrice(product))}
-                  </span>
-                </p>
-              )}
-              <span className="bg-soft text-ink rounded-full px-2.5 py-0.5 text-xs font-semibold">
-                Cash on Delivery
-              </span>
-            </header>
-
-            {/* First card, always: Design your own. */}
+          }
+          templateCount={liveTemplates.length}
+          templateFromPkr={
+            designPrices.length ? Math.min(...designPrices) : null
+          }
+          designsHref={designsHref({ product: productId })}
+          delivery={
             <section
-              aria-labelledby="design-own"
-              className="card space-y-3 p-4"
-              data-testid="design-your-own"
-            >
-              <h2 id="design-own" className="type-card-title text-ink">
-                Design your own
-              </h2>
-              <p className="text-ink">
-                Your photos, your words. Start from a blank {name.toLowerCase()}{" "}
-                and make it yours.
-              </p>
-              <Link
-                href={`/design/${productId}`}
-                className={buttonClass("primary")}
-              >
-                Start designing
-              </Link>
-            </section>
-            <section
-              aria-label="Delivery estimate"
+              aria-label="Delivery"
               className="card bg-soft! p-4"
               data-testid="delivery-estimate"
             >
-              <DeliveryEstimate />
+              <DeliveryEstimate rates={rates} />
             </section>
-          </div>
-        </div>
-
-        <ProductDetails
-          cfg={cfg}
-          descriptionHtml={product?.descriptionHtml}
-          className="mt-6"
-          extraFacts={
+          }
+          below={
             <>
-              <dt className="text-ink/65">Colours</dt>
-              <dd>
-                <Swatches swatches={colours} size="md" />
-              </dd>
-              {productSizes.length > 0 && (
-                <>
-                  <dt className="text-ink/65">Sizes</dt>
-                  <dd>
-                    {productSizes.join(" · ")}
-                    {/* TODO(founder): size chart (chest/length in inches) for apparel. */}
-                  </dd>
-                </>
-              )}
+              <p className="text-ink text-sm" data-testid="reprint-promise">
+                <strong className="font-semibold">
+                  Free reprint if it arrives misprinted or damaged.
+                </strong>{" "}
+                Tell us within 48 hours.{" "}
+                <Link
+                  href="/help#reprint"
+                  className="text-accent-text hover:text-deep underline"
+                >
+                  How it works
+                </Link>
+              </p>
+              <PhotoTips cfg={cfg} />
             </>
           }
         />
+
+        <div className="mt-6 space-y-3">
+          <ProductDetails
+            cfg={cfg}
+            descriptionHtml={product?.descriptionHtml}
+            extraFacts={
+              <>
+                <dt className="text-ink/65">Colours</dt>
+                <dd>
+                  <Swatches swatches={colours} size="md" />
+                </dd>
+                {productSizes.length > 0 && (
+                  <>
+                    <dt className="text-ink/65">Sizes</dt>
+                    <dd>
+                      {productSizes.join(" · ")}
+                      {/* TODO(owner): size chart (chest/length in inches) for apparel. */}
+                    </dd>
+                  </>
+                )}
+              </>
+            }
+          />
+          <Disclosure
+            id="delivery-payment"
+            className="card overflow-hidden"
+            summaryClassName="lg:px-6 lg:py-4"
+            bodyClassName="lg:px-6 lg:pb-6 space-y-2 text-sm text-ink"
+            summary={
+              <h2 className="type-card-title text-ink">
+                Delivery &amp; payment
+              </h2>
+            }
+            testId="delivery-payment"
+          >
+            <p>
+              We deliver to every city and town in Pakistan
+              {top !== null ? ` for ${formatPkr(top)} or less` : ""}. Your{" "}
+              {name.toLowerCase()} is printed for you in {PRINT_DAYS.min}–
+              {PRINT_DAYS.max} days after you confirm the order, then the
+              courier takes {COURIER_DAYS.min}–{COURIER_DAYS.max} days.
+            </p>
+            <p>
+              Pay cash when it arrives. Nothing to pay online. Before we print,
+              we call or WhatsApp you to confirm your address, colour and size.
+            </p>
+            <p>
+              <Link
+                href="/help#delivery"
+                className="text-accent-text underline"
+              >
+                More about delivery
+              </Link>
+            </p>
+          </Disclosure>
+          <Disclosure
+            id="reprints"
+            className="card overflow-hidden"
+            summaryClassName="lg:px-6 lg:py-4"
+            bodyClassName="lg:px-6 lg:pb-6 space-y-2 text-sm text-ink"
+            summary={
+              <h2 className="type-card-title text-ink">
+                Reprints &amp; refunds
+              </h2>
+            }
+            testId="reprints-refunds"
+          >
+            <p>
+              If your order arrives with a printing fault, we reprint it free of
+              charge. If it arrives damaged, we reprint it or refund you. Send
+              us photos within 48 hours of delivery.
+            </p>
+            <p>
+              Because everything is made to order, we can&apos;t take items back
+              for a change of mind or a mistake in your own design. Check the
+              preview carefully before you order.
+            </p>
+            <p>
+              <Link href="/help#reprint" className="text-accent-text underline">
+                Reprints and refunds in full
+              </Link>
+            </p>
+          </Disclosure>
+        </div>
       </Container>
-      {/* Full-width yellow shelf, the same as the home page's "New designs". */}
+      {/* Full-width shelf, the same as the home page's "New designs". */}
       <ProductDesignsShelf productId={productId} templates={templates} />
     </main>
   );

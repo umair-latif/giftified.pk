@@ -9,8 +9,7 @@ test("a slow page change shows the top progress bar until the page arrives", asy
 
   // Make the next page's data slow, like a phone on 4G.
   await page.route(
-    (url) =>
-      url.pathname.startsWith("/cart") || url.searchParams.has("_rsc"),
+    (url) => url.pathname.startsWith("/cart") || url.searchParams.has("_rsc"),
     async (route) => {
       await new Promise((r) => setTimeout(r, 1500));
       await route.continue();

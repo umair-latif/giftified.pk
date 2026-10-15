@@ -50,6 +50,11 @@ export const wooVariationSchema = z.object({
   status: z.string().default("publish"),
   stock_status: z.string(),
   attributes: z.array(wooAttributeOptionSchema),
+  /** WC sends an object, or nothing / [] when the variation has no photo. */
+  image: z
+    .object({ src: z.string().default(""), alt: z.string().nullish() })
+    .nullish()
+    .catch(null),
 });
 export type WooVariation = z.infer<typeof wooVariationSchema>;
 

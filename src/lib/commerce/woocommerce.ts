@@ -13,6 +13,7 @@ import type {
   NewDesignProduct,
   SavedDesign,
   ShippingQuote,
+  ShippingRates,
 } from "./types";
 import {
   CUSTOMER_META,
@@ -31,6 +32,7 @@ import {
   metaValue,
   parsePkr,
   quoteFromZones,
+  ratesFromZones,
   regularIfReduced,
   sanitizeHtml,
   type ResolvedLine,
@@ -567,6 +569,10 @@ export function createWooCommerceClient(config: WooConfig): CommerceClient {
     return { city, shippingPkr };
   }
 
+  async function shippingRates(): Promise<ShippingRates> {
+    return ratesFromZones(await loadZones());
+  }
+
   // -------------------------------------------------------------------------
   // Orders
   // -------------------------------------------------------------------------
@@ -716,6 +722,7 @@ export function createWooCommerceClient(config: WooConfig): CommerceClient {
     listDesignProducts,
     publishDesignProduct,
     quoteShipping,
+    shippingRates,
 
     findCustomerByEmail,
 
