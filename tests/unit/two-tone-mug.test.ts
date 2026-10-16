@@ -47,6 +47,8 @@ describe("Two-Tone Mug", () => {
         `right-${colour.id}`,
         `front-${colour.id}`,
         `left-${colour.id}`,
+        // The in-hands photo was only supplied in red.
+        ...(colour.id === "red" ? ["hands-red"] : []),
       ]);
       for (const spec of specs)
         expect(existsSync(join(process.cwd(), "public", spec.src))).toBe(true);
@@ -75,6 +77,19 @@ describe("Two-Tone Mug", () => {
         Math.min(...outline!.bottom.map(([, y]) => y)),
       );
     }
+  });
+
+  it("has the in-hands photo for red only, with the handle on the left", () => {
+    const hands = (MOCKUP_SPECS["two-tone-mug"] ?? []).filter(
+      (s) => s.id === "hands-red",
+    );
+    expect(hands).toHaveLength(1);
+    const spec = hands[0]!;
+    if (isGarmentSpec(spec)) throw new Error("mug spec expected");
+    expect(spec.colour).toBe("red");
+    expect(spec.side).toBe("left");
+    expect(spec.geometry.handleAngleDeg).toBe(90);
+    expect(specsForColour("two-tone-mug", "blue")).not.toContainEqual(spec);
   });
 
   it("shows the handle on the side it says, and hides it on the front", () => {

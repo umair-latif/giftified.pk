@@ -17,13 +17,15 @@ This writes, per colour:
   twotone-right-<c>.webp   the side view as supplied (handle right)
   twotone-left-<c>.webp    the side view flipped (handle left)
   twotone-front-<c>.webp   the front view (handle behind the mug)
+  twotone-hands-red.webp   red only: the mug held in both hands
 
-The blanket and in-hands shots are NOT built yet. The preview wraps a design
-by reading each photo column as an angle around an upright mug: the blanket
-mug lies at about 35 degrees, so its silhouettes are diagonal and the model
-does not fit, and the in-hands mug needs its rim and base measured by hand
-(the fingers are the same smooth white as the ceramic). See
-docs/ops/mockup-assets.md.
+The blanket shots are NOT built yet: the preview wraps a design by reading
+each photo column as an angle around an upright mug, and the blanket mug lies
+at about 35 degrees, so its silhouettes are diagonal and the model does not
+fit. See docs/ops/mockup-assets.md.
+
+The in-hands shot is red only — the founder supplied no blue or black one, and
+recolouring it would tint the fingers, which are close to the rim's red.
 
 Within each set the colours are the same shot, so one set of measurements
 serves all three (see the TWOTONE_* constants in mockup/specs.ts).
@@ -37,7 +39,7 @@ from PIL import Image
 #: kept here as the record of which file is which; not built yet (see above).
 SIDE = {"red": "63", "blue": "64", "black": "65"}
 FABRIC = {"red": "56", "blue": "57", "black": "58"}
-#: <front-dir> stems.
+#: <front-dir> stems. HANDS is red only (no blue/black shot was supplied).
 FRONT = {"red": "65", "blue": "66", "black": "64"}
 HANDS = {"red": "70"}
 
@@ -76,6 +78,12 @@ def main() -> None:
         im = load(args.front, stem)
         print(f"{colour} front: {stem}")
         save(im, args.out / f"twotone-front-{colour}.webp")
+
+    for colour, stem in HANDS.items():
+        im = load(args.front, stem)
+        print(f"{colour} in hands: {stem}")
+        # A photograph, not a flat studio render: it needs more bits.
+        save(im, args.out / f"twotone-hands-{colour}.webp", quality=72)
 
 
 if __name__ == "__main__":

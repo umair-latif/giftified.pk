@@ -23,7 +23,7 @@ test("two-tone mug preview: right, front and left for the colour picked", async 
   const main = page.getByTestId("preview-mockup").getByRole("img");
   await expect(main).toHaveAttribute("src", /^data:image\//);
   let previous = "";
-  for (const id of ["right-red", "front-red", "left-red"]) {
+  for (const id of ["right-red", "front-red", "left-red", "hands-red"]) {
     await page.getByTestId(`preview-thumb-${id}`).click();
     await expect(page.getByTestId(`preview-thumb-${id}`)).toHaveAttribute(
       "aria-current",
@@ -43,6 +43,18 @@ test("two-tone mug preview: right, front and left for the colour picked", async 
   }
   // Only the picked colour's photos are offered.
   await expect(page.getByTestId("preview-thumb-left-blue")).toHaveCount(0);
+});
+
+test("the in-hands photo is offered for red only", async ({ page }) => {
+  await page.addInitScript((doc) => {
+    localStorage.setItem("giftified:draft:two-tone-mug", JSON.stringify(doc));
+    // The picked colour lives in localStorage, not the URL.
+    localStorage.setItem("giftified:colour:two-tone-mug", "blue");
+  }, draft());
+  await page.goto("/design/two-tone-mug/preview");
+  // Wait for the blue views before asserting the red one is absent.
+  await expect(page.getByTestId("preview-thumb-left-blue")).toBeVisible();
+  await expect(page.getByTestId("preview-thumb-hands-red")).toHaveCount(0);
 });
 
 test("the editor prints on the white body, not the rim colour", async ({
