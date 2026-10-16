@@ -1,6 +1,9 @@
 import { Container } from "@/components/ui/page";
 
-/** Outlined cards with a big number badge. */
+/**
+ * Three steps to read, not to tap: soft panels without the black card
+ * outline (that outline means "tappable" on this site), each with a number.
+ */
 const STEPS: { title: string; text: string }[] = [
   {
     title: "Design",
@@ -25,10 +28,13 @@ export function HowItWorks() {
         </h2>
         <ol className="mt-4 grid gap-3 md:grid-cols-3">
           {STEPS.map((step, i) => (
-            <li key={step.title} className="card flex items-center gap-4 p-4">
+            <li
+              key={step.title}
+              className="bg-soft flex items-center gap-4 rounded-2xl p-4"
+            >
               <span
                 aria-hidden
-                className="bg-soft border-ink text-ink type-card-title grid size-11 shrink-0 place-items-center rounded-full border-2 leading-none select-none"
+                className="text-deep type-card-title grid size-11 shrink-0 place-items-center rounded-full bg-white leading-none select-none"
               >
                 {i + 1}
               </span>

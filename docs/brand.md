@@ -77,6 +77,11 @@ One pattern per idea, so new pages don't pick a random existing one.
   only. `compactButtonClass()` is the 44 px version for cards and sheets; `chipClass` the 36 px pill;
   `iconButtonClass` the round icon button. `BUTTON_SKIN` gives the colours for one-off sizes (the
   header "Next"). Disabled = `page` fill and faded outline, never just `opacity`.
+- **Tappable vs. information (one rule):** a white card with the 3 px black outline means _you can
+  tap this_. Product cards and the featured-occasion tile end in a `CardCta` line ("Start designing →"),
+  because phones have no hover and the shadow only shows on hover/focus. Blocks to read (How it works,
+  trust panels) never get the black card outline: they are `soft` or `deep` panels instead. Forms and
+  order summaries may sit in a `card` frame, but they are never laid out as a grid of tiles.
 - **Content card:** the `card` utility (`globals.css`): white, 3 px ink outline, `rounded-2xl`, flat.
   Add `card-pop` only when the whole card is a link (shadow on hover/focus, press on tap). "Coming
   soon" cards add `border-dashed!`. Accordions use the same frame. Alert banners are not cards.

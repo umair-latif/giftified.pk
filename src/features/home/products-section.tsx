@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import { CardCta } from "@/components/ui/card-cta";
 import { PriceTag } from "@/components/ui/price-tag";
 import type { HomeProductCard } from "./product-cards";
 import { Container } from "@/components/ui/page";
@@ -32,6 +33,7 @@ function CardBody({ card }: { card: HomeProductCard }) {
             Coming soon
           </span>
         )}
+        {card.href && <CardCta className="mt-2">Start designing</CardCta>}
       </div>
     </>
   );
