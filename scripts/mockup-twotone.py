@@ -1,49 +1,45 @@
 #!/usr/bin/env python3
 """
-Two-Tone Mug preview photos, built from the founder's three studio shots.
+Two-Tone Mug preview photos, from the founder's studio shots (Oct 2026).
 
-  python3 scripts/mockup-twotone.py <source-dir> [--out public/mockups]
+  python3 scripts/mockup-twotone.py <side-dir> <front-dir> [--out public/mockups]
 
-The founder supplied one studio view per colour (white body, coloured rim,
-handle and inside; handle on the RIGHT). Expected file names in <source-dir>:
+The founder supplied two sets (the "Mug Mockup Instagram Story" 6 and 7 zips).
+Both number their files from the same range, so they stay in separate folders:
 
-  61.jpg red   62.jpg blue   63.jpg black
+  <side-dir>   63 red   64 blue   65 black   side views, handle RIGHT, white bg
+               56 red   57 blue   58 black   on a cream knit blanket
+  <front-dir>  65 red   66 blue   64 black   front views, handle hidden
+               70 red                        held in both hands
 
-The founder's paired shots (57/58/59) and the mug on knit fabric (56) are not
-built here yet: a pair shows both halves of the wrap at once, which needs the
-preview engine to compose two mugs in one photo.
+This writes, per colour:
 
-From each studio shot this writes the three views the preview needs:
+  twotone-right-<c>.webp   the side view as supplied (handle right)
+  twotone-left-<c>.webp    the side view flipped (handle left)
+  twotone-front-<c>.webp   the front view (handle behind the mug)
 
-  twotone-right-<c>.webp  the photo as supplied (handle right)
-  twotone-left-<c>.webp   mirrored (handle left)
-  twotone-front-<c>.webp  handle removed, so the handle can sit behind the mug
-                          (`handleAngleDeg: 180`); everything right of the body
-                          is replaced by the mirrored background from the left,
-                          which carries the matching drop shadow
+The blanket and in-hands shots are NOT built yet. The preview wraps a design
+by reading each photo column as an angle around an upright mug: the blanket
+mug lies at about 35 degrees, so its silhouettes are diagonal and the model
+does not fit, and the in-hands mug needs its rim and base measured by hand
+(the fingers are the same smooth white as the ceramic). See
+docs/ops/mockup-assets.md.
 
-The three studio shots are the same render in three colours (identical body
-pixels), so one set of measurements serves all of them: see TWOTONE_STUDIO in
-src/features/editor/mockup/specs.ts.
+Within each set the colours are the same shot, so one set of measurements
+serves all three (see the TWOTONE_* constants in mockup/specs.ts).
 """
 import argparse
 from pathlib import Path
 
-import numpy as np
 from PIL import Image
 
-# Body silhouette on the studio shots, measured once (all three are identical).
-BODY_LEFT, BODY_RIGHT = 259, 746
-#: First column past the body: everything from here right is handle.
-HANDLE_FROM = 747
-#: Sample the replacement background this much further out, so the body's own
-#: left silhouette is not mirrored back in as a ghost edge.
-MIRROR_OFFSET = 28
-#: Below this row the glossy body reflects the handle; desaturated for the
-#: front view. Above it is the rim and the coloured inside, which stay.
-REFLECTION_FROM = 275
-
-COLOURS = {"red": "61", "blue": "62", "black": "63"}
+#: <side-dir> stems. FABRIC and HANDS are the founder's lifestyle shots,
+#: kept here as the record of which file is which; not built yet (see above).
+SIDE = {"red": "63", "blue": "64", "black": "65"}
+FABRIC = {"red": "56", "blue": "57", "black": "58"}
+#: <front-dir> stems.
+FRONT = {"red": "65", "blue": "66", "black": "64"}
+HANDS = {"red": "70"}
 
 
 def save(im: Image.Image, path: Path, quality: int = 82) -> None:
@@ -51,44 +47,35 @@ def save(im: Image.Image, path: Path, quality: int = 82) -> None:
     print(f"  {path.name}  {path.stat().st_size // 1024} KB")
 
 
-def drop_handle(im: Image.Image) -> Image.Image:
-    """
-    The front view: the handle sits behind the mug, so it is taken out of the
-    photo. Two steps, because erasing the handle alone leaves it visible:
-    the handle side is replaced by the mirrored background from the left (which
-    carries the matching drop shadow), and the body is desaturated below the
-    rim, where the glossy ceramic reflects the handle as a coloured edge.
-    """
-    a = np.asarray(im).astype(np.float32)
-    h, w, _ = a.shape
-    out = a.copy()
-    for x in range(HANDLE_FROM, w):
-        mx = BODY_LEFT + BODY_RIGHT - x - MIRROR_OFFSET
-        out[:, x] = a[:, mx] if 0 <= mx < w else 255.0
-
-    grey = (0.299 * out[:, :, 0] + 0.587 * out[:, :, 1] + 0.114 * out[:, :, 2])
-    band = np.zeros((h, w, 1), np.float32)
-    band[:, BODY_LEFT:HANDLE_FROM] = 1.0
-    # Ramp in over 20 px so the rim's colour is not clipped by a hard line.
-    ramp = np.clip((np.arange(h) - REFLECTION_FROM) / 20.0, 0, 1)[:, None, None]
-    f = ramp * band
-    out = out * (1 - f) + grey[:, :, None] * f
-    return Image.fromarray(out.clip(0, 255).astype(np.uint8))
+def load(folder: Path, stem: str) -> Image.Image:
+    for ext in (".png", ".jpg", ".jpeg", ".webp"):
+        p = folder / f"{stem}{ext}"
+        if p.exists():
+            return Image.open(p).convert("RGB")
+    raise SystemExit(f"{folder}/{stem}.(png|jpg) not found")
 
 
 def main() -> None:
     ap = argparse.ArgumentParser()
-    ap.add_argument("source", type=Path, help="folder with the founder's jpgs")
+    ap.add_argument("side", type=Path, help="folder with the side + blanket shots")
+    ap.add_argument("front", type=Path, help="folder with the front + in-hands shots")
     ap.add_argument("--out", type=Path, default=Path("public/mockups"))
     args = ap.parse_args()
     args.out.mkdir(parents=True, exist_ok=True)
 
-    for colour, stem in COLOURS.items():
-        im = Image.open(args.source / f"{stem}.jpg").convert("RGB")
-        print(f"{colour}: {stem}.jpg {im.size}")
+    for colour, stem in SIDE.items():
+        im = load(args.side, stem)
+        print(f"{colour} side: {stem} {im.size}")
         save(im, args.out / f"twotone-right-{colour}.webp")
-        save(im.transpose(Image.FLIP_LEFT_RIGHT), args.out / f"twotone-left-{colour}.webp")
-        save(drop_handle(im), args.out / f"twotone-front-{colour}.webp")
+        save(
+            im.transpose(Image.FLIP_LEFT_RIGHT),
+            args.out / f"twotone-left-{colour}.webp",
+        )
+
+    for colour, stem in FRONT.items():
+        im = load(args.front, stem)
+        print(f"{colour} front: {stem}")
+        save(im, args.out / f"twotone-front-{colour}.webp")
 
 
 if __name__ == "__main__":
