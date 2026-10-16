@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { CardCta } from "@/components/ui/card-cta";
 import { Container } from "@/components/ui/page";
 import type { FeaturedOccasion } from "@/config/occasion-dates";
 
@@ -39,7 +40,7 @@ export function Occasions({ featured }: { featured: FeaturedOccasion }) {
         </p>
         <Link
           href={`/occasions/${main.slug}`}
-          className="card card-pop bg-soft! mt-4 flex min-h-28 flex-col justify-center gap-1 px-5 py-4"
+          className="card card-pop mt-4 flex min-h-28 flex-col justify-center gap-1 px-5 py-4"
           data-testid="featured-occasion"
         >
           <span className="type-eyebrow text-deep">
@@ -51,6 +52,7 @@ export function Occasions({ featured }: { featured: FeaturedOccasion }) {
               ? `Order by ${fmt(featured.orderBy)} to arrive in time.`
               : "Make their day with their name or a favourite photo."}
           </span>
+          <CardCta className="mt-1">{`See ${main.label} designs`}</CardCta>
         </Link>
         <ul className="mt-3 flex flex-wrap gap-2" aria-label="More occasions">
           {rest.map((o) => (

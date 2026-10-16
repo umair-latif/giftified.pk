@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import { CardCta } from "@/components/ui/card-cta";
 import { PriceTag } from "@/components/ui/price-tag";
 import type { CatalogCard } from "../catalog-model";
 import { ProductArt } from "./product-art";
@@ -49,6 +50,7 @@ export function ProductCard({
         )}
         {/* One colour = nothing to choose, so no dot (it looked like an empty radio button). */}
         {card.swatches.length > 1 && <Swatches swatches={card.swatches} />}
+        {card.href && <CardCta>Start designing</CardCta>}
       </div>
     </>
   );
