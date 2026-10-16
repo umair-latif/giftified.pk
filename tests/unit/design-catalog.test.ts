@@ -18,7 +18,7 @@ const d = (
   productId,
   productName: {
     mug: "Custom Mug",
-    "two-tone-mug": "Two-Tone Mug",
+    "two-tone-mug": "Dual Accent Mug",
     tshirt: "T-shirt",
     hoodie: "Hoodie",
   }[productId],

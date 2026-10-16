@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Two-Tone Mug preview photos, from the founder's studio shots (Oct 2026).
+Dual Accent Mug preview photos, from the founder's studio shots (Oct 2026).
 
   python3 scripts/mockup-twotone.py <side-dir> <front-dir> [--out public/mockups]
 

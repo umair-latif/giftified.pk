@@ -65,7 +65,7 @@ const CATALOG: CatalogProduct[] = [
     wooProductId: 104,
     slug: "two-tone-mug",
     images: [],
-    name: "Two-Tone Mug",
+    name: "Dual Accent Mug",
     shortDescription:
       "11oz gloss ceramic mug with a coloured rim, handle and inside, printed all the way round on the white body.",
     descriptionHtml:

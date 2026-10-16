@@ -2,7 +2,7 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { expect, test } from "@playwright/test";
 
-/** The mug fixture, re-pointed at the Two-Tone Mug (same print area). */
+/** The mug fixture, re-pointed at the Dual Accent Mug (same print area). */
 function draft() {
   const doc = JSON.parse(
     readFileSync(join(process.cwd(), "tests/fixtures/design-mug.json"), "utf8"),
@@ -11,7 +11,7 @@ function draft() {
   return doc;
 }
 
-test("two-tone mug preview: right, front and left for the colour picked", async ({
+test("dual accent mug preview: right, front and left for the colour picked", async ({
   page,
 }) => {
   await page.addInitScript((d) => {
@@ -72,16 +72,16 @@ test("the editor prints on the white body, not the rim colour", async ({
   });
 });
 
-test("the shop lists the Two-Tone Mug and it opens the editor", async ({
+test("the shop lists the Dual Accent Mug and it opens the editor", async ({
   page,
 }) => {
   await page.goto("/products");
-  const card = page.getByRole("link", { name: /Two-Tone Mug/i }).first();
+  const card = page.getByRole("link", { name: /Dual Accent Mug/i }).first();
   await expect(card).toBeVisible();
   await card.click();
   await expect(page).toHaveURL(/\/products\/two-tone-mug$/);
   await expect(
-    page.getByRole("heading", { name: /Two-Tone Mug/i }).first(),
+    page.getByRole("heading", { name: /Dual Accent Mug/i }).first(),
   ).toBeVisible();
   await page.getByTestId("start-designing").click();
   await expect(page).toHaveURL(/\/design\/two-tone-mug/);
