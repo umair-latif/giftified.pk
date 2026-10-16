@@ -14,3 +14,10 @@ test("a vendor send link that is forged or expired sends nothing", async ({
     /noindex/,
   );
 });
+
+test("the contact page shows the hello@ address", async ({ page }) => {
+  await page.goto("/contact");
+  const link = page.getByRole("link", { name: "hello@designbanana.pk" });
+  await expect(link).toBeVisible();
+  await expect(link).toHaveAttribute("href", "mailto:hello@designbanana.pk");
+});

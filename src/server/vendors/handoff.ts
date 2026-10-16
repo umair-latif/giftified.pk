@@ -134,7 +134,7 @@ export function handoffEmail(
     return {
       name: p.vendor.name,
       lines: p.lines.map(({ line }) => lineSummary(line)),
-      email: p.vendor.email ? opts.sendUrl(p.vendor.id) : null,
+      email: opts.sendUrl(p.vendor.id),
       whatsapp: whatsappUrl(msg, p.vendor.whatsapp),
       hasNumber: !!p.vendor.whatsapp,
       emailTo: p.vendor.email,
@@ -149,9 +149,9 @@ export function handoffEmail(
     ...blocks.flatMap((b) => [
       `== ${b.name} ==`,
       ...b.lines.map((l) => `- ${l}`),
-      b.email
+      b.emailTo
         ? `Email to ${b.emailTo}: ${b.email}`
-        : "Email: no address set (add vendor_email to the product's custom fields in WP admin).",
+        : `Email (no address saved — type one on the page): ${b.email}`,
       `WhatsApp${b.hasNumber ? "" : " (pick the contact)"}: ${b.whatsapp}`,
       "",
     ]),
@@ -175,12 +175,13 @@ ${blocks
     ) => `<div style="margin:16px 0;padding:12px 16px;border:2px solid #111;border-radius:12px">
 <h3 style="margin:0 0 6px">${esc(b.name)}</h3>
 <ul style="margin:0 0 8px;padding-left:18px">${b.lines.map((l) => `<li>${esc(l)}</li>`).join("")}</ul>
-${b.email ? button(b.email, `Email to ${b.name}`, "#0f766e") : `<p style="color:#555">No email address set for this vendor: add <code>vendor_email</code> to the product's custom fields in WP admin.</p>`}
+${button(b.email, b.emailTo ? `Email to ${b.name}` : "Email (type the address)", "#0f766e")}
+${b.emailTo ? "" : `<p style="color:#555;font-size:13px">No address saved for this vendor: the page asks for one. To save it, add <code>vendor_email</code> to the product's custom fields in WP admin.</p>`}
 ${button(b.whatsapp, b.hasNumber ? `WhatsApp to ${b.name}` : "WhatsApp (pick the contact)", "#16a34a")}
 </div>`,
   )
   .join("\n")}
-<p style="color:#555;font-size:13px">"Email to …" opens a page where you check and press Send. WhatsApp sends links to the files (WhatsApp links can't attach files).</p>
+<p style="color:#555;font-size:13px">The email button opens a page where you check and press Send. WhatsApp sends links to the files (WhatsApp links can't attach files).</p>
 </div>`;
   return { subject, text, html };
 }

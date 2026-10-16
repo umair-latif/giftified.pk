@@ -159,7 +159,11 @@ describe("vendor hand-off content", () => {
       "Email to mugs@vendor.test: https://a.test/vendor-send/mug",
     );
     expect(mail.text).toContain("== Sialkot DTF ==");
-    expect(mail.text).toContain("Email: no address set");
+    // A vendor with no saved address still gets an email button; the page asks.
+    expect(mail.text).toContain(
+      "Email (no address saved — type one on the page): https://a.test/vendor-send/tshirt",
+    );
+    expect(mail.html).toContain("Email (type the address)");
     expect(mail.text).toContain(
       "WhatsApp (pick the contact): https://wa.me/?text=",
     );
@@ -264,9 +268,29 @@ describe("vendor hand-off flow", () => {
     const t = deps();
     expect(await sendToVendor({ o: 1234, v: "tshirt", e: 9e9 }, t.d)).toEqual({
       ok: false,
-      message: "No email address is set for Sialkot DTF.",
+      message: expect.stringContaining("No email address for Sialkot DTF"),
     });
     expect(t.email.sent).toHaveLength(0);
     vi.restoreAllMocks();
+  });
+
+  it("a vendor with no saved address can be sent to an address typed in", async () => {
+    const t = deps();
+    const r = await sendToVendor(
+      { o: 1234, v: "tshirt", e: 9e9 },
+      { ...t.d, to: "  printer@sialkot.test " },
+    );
+    expect(r.ok).toBe(true);
+    expect(t.email.sent[0]!.to).toBe("printer@sialkot.test");
+    expect(t.notes[0]).toContain("Sent to Sialkot DTF (printer@sialkot.test)");
+  });
+
+  it("a saved address always wins over a typed one", async () => {
+    const t = deps();
+    await sendToVendor(
+      { o: 1234, v: "mug", e: 9e9 },
+      { ...t.d, to: "someone@else.test" },
+    );
+    expect(t.email.sent[0]!.to).toBe("mugs@vendor.test");
   });
 });
