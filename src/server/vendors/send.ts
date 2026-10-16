@@ -110,15 +110,23 @@ export async function loadSend(
 /** Step 2 (the Send button): email the vendor their lines with the files attached. */
 export async function sendToVendor(
   claims: SendClaims,
-  deps: VendorDeps & { replyTo?: string },
+  deps: VendorDeps & {
+    replyTo?: string;
+    /**
+     * Where to send it when the product has no `vendor_email` in WP admin:
+     * the address typed on the send page. The saved one always wins.
+     */
+    to?: string;
+  },
 ): Promise<{ ok: true; record: SentRecord } | { ok: false; message: string }> {
   const page = await loadSend(claims, deps);
   if (!page.ok) return page;
   const { order, part } = page;
-  if (!part.vendor.email)
+  const to = part.vendor.email ?? deps.to?.trim();
+  if (!to)
     return {
       ok: false,
-      message: `No email address is set for ${part.vendor.name}.`,
+      message: `No email address for ${part.vendor.name}: type one, or add vendor_email to the product in WP admin.`,
     };
 
   const attachments: EmailAttachment[] = [];
@@ -156,7 +164,7 @@ export async function sendToVendor(
 
   const filesAttached = attachments.length > 0 && skipped.length === 0;
   await deps.email.send({
-    to: part.vendor.email,
+    to,
     subject: vendorSubject(order, part),
     text: vendorMessage(order, part, { filesAttached }),
     attachments,
@@ -165,7 +173,7 @@ export async function sendToVendor(
 
   const record: SentRecord = {
     sentAt: new Date(deps.now()).toISOString(),
-    to: part.vendor.email,
+    to,
     attached: attachments.map((a) => a.filename),
   };
   await deps.storage.put(
@@ -175,7 +183,7 @@ export async function sendToVendor(
   );
   await deps.commerce.addOrderNote(
     order.id,
-    `Sent to ${part.vendor.name} (${part.vendor.email}) by email: line(s) ${part.lines
+    `Sent to ${part.vendor.name} (${to}) by email: line(s) ${part.lines
       .map((l) => l.index + 1)
       .join(
         ", ",

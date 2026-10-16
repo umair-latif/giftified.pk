@@ -11,7 +11,7 @@ then update the page that renders it (each entry names the file).
 | What      | Value                                                                      |
 | --------- | -------------------------------------------------------------------------- |
 | WhatsApp  | `+49 15209144535`                                                          |
-| Email     | `designbanana.admin@gmail.com` (for now; move to `@designbanana.pk` later) |
+| Email     | `hello@designbanana.pk` (sends and receives all customer email)            |
 | Instagram | `@designbananapk` → https://instagram.com/designbananapk                   |
 | TikTok    | `@designbananapk` → https://tiktok.com/@designbananapk                     |
 | Facebook  | TODO(founder) — placeholder https://facebook.com until the page exists     |

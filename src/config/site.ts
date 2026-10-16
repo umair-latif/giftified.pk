@@ -26,8 +26,11 @@ export const SITE = {
   whatsapp: "923369005786",
   /** The same number as people read and dial it (footer, Contact, Help). */
   whatsappDisplay: "+92 336 9005786",
-  /** TODO(founder): switch to an address on designbanana.pk once the domain has email. */
-  email: "designbanana.admin@gmail.com",
+  /**
+   * The address customers write to and every customer-facing email is sent
+   * from (Resend sends it, Cloudflare Email Routing forwards replies).
+   */
+  email: "hello@designbanana.pk",
   /** Shown on /contact. Pakistan Standard Time. */
   hours: "7am – 6pm PKT, every day",
   /** Full profile URLs. Empty ones are hidden automatically. */

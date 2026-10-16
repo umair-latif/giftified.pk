@@ -64,9 +64,11 @@ export default async function VendorSendPage({
         ))}
       </ul>
       <p className="text-ink/70 text-sm">
-        To: {part.vendor.email ?? "no email address set"} · the PDF and the
-        print file are attached when they fit (otherwise links). No customer
-        details are sent.
+        {part.vendor.email
+          ? `To: ${part.vendor.email}`
+          : "No address is saved for this vendor — type one below."}{" "}
+        The PDF and the print file are attached when they fit (otherwise links).
+        No customer details are sent.
       </p>
       {sent && (
         <p className="rounded-xl bg-amber-50 px-4 py-3 text-sm text-amber-900">
@@ -83,14 +85,43 @@ export default async function VendorSendPage({
         </summary>
         <pre className="mt-2 font-sans whitespace-pre-wrap">{text}</pre>
       </details>
-      <div className="flex flex-col gap-3 sm:flex-row">
-        {part.vendor.email && (
-          <form action={send}>
-            <button type="submit" className={buttonClass("primary")}>
-              {sent ? "Send again by email" : "Send by email"}
-            </button>
-          </form>
-        )}
+      {q.noemail && (
+        <p
+          role="alert"
+          className="rounded-xl bg-red-50 px-4 py-3 font-semibold text-red-800"
+        >
+          That doesn&rsquo;t look like an email address. Please check it.
+        </p>
+      )}
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
+        <form
+          action={send}
+          className="flex flex-col gap-2 sm:flex-row sm:items-end"
+        >
+          {!part.vendor.email && (
+            <label className="flex flex-col gap-1 text-sm">
+              <span className="font-semibold">
+                Vendor&rsquo;s email address
+              </span>
+              <input
+                type="email"
+                name="to"
+                required
+                autoComplete="email"
+                placeholder="printer@example.com"
+                data-testid="vendor-email"
+                className="border-ink/30 focus-visible:ring-brand-600/30 h-11 rounded-xl border px-3 text-base focus-visible:ring-2 focus-visible:outline-none"
+              />
+              <span className="text-ink/60 text-xs">
+                Used once, for this order. To save it for every order, add{" "}
+                <code>vendor_email</code> to the product in WP admin.
+              </span>
+            </label>
+          )}
+          <button type="submit" className={buttonClass("primary")}>
+            {sent ? "Send again by email" : "Send by email"}
+          </button>
+        </form>
         <a
           href={whatsappUrl(text, part.vendor.whatsapp)}
           className={buttonClass("secondary")}
