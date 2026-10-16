@@ -19,7 +19,7 @@ export function PhotoTips({
   cfg,
   className = "",
 }: {
-  cfg: Pick<ProductConfig, "id" | "printArea">;
+  cfg: Pick<ProductConfig, "id" | "kind" | "printArea">;
   className?: string;
 }) {
   const px = fullPrintPx(cfg).toLocaleString("en-US");
@@ -33,7 +33,7 @@ export function PhotoTips({
       <ul className="text-ink mt-1 list-disc space-y-0.5 pl-5">
         <li>Use the original photo, not a WhatsApp or Instagram copy</li>
         <li>
-          {cfg.id === "mug" ? "For a full mug wrap" : "For the full print"},
+          {cfg.kind === "mug" ? "For a full mug wrap" : "For the full print"},
           about {px} px wide or more
         </li>
         <li>Keep faces and text inside the dashed line</li>

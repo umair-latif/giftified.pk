@@ -185,9 +185,122 @@ const STUDIO = {
  * images (the first one is its main picture): a side view with the handle
  * first, then the front and the other side, then the lifestyle shots.
  */
+/**
+ * Two-Tone Mug (founder's photos, Oct 2026): a white body with a coloured rim,
+ * handle and inside, in red, blue and black. The three studio shots are the
+ * same render in three colours — identical body pixels — so one set of
+ * measurements serves all of them.
+ *
+ * `twotone-left-*` is the supplied photo flipped and `twotone-front-*` has the
+ * handle taken out, both written by `python3 scripts/mockup-twotone.py`.
+ *
+ * This mug's rim and base are ellipses rather than the gentle curve `sag`
+ * models (its rim rises steeply at the silhouette), so each view carries a
+ * measured `outline` and `sag` is only kept for reference.
+ */
+const TWOTONE_STUDIO = {
+  widthPx: 1080,
+  heightPx: 1080,
+  // Same 11oz cup as the Custom Mug; Printful's approximate size, vendor to confirm.
+  geometry: { diameterMm: 83 },
+  mugHeightMm: 96,
+  // Half-heights of the fitted rim and base ellipses (centre vs silhouette).
+  sag: { rim: -19, base: 28 },
+  credit: "Founder (Canva)",
+} as const;
+
+/** Body silhouette on the supplied photo, and on the flipped copy. */
+const TWOTONE_BODY = { left: 259, right: 746, top: 234, bottom: 842 } as const;
+const TWOTONE_BODY_FLIPPED = {
+  left: 333,
+  right: 820,
+  top: 234,
+  bottom: 842,
+} as const;
+
+/** Rim and base edges, fitted to the photo as ellipses (max error ~4 px). */
+const TWOTONE_OUTLINE: Outline = {
+  top: [
+    [259, 253.1],
+    [300, 242.8],
+    [340, 239.2],
+    [381, 236.9],
+    [421, 235.5],
+    [462, 234.7],
+    [502, 234.4],
+    [543, 234.7],
+    [584, 235.5],
+    [624, 236.9],
+    [665, 239.2],
+    [705, 242.8],
+    [746, 253.1],
+  ],
+  bottom: [
+    [259, 813.3],
+    [300, 828.9],
+    [340, 834.3],
+    [381, 837.7],
+    [421, 839.9],
+    [462, 841.1],
+    [502, 841.5],
+    [543, 841.1],
+    [584, 839.9],
+    [624, 837.7],
+    [665, 834.3],
+    [705, 828.9],
+    [746, 813.3],
+  ],
+};
+/** The same edge on the flipped copy of the photo (1080 px wide). */
+const flipX = ([x, y]: Point): Point => [1079 - x, y];
+
+const TWOTONE_OUTLINE_FLIPPED: Outline = {
+  top: TWOTONE_OUTLINE.top.map(flipX).reverse(),
+  bottom: TWOTONE_OUTLINE.bottom.map(flipX).reverse(),
+};
+
+const TWOTONE_COLOURS = ["red", "blue", "black"] as const;
+
+/** Right, front and left for each colour, in preview-tab order. */
+const TWOTONE_SPECS: MockupSpec[] = TWOTONE_COLOURS.flatMap((colour) => [
+  {
+    ...TWOTONE_STUDIO,
+    id: `right-${colour}`,
+    label: "Right",
+    side: "right",
+    colour,
+    src: `/mockups/twotone-right-${colour}.webp`,
+    body: TWOTONE_BODY,
+    outline: TWOTONE_OUTLINE,
+  },
+  {
+    ...TWOTONE_STUDIO,
+    id: `front-${colour}`,
+    label: "Front",
+    // Handle hidden behind the mug (180 deg): the design centre faces us.
+    side: "right",
+    colour,
+    src: `/mockups/twotone-front-${colour}.webp`,
+    body: TWOTONE_BODY,
+    outline: TWOTONE_OUTLINE,
+    geometry: { diameterMm: 83, handleAngleDeg: 180 },
+  },
+  {
+    ...TWOTONE_STUDIO,
+    id: `left-${colour}`,
+    label: "Left",
+    side: "left",
+    colour,
+    src: `/mockups/twotone-left-${colour}.webp`,
+    body: TWOTONE_BODY_FLIPPED,
+    outline: TWOTONE_OUTLINE_FLIPPED,
+  },
+]);
+
 export const MOCKUP_SPECS: Partial<
   Record<ProductId, readonly ProductMockupSpec[]>
 > = {
+  "two-tone-mug": TWOTONE_SPECS,
   mug: [
     {
       ...STUDIO,

@@ -4,7 +4,7 @@ import { isDarkHex } from "../colour-utils";
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { FabricObject } from "fabric";
 import { fontForFamily } from "@/config/fonts";
-import type { ProductConfig } from "@/config/products";
+import { bodyHex, type ProductConfig } from "@/config/products";
 import type {
   CanvasHistory,
   DesignCanvas,
@@ -347,7 +347,7 @@ export function useFabricCanvas(
   }, []);
 
   const textFill = isDarkHex(
-    product.baseColors.find((c) => c.id === colourId)?.hex ?? "#ffffff",
+    bodyHex(product.baseColors.find((c) => c.id === colourId)),
   )
     ? "#ffffff"
     : undefined;
@@ -521,8 +521,10 @@ export function useFabricCanvas(
   const applyCrop = useCallback(
     (rect: NormRect, shape: FrameShape | null) =>
       // Soft shadows are only OK on mugs; apparel prints none (vendors unconfirmed).
-      run((e, dc) => e.applyCrop(dc.canvas, rect, shape, product.id === "mug")),
-    [run, product.id],
+      run((e, dc) =>
+        e.applyCrop(dc.canvas, rect, shape, product.kind === "mug"),
+      ),
+    [run, product.kind],
   );
 
   /** Selects the index-th sample photo, so the next Replace swaps that one. */

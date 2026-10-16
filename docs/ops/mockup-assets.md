@@ -11,6 +11,23 @@ Preview mockups wrap the customer's design around a photo of the product
 | `public/mockups/mug-lifestyle.webp` | Lifestyle: pampas grass, eye level            | Canva  |
 | `public/mockups/mug-flatlay.webp`   | Flat lay on a desk with props, from above     | Canva  |
 
+**Two-Tone Mug** (white body, coloured rim, handle and inside; red, blue, black):
+`twotone-right-<c>.webp`, `twotone-front-<c>.webp`, `twotone-left-<c>.webp`.
+The founder supplied one studio shot per colour with the handle on the right;
+`python3 scripts/mockup-twotone.py <source-dir>` writes all nine — right is the
+photo as supplied, left is it flipped, and front has the handle taken out (the
+handle side is replaced by the mirrored background from the left, and the body
+is desaturated below the rim, where the glossy ceramic reflects the handle).
+The three colours are the same render, so one set of measurements serves all of
+them (`TWOTONE_STUDIO` in `mockup/specs.ts`). Unlike the Custom Mug, this mug's
+rim and base are ellipses rather than the gentle curve `sag` models, so each
+view carries a measured `outline` (fitted, max error ~4 px).
+
+Not built yet: the founder's paired shots (two mugs on a patterned background)
+and the mug on knit fabric. A pair should show the left half of the wrap on the
+left mug and the right half on the right one, which needs the engine to compose
+two mugs in one photo (`MockupSpec` has one `body`).
+
 | `public/mockups/tshirt-front.webp` | T-shirt: the editor background without guides (default / main picture) | Founder-supplied |
 | `public/mockups/hoodie-front.webp` | Hoodie: white, on pink (preview). Print box x 320-725, y 365-662 = 300 x 220 mm | Founder-supplied |
 | `public/mockups/hoodie-studio.webp` + `hoodie-studio-mask.png` | Hoodie: white, studio light (preview, white only). Print box x 328-733, y 305-602; the mask is the box with both drawstrings cut out (traced by hand), so the cords hang over the print | Founder-supplied |

@@ -1,6 +1,7 @@
 "use server";
 
 import { z } from "zod";
+import type { ProductId } from "@/config/products";
 import { getCommerce } from "@/lib/commerce";
 import { priceCart, type CartPricing } from "@/server/checkout/pricing";
 import { MAX_CART_LINES, MAX_LINE_QUANTITY } from "@/types/cart";
@@ -40,7 +41,7 @@ export async function quoteCart(raw: unknown): Promise<CartQuote | null> {
 
 export type CartVariants = Partial<
   Record<
-    "mug" | "tshirt" | "hoodie",
+    ProductId,
     { colourId: string; size?: string; inStock: boolean }[]
   >
 >;

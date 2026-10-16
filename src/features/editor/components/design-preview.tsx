@@ -8,7 +8,7 @@ import { shareFileName } from "../share-mockup";
 import { GalleryArrows } from "@/components/ui/image-gallery";
 import { formatCm } from "@/lib/units";
 import { useSwipe } from "@/components/ui/use-swipe";
-import type { ProductConfig } from "@/config/products";
+import { bodyHex, type ProductConfig } from "@/config/products";
 import {
   printQualityReport,
   type PrintQualityReport,
@@ -82,7 +82,7 @@ export function DesignPreview({
     [product.id, colour?.id],
   );
   const { widthMm, heightMm } = product.printArea;
-  const base = colour?.hex ?? "#ffffff";
+  const base = bodyHex(colour);
 
   useEffect(() => {
     let cancelled = false;

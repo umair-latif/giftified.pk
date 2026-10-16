@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
-import type { ProductConfig } from "@/config/products";
+import { bodyHex, type ProductConfig } from "@/config/products";
 import { formatCm } from "@/lib/units";
 import type { CartItem } from "@/types/cart";
 import { AppHeader } from "@/components/ui/app-header";
@@ -299,9 +299,9 @@ export function DesignEditor({
       {textSheetOpen && ed.selection?.text && (
         <TextEditor
           text={ed.selection.text}
-          background={
-            product.baseColors.find((c) => c.id === colourId)?.hex ?? "#ffffff"
-          }
+          background={bodyHex(
+            product.baseColors.find((c) => c.id === colourId),
+          )}
           onDone={(changes) => {
             ed.applyTextStyle(changes);
             setTextSheetOpen(false);

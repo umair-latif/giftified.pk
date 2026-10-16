@@ -205,6 +205,11 @@ const COLOUR_PHOTOS: Partial<Record<ProductId, Record<string, string>>> = {
     white: "/mockups/mug-front.webp",
     black: "/mockups/mug-front-black.webp",
   },
+  "two-tone-mug": {
+    red: "/mockups/twotone-front-red.webp",
+    blue: "/mockups/twotone-front-blue.webp",
+    black: "/mockups/twotone-front-black.webp",
+  },
   tshirt: {
     white: "/mockups/tshirt-front.webp",
     black: "/mockups/tshirt-front-black.webp",
@@ -217,6 +222,7 @@ const COLOUR_PHOTOS: Partial<Record<ProductId, Record<string, string>>> = {
 
 const NOUN: Record<ProductId, string> = {
   mug: "mug",
+  "two-tone-mug": "mug",
   tshirt: "T-shirt",
   hoodie: "hoodie",
 };

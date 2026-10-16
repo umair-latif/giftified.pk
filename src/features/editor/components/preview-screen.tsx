@@ -5,7 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { AppHeader } from "@/components/ui/app-header";
 import { StepBar } from "@/components/ui/step-bar";
-import type { ProductConfig } from "@/config/products";
+import { bodyHex, type ProductConfig } from "@/config/products";
 import { addDraftToCart, useCart } from "@/features/cart/cart";
 import { SaveDesignButton } from "@/features/saved-designs/components/save-design-button";
 import { SaveTemplateSheet } from "@/features/templates/save-template-sheet";
@@ -61,7 +61,7 @@ export function PreviewScreen({
   const colourId = item?.colourId ?? pickedColour;
   const colour = product.baseColors.find((c) => c.id === colourId);
   const colourName = colour?.name;
-  const colourHex = colour?.hex;
+  const colourHex = bodyHex(colour);
   const editHref = `/design/${product.id}${item ? `?item=${encodeURIComponent(item.id)}` : ""}`;
   const blocked = result?.quality.status === "block";
   // New apparel designs need a size before they can go in the cart.

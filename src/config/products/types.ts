@@ -1,9 +1,16 @@
-export type ProductId = "mug" | "tshirt" | "hoodie";
+export type ProductId = "mug" | "two-tone-mug" | "tshirt" | "hoodie";
 
 export interface BaseColor {
   id: string;
   name: string;
+  /** The swatch the customer picks: the colour that makes this option look different. */
   hex: `#${string}`;
+  /**
+   * The colour the print actually sits on, when it is not `hex`. A Two-Tone
+   * Mug is picked by its rim and handle colour but printed on its white body,
+   * so the editor canvas and the dark-text rule follow this instead.
+   */
+  bodyHex?: `#${string}`;
 }
 
 export interface PrintArea {
@@ -16,6 +23,13 @@ export interface PrintArea {
 
 export interface ProductConfig {
   id: ProductId;
+  /**
+   * How the design is printed: a mug is one full wrap around the body (both
+   * short edges meet at the handle), a garment is a flat rectangle. Decides
+   * the vendor PDF's placement diagram and note, the photo tips, and whether
+   * soft shadows are allowed (vendors print them on mugs, not on DTF cloth).
+   */
+  kind: "mug" | "garment";
   name: string;
   /** Short line shown under the title in the editor. */
   subtitle: string;

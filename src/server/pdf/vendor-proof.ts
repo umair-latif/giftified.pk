@@ -418,7 +418,7 @@ interface DiagramOpts {
 
 /** Returns the bottom y of the diagram. */
 function drawPlacementDiagram(s: Sheet, art: PDFImage, o: DiagramOpts): number {
-  if (o.productId === "mug") {
+  if (getProduct(o.productId)?.kind === "mug") {
     // Unrolled wrap: the artwork IS the whole wrap; both short edges meet at the handle.
     const box = fit(o.aspect, 1, Math.min(o.w - 30, 110), 30);
     const x = o.x + 15;

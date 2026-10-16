@@ -2,7 +2,7 @@ import { EdgeLabels } from "./edge-labels";
 import { SamplePhotoTags } from "./sample-photo-tags";
 import type { Ref } from "react";
 import Image from "next/image";
-import type { ProductConfig } from "@/config/products";
+import { bodyHex, type ProductConfig } from "@/config/products";
 import type { GuideState } from "../engine/guides";
 import type { SamplePhotoTag } from "../engine";
 import type { EditorStatus } from "../hooks/use-fabric-canvas";
@@ -41,7 +41,7 @@ export function EditorStage({
   const { widthMm, heightMm, safeMarginMm } = product.printArea;
   const colour =
     product.baseColors.find((c) => c.id === colourId) ?? product.baseColors[0];
-  const base = colour?.hex ?? "#ffffff";
+  const base = bodyHex(colour);
   const dark = isDarkHex(base);
   const garment = editorGuideFor(product.id);
   const frame = garment ? garmentFrame(garment) : null;
