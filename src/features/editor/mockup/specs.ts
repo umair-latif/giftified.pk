@@ -292,6 +292,64 @@ const TWOTONE_FRONT_OUTLINE: Outline = {
   ],
 };
 
+/**
+ * Red only: the mug held in both hands (founder's photo, Oct 2026). No blue
+ * or black shot was supplied, and recolouring this one would tint the
+ * fingers, which are close to the rim's red.
+ *
+ * Nearly eye level — the rim barely curves (8 px) while the base curves 34 px
+ * — and the hands do not cross the mug's body, so the print sits on clean
+ * ceramic. The base is hidden behind the palm on the left, so its ellipse is
+ * fitted from the visible right-hand side.
+ */
+const TWOTONE_HANDS: MockupSpec = {
+  id: "hands-red",
+  label: "In hands",
+  // The handle is on the left, where the fingers hold it (90 deg = at the silhouette).
+  side: "left",
+  colour: "red",
+  src: "/mockups/twotone-hands-red.webp",
+  widthPx: 1080,
+  heightPx: 1080,
+  body: { left: 368, right: 806, top: 255, bottom: 808 },
+  geometry: { diameterMm: 83, handleAngleDeg: 90 },
+  mugHeightMm: 96,
+  sag: { rim: -8, base: 34 },
+  outline: {
+    top: [
+      [368, 262.4],
+      [404, 258.1],
+      [441, 256.6],
+      [478, 255.7],
+      [514, 255.1],
+      [550, 254.8],
+      [587, 254.7],
+      [624, 254.8],
+      [660, 255.1],
+      [696, 255.7],
+      [733, 256.6],
+      [770, 258.1],
+      [806, 262.4],
+    ],
+    bottom: [
+      [368, 773.8],
+      [404, 792.6],
+      [441, 799.1],
+      [478, 803.2],
+      [514, 805.8],
+      [550, 807.3],
+      [587, 807.8],
+      [624, 807.3],
+      [660, 805.8],
+      [696, 803.2],
+      [733, 799.1],
+      [770, 792.6],
+      [806, 773.8],
+    ],
+  },
+  credit: "Founder (Canva)",
+};
+
 const TWOTONE_COLOURS = ["red", "blue", "black"] as const;
 
 /** Right, front and left for each colour, in preview-tab order. */
@@ -337,6 +395,9 @@ const TWOTONE_SPECS: MockupSpec[] = TWOTONE_COLOURS.flatMap((colour) => [
     sag: { rim: -18, base: 28 },
   },
 ]);
+
+// Lifestyle shots come after the studio views; this one is red only.
+TWOTONE_SPECS.push(TWOTONE_HANDS);
 
 export const MOCKUP_SPECS: Partial<
   Record<ProductId, readonly ProductMockupSpec[]>

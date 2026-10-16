@@ -219,6 +219,10 @@ test("Back closes the text editor (like Cancel) and stays in the designer", asyn
   await openEditorWithText(page);
   await more(page).tap();
   await expect(editor(page)).toBeVisible();
+  // The entry is added on the next tick; pressing Back sooner races it.
+  await expect
+    .poll(() => page.evaluate(() => history.state?.backOverlay ?? null))
+    .not.toBeNull();
 
   await page.goBack();
   await expect(editor(page)).toHaveCount(0);
