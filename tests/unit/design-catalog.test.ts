@@ -16,9 +16,12 @@ const d = (
   id,
   name,
   productId,
-  productName: { mug: "Custom Mug", tshirt: "T-shirt", hoodie: "Hoodie" }[
-    productId
-  ],
+  productName: {
+    mug: "Custom Mug",
+    "two-tone-mug": "Two-Tone Mug",
+    tshirt: "T-shirt",
+    hoodie: "Hoodie",
+  }[productId],
   occasions: occasionsOf({ occasions }),
   occasionLabels: occasions.length ? occasions : ["Everyday"],
   pricePkr,

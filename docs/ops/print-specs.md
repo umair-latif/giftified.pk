@@ -4,11 +4,12 @@ Each product's print specs live in **one file**. Change the numbers there and
 everything else follows: the editor canvas, the safe-zone guide, the DPI checks,
 the preview, and the 300 DPI print files.
 
-| Product    | File                                                             |
-| ---------- | ---------------------------------------------------------------- |
-| Mug (11oz) | `src/config/products/mug.ts`                                     |
-| T-shirt    | `src/config/products/tshirt.ts` (provisional task 27 config)     |
-| Hoodie     | `src/config/products/hoodie.ts` (added when the hoodie launches) |
+| Product             | File                                                                                         |
+| ------------------- | -------------------------------------------------------------------------------------------- |
+| Mug (11oz)          | `src/config/products/mug.ts`                                                                 |
+| Two-Tone Mug (11oz) | `src/config/products/two-tone-mug.ts` (same cup as the mug: coloured rim, handle and inside) |
+| T-shirt             | `src/config/products/tshirt.ts` (provisional task 27 config)                                 |
+| Hoodie              | `src/config/products/hoodie.ts` (added when the hoodie launches)                             |
 
 ## What to ask the vendor, and where it goes
 

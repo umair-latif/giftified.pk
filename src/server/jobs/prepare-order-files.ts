@@ -139,7 +139,7 @@ export async function prepareLine(
           heightMm: doc.printArea.heightMm,
           dpi: file.dpi,
           placement:
-            line.productId === "mug"
+            product?.kind === "mug"
               ? "Full wrap: left and right edges meet at the handle; centre of the file = front of the mug"
               : "Centred on the print area",
           offsetXMm: 0,

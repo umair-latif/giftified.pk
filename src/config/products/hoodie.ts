@@ -7,6 +7,7 @@ import type { ProductConfig } from "./types";
  */
 export const hoodie = {
   id: "hoodie",
+  kind: "garment",
   name: "Custom Hoodie",
   subtitle: "Front chest print · DTF",
   // Founder's marked box on the photo (8 Oct 2026): 30 x 22 cm above the pocket.

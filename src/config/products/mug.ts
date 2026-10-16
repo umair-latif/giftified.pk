@@ -10,6 +10,7 @@ import type { ProductConfig } from "./types";
  */
 export const mug = {
   id: "mug",
+  kind: "mug",
   name: "Custom Mug",
   subtitle: "11oz gloss ceramic, white or black · full wrap",
   printArea: {

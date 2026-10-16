@@ -313,8 +313,10 @@ describe("woo:seed", () => {
     await seedWooCommerce({ ...base, fetch: wc.fetch });
     const after = wc.writes.filter((w) => w.startsWith("POST")).length;
     expect(after).toBe(before);
-    expect(wc.products).toHaveLength(3);
-    expect(wc.variations.get(wc.products[1]!.id as number)).toHaveLength(
+    // Custom Mug, Two-Tone Mug, T-shirt, hoodie.
+    expect(wc.products).toHaveLength(4);
+    const tshirt = wc.products.find((p) => p.sku === TSHIRT.sku)!;
+    expect(wc.variations.get(tshirt.id as number)).toHaveLength(
       TSHIRT.colours.length * TSHIRT.sizes.length,
     );
   });

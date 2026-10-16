@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { buttonClass } from "@/components/ui/button";
 import { useState } from "react";
-import type { BaseColor } from "@/config/products";
+import type { BaseColor, ProductId } from "@/config/products";
 import {
   addTemplateToCart,
   TemplateNeedsPhotoError,
@@ -11,7 +11,7 @@ import {
 
 interface Props {
   templateId: string;
-  productId: "mug" | "tshirt" | "hoodie";
+  productId: ProductId;
   colours: readonly BaseColor[];
   sizes: string[];
   /** Shown when the design is made in one colour of a multi-colour product. */
