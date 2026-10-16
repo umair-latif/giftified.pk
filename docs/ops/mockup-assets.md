@@ -12,21 +12,25 @@ Preview mockups wrap the customer's design around a photo of the product
 | `public/mockups/mug-flatlay.webp`   | Flat lay on a desk with props, from above     | Canva  |
 
 **Two-Tone Mug** (white body, coloured rim, handle and inside; red, blue, black):
-`twotone-right-<c>.webp`, `twotone-front-<c>.webp`, `twotone-left-<c>.webp`.
-The founder supplied one studio shot per colour with the handle on the right;
-`python3 scripts/mockup-twotone.py <source-dir>` writes all nine — right is the
-photo as supplied, left is it flipped, and front has the handle taken out (the
-handle side is replaced by the mirrored background from the left, and the body
-is desaturated below the rim, where the glossy ceramic reflects the handle).
-The three colours are the same render, so one set of measurements serves all of
-them (`TWOTONE_STUDIO` in `mockup/specs.ts`). Unlike the Custom Mug, this mug's
-rim and base are ellipses rather than the gentle curve `sag` models, so each
-view carries a measured `outline` (fitted, max error ~4 px).
+`twotone-right-<c>.webp`, `twotone-front-<c>.webp`, `twotone-left-<c>.webp`, built by
+`python3 scripts/mockup-twotone.py <side-dir> <front-dir>` from the founder's two sets
+(the "Mug Mockup Instagram Story" 6 and 7 zips, Oct 2026 — both number their files from
+the same range, so they stay in separate folders). Right is the side photo as supplied,
+left is it flipped, front is a real photo of the mug with its handle behind it. Within
+each set the three colours are the same shot, so one set of measurements serves all of
+them. Unlike the Custom Mug, this mug's rim and base are ellipses rather than the gentle
+curve `sag` models, so each view carries a measured `outline` fitted to the photo
+within ~2 px; side and front are framed differently and have one each.
 
-Not built yet: the founder's paired shots (two mugs on a patterned background)
-and the mug on knit fabric. A pair should show the left half of the wrap on the
-left mug and the right half on the right one, which needs the engine to compose
-two mugs in one photo (`MockupSpec` has one `body`).
+Supplied but **not built yet** (the file names are recorded in the script):
+
+- _On a knit blanket_, one per colour. The mug lies at about 35°, so its silhouettes are
+  diagonal. The preview reads each photo column as an angle around an **upright** mug, so
+  the model does not fit: the design would shear. Either straighten the photo (which
+  re-frames the shot) or teach the engine a tilted mug.
+- _Held in both hands_, red only. The mug is upright, so this one only needs its rim and
+  base measured by hand — the fingers are the same smooth white as the ceramic, so the
+  automatic keying merges them.
 
 | `public/mockups/tshirt-front.webp` | T-shirt: the editor background without guides (default / main picture) | Founder-supplied |
 | `public/mockups/hoodie-front.webp` | Hoodie: white, on pink (preview). Print box x 320-725, y 365-662 = 300 x 220 mm | Founder-supplied |
