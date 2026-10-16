@@ -24,12 +24,12 @@ export interface CatalogInfo {
  * Card copy for every product, written by hand. A `Record<ProductId, …>`, so a
  * new product does not compile until it has copy here — this list is what the
  * shop shows, and a product missing from it is invisible even though it is in
- * WooCommerce (the Two-Tone Mug, Oct 2026).
+ * WooCommerce (the Dual Accent Mug, Oct 2026).
  */
 const CARD_COPY: Record<ProductId, Omit<CatalogInfo, "productId">> = {
   mug: { name: "Custom Mug", spec: "11oz gloss ceramic · full wrap" },
   "two-tone-mug": {
-    name: "Two-Tone Mug",
+    name: "Dual Accent Mug",
     spec: "11oz gloss ceramic · coloured rim and handle",
   },
   tshirt: { name: "T-shirt", spec: "180–200 GSM combed cotton" },

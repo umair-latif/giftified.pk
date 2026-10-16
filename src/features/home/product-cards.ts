@@ -20,7 +20,7 @@ export interface HomeProductInfo {
 /**
  * A `Record<ProductId, …>`, so a new product does not compile until it has a
  * card here: the home page shows this list, and a product left out of it is
- * invisible even though it is in WooCommerce (the Two-Tone Mug, Oct 2026).
+ * invisible even though it is in WooCommerce (the Dual Accent Mug, Oct 2026).
  */
 const CARDS: Record<ProductId, Omit<HomeProductInfo, "productId">> = {
   mug: {
@@ -29,7 +29,7 @@ const CARDS: Record<ProductId, Omit<HomeProductInfo, "productId">> = {
     image: "/home/mug-placeholder.webp",
   },
   "two-tone-mug": {
-    name: "Two-Tone Mug",
+    name: "Dual Accent Mug",
     note: "11oz gloss ceramic with a red, blue or black rim and handle",
     image: "/home/two-tone-mug-placeholder.webp",
   },

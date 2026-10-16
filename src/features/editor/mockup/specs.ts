@@ -186,7 +186,7 @@ const STUDIO = {
  * first, then the front and the other side, then the lifestyle shots.
  */
 /**
- * Two-Tone Mug (founder's studio photos, Oct 2026): a white body with a
+ * Dual Accent Mug (founder's studio photos, Oct 2026): a white body with a
  * coloured rim, handle and inside, in red, blue and black. Within each set
  * the three colours are the same shot, so one set of measurements serves all
  * of them. `twotone-left-*` is the side photo flipped; everything else is the

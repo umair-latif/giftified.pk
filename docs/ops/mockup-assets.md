@@ -11,7 +11,7 @@ Preview mockups wrap the customer's design around a photo of the product
 | `public/mockups/mug-lifestyle.webp` | Lifestyle: pampas grass, eye level            | Canva  |
 | `public/mockups/mug-flatlay.webp`   | Flat lay on a desk with props, from above     | Canva  |
 
-**Two-Tone Mug** (white body, coloured rim, handle and inside; red, blue, black):
+**Dual Accent Mug** (white body, coloured rim, handle and inside; red, blue, black):
 `twotone-right-<c>.webp`, `twotone-front-<c>.webp`, `twotone-left-<c>.webp`, built by
 `python3 scripts/mockup-twotone.py <side-dir> <front-dir>` from the founder's two sets
 (the "Mug Mockup Instagram Story" 6 and 7 zips, Oct 2026 — both number their files from

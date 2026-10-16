@@ -16,7 +16,7 @@ export const PRODUCTS: Partial<Record<ProductId, ProductConfig>> = {
 };
 
 /**
- * The colour the design is printed on: a Two-Tone Mug is picked by its rim
+ * The colour the design is printed on: a Dual Accent Mug is picked by its rim
  * colour but printed on its white body. Use this for the editor canvas, the
  * preview background and the dark-text rule — not for the swatch itself.
  */

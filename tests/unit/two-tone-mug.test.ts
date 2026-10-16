@@ -18,7 +18,7 @@ import {
 
 const twoTone = getProduct("two-tone-mug")!;
 
-describe("Two-Tone Mug", () => {
+describe("Dual Accent Mug", () => {
   it("is a mug with the same wrap as the Custom Mug", () => {
     expect(twoTone.kind).toBe("mug");
     expect(twoTone.printArea).toEqual(PRODUCTS.mug!.printArea);
@@ -114,7 +114,7 @@ describe("Two-Tone Mug", () => {
 
 describe("the product list is one list", () => {
   it("every product the editor offers is asked for from WooCommerce", () => {
-    // A hand-written copy of this list is how the Two-Tone Mug was invisible
+    // A hand-written copy of this list is how the Dual Accent Mug was invisible
     // in the shop after it was added everywhere else (Oct 2026).
     expect([...PRODUCT_SKUS].sort()).toEqual([...PRODUCT_IDS].sort());
     expect([...editableProductIds()].sort()).toEqual([...PRODUCT_IDS].sort());
