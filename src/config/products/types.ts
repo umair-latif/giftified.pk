@@ -1,4 +1,15 @@
-export type ProductId = "mug" | "two-tone-mug" | "tshirt" | "hoodie";
+/**
+ * Every product id, in catalog order. THE source of truth: `ProductId` is
+ * derived from it, the WooCommerce SKU list is it, and the Zod schemas that
+ * accept a product id use it (`z.enum(PRODUCT_IDS)`).
+ *
+ * Adding a product here is what makes the shop ask WooCommerce for it. Before
+ * this was one list, a new id type-checked everywhere while half a dozen
+ * hand-written lists quietly left it out (the Two-Tone Mug, Oct 2026).
+ */
+export const PRODUCT_IDS = ["mug", "two-tone-mug", "tshirt", "hoodie"] as const;
+
+export type ProductId = (typeof PRODUCT_IDS)[number];
 
 export interface BaseColor {
   id: string;

@@ -1,3 +1,4 @@
+import { PRODUCT_IDS } from "@/config/products";
 import { z } from "zod";
 import { MAX_SAVED_DESIGNS, type SavedDesign } from "./types";
 
@@ -13,7 +14,7 @@ export const SAVED_DESIGN_NAME_MAX = 60;
 
 export const savedDesignSchema = z.object({
   id: z.string().regex(SAFE_ID),
-  productId: z.enum(["mug", "tshirt", "hoodie"]),
+  productId: z.enum(PRODUCT_IDS),
   name: z.string().trim().min(1).max(SAVED_DESIGN_NAME_MAX),
   source: z.enum(["account", "order"]),
   orderId: z.number().int().positive().optional(),

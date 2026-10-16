@@ -1,3 +1,4 @@
+import { PRODUCT_IDS } from "@/config/products";
 import { revalidateTag } from "next/cache";
 import { TEMPLATES_CACHE_TAG } from "@/features/templates/load-templates";
 import { z } from "zod";
@@ -23,7 +24,7 @@ const metaSchema = z.object({
     .regex(/^[A-Za-z0-9][A-Za-z0-9_-]{0,63}$/)
     .optional(),
   name: z.string().min(1).max(80),
-  productId: z.enum(["mug", "tshirt", "hoodie"]),
+  productId: z.enum(PRODUCT_IDS),
   /** The one colour this design is made and sold in; defaults to the product's first. */
   colourId: z.string().min(1).max(40).optional(),
   /** Same artwork in another colour: pass the first design's `groupId`. */

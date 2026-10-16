@@ -71,10 +71,11 @@ const noHoodie = (id: string) => (id === "hoodie" ? null : getProduct(id));
 const hasConfigNoHoodie = (id: string) => noHoodie(id) !== null;
 
 describe("catalog cards", () => {
-  it("lists mug, tee and hoodie; only products with a print config link anywhere", () => {
+  it("lists every product; only those with a print config link anywhere", () => {
     const cards = buildCatalogCards([mug, tee], noHoodie);
     expect(cards.map((c) => [c.productId, c.href])).toEqual([
       ["mug", "/products/custom-mug"],
+      ["two-tone-mug", "/products/two-tone-mug"],
       ["tshirt", "/products/t-shirt"],
       ["hoodie", null],
     ]);
@@ -98,7 +99,9 @@ describe("catalog cards", () => {
   });
 
   it("still shows products when the store is down: config colours, no price, product-id link", () => {
-    const [card, teeCard] = buildCatalogCards([], getProduct);
+    const cards = buildCatalogCards([], getProduct);
+    const card = cards.find((c) => c.productId === "mug");
+    const teeCard = cards.find((c) => c.productId === "tshirt");
     expect(card).toMatchObject({
       href: "/products/mug",
       fromPricePkr: null,

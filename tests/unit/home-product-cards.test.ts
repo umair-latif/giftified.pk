@@ -28,8 +28,16 @@ describe("home product cards", () => {
       catalog,
       (id) => id !== "hoodie" && hasConfig(id),
     );
-    expect(cards.map((c) => c.productId)).toEqual(["mug", "tshirt", "hoodie"]);
-    const [mug, tshirt, hoodie] = cards;
+    expect(cards.map((c) => c.productId)).toEqual([
+      "mug",
+      "two-tone-mug",
+      "tshirt",
+      "hoodie",
+    ]);
+    const byId = (id: string) => cards.find((c) => c.productId === id);
+    const mug = byId("mug");
+    const tshirt = byId("tshirt");
+    const hoodie = byId("hoodie");
     // "From" = the cheapest colour: black (Rs 1000) since Oct 2026.
     expect(mug).toMatchObject({ href: "/products/mug", fromPricePkr: 1000 });
     expect(tshirt).toMatchObject({
@@ -78,7 +86,9 @@ describe("home product cards", () => {
     const withPhoto = product({
       images: [{ src: "https://shop.example/mug.jpg", alt: "Mug" }],
     });
-    const [mug, tshirt] = buildHomeProductCards([withPhoto], hasConfig);
+    const shown = buildHomeProductCards([withPhoto], hasConfig);
+    const mug = shown.find((c) => c.productId === "mug");
+    const tshirt = shown.find((c) => c.productId === "tshirt");
     expect(mug!.image).toBe("https://shop.example/mug.jpg");
     expect(tshirt!.image).toBe("/home/tshirt-placeholder.webp");
     const [noPhoto] = buildHomeProductCards([product()], hasConfig);
