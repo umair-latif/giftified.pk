@@ -37,7 +37,7 @@ test("pages slide forward going deeper, back on the way back; headers stay", asy
   await page.waitForLoadState("networkidle");
 
   await watchTransition(page);
-  await page.getByRole("link", { name: "Start designing" }).tap();
+  await page.getByRole("link", { name: "Start designing", exact: true }).tap();
   await expect(page).toHaveURL(/\/products$/);
   const forward = await seen(page);
   expect(forward.nav).toContain("forward");
@@ -66,7 +66,9 @@ test.describe("reduce motion", () => {
     await page.goto("/");
     await page.waitForLoadState("networkidle");
     await watchTransition(page);
-    await page.getByRole("link", { name: "Start designing" }).tap();
+    await page
+      .getByRole("link", { name: "Start designing", exact: true })
+      .tap();
     await expect(page).toHaveURL(/\/products$/);
     const s = await page.evaluate(() =>
       document

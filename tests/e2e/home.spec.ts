@@ -28,7 +28,10 @@ test("home page: hero, products, sections, no horizontal scroll", async ({
   await expect(page).toHaveTitle("DesignBanana – Kuch khaas banao");
   await expect(page.getByRole("contentinfo")).toContainText("Kuch khaas banao");
 
-  const start = page.getByRole("link", { name: "Start designing" });
+  const start = page.getByRole("link", {
+    name: "Start designing",
+    exact: true,
+  });
   await expect(start).toHaveAttribute("href", "/products");
 
   const mug = page.getByTestId("home-product-mug");
@@ -65,7 +68,7 @@ test("home page: hero, products, sections, no horizontal scroll", async ({
 
 test("Start designing goes to /products", async ({ page }) => {
   await page.goto("/");
-  await page.getByRole("link", { name: "Start designing" }).tap();
+  await page.getByRole("link", { name: "Start designing", exact: true }).tap();
   await expect(page).toHaveURL(/\/products$/);
 });
 

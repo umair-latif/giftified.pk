@@ -95,7 +95,7 @@ test("empty cart and a stale edit link", async ({ page }) => {
   await expect(
     page
       .getByTestId("cart-empty")
-      .getByRole("link", { name: "Start designing" }),
+      .getByRole("link", { name: "Start designing", exact: true }),
   ).toHaveAttribute("href", "/products");
   await page.goto("/design/mug?item=does-not-exist");
   await expect(page.getByTestId("missing-item")).toBeVisible();
