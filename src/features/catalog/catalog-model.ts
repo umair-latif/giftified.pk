@@ -1,4 +1,9 @@
-import type { BaseColor, ProductConfig, ProductId } from "@/config/products";
+import {
+  PRODUCT_IDS,
+  type BaseColor,
+  type ProductConfig,
+  type ProductId,
+} from "@/config/products";
 import type { CatalogImage, CatalogProduct } from "@/lib/commerce/types";
 
 /**
@@ -15,15 +20,27 @@ export interface CatalogInfo {
   spec: string;
 }
 
-export const CATALOG_INFO: readonly CatalogInfo[] = [
-  {
-    productId: "mug",
-    name: "Custom Mug",
-    spec: "11oz gloss ceramic · full wrap",
+/**
+ * Card copy for every product, written by hand. A `Record<ProductId, …>`, so a
+ * new product does not compile until it has copy here — this list is what the
+ * shop shows, and a product missing from it is invisible even though it is in
+ * WooCommerce (the Two-Tone Mug, Oct 2026).
+ */
+const CARD_COPY: Record<ProductId, Omit<CatalogInfo, "productId">> = {
+  mug: { name: "Custom Mug", spec: "11oz gloss ceramic · full wrap" },
+  "two-tone-mug": {
+    name: "Two-Tone Mug",
+    spec: "11oz gloss ceramic · coloured rim and handle",
   },
-  { productId: "tshirt", name: "T-shirt", spec: "180–200 GSM combed cotton" },
-  { productId: "hoodie", name: "Hoodie", spec: "320+ GSM heavy fleece" },
-];
+  tshirt: { name: "T-shirt", spec: "180–200 GSM combed cotton" },
+  hoodie: { name: "Hoodie", spec: "320+ GSM heavy fleece" },
+};
+
+/** The catalog, in `PRODUCT_IDS` order. */
+export const CATALOG_INFO: readonly CatalogInfo[] = PRODUCT_IDS.map((id) => ({
+  productId: id,
+  ...CARD_COPY[id],
+}));
 
 export interface Swatch {
   name: string;

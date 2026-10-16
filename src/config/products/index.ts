@@ -4,6 +4,7 @@ import { twoToneMug } from "./two-tone-mug";
 import { tshirt } from "./tshirt";
 import type { BaseColor, ProductConfig, ProductId } from "./types";
 
+export { PRODUCT_IDS } from "./types";
 export type { BaseColor, PrintArea, ProductConfig, ProductId } from "./types";
 
 /** Products the editor can open. */

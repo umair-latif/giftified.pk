@@ -1,7 +1,15 @@
 import { existsSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
-import { PRODUCTS, bodyHex, getProduct } from "@/config/products";
+import {
+  PRODUCTS,
+  PRODUCT_IDS,
+  bodyHex,
+  editableProductIds,
+  getProduct,
+} from "@/config/products";
+import { PRODUCT_SKUS, isProductId } from "@/lib/commerce/woo-map";
+import { savedDesignSchema } from "@/lib/commerce/saved-designs";
 import {
   MOCKUP_SPECS,
   isGarmentSpec,
@@ -85,6 +93,25 @@ describe("Two-Tone Mug", () => {
       // The left photo is the right one flipped, so its body is mirrored.
       expect(left.body.left).toBe(1079 - right.body.right);
       expect(left.body.right).toBe(1079 - right.body.left);
+    }
+  });
+});
+
+describe("the product list is one list", () => {
+  it("every product the editor offers is asked for from WooCommerce", () => {
+    // A hand-written copy of this list is how the Two-Tone Mug was invisible
+    // in the shop after it was added everywhere else (Oct 2026).
+    expect([...PRODUCT_SKUS].sort()).toEqual([...PRODUCT_IDS].sort());
+    expect([...editableProductIds()].sort()).toEqual([...PRODUCT_IDS].sort());
+    for (const id of PRODUCT_IDS) expect(isProductId(id)).toBe(true);
+    expect(isProductId("design-abc")).toBe(false);
+  });
+
+  it("the schema that takes a product id accepts all of them", () => {
+    for (const id of PRODUCT_IDS) {
+      expect(savedDesignSchema.shape.productId.safeParse(id).success).toBe(
+        true,
+      );
     }
   });
 });

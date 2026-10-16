@@ -59,3 +59,18 @@ test("the editor prints on the white body, not the rim colour", async ({
     path: "test-results/twotone-editor.png",
   });
 });
+
+test("the shop lists the Two-Tone Mug and it opens the editor", async ({
+  page,
+}) => {
+  await page.goto("/products");
+  const card = page.getByRole("link", { name: /Two-Tone Mug/i }).first();
+  await expect(card).toBeVisible();
+  await card.click();
+  await expect(page).toHaveURL(/\/products\/two-tone-mug$/);
+  await expect(
+    page.getByRole("heading", { name: /Two-Tone Mug/i }).first(),
+  ).toBeVisible();
+  await page.getByTestId("start-designing").click();
+  await expect(page).toHaveURL(/\/design\/two-tone-mug/);
+});

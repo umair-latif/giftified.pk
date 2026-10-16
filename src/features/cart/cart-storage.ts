@@ -1,3 +1,4 @@
+import { PRODUCT_IDS } from "@/config/products";
 import { z } from "zod";
 import { MAX_CART_LINES, MAX_LINE_QUANTITY, type CartItem } from "@/types/cart";
 
@@ -11,7 +12,7 @@ const CHANGE_EVENT = "giftified:cart-change";
 
 const itemSchema = z.object({
   id: z.string().min(1).max(64),
-  productId: z.enum(["mug", "tshirt", "hoodie"]),
+  productId: z.enum(PRODUCT_IDS),
   colourId: z.string().min(1).max(40),
   size: z.string().max(10).optional(),
   quantity: z.number().int().min(1).max(MAX_LINE_QUANTITY),

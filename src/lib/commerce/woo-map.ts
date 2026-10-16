@@ -1,4 +1,5 @@
 import {
+  PRODUCT_IDS,
   getProduct as getProductConfig,
   type ProductId,
 } from "@/config/products";
@@ -34,8 +35,12 @@ import type {
  * No network, no env — everything here is unit-tested with recorded fixtures.
  */
 
-/** WC product SKU ↔ our ProductId. The SKU on the parent product is the link. */
-export const PRODUCT_SKUS: readonly ProductId[] = ["mug", "tshirt", "hoodie"];
+/**
+ * WC product SKU ↔ our ProductId: the SKU on the parent product is the link,
+ * and it is exactly the product id. Derived, so a new product is fetched
+ * without touching this file.
+ */
+export const PRODUCT_SKUS: readonly ProductId[] = PRODUCT_IDS;
 
 export const META = {
   checkoutId: "_checkout_id",

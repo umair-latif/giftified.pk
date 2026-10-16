@@ -61,6 +61,32 @@ const CATALOG: CatalogProduct[] = [
     ],
   },
   {
+    productId: "two-tone-mug",
+    wooProductId: 104,
+    slug: "two-tone-mug",
+    images: [],
+    name: "Two-Tone Mug",
+    shortDescription:
+      "11oz gloss ceramic mug with a coloured rim, handle and inside, printed all the way round on the white body.",
+    descriptionHtml:
+      "<p>11oz ceramic mug with a coloured rim, handle and inside.</p><ul><li>Full-wrap print, 228 × 89 mm, on the white body</li><li>Red, blue or black</li><li>Printed in Gujrat and checked before it ships</li></ul>",
+    basePricePkr: 1699,
+    variants: (
+      [
+        ["red", "Red", "#c93940"],
+        ["blue", "Blue", "#2c589f"],
+        ["black", "Black", "#1b1b1b"],
+      ] as const
+    ).map(([colourId, colourName, colourHex], i) => ({
+      colourId,
+      colourName,
+      colourHex,
+      wooVariationId: 1041 + i,
+      pricePkr: 1699,
+      inStock: true,
+    })),
+  },
+  {
     productId: "tshirt",
     wooProductId: 102,
     slug: "tshirt",

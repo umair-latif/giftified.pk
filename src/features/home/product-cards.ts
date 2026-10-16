@@ -1,4 +1,4 @@
-import type { ProductId } from "@/config/products";
+import { PRODUCT_IDS, type ProductId } from "@/config/products";
 import type { CatalogProduct } from "@/lib/commerce/types";
 
 /**
@@ -17,26 +17,37 @@ export interface HomeProductInfo {
   image: string;
 }
 
-export const HOME_PRODUCTS: readonly HomeProductInfo[] = [
-  {
-    productId: "mug",
+/**
+ * A `Record<ProductId, …>`, so a new product does not compile until it has a
+ * card here: the home page shows this list, and a product left out of it is
+ * invisible even though it is in WooCommerce (the Two-Tone Mug, Oct 2026).
+ */
+const CARDS: Record<ProductId, Omit<HomeProductInfo, "productId">> = {
+  mug: {
     name: "Custom Mug",
     note: "11oz gloss ceramic, white or black, printed all the way round",
     image: "/home/mug-placeholder.webp",
   },
-  {
-    productId: "tshirt",
+  "two-tone-mug": {
+    name: "Two-Tone Mug",
+    note: "11oz gloss ceramic with a red, blue or black rim and handle",
+    image: "/home/two-tone-mug-placeholder.webp",
+  },
+  tshirt: {
     name: "T-shirt",
     note: "Soft combed cotton, in white or black",
     image: "/home/tshirt-placeholder.webp",
   },
-  {
-    productId: "hoodie",
+  hoodie: {
     name: "Hoodie",
     note: "Warm, heavy fleece",
     image: "/home/hoodie-placeholder.webp",
   },
-];
+};
+
+export const HOME_PRODUCTS: readonly HomeProductInfo[] = PRODUCT_IDS.map(
+  (id) => ({ productId: id, ...CARDS[id] }),
+);
 
 export interface HomeProductCard extends HomeProductInfo {
   /** `/products/<slug>` when the product can be designed, else null ("Coming soon"). */

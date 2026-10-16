@@ -49,7 +49,7 @@ export function ProductsSection({ cards }: { cards: HomeProductCard[] }) {
         <p className="text-ink mt-1 text-sm">
           Start with a blank product and make it yours.
         </p>
-        <ul className="mt-4 grid gap-3 sm:grid-cols-3">
+        <ul className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           {cards.map((card) => (
             <li
               key={card.productId}

@@ -1,7 +1,7 @@
 "use server";
 
 import { z } from "zod";
-import type { ProductId } from "@/config/products";
+import { PRODUCT_IDS, type ProductId } from "@/config/products";
 import { getCommerce } from "@/lib/commerce";
 import { priceCart, type CartPricing } from "@/server/checkout/pricing";
 import { MAX_CART_LINES, MAX_LINE_QUANTITY } from "@/types/cart";
@@ -14,7 +14,7 @@ const input = z.object({
   lines: z
     .array(
       z.object({
-        productId: z.enum(["mug", "tshirt", "hoodie"]),
+        productId: z.enum(PRODUCT_IDS),
         colourId: z.string().max(40),
         size: z.string().max(10).optional(),
         quantity: z.number().int().min(1).max(MAX_LINE_QUANTITY),
@@ -40,10 +40,7 @@ export async function quoteCart(raw: unknown): Promise<CartQuote | null> {
 }
 
 export type CartVariants = Partial<
-  Record<
-    ProductId,
-    { colourId: string; size?: string; inStock: boolean }[]
-  >
+  Record<ProductId, { colourId: string; size?: string; inStock: boolean }[]>
 >;
 
 /**

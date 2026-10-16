@@ -84,7 +84,12 @@ test("how it works: no 3D promise; ready-made designs, easy customising and inst
   await expect(how).not.toContainText("everyday scenes");
   // Brand rule: the site works on any device, so no "on your phone" copy.
   await expect(page.getByText(/on your phone/i)).toHaveCount(0);
-  await expect(page.getByTestId("home-template")).toHaveCount(0); // none yet
+  // The demo store publishes designs, so the "New designs" shelf shows them
+  // and links on to the full catalog. (It renders nothing when there are none.)
+  expect(await page.getByTestId("home-template").count()).toBeGreaterThan(0);
+  await expect(
+    page.getByRole("link", { name: "See all designs" }),
+  ).toBeVisible();
 });
 
 test("occasions: one featured tile, the rest as chips", async ({ page }) => {

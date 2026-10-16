@@ -1,4 +1,4 @@
-import type { ProductId } from "@/config/products";
+import { PRODUCT_IDS, type ProductId } from "@/config/products";
 import { OCCASION_SLUGS, type OccasionSlug } from "@/server/templates/types";
 
 /** Filters on /designs, from the query string (unknown values are ignored). */
@@ -6,8 +6,6 @@ export interface DesignFilters {
   product?: ProductId;
   occasion?: OccasionSlug;
 }
-
-const PRODUCT_IDS: readonly ProductId[] = ["mug", "tshirt", "hoodie"];
 
 const first = (v: string | string[] | undefined) =>
   Array.isArray(v) ? v[0] : v;
