@@ -20,10 +20,15 @@ export default async function Home() {
   return (
     <main>
       <Hero />
+      {/* The three ways in — by product, by ready-made design, by occasion —
+          run together, then the blocks that explain and reassure. Occasions
+          sits third because the designs are the quickest path to an order
+          (pick one, no designing); in the run-up to a big occasion it is
+          worth moving up (founder, 17 Oct 2026). */}
       <ProductsSection cards={cards} />
       <RecentTemplatesSection templates={templates} />
-      <HowItWorks />
       <Occasions featured={featuredOccasion(new Date())} />
+      <HowItWorks />
       <WhyDesignBanana />
       <HelpBlock />
     </main>

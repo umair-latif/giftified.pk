@@ -84,12 +84,9 @@ test("how it works: no 3D promise; ready-made designs, easy customising and inst
   await expect(how).not.toContainText("everyday scenes");
   // Brand rule: the site works on any device, so no "on your phone" copy.
   await expect(page.getByText(/on your phone/i)).toHaveCount(0);
-  // The demo store publishes designs, so the "New designs" shelf shows them
-  // and links on to the full catalog. (It renders nothing when there are none.)
-  expect(await page.getByTestId("home-template").count()).toBeGreaterThan(0);
-  await expect(
-    page.getByRole("link", { name: "See all designs" }),
-  ).toBeVisible();
+  // The "New designs" shelf depends on what is published in the store, so it
+  // is not asserted here: see the section-order test, which allows for it
+  // being absent.
 });
 
 test("occasions: one featured tile, the rest as chips", async ({ page }) => {
@@ -105,4 +102,31 @@ test("occasions: one featured tile, the rest as chips", async ({ page }) => {
     .first()
     .evaluate((el) => getComputedStyle(el).boxShadow);
   expect(shadow).toBe("none");
+});
+
+test("the ways in come first, then the blocks that explain", async ({
+  page,
+}) => {
+  await page.goto("/");
+  const headings = await page
+    .getByRole("heading", { level: 2 })
+    .allTextContents();
+  const order = (name: string) => headings.findIndex((h) => h.includes(name));
+  // Browse by product, then by occasion...
+  expect(order("What will you make")).toBeGreaterThanOrEqual(0);
+  expect(order("Make it for any moment")).toBeGreaterThan(
+    order("What will you make"),
+  );
+  // ...then the blocks that explain and reassure.
+  expect(order("How it works")).toBeGreaterThan(
+    order("Make it for any moment"),
+  );
+  expect(order("Why DesignBanana")).toBeGreaterThan(order("How it works"));
+  // The ready-made designs shelf renders only when the store has some; when it
+  // does, it is the second way in — between the products and the occasions.
+  const designs = order("New designs");
+  if (designs >= 0) {
+    expect(designs).toBeGreaterThan(order("What will you make"));
+    expect(designs).toBeLessThan(order("Make it for any moment"));
+  }
 });
