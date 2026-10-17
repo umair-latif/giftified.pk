@@ -11,7 +11,7 @@ Preview mockups wrap the customer's design around a photo of the product
 | `public/mockups/mug-lifestyle.webp` | Lifestyle: pampas grass, eye level            | Canva  |
 | `public/mockups/mug-flatlay.webp`   | Flat lay on a desk with props, from above     | Canva  |
 
-**Two-Tone Mug** (white body, coloured rim, handle and inside; red, blue, black):
+**Dual Accent Mug** (white body, coloured rim, handle and inside; red, blue, black):
 `twotone-right-<c>.webp`, `twotone-front-<c>.webp`, `twotone-left-<c>.webp`, built by
 `python3 scripts/mockup-twotone.py <side-dir> <front-dir>` from the founder's two sets
 (the "Mug Mockup Instagram Story" 6 and 7 zips, Oct 2026 — both number their files from
@@ -22,15 +22,20 @@ them. Unlike the Custom Mug, this mug's rim and base are ellipses rather than th
 curve `sag` models, so each view carries a measured `outline` fitted to the photo
 within ~2 px; side and front are framed differently and have one each.
 
+`twotone-hands-red.webp` is the fourth view, **red only**: the mug held in both hands.
+No blue or black shot was supplied, and recolouring this one would tint the fingers,
+which are close to the rim's red (founder, 17 Oct 2026) — so blue and black have three
+views and red has four. It is nearly eye level (the rim curves only 8 px against the
+base's 34) and the hands never cross the body, so the print sits on clean ceramic. Its
+rim was measured from the red band and its base from the right-hand side, because the
+palm hides the base on the left.
+
 Supplied but **not built yet** (the file names are recorded in the script):
 
 - _On a knit blanket_, one per colour. The mug lies at about 35°, so its silhouettes are
   diagonal. The preview reads each photo column as an angle around an **upright** mug, so
   the model does not fit: the design would shear. Either straighten the photo (which
   re-frames the shot) or teach the engine a tilted mug.
-- _Held in both hands_, red only. The mug is upright, so this one only needs its rim and
-  base measured by hand — the fingers are the same smooth white as the ceramic, so the
-  automatic keying merges them.
 
 | `public/mockups/tshirt-front.webp` | T-shirt: the editor background without guides (default / main picture) | Founder-supplied |
 | `public/mockups/hoodie-front.webp` | Hoodie: white, on pink (preview). Print box x 320-725, y 365-662 = 300 x 220 mm | Founder-supplied |

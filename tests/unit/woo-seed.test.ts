@@ -313,7 +313,7 @@ describe("woo:seed", () => {
     await seedWooCommerce({ ...base, fetch: wc.fetch });
     const after = wc.writes.filter((w) => w.startsWith("POST")).length;
     expect(after).toBe(before);
-    // Custom Mug, Two-Tone Mug, T-shirt, hoodie.
+    // Custom Mug, Dual Accent Mug, T-shirt, hoodie.
     expect(wc.products).toHaveLength(4);
     const tshirt = wc.products.find((p) => p.sku === TSHIRT.sku)!;
     expect(wc.variations.get(tshirt.id as number)).toHaveLength(

@@ -5,7 +5,7 @@
  *
  * Adding a product here is what makes the shop ask WooCommerce for it. Before
  * this was one list, a new id type-checked everywhere while half a dozen
- * hand-written lists quietly left it out (the Two-Tone Mug, Oct 2026).
+ * hand-written lists quietly left it out (the Dual Accent Mug, Oct 2026).
  */
 export const PRODUCT_IDS = ["mug", "two-tone-mug", "tshirt", "hoodie"] as const;
 
@@ -17,7 +17,7 @@ export interface BaseColor {
   /** The swatch the customer picks: the colour that makes this option look different. */
   hex: `#${string}`;
   /**
-   * The colour the print actually sits on, when it is not `hex`. A Two-Tone
+   * The colour the print actually sits on, when it is not `hex`. A Dual Accent
    * Mug is picked by its rim and handle colour but printed on its white body,
    * so the editor canvas and the dark-text rule follow this instead.
    */

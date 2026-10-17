@@ -29,13 +29,13 @@ export const MUG = {
 } as const;
 
 /**
- * Two-Tone Mug: the same 11oz cup with a coloured rim, handle and inside
+ * Dual Accent Mug: the same 11oz cup with a coloured rim, handle and inside
  * (founder's photos, Oct 2026). One variation per colour. Price is a
  * PLACEHOLDER until the vendor confirms it; change it in WP admin, not here.
  */
 export const TWO_TONE_MUG = {
   sku: "two-tone-mug",
-  name: "Two-Tone Mug",
+  name: "Dual Accent Mug",
   colours: [
     { name: "Red", pricePkr: 1699 },
     { name: "Blue", pricePkr: 1699 },
@@ -212,7 +212,7 @@ export async function seedWooCommerce(cfg: SeedConfig): Promise<void> {
   }
 
   // 3b. Mugs: variable products with the global Colour attribute and one
-  //     variation per colour (Custom Mug: White/Black; Two-Tone: Red/Blue/Black).
+  //     variation per colour (Custom Mug: White/Black; Dual Accent: Red/Blue/Black).
   for (const M of [MUG, TWO_TONE_MUG] as const) {
     const mugColours = M.colours.map((c) => c.name);
     const existing = await call<Json[]>("GET", `/products?sku=${M.sku}`);
