@@ -12,10 +12,12 @@ test("home page: hero, products, sections, no horizontal scroll", async ({
       name: "Design it yourself. See it before you buy.",
     }),
   ).toBeVisible();
-  // Trust strip under the hero.
-  await expect(page.getByTestId("hero-trust")).toHaveText(
-    /Cash on delivery.*Arrives in 6–10 days.*Free reprint if misprinted/,
-  );
+  // The hero carries the heading, the lead and the two actions — nothing else.
+  // The promises live in "Why DesignBanana" (checked below), not in a strip.
+  await expect(page.getByTestId("hero-trust")).toHaveCount(0);
+  await expect(
+    page.getByRole("region", { name: "Why DesignBanana" }),
+  ).toContainText("Cash on delivery everywhere in Pakistan");
   // Help block with the number as text.
   await expect(
     page

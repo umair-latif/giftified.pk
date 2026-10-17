@@ -2,15 +2,18 @@ import Image from "next/image";
 import Link from "next/link";
 import { buttonClass } from "@/components/ui/button";
 import { Container } from "@/components/ui/page";
-import { SITE } from "@/config/site";
-import { DELIVERY_DAYS } from "@/lib/delivery";
 
 /**
  * Founder's Canva picture: the shop on a phone, then the three numbered steps
  * (designer → preview → delivered mug). 1600×1000 WebP, ≤ 100 KB.
  * Change the file name when replacing it, so cached copies don't linger.
+ *
+ * The tagline is lettered here in lowercase: in artwork it is drawn like the
+ * wordmark, not written as a sentence (docs/brand.md). It is the only place
+ * the tagline appears in the hero — the pill above the heading was removed on
+ * 18 Oct 2026 because it said the same words twice on one screen.
  */
-const HERO_IMAGE = "/home/hero-steps-v4.webp";
+const HERO_IMAGE = "/home/hero-steps-v5.webp";
 
 export function Hero() {
   return (
@@ -20,16 +23,12 @@ export function Hero() {
         className="md:grid md:grid-cols-2 md:items-center md:gap-10"
       >
         <div>
-          <p className="border-ink text-ink mb-3 w-fit rounded-full border-2 bg-white px-3 py-0.5 text-sm font-semibold">
-            {SITE.tagline}
-          </p>
           <h1 className="type-display text-ink">
             Design it yourself. See it before you buy.
           </h1>
           <p className="text-ink mt-3 text-base">
-            Add your photos, a name or a message to a mug, T-shirt or hoodie.
-            The preview shows it on the product from every side, so you know
-            exactly what you&apos;ll get.
+            Add your favourite photos, names or quotes to custom mugs, T-shirts
+            and hoodies. See a live preview of your item right on screen.
           </p>
           <div className="mt-5 flex flex-wrap items-center gap-x-5 gap-y-3">
             <Link href="/products" className={buttonClass("primary")}>
@@ -42,23 +41,6 @@ export function Hero() {
               How it works
             </a>
           </div>
-          <ul
-            className="text-ink mt-5 flex flex-wrap gap-x-4 gap-y-1 text-sm font-semibold"
-            aria-label="Why order here"
-            data-testid="hero-trust"
-          >
-            <li>Cash on delivery</li>
-            <li aria-hidden className="max-sm:hidden">
-              ·
-            </li>
-            <li>
-              Arrives in {DELIVERY_DAYS.min}–{DELIVERY_DAYS.max} days
-            </li>
-            <li aria-hidden className="max-sm:hidden">
-              ·
-            </li>
-            <li>Free reprint if misprinted</li>
-          </ul>
         </div>
         <Image
           src={HERO_IMAGE}
