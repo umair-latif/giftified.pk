@@ -1,14 +1,18 @@
 import { Container } from "@/components/ui/page";
+import { DELIVERY_DAYS } from "@/lib/delivery";
 
 /**
  * Promises shown on the home page. Edit here only — keep every line true.
  */
 export const WHY_DESIGNBANANA: readonly string[] = [
+  "Design it yourself in minutes, right from your phone, with no design skills needed",
+  "See an instant preview of your design on the product, from every side",
+  "Or start from a ready-made design and make it yours",
+  "Sharp, clear prints, made from your original photos",
   "Cash on delivery everywhere in Pakistan",
   "We contact you to confirm before anything is printed",
-  "Printed in 1–3 days, then delivered in 5–7 more",
-  "Sharp, clear prints, made from your original photos",
-  "Printing fault or damaged on arrival? Tell us within 48 hours and we'll put it right",
+  `At your door in ${DELIVERY_DAYS.min}–${DELIVERY_DAYS.max} days`,
+  "Printing fault or damaged on arrival? Tell us within 48 hours and we’ll put it right",
 ];
 
 export function WhyDesignBanana() {
