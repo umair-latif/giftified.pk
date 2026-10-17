@@ -6,11 +6,11 @@ import { SITE } from "@/config/site";
 import { DELIVERY_DAYS } from "@/lib/delivery";
 
 /**
- * Founder's Canva picture (designer → preview → delivered box), with the
- * browser bars removed and the step labels added. 1600×1000 WebP, ≤ 100 KB.
+ * Founder's Canva picture: the shop on a phone, then the three numbered steps
+ * (designer → preview → delivered mug). 1600×1000 WebP, ≤ 100 KB.
  * Change the file name when replacing it, so cached copies don't linger.
  */
-const HERO_IMAGE = "/home/hero-steps-v3.webp";
+const HERO_IMAGE = "/home/hero-steps-v4.webp";
 
 export function Hero() {
   return (
@@ -62,7 +62,7 @@ export function Hero() {
         </div>
         <Image
           src={HERO_IMAGE}
-          alt="How it works: pick a mug in the DesignBanana shop on a phone, design it with your photo and words, see the preview, and get the printed mug delivered in its box"
+          alt="Kuch khaas banao: the DesignBanana shop on a phone, then the three steps — 1 Design a mug with your photo and words, 2 Preview it from every side, 3 Order and get the printed mug delivered"
           width={1600}
           height={1000}
           preload
