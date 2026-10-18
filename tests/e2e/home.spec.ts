@@ -18,6 +18,12 @@ test("home page: hero, products, sections, no horizontal scroll", async ({
   await expect(
     page.getByRole("region", { name: "Why DesignBanana" }),
   ).toContainText("Cash on delivery everywhere in Pakistan");
+  // The featured occasion tile carries its artwork and no order-by date.
+  const occasion = page.getByTestId("featured-occasion");
+  await expect(occasion).toHaveAttribute("href", /\/occasions\//);
+  await expect(occasion).not.toContainText("Order by");
+  await expect(occasion.locator("img")).toHaveAttribute("alt", "");
+
   // Help block with the number as text.
   await expect(
     page
