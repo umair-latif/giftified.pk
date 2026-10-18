@@ -16,6 +16,7 @@ import type {
   CommerceClient,
   Customer,
   RetentionOrder,
+  Review,
   VerifiedWebhook,
   WebhookVerification,
   DesignProduct,
@@ -128,6 +129,8 @@ export interface MockCommerce extends CommerceClient {
   /** Test/demo helper: the way the founder creates a coupon in WP admin. */
   addCoupon(coupon: Partial<Coupon> & Pick<Coupon, "code">): void;
   categoryIdFor(name: string): number;
+  /** Test/demo helper: the way the founder approves a held review in WP admin. */
+  approveReview(id: number): void;
   /** Sets order meta, e.g. `_retain_for_review` the way the founder does in WP admin. */
   setOrderMeta(id: OrderId, key: string, value: string): void;
 }
@@ -151,6 +154,9 @@ export function createMockCommerce(
   const customers = new Map<number, Customer & { password: string }>();
   const savedDesigns = new Map<number, SavedDesign[]>();
   let nextCustomerId = 500;
+  // Reviews (task 30): `approved` mirrors WooCommerce's hold → approved.
+  const reviews = new Map<number, Review & { approved: boolean }>();
+  let nextReviewId = 1;
   let clock = Date.parse("2026-01-01T00:00:00Z");
   const publicCustomer = (c: Customer & { password: string }): Customer => ({
     id: c.id,
@@ -478,6 +484,30 @@ export function createMockCommerce(
     },
     async addOrderNote() {
       /* notes are not kept in the mock */
+    },
+    async listReviews(wooProductId) {
+      return [...reviews.values()]
+        .filter((r) => r.approved && r.wooProductId === wooProductId)
+        .sort((a, b) => b.id - a.id)
+        .map(({ approved: _approved, ...r }) => r);
+    },
+    async createReview(input) {
+      const review: Review = {
+        id: nextReviewId++,
+        wooProductId: input.wooProductId,
+        rating: input.rating,
+        text: input.text,
+        reviewer: input.reviewer,
+        verified: true,
+        createdAt: new Date(now()).toISOString(),
+      };
+      reviews.set(review.id, { ...review, approved: false });
+      return review;
+    },
+    approveReview(id) {
+      const r = reviews.get(id);
+      if (!r) throw new Error(`Review ${id} not found`);
+      r.approved = true;
     },
     async getNewOrderRecipient() {
       return null;

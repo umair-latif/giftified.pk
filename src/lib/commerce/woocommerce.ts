@@ -26,6 +26,7 @@ import {
   isProductId,
   findVariant,
   mapCoupon,
+  mapReview,
   mapOrder,
   mapProduct,
   mapRetentionOrder,
@@ -42,6 +43,7 @@ import {
   wooAttributeTermSchema,
   wooCategorySchema,
   wooCouponSchema,
+  wooReviewSchema,
   wooCustomerSchema,
   wooOrderSchema,
   wooProductSchema,
@@ -102,6 +104,8 @@ export class WooCommerceError extends Error {
  * seconds. Prices are re-checked by WC on every order anyway.
  */
 export const CATALOG_CACHE_TAG = "catalog";
+/** Approved reviews change rarely; the founder approves them by hand. */
+const REVIEWS_CACHE = { revalidate: 600, tags: ["reviews"] };
 const CATALOG_CACHE = { revalidate: 3600, tags: [CATALOG_CACHE_TAG] };
 const SHIPPING_TTL_MS = 10 * 60 * 1000;
 /** How far back createOrder looks for an order with the same checkoutId. */
@@ -990,6 +994,36 @@ export function createWooCommerceClient(config: WooConfig): CommerceClient {
       await request("POST", `/orders/${id}/notes`, {
         body: { note, customer_note: false },
       });
+    },
+
+    async listReviews(wooProductId) {
+      const found = await getAll("/products/reviews", wooReviewSchema, {
+        query: {
+          product: wooProductId,
+          status: "approved",
+          orderby: "date_gmt",
+          order: "desc",
+        },
+        ...REVIEWS_CACHE,
+      });
+      return found.map(mapReview);
+    },
+
+    async createReview(input) {
+      const { json } = await request("POST", "/products/reviews", {
+        body: {
+          product_id: input.wooProductId,
+          review: input.text,
+          rating: input.rating,
+          reviewer: input.reviewer,
+          reviewer_email: input.reviewerEmail,
+          status: "hold",
+          // WooCommerce accepts this flag from the API (checked on staging);
+          // the caller has already checked the buyer.
+          verified: true,
+        },
+      });
+      return mapReview(wooReviewSchema.parse(json));
     },
 
     async getNewOrderRecipient() {

@@ -183,11 +183,13 @@ export function resolveSlug(
 export function productJsonLd(
   product: CatalogProduct,
   url: string,
+  aggregateRating?: Record<string, unknown>,
 ): Record<string, unknown> {
   return {
     "@context": "https://schema.org",
     "@type": "Product",
     name: product.name,
+    ...(aggregateRating ? { aggregateRating } : {}),
     sku: product.productId,
     url,
     ...(product.shortDescription

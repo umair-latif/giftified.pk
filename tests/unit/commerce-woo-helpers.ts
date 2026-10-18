@@ -27,6 +27,7 @@ type Json = Record<string, unknown>;
 export function fakeWoo() {
   const calls: WooCall[] = [];
   const orders = new Map<number, Json>();
+  const reviews: Json[] = [];
   let nextId = 5200;
   const products = wooFixture<Json[]>("products");
   const zoneMethods = wooFixture<Record<string, unknown[]>>(
@@ -127,6 +128,32 @@ export function fakeWoo() {
       }
       return ok(o);
     }
+    if (path === "/products/reviews") {
+      if (method === "POST") {
+        const b = body as Json;
+        const review = {
+          id: 151,
+          date_created_gmt: "2026-10-18T22:00:01",
+          product_id: b.product_id,
+          status: b.status,
+          reviewer: b.reviewer,
+          // WooCommerce returns the text wrapped in HTML.
+          review: `<p>${String(b.review)}</p>`,
+          rating: b.rating,
+          verified: b.verified,
+        };
+        reviews.push(review);
+        return Response.json(review, { status: 201 });
+      }
+      const wanted = url.searchParams.get("status");
+      return ok(
+        reviews.filter(
+          (r) =>
+            String(r.product_id) === url.searchParams.get("product") &&
+            (!wanted || r.status === wanted),
+        ),
+      );
+    }
     if (method === "POST" && (m = path.match(/^\/orders\/(\d+)\/notes$/)))
       return Response.json(
         { id: 1, note: (body as Json).note },
@@ -136,5 +163,11 @@ export function fakeWoo() {
     return Response.json({ code: "rest_no_route" }, { status: 404 });
   };
 
-  return { fetch: fetchFn as typeof fetch, calls, orders, seedOrder };
+  return {
+    fetch: fetchFn as typeof fetch,
+    calls,
+    orders,
+    reviews,
+    seedOrder,
+  };
 }

@@ -29,6 +29,12 @@ import { formatPkr } from "@/features/checkout/format";
 import { appBaseUrl } from "@/server/files/links";
 import { Container } from "@/components/ui/page";
 import { ProductDesignsShelf } from "@/features/templates/components/product-designs-shelf";
+import { ReviewsSection } from "@/features/reviews/components/reviews-section";
+import { loadReviews } from "@/features/reviews/load-reviews";
+import {
+  aggregateRatingJsonLd,
+  summariseReviews,
+} from "@/features/reviews/review-model";
 import { loadTemplates } from "@/features/templates/load-templates";
 
 export const revalidate = 3600;
@@ -91,6 +97,8 @@ export default async function ProductPage({
   const rates = await loadDeliveryRates();
   const url = `${appBaseUrl()}/products/${product?.slug ?? productId}`;
   const top = rates ? maxFee(rates) : null;
+  const reviews = product ? await loadReviews(product.wooProductId) : [];
+  const reviewSummary = summariseReviews(reviews);
 
   return (
     <main>
@@ -99,7 +107,15 @@ export default async function ProductPage({
           <script
             type="application/ld+json"
             dangerouslySetInnerHTML={{
-              __html: jsonLdScript(productJsonLd(product, url)),
+              __html: jsonLdScript(
+                productJsonLd(
+                  product,
+                  url,
+                  reviewSummary
+                    ? aggregateRatingJsonLd(reviewSummary)
+                    : undefined,
+                ),
+              ),
             }}
           />
         )}
@@ -237,6 +253,7 @@ export default async function ProductPage({
               </Link>
             </p>
           </Disclosure>
+          <ReviewsSection reviews={reviews} />
         </div>
       </Container>
       {/* Full-width shelf, the same as the home page's "New designs". */}

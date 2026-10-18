@@ -196,3 +196,16 @@ export const wooCategorySchema = z.object({
   slug: z.string().default(""),
   name: z.string().default(""),
 });
+
+/** A product review (`/products/reviews`); `review` arrives as HTML. */
+export const wooReviewSchema = z.object({
+  id: z.number(),
+  product_id: z.number(),
+  date_created_gmt: z.string(),
+  status: z.string().default("approved"),
+  reviewer: z.string().default(""),
+  review: z.string().default(""),
+  rating: z.number().default(0),
+  verified: z.boolean().default(false),
+});
+export type WooReview = z.infer<typeof wooReviewSchema>;
