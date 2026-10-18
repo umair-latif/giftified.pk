@@ -4,9 +4,9 @@ Artwork for `PromoCard` (`src/components/ui/promo-card.tsx`): a tappable card
 with the picture on the right and the words on the left. Files live in
 `public/banners/`.
 
-| File                                    | Where it shows                              | Card colour       |
-| --------------------------------------- | ------------------------------------------- | ----------------- |
-| `public/banners/occasion-birthday.webp` | Home, the featured occasion tile (birthday) | `brand` (teal)    |
+| File                                    | Where it shows                              | Card colour     |
+| --------------------------------------- | ------------------------------------------- | --------------- |
+| `public/banners/occasion-birthday.webp` | Home, the featured occasion tile (birthday) | `brand` (teal)  |
 | `public/banners/designs-mugs.webp`      | `/products`, under the product grid         | `action` (yellow) |
 
 Both drawn by the founder in Canva, Oct 2026.
