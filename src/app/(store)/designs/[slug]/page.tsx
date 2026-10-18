@@ -11,6 +11,12 @@ import { loadCatalog } from "@/features/catalog/load-catalog";
 import { loadDeliveryRates } from "@/features/catalog/load-rates";
 import { DesignGallery } from "@/features/templates/components/design-gallery";
 import { DesignBuyBox } from "@/features/templates/components/design-buy-box";
+import { ReviewsSection } from "@/features/reviews/components/reviews-section";
+import { loadReviews } from "@/features/reviews/load-reviews";
+import {
+  aggregateRatingJsonLd,
+  summariseReviews,
+} from "@/features/reviews/review-model";
 import { loadTemplates } from "@/features/templates/load-templates";
 import { getCommerce } from "@/lib/commerce";
 import { printQualityReport } from "@/lib/print-quality";
@@ -70,10 +76,15 @@ export default async function DesignProductPage({
     : meta.hasThumbnail
       ? `/api/templates/${tid}/thumbnail`
       : null;
+  const reviews = await loadReviews(info.wooProductId);
+  const reviewSummary = summariseReviews(reviews);
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "Product",
     name: info.name,
+    ...(reviewSummary
+      ? { aggregateRating: aggregateRatingJsonLd(reviewSummary) }
+      : {}),
     ...(image ? { image: `${appBaseUrl()}${image}` } : {}),
     offers: {
       "@type": "Offer",
@@ -157,6 +168,9 @@ export default async function DesignProductPage({
       </div>
 
       <ProductDetails cfg={cfg} className="mt-6" />
+      <div className="mt-6">
+        <ReviewsSection reviews={reviews} />
+      </div>
     </Page>
   );
 }
