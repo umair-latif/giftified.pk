@@ -19,14 +19,22 @@ Status: decided in brainstorm (18 Oct 2026), not built. Task brief and status-bo
   `AggregateRating`. **Hidden until a product has real approved reviews** (no fake or empty states).
 - **Per product, not per design:** designs are unique; the review is about the product, print quality, delivery.
 
-## To verify on the staging store before building
+## Verified on staging (18 Oct 2026)
 
-1. Whether `POST /products/reviews` accepts custom meta. If not, keep the photo URL under
-   `orders/<id>/reviews/…` in R2, map it to the review ourselves, and add it to the review text or an order
-   note so the founder sees it when moderating.
-2. Whether the API can set `verified`. If not, "verified" is enforced by us: the form is reachable only via the
-   signed link of a completed order, once per order line.
-3. Reviews attach to the parent product, not the variant; that is fine for display.
+`POST /products/reviews` with `status: hold`, `verified: true` and `meta_data`:
+
+- **`verified` is accepted.** It came back `true` for an email that never bought anything, so the API lets us set
+  it. We still only allow the form through the signed link of a `completed` order, once per order line.
+- **Custom meta is not supported.** The review response has no `meta_data`, so a photo URL cannot live on the
+  review. Photos are kept by us instead (below).
+- Reviews attach to the parent product, not the variant; fine for display.
+
+## Photos (fallback design)
+
+- Upload phone → R2 by presigned PUT; key `orders/<id>/reviews/<reviewId>` (the mapping is ours).
+- While the review is on hold, the handler appends `[photo: <signed link>]` to the review text so the founder
+  sees it in WP admin when moderating. We strip that line when displaying.
+- The product page shows the photo only for approved reviews.
 
 ## Build outline (small PRs)
 
