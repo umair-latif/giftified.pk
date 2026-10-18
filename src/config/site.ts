@@ -18,8 +18,11 @@ export const SITE = {
    */
   preview: isPreviewSite(),
   /**
-   * The one tagline (brand decision, 8 Oct 2026): sentence case, "khaas" with a
-   * double a, no exclamation mark. Browser title, hero label, footer next to the logo.
+   * The tagline as TEXT (brand decision, 8 Oct 2026): sentence case, "khaas"
+   * with a double a, no exclamation mark. Browser title, footer next to the logo.
+   * Inside artwork it is lettered in lowercase instead ("kuch khaas banao"),
+   * like the wordmark (docs/brand.md). Never both forms on one screen — which
+   * is why the hero's pill went when the picture started carrying the words.
    */
   tagline: "Kuch khaas banao",
   /** E.164 without "+", for https://wa.me/<number>. Empty = hide WhatsApp links. */

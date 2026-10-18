@@ -44,10 +44,21 @@ Editor/print fonts are a separate list (`src/config/fonts.ts`).
 with the SVG when it arrives.
 
 **Name and tagline:** **DesignBanana** (one word, two capitals) and the tagline **Kuch khaas banao**
-(sentence case, "khaas" with a double a, no exclamation mark), kept in `SITE.tagline`. Browser title on
+("khaas" with a double a, never an exclamation mark), kept in `SITE.tagline`. Browser title on
 the home page: `DesignBanana – Kuch khaas banao`; other pages: `<Page> · DesignBanana`. The tagline also
-sits under the logo in the footer and as the label above the home headline. No English tagline, and no
+sits under the logo in the footer. No English tagline, and no
 "on your phone" in copy: the site is phone-first but works on any device.
+
+The tagline is **set two ways** (founder, 18 Oct 2026), because it does two jobs:
+
+- **As text** — footer, browser title, body copy: **sentence case**, `Kuch khaas banao`. It sits
+  among other sentences, where lowercase reads as a mistake. This is `SITE.tagline`.
+- **As lettering** — drawn inside artwork in the display face, like the wordmark:
+  **all lowercase**, `kuch khaas banao`. The logo is lowercase, so lowercase lettering reads as its
+  sibling. All caps is never used: in a rounded display face it shouts and fights the wordmark.
+
+Never both on one screen. The hero shows the lettering in the picture, so the pill that repeated
+the words above the headline was removed.
 
 **Shape:** radius 16 px (`rounded-2xl`) for cards, buttons, panels; 12 px (`rounded-xl`) for inputs,
 selects and image tiles inside cards; `rounded-full` for chips, filters, badges. Nothing else.
