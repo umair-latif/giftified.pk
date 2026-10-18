@@ -161,6 +161,38 @@ export interface NewCustomer {
   password: string;
 }
 
+/**
+ * A customer review of a product (task 30), a WooCommerce product review.
+ * `text` is plain text exactly as stored (it may carry the photo line the
+ * review form appends while the review is on hold; `features/reviews` handles
+ * that). No email or other private data is kept here: it is shown on pages.
+ */
+export interface Review {
+  id: number;
+  /** WooCommerce parent product ID the review is filed under. */
+  wooProductId: number;
+  /** 1–5. */
+  rating: number;
+  text: string;
+  /** First name or the name the customer typed. */
+  reviewer: string;
+  /** Bought the product (set by us, from a completed order). */
+  verified: boolean;
+  /** ISO 8601, UTC. */
+  createdAt: string;
+}
+
+export interface NewReview {
+  wooProductId: number;
+  /** Integer 1–5. */
+  rating: number;
+  /** Plain text, 1–2000 characters. */
+  text: string;
+  reviewer: string;
+  /** WooCommerce requires one; it is never shown or returned. */
+  reviewerEmail: string;
+}
+
 export type WebhookTopic = "order.created" | "order.updated";
 
 export interface VerifiedWebhook {
@@ -348,6 +380,19 @@ export interface CommerceClient {
   listOrdersForRetention(page: number): Promise<RetentionOrderPage>;
   /** Sets order meta `_retention_done` = `doneAt` (ISO 8601). */
   markRetentionDone(id: OrderId, doneAt: string): Promise<void>;
+
+  // Reviews (task 30).
+  /**
+   * APPROVED reviews of a product, newest first. Held (unapproved) reviews
+   * are never returned. Cached like the catalog.
+   */
+  listReviews(wooProductId: number): Promise<Review[]>;
+  /**
+   * Files a review as VERIFIED and on HOLD: nothing shows until the founder
+   * approves it in WP admin. The caller checks the buyer (completed order,
+   * one review per order line); WooCommerce cannot.
+   */
+  createReview(input: NewReview): Promise<Review>;
 
   /**
    * Verifies `X-WC-Webhook-Signature` (base64 HMAC-SHA256 of the RAW body)

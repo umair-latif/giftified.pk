@@ -395,3 +395,54 @@ describe("wooConfigFromEnv", () => {
     );
   });
 });
+
+describe("WooCommerce client — reviews (task 30)", () => {
+  it("files a review as verified and on hold, and maps it to plain text", async () => {
+    const review = await client().createReview({
+      wooProductId: 148,
+      rating: 5,
+      text: "Lovely mug",
+      reviewer: "Ayesha",
+      reviewerEmail: "a@example.com",
+    });
+    const call = woo.calls.find(
+      (c) => c.method === "POST" && c.path === "/products/reviews",
+    )!;
+    expect(call.body).toMatchObject({
+      product_id: 148,
+      status: "hold",
+      verified: true,
+      reviewer_email: "a@example.com",
+    });
+    expect(review).toEqual({
+      id: 151,
+      wooProductId: 148,
+      rating: 5,
+      text: "Lovely mug",
+      reviewer: "Ayesha",
+      verified: true,
+      createdAt: "2026-10-18T22:00:01Z",
+    });
+    expect(JSON.stringify(review)).not.toContain("a@example.com");
+  });
+
+  it("lists only approved reviews, cached", async () => {
+    await client().createReview({
+      wooProductId: 148,
+      rating: 4,
+      text: "Held",
+      reviewer: "B",
+      reviewerEmail: "b@example.com",
+    });
+    expect(await client().listReviews(148)).toEqual([]);
+    woo.reviews[0]!.status = "approved";
+    expect(await client().listReviews(148)).toHaveLength(1);
+    const list = woo.calls.find(
+      (c) => c.method === "GET" && c.path === "/products/reviews",
+    )!;
+    expect(list.query.get("status")).toBe("approved");
+    expect(list.init).toMatchObject({
+      next: { revalidate: 600, tags: ["reviews"] },
+    });
+  });
+});

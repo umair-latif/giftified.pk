@@ -15,6 +15,7 @@ import type {
   CatalogProduct,
   CatalogVariant,
   RetentionOrder,
+  Review,
   ShippingRates,
   VendorContact,
 } from "./types";
@@ -25,6 +26,7 @@ import type {
   WooOrder,
   WooProduct,
   WooRetentionOrder,
+  WooReview,
   WooShippingZone,
   WooVariation,
   WooZoneMethod,
@@ -881,5 +883,18 @@ export function mapCoupon(c: WooCoupon): Coupon | null {
     excludedCategoryIds: c.excluded_product_categories,
     emailRestricted: c.email_restrictions.length > 0,
     published: c.status === "publish",
+  };
+}
+
+/** A WooCommerce review → our `Review` (HTML text → plain text, GMT date → ISO). */
+export function mapReview(r: WooReview): Review {
+  return {
+    id: r.id,
+    wooProductId: r.product_id,
+    rating: Math.min(5, Math.max(1, Math.round(r.rating))),
+    text: htmlToText(r.review),
+    reviewer: htmlToText(r.reviewer),
+    verified: r.verified,
+    createdAt: `${r.date_created_gmt}Z`,
   };
 }
