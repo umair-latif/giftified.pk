@@ -21,6 +21,11 @@ test("catalog → mug page: options, price, one way to start, studio gets the co
       `/products/${id}`,
     );
 
+  // Under the grid: the way out for someone who did not pick a product.
+  const promo = page.getByTestId("products-designs-promo");
+  await expect(promo).toHaveAttribute("href", "/designs");
+  await expect(promo).toContainText("Not sure what to make?");
+
   await page.getByTestId("product-card-mug").tap();
   await expect(page).toHaveURL(/\/products\/[\w-]+$/);
   await expect(page.getByRole("heading", { level: 1 })).toHaveText(

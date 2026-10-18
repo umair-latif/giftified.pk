@@ -5,6 +5,7 @@ import { ProductCard } from "@/features/catalog/components/product-card";
 import { loadCatalog } from "@/features/catalog/load-catalog";
 import { appBaseUrl } from "@/server/files/links";
 import { Page, PageTitle } from "@/components/ui/page";
+import { PromoCard } from "@/components/ui/promo-card";
 
 export const revalidate = 3600;
 
@@ -31,6 +32,24 @@ export default async function ProductsPage() {
           </li>
         ))}
       </ul>
+      {/*
+        Under the grid, not above it: someone who has read all four products
+        and not picked one is the person this helps. "New" for a product in
+        the grid above would be advertising below the thing it advertises
+        (founder, 18 Oct 2026), so the Dual Accent Mug announces itself on its
+        own card instead.
+      */}
+      <PromoCard
+        href="/designs"
+        bg="action"
+        art="/banners/designs-mugs.webp"
+        eyebrow="Ready-made"
+        title="Not sure what to make?"
+        body="Start from a design we made and put your own photos and words on it."
+        cta="Browse designs"
+        testId="products-designs-promo"
+        className="mt-3"
+      />
     </Page>
   );
 }
