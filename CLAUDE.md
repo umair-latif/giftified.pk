@@ -2,6 +2,14 @@
 
 Durable rules for AI-assisted development. Read this before every task.
 
+## Answer mode (`q:`)
+
+A message starting with **`q:`** is a question, not a task. Answer it and stop:
+no edits, no branches, no commands, no commits. Reading files (and running
+read-only commands) to answer accurately is fine. Keep the answer short and
+precise — only what was asked, no extra detail or unprompted suggestions. If
+the answer implies work, say what you would do and wait to be asked.
+
 ## What we're building
 
 Mobile-first Print-on-Demand store for Pakistan. Customers design mugs, t-shirts and
