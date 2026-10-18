@@ -21,9 +21,16 @@ Both drawn by the founder in Canva, Oct 2026.
   the hex must match the token exactly (`#14b8a6` brand, `#ffe135` action),
   or the join shows as a band.
 - **Nothing important in the left 55%.** The words go there.
-- **Nothing important in the far left of the art itself.** On a phone the
-  picture is 34% of the card and `object-right` keeps its right edge, so the
-  left of the artwork is dropped.
+- **Nothing important in the far left of the art itself.** `object-right`
+  keeps the picture's right edge, so a narrow card drops the left of the
+  artwork.
+- **A quiet band across the middle of the canvas**, where the picture can end.
+  The card fades the left 30% of the picture into the flat colour, which hides
+  the join wherever it lands — but a fade through a busy area still reads as
+  haze. The birthday art gets this right by accident: separate objects on flat
+  ground, so there is empty colour to fade through. The first mug banner did
+  not, and its hard edge cut through a mug, which is what the fade was added
+  to fix.
 - **No text baked in.** At 360 px a 1200 px-wide banner renders about 360 px
   across, where baked text lands around 8 px tall and is unreadable. The
   headline and the link are real HTML, which also means they can change
