@@ -23,7 +23,7 @@ separate lead-approved contract PR first), `src/config/products/`.
 
 - Form only on `/order/[id]?t=` for a `completed` order; one review per order line; Zod on all input.
 - Create via `POST /products/reviews`, `status: "hold"`, `verified: true`. No custom meta (unsupported).
-- Photo: presigned PUT to R2, key `orders/<id>/reviews/<reviewId>`; append `[photo: <signed link>]` to the
+- Photo: presigned PUT to R2, key `reviews/<orderId>/line-<n>/photo`; append `[photo: <signed link>]` to the
   review text while on hold; strip it on display; show the photo only when approved.
 - Job on WC `order.updated` → `completed`: email "How was your order? Rate it" via `lib/email`, keyed by
   order ID (no double send).

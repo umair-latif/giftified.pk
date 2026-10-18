@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { connection } from "next/server";
+import { ReviewSection } from "@/features/reviews/components/review-section";
 import { OrderSummary } from "@/features/orders/components/order-summary";
 import { OrderTimeline } from "@/features/orders/components/order-timeline";
 import { RememberOrder } from "@/features/orders/components/remember-order";
@@ -48,6 +49,8 @@ export default async function OrderStatusPage(props: PageProps<"/order/[id]">) {
       </section>
 
       <OrderSummary view={view} />
+
+      <ReviewSection order={order} view={view} token={t} />
 
       <p className="text-ink/70 text-center text-sm">
         Keep this page’s link to check your order later, or find it any time on{" "}

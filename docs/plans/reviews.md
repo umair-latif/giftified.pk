@@ -31,7 +31,7 @@ Status: decided in brainstorm (18 Oct 2026), not built. Task brief and status-bo
 
 ## Photos (fallback design)
 
-- Upload phone → R2 by presigned PUT; key `orders/<id>/reviews/<reviewId>` (the mapping is ours).
+- Upload phone → R2 by presigned PUT; key `reviews/<orderId>/line-<n>/photo` (outside `orders/`, so the 30-day retention job never deletes it; a `review.json` beside it marks the line as reviewed).
 - While the review is on hold, the handler appends `[photo: <signed link>]` to the review text so the founder
   sees it in WP admin when moderating. We strip that line when displaying.
 - The product page shows the photo only for approved reviews.
