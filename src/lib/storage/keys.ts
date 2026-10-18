@@ -9,6 +9,7 @@
  *   orders/<orderId>/vendor-<vendorId>.json  when the files were emailed to that vendor
  *   reviews/<orderId>/line-<n>/photo          review photo (task 30)
  *   reviews/<orderId>/line-<n>/review.json    "this line was reviewed" marker
+ *   reviews/<orderId>/review-request.json     "ask for a review" email already handled
  *   templates/index.json                     template list (task 18)
  *   templates/<id>/design.json               template DesignDocument
  *   templates/<id>/assets/<assetId>          customer's photo: its sample; artwork: the ORIGINAL
@@ -50,6 +51,10 @@ export const proofFileKey = (orderId: number, lineIndex: number) =>
 /** A review's photo (task 30). Outside `orders/` so retention never deletes it. */
 export const reviewPhotoKey = (orderId: number, lineIndex: number) =>
   `reviews/${orderPart(orderId)}/line-${linePart(lineIndex)}/photo`;
+
+/** Exists once the "please review" email for an order was handled (sent, or no address). */
+export const reviewRequestKey = (orderId: number) =>
+  `reviews/${orderPart(orderId)}/review-request.json`;
 
 /** Exists once that order line has been reviewed (one review per line). */
 export const reviewMarkerKey = (orderId: number, lineIndex: number) =>

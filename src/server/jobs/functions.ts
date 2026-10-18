@@ -3,7 +3,12 @@ import { NonRetriableError } from "inngest";
 import { z } from "zod";
 import { inngest } from "./client";
 import { productionDeps, retentionDeps } from "./deps";
-import { ORDER_FILES_EVENT, VENDOR_HANDOFF_EVENT } from "./events";
+import {
+  ORDER_FILES_EVENT,
+  REVIEW_REQUEST_EVENT,
+  VENDOR_HANDOFF_EVENT,
+} from "./events";
+import { reviewRequestDeps, sendReviewRequest } from "@/server/reviews/request";
 import {
   emailHandoff,
   handoffRecipient,
@@ -134,6 +139,30 @@ export const vendorHandoffFn = inngest.createFunction(
   },
 );
 
+/**
+ * order/review.requested → once an order is completed, email the customer the
+ * link to review it (or leave the link in an order note when there is no
+ * email). Sends at most once per order.
+ */
+export const reviewRequestFn = inngest.createFunction(
+  {
+    id: "review-request",
+    triggers: [{ event: REVIEW_REQUEST_EVENT }],
+    concurrency: { limit: 1, key: "event.data.orderId" },
+    retries: 3,
+  },
+  async ({ event, step }) => {
+    const parsed = dataSchema.safeParse(event.data);
+    if (!parsed.success)
+      throw new NonRetriableError("order/review.requested without an orderId");
+    const { orderId } = parsed.data;
+    return step.run("send", async () => ({
+      orderId,
+      result: await sendReviewRequest(orderId, reviewRequestDeps()),
+    }));
+  },
+);
+
 const DESIGN_BATCH = 25;
 
 /**
@@ -178,5 +207,6 @@ export const dataRetentionFn = inngest.createFunction(
 export const functions = [
   prepareOrderFilesFn,
   vendorHandoffFn,
+  reviewRequestFn,
   dataRetentionFn,
 ];

@@ -90,3 +90,13 @@ cancelled ([order-pipeline.md](order-pipeline.md#data-retention-30-day-purge)).
 Do this **within 30 days** of cancelling: files that are already deleted can't be restored. The
 nightly job then never deletes this order's print files, design or photos. To release them later,
 delete the custom field; the next night's run cleans them up.
+
+## Reviews
+
+When you set an order to **Completed**, the customer is emailed a link to review it. The link is also
+saved as an **order note** ("Review link: …"), so you can paste it into your own delivery message. If the
+order has no email address, the note says so and holds the link to send by hand.
+
+Reviews arrive in WP admin under **Products → Reviews** as _Pending_. A review with a photo ends with a
+line `[photo: https://…]`: click it to see the photo. Click **Approve** to publish. Nothing shows on the
+shop until you approve.
