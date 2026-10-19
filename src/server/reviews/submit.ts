@@ -50,7 +50,7 @@ export const reviewSchema = z.object({
 export interface ReviewDeps {
   commerce: Pick<
     CommerceClient,
-    "getOrder" | "getProduct" | "getDesignProduct" | "createReview"
+    "getOrder" | "getProduct" | "createReview"
   >;
   storage: ObjectStorage;
   env?: Record<string, string | undefined>;
@@ -87,14 +87,19 @@ async function reviewableLine(
   return { order, line };
 }
 
-/** WooCommerce product the review is filed under (the design product, else the base product). */
+/**
+ * WooCommerce product the review is filed under: always the PRODUCT, never the
+ * design the line was made from (`docs/plans/reviews.md`: "per product, not per
+ * design"). A design sells in small numbers, so filing reviews against it would
+ * scatter them over near-empty design pages while the product page — where most
+ * shoppers land — stayed blank. The review is about print quality and delivery,
+ * which belong to the product. Design pages show their parent product's reviews.
+ */
 async function reviewProductId(
   deps: ReviewDeps,
   line: OrderLine,
 ): Promise<number> {
-  const id = line.templateId
-    ? (await deps.commerce.getDesignProduct(line.templateId))?.wooProductId
-    : (await deps.commerce.getProduct(line.productId))?.wooProductId;
+  const id = (await deps.commerce.getProduct(line.productId))?.wooProductId;
   if (!id) throw new ReviewError("This item can’t be reviewed.", 422);
   return id;
 }

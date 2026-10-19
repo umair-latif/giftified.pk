@@ -76,7 +76,9 @@ export default async function DesignProductPage({
     : meta.hasThumbnail
       ? `/api/templates/${tid}/thumbnail`
       : null;
-  const reviews = await loadReviews(info.wooProductId);
+  // The parent product's reviews, not this design's: reviews are per product
+  // (docs/plans/reviews.md). Someone reading this page is still buying a mug.
+  const reviews = base ? await loadReviews(base.wooProductId) : [];
   const reviewSummary = summariseReviews(reviews);
   const jsonLd = {
     "@context": "https://schema.org",
