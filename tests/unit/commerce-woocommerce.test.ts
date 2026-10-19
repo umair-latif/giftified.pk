@@ -441,8 +441,9 @@ describe("WooCommerce client — reviews (task 30)", () => {
       (c) => c.method === "GET" && c.path === "/products/reviews",
     )!;
     expect(list.query.get("status")).toBe("approved");
+    // Short: the founder approves a review and then looks at the page.
     expect(list.init).toMatchObject({
-      next: { revalidate: 600, tags: ["reviews"] },
+      next: { revalidate: 120, tags: ["reviews"] },
     });
   });
 });

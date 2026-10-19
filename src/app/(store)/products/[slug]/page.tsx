@@ -37,7 +37,14 @@ import {
 } from "@/features/reviews/review-model";
 import { loadTemplates } from "@/features/templates/load-templates";
 
-export const revalidate = 3600;
+/**
+ * 5 minutes, matching the design page. Was an hour, which meant an approved
+ * review could take that long to appear while the same review showed on the
+ * design page within minutes (founder, 19 Oct 2026). Prices and stock come
+ * from the catalog cache, which its own product.* webhook refreshes, so a
+ * shorter page life costs little: there are four product pages.
+ */
+export const revalidate = 300;
 
 const hasConfig = (id: string) => getProduct(id) !== null;
 

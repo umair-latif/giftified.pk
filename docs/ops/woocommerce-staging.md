@@ -104,6 +104,34 @@ Also add the same webhook with topics **Product created** and **Product deleted*
 products you delete or trash in WP admin then leave the shop within seconds (`design-products.md`).
 Without these webhooks the shop pages still update, just up to an hour later.
 
+### Reviews appearing sooner (optional)
+
+A review you approve in WP admin shows on the shop within about **5 minutes** on its own —
+that is the product page's revalidate window — and nothing below is needed for the shop to
+be correct.
+
+To make it near-instant, add one more webhook. **WooCommerce has no "review" topic**: the
+core topics are coupon, customer, order and product only. Reviews are WordPress comments, so
+use an **Action** webhook instead:
+
+| Field        | Value                                           |
+| ------------ | ----------------------------------------------- |
+| Name         | DesignBanana reviews                            |
+| Status       | Active                                          |
+| Topic        | **Action**                                      |
+| Action event | `comment_unapproved_to_approved`                |
+| Delivery URL | `https://YOUR-APP-ADDRESS/api/webhooks/reviews` |
+| Secret       | the same value as `WC_WEBHOOK_SECRET`           |
+| API version  | WP REST API Integration v3                      |
+
+The route drops the cached review list; it does not read the payload, so it does not matter
+what the action sends. It fires for every comment approval, not only reviews, which is
+harmless — the shop has no other comments.
+
+**Not verified on a live store yet.** If the Action topic turns out not to deliver, nothing
+breaks: reviews keep appearing within the 5 minutes. Check WooCommerce → Status → Logs, or
+the webhook's own delivery log, to see whether it fired.
+
 ## 8. Products: photos, descriptions and colours
 
 What customers see on `/products` and each product page comes from WP admin → **Products**:
