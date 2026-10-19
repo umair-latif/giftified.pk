@@ -68,6 +68,68 @@ beforeEach(async () => {
   await placeOrder(true);
 });
 
+describe("which product the review is filed under", () => {
+  it("files a design line's review against the PRODUCT, not the design", async () => {
+    // docs/plans/reviews.md: "per product, not per design". Designs sell in
+    // small numbers; filing against them scatters reviews over near-empty
+    // design pages and leaves the product page — where shoppers land — blank.
+    const design = await commerce.createDesignProduct({
+      templateId: "t-ammi",
+      baseProductId: "mug",
+      name: "World's Best Ammi",
+      description: "A ready-made design",
+      pricePkr: 1200,
+    });
+    await commerce.publishDesignProduct(design.wooProductId, {});
+
+    const order = await commerce.createOrder({
+      checkoutId: "chk-design",
+      customer: {
+        fullName: "Ayesha Khan",
+        phone: "+923001234567",
+        city: "Gujrat",
+        addressLine: "House 12",
+      },
+      lines: [
+        {
+          productId: "mug",
+          colourId: "white",
+          quantity: 1,
+          designId: "d2",
+          templateId: "t-ammi",
+        },
+      ],
+    });
+    await commerce.setOrderStatus(order.id, "completed");
+
+    const { reviewId } = await submitReview(
+      { commerce, storage, env, now: () => 0 },
+      {
+        orderId: order.id,
+        token: orderToken(order.id, order.customer.phone, env),
+        line: 0,
+        rating: 5,
+        text: "Printed beautifully",
+        name: "Ayesha",
+        hasPhoto: false,
+      },
+    );
+    commerce.approveReview(reviewId);
+
+    const mug = await commerce.getProduct("mug");
+    expect(mug).not.toBeNull();
+    expect(design.wooProductId).not.toBe(mug!.wooProductId);
+
+    // It lands on the mug...
+    const onProduct = await commerce.listReviews(mug!.wooProductId);
+    expect(onProduct).toHaveLength(1);
+    expect(onProduct[0]!.text).toContain("Printed beautifully");
+
+    // ...and not on the design product.
+    expect(await commerce.listReviews(design.wooProductId)).toHaveLength(0);
+  });
+});
+
 describe("submitReview", () => {
   it("files a held, verified review under the product and marks the line", async () => {
     const out = await submitReview(deps(), review());

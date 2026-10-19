@@ -18,6 +18,10 @@ Status: decided in brainstorm (18 Oct 2026), not built. Task brief and status-bo
 - **Display:** reviews list + star average on the product page (Server Component, ISR), plus schema.org
   `AggregateRating`. **Hidden until a product has real approved reviews** (no fake or empty states).
 - **Per product, not per design:** designs are unique; the review is about the product, print quality, delivery.
+  A line bought as a ready-made design is still filed under its base product (`reviewProductId` in
+  `src/server/reviews/submit.ts`), and a **design page shows its parent product's reviews** — a shopper
+  reading `/designs/<slug>` is still buying a mug. The first build filed design lines under the design
+  product instead; corrected 19 Oct 2026, with a unit test so it cannot drift back.
 
 ## Verified on staging (18 Oct 2026)
 
