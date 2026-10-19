@@ -49,6 +49,8 @@ export const META = {
   courier: "_courier",
   trackingNumber: "_tracking_number",
   trackingUrl: "_tracking_url",
+  /** Customer's private /order/<id>?t= link, written at checkout for the email plugin. */
+  statusUrl: "_order_status_url",
   designId: "_design_id",
   printPngUrl: "_print_png_url",
   proofPdfUrl: "_proof_pdf_url",

@@ -10,6 +10,7 @@ import {
 } from "@/server/auth/cookies";
 import { priceCart } from "@/server/checkout/pricing";
 import { addOrderDesigns, savedDesignDeps } from "@/server/saved-designs";
+import { appBaseUrl } from "@/server/files/links";
 import { orderStatusUrl } from "@/server/orders/order-link";
 import type { OrderId } from "@/types/order";
 import { clientIpFromHeaders } from "./client-ip";
@@ -93,7 +94,14 @@ export async function placeOrder(input: unknown): Promise<PlaceOrderResult> {
       ).catch((err) =>
         console.error("[checkout] adding to My designs failed", err),
       );
-    return { ok: true, orderId: order.id, statusUrl: orderStatusUrl(order) };
+    const statusUrl = orderStatusUrl(order);
+    // Best effort: lets the WooCommerce emails link to the private order page.
+    await commerce
+      .setOrderStatusUrl(order.id, `${appBaseUrl()}${statusUrl}`)
+      .catch((err) =>
+        console.error("[checkout] saving order link failed", err),
+      );
+    return { ok: true, orderId: order.id, statusUrl };
   } catch (err) {
     console.error("[checkout] createOrder failed", err);
     return {
