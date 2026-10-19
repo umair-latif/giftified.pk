@@ -104,8 +104,13 @@ export class WooCommerceError extends Error {
  * seconds. Prices are re-checked by WC on every order anyway.
  */
 export const CATALOG_CACHE_TAG = "catalog";
-/** Approved reviews change rarely; the founder approves them by hand. */
-const REVIEWS_CACHE = { revalidate: 600, tags: ["reviews"] };
+export const REVIEWS_CACHE_TAG = "reviews";
+/**
+ * Short, because the founder approves a review and then looks at the page.
+ * Longer than this and a page regeneration serves a stale review list, which
+ * is what made an approved review take up to an hour to appear (19 Oct 2026).
+ */
+const REVIEWS_CACHE = { revalidate: 120, tags: [REVIEWS_CACHE_TAG] };
 const CATALOG_CACHE = { revalidate: 3600, tags: [CATALOG_CACHE_TAG] };
 const SHIPPING_TTL_MS = 10 * 60 * 1000;
 /** How far back createOrder looks for an order with the same checkoutId. */
