@@ -371,6 +371,24 @@ describe("WooCommerce client — retention (task 24)", () => {
       ],
     });
   });
+
+  it("stores the private order link as _order_status_url order meta", async () => {
+    woo.seedOrder(order({ id: 9 }));
+    await client().setOrderStatusUrl(
+      9,
+      "https://designbanana.pk/order/9?t=abc",
+    );
+    const put = woo.calls.find((c) => c.method === "PUT")!;
+    expect(put.path).toBe("/orders/9");
+    expect(put.body).toEqual({
+      meta_data: [
+        {
+          key: "_order_status_url",
+          value: "https://designbanana.pk/order/9?t=abc",
+        },
+      ],
+    });
+  });
 });
 
 describe("wooConfigFromEnv", () => {

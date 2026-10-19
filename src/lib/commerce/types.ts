@@ -380,6 +380,11 @@ export interface CommerceClient {
   listOrdersForRetention(page: number): Promise<RetentionOrderPage>;
   /** Sets order meta `_retention_done` = `doneAt` (ISO 8601). */
   markRetentionDone(id: OrderId, doneAt: string): Promise<void>;
+  /**
+   * Sets order meta `_order_status_url` to the customer's private order page
+   * (absolute URL) so WooCommerce emails can link to it.
+   */
+  setOrderStatusUrl(id: OrderId, url: string): Promise<void>;
 
   // Reviews (task 30).
   /**

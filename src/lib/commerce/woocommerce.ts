@@ -1083,6 +1083,12 @@ export function createWooCommerceClient(config: WooConfig): CommerceClient {
       });
     },
 
+    async setOrderStatusUrl(id, url) {
+      await request("PUT", `/orders/${id}`, {
+        body: { meta_data: [{ key: META.statusUrl, value: url }] },
+      });
+    },
+
     async verifyWebhook(rawBody, headers) {
       return verifyWooWebhook(rawBody, headers, config.webhookSecret);
     },

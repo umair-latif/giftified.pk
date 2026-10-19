@@ -543,6 +543,10 @@ export function createMockCommerce(
       must(id);
       extras.get(id)!.meta.set("_retention_done", doneAt);
     },
+    async setOrderStatusUrl(id, url) {
+      must(id);
+      extras.get(id)!.meta.set("_order_status_url", url);
+    },
     setOrderMeta(id, key, value) {
       must(id);
       extras.get(id)!.meta.set(key, value);
