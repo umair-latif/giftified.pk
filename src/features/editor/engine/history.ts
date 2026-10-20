@@ -8,6 +8,8 @@ export interface CanvasHistory {
   canRedo(): boolean;
   /** Re-baseline after loading a draft (nothing to undo yet). */
   reset(): void;
+  /** Run `fn` and record everything it changes as ONE undo step. */
+  batch(fn: () => void): void;
   detach(): void;
 }
 
@@ -28,10 +30,11 @@ export function attachHistory(canvas: Canvas, opts: Options): CanvasHistory {
   const serialize = () => JSON.stringify(canvas.toObject());
   const stack = new HistoryStack<string>(serialize(), opts.limit ?? 50);
   let restoring = false;
+  let batching = false;
   let queue: Promise<void> = Promise.resolve();
 
   const record = () => {
-    if (restoring) return;
+    if (restoring || batching) return;
     if (stack.push(serialize())) opts.onChange();
   };
 
@@ -79,6 +82,16 @@ export function attachHistory(canvas: Canvas, opts: Options): CanvasHistory {
         commitTextEdit();
         await restore(stack.redo());
       }),
+    batch: (fn) => {
+      commitTextEdit();
+      batching = true;
+      try {
+        fn();
+      } finally {
+        batching = false;
+        record();
+      }
+    },
     canUndo: () => stack.canUndo(),
     canRedo: () => stack.canRedo(),
     reset: () => {

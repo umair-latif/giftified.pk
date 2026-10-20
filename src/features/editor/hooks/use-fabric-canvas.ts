@@ -366,6 +366,15 @@ export function useFabricCanvas(
     () => run((e, dc) => e.deleteSelected(dc.canvas)),
     [run],
   );
+  const clearAll = useCallback(
+    () =>
+      run((e, dc) => {
+        const history = historyRef.current;
+        if (history) history.batch(() => e.clearAll(dc.canvas));
+        else e.clearAll(dc.canvas);
+      }),
+    [run],
+  );
   const straighten = useCallback(
     () => run((e, dc) => e.straightenSelected(dc.canvas)),
     [run],
@@ -580,6 +589,7 @@ export function useFabricCanvas(
     clearCustomerPhoto,
     quality,
     deleteSelected,
+    clearAll,
     straighten,
     centre,
     applyTextStyle,

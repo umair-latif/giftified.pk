@@ -23,6 +23,7 @@ export {
   straightenSelected,
   centreSelected,
   deleteSelected,
+  clearAll,
   duplicateSelected,
 } from "./actions";
 export { renderDesignToDataUrl } from "./render";
