@@ -42,6 +42,15 @@ export function deleteSelected(canvas: Canvas): void {
   canvas.requestRenderAll();
 }
 
+/** Remove every layer, background colour included. The caller wraps it in `history.batch`. */
+export function clearAll(canvas: Canvas): void {
+  const objects = canvas.getObjects();
+  if (objects.length === 0) return;
+  canvas.discardActiveObject();
+  canvas.remove(...objects);
+  canvas.requestRenderAll();
+}
+
 /** Duplicate the selected object 5 mm down-right and select the copy. */
 export async function duplicateSelected(
   canvas: Canvas,

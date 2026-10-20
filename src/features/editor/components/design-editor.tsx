@@ -5,7 +5,7 @@ import { bodyHex, type ProductConfig } from "@/config/products";
 import { formatCm } from "@/lib/units";
 import type { CartItem } from "@/types/cart";
 import { AppHeader } from "@/components/ui/app-header";
-import { RedoIcon, UndoIcon } from "@/components/ui/icons";
+import { RedoIcon, TrashIcon, UndoIcon } from "@/components/ui/icons";
 import { StepBar } from "@/components/ui/step-bar";
 import {
   useFabricCanvas,
@@ -101,6 +101,22 @@ export function DesignEditor({
             >
               <RedoIcon />
             </IconButton>
+            {isDesigner && (
+              <IconButton
+                label="Clear all"
+                onClick={() => {
+                  if (
+                    window.confirm(
+                      "Remove everything from the canvas? You can still undo it.",
+                    )
+                  )
+                    ed.clearAll();
+                }}
+                disabled={!ready}
+              >
+                <TrashIcon />
+              </IconButton>
+            )}
           </>
         }
       />
