@@ -40,13 +40,13 @@ describe("Dual Accent Mug", () => {
     expect(bodyHex(undefined)).toBe("#ffffff");
   });
 
-  it("has right, front and left photos for every colour, and they exist", () => {
+  it("has left, front and right photos for every colour, and they exist", () => {
     for (const colour of twoTone.baseColors) {
       const specs = specsForColour("two-tone-mug", colour.id);
       expect(specs.map((s) => s.id)).toEqual([
-        `right-${colour.id}`,
-        `front-${colour.id}`,
         `left-${colour.id}`,
+        `front-${colour.id}`,
+        `right-${colour.id}`,
         // The in-hands photo was only supplied in red.
         ...(colour.id === "red" ? ["hands-red"] : []),
       ]);
