@@ -352,17 +352,22 @@ const TWOTONE_HANDS: MockupSpec = {
 
 const TWOTONE_COLOURS = ["red", "blue", "black"] as const;
 
-/** Right, front and left for each colour, in preview-tab order. */
+/** Left, front and right for each colour, in preview-tab order. */
 const TWOTONE_SPECS: MockupSpec[] = TWOTONE_COLOURS.flatMap((colour) => [
   {
     ...TWOTONE_STUDIO,
-    id: `right-${colour}`,
-    label: "Right",
-    side: "right",
+    id: `left-${colour}`,
+    label: "Left",
+    side: "left",
     colour,
-    src: `/mockups/twotone-right-${colour}.webp`,
-    body: TWOTONE_SIDE_BODY,
-    outline: TWOTONE_SIDE_OUTLINE,
+    src: `/mockups/twotone-left-${colour}.webp`,
+    body: {
+      left: 1079 - TWOTONE_SIDE_BODY.right,
+      right: 1079 - TWOTONE_SIDE_BODY.left,
+      top: TWOTONE_SIDE_BODY.top,
+      bottom: TWOTONE_SIDE_BODY.bottom,
+    },
+    outline: flipOutline(TWOTONE_SIDE_OUTLINE),
     sag: { rim: -18, base: 28 },
   },
   {
@@ -380,18 +385,13 @@ const TWOTONE_SPECS: MockupSpec[] = TWOTONE_COLOURS.flatMap((colour) => [
   },
   {
     ...TWOTONE_STUDIO,
-    id: `left-${colour}`,
-    label: "Left",
-    side: "left",
+    id: `right-${colour}`,
+    label: "Right",
+    side: "right",
     colour,
-    src: `/mockups/twotone-left-${colour}.webp`,
-    body: {
-      left: 1079 - TWOTONE_SIDE_BODY.right,
-      right: 1079 - TWOTONE_SIDE_BODY.left,
-      top: TWOTONE_SIDE_BODY.top,
-      bottom: TWOTONE_SIDE_BODY.bottom,
-    },
-    outline: flipOutline(TWOTONE_SIDE_OUTLINE),
+    src: `/mockups/twotone-right-${colour}.webp`,
+    body: TWOTONE_SIDE_BODY,
+    outline: TWOTONE_SIDE_OUTLINE,
     sag: { rim: -18, base: 28 },
   },
 ]);
@@ -406,11 +406,11 @@ export const MOCKUP_SPECS: Partial<
   mug: [
     {
       ...STUDIO,
-      id: "right",
-      label: "Right",
-      side: "right",
-      src: "/mockups/mug-right.webp",
-      body: { left: 276, right: 759, top: 221, bottom: 834 },
+      id: "left",
+      label: "Left",
+      side: "left",
+      src: "/mockups/mug-left.webp",
+      body: { left: 279, right: 762, top: 221, bottom: 834 },
     },
     {
       ...STUDIO,
@@ -424,11 +424,11 @@ export const MOCKUP_SPECS: Partial<
     },
     {
       ...STUDIO,
-      id: "left",
-      label: "Left",
-      side: "left",
-      src: "/mockups/mug-left.webp",
-      body: { left: 279, right: 762, top: 221, bottom: 834 },
+      id: "right",
+      label: "Right",
+      side: "right",
+      src: "/mockups/mug-right.webp",
+      body: { left: 276, right: 759, top: 221, bottom: 834 },
     },
     {
       id: "lifestyle",
@@ -498,13 +498,14 @@ export const MOCKUP_SPECS: Partial<
     // black side views, so all three shade alike (scratch script, not kept).
     {
       ...STUDIO,
-      id: "right-black",
-      label: "Right",
-      side: "right",
+      id: "left-black",
+      label: "Left",
+      side: "left",
       colour: "black",
       darkBody: true,
-      src: "/mockups/mug-right-black.webp",
-      body: { left: 276, right: 759, top: 221, bottom: 834 },
+      src: "/mockups/mug-left-black.webp",
+      // This photo is framed ~41 px further right than the white left view.
+      body: { left: 320, right: 803, top: 221, bottom: 834 },
     },
     {
       ...STUDIO,
@@ -519,14 +520,13 @@ export const MOCKUP_SPECS: Partial<
     },
     {
       ...STUDIO,
-      id: "left-black",
-      label: "Left",
-      side: "left",
+      id: "right-black",
+      label: "Right",
+      side: "right",
       colour: "black",
       darkBody: true,
-      src: "/mockups/mug-left-black.webp",
-      // This photo is framed ~41 px further right than the white left view.
-      body: { left: 320, right: 803, top: 221, bottom: 834 },
+      src: "/mockups/mug-right-black.webp",
+      body: { left: 276, right: 759, top: 221, bottom: 834 },
     },
     {
       id: "hand-black",
