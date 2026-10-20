@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { buttonClass } from "@/components/ui/button";
+import { buttonClass, compactButtonClass } from "@/components/ui/button";
+import { ImageIcon } from "@/components/ui/icons";
 import { Field, inputClass } from "@/features/checkout/components/field";
 import { compressReviewPhoto } from "../compress-photo";
 
@@ -42,6 +43,8 @@ export function ReviewForm({
   const [text, setText] = useState("");
   const [name, setName] = useState(defaultName);
   const [photo, setPhoto] = useState<File | null>(null);
+  // Bumped on Remove so the file input empties and the same photo can be picked again.
+  const [photoInput, setPhotoInput] = useState(0);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string>();
   const [done, setDone] = useState(false);
@@ -141,13 +144,39 @@ export function ReviewForm({
         />
       </Field>
       <Field id={`${id}-photo`} label="Photo" hint="optional">
-        <input
-          id={`${id}-photo`}
-          type="file"
-          accept="image/*"
-          onChange={(e) => setPhoto(e.target.files?.[0] ?? null)}
-          className="text-sm"
-        />
+        <div className="flex flex-wrap items-center gap-3">
+          <label
+            className={`${compactButtonClass("secondary")} cursor-pointer`}
+          >
+            <ImageIcon className="h-5 w-5" aria-hidden />
+            {photo ? "Change photo" : "Add a photo"}
+            <input
+              key={photoInput}
+              id={`${id}-photo`}
+              type="file"
+              accept="image/*"
+              onChange={(e) => setPhoto(e.target.files?.[0] ?? null)}
+              className="sr-only"
+            />
+          </label>
+          {photo && (
+            <>
+              <span className="text-ink/70 max-w-full min-w-0 truncate text-sm">
+                {photo.name}
+              </span>
+              <button
+                type="button"
+                onClick={() => {
+                  setPhoto(null);
+                  setPhotoInput((n) => n + 1);
+                }}
+                className="text-ink text-sm font-semibold underline"
+              >
+                Remove
+              </button>
+            </>
+          )}
+        </div>
       </Field>
       {error && (
         <p className="text-sm text-red-700" role="alert">
