@@ -5,16 +5,22 @@ import { OrderAgainButton } from "@/features/account/components/order-again-butt
 import { formatDate } from "@/features/account/format";
 import { OrderSummary } from "@/features/orders/components/order-summary";
 import { OrderTimeline } from "@/features/orders/components/order-timeline";
+import { ReviewSection } from "@/features/reviews/components/review-section";
 import { toOrderView } from "@/features/orders/order-view";
 import { getCommerce } from "@/lib/commerce";
 import { getSessionCustomerId } from "@/server/auth/cookies";
+import { orderToken } from "@/server/orders/order-link";
 
 export const metadata: Metadata = {
   title: "Your order",
   robots: { index: false, follow: false },
 };
 
-/** Task 21: one of the customer's orders — the same timeline as /order/<id>, plus Order again. */
+/**
+ * Task 21: one of the customer's orders — the same timeline as /order/<id>, plus Order again.
+ * Once it is completed the review form shows here too: the signed-in owner is as good as the
+ * private link, so the page makes the link's token itself.
+ */
 export default async function AccountOrderPage(
   props: PageProps<"/account/orders/[id]">,
 ) {
@@ -36,6 +42,11 @@ export default async function AccountOrderPage(
         <OrderTimeline steps={view.timeline} maskedPhone={view.maskedPhone} />
       </section>
       <OrderSummary view={view} />
+      <ReviewSection
+        order={order}
+        view={view}
+        token={orderToken(order.id, order.customer.phone)}
+      />
       <OrderAgainButton
         orderId={order.id}
         lines={order.lines.map((l) => ({
