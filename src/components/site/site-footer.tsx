@@ -68,17 +68,6 @@ export function SiteFooter() {
                 Chat on WhatsApp
               </a>
             )}
-            {wa && (
-              <p className="mt-2">
-                <a
-                  href={`tel:+${SITE.whatsapp}`}
-                  className="font-semibold text-white hover:underline"
-                  data-testid="footer-whatsapp-number"
-                >
-                  {SITE.whatsappDisplay}
-                </a>
-              </p>
-            )}
             <InstallAppButton className="mt-3" />
           </div>
           <nav aria-label="Footer" className="contents">

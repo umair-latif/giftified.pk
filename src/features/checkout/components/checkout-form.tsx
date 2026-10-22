@@ -4,7 +4,6 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState, type FormEvent } from "react";
 import { getProduct } from "@/config/products";
-import { SITE } from "@/config/site";
 import { quoteCart, type CartQuote } from "@/features/cart/actions";
 import { clearCart, useCart } from "@/features/cart/cart";
 import { distinctDesigns } from "@/features/cart/cart-lines";
@@ -633,11 +632,17 @@ export function CheckoutForm() {
         >
           <legend className="sr-only">How should we confirm your order?</legend>
           <p className="text-ink text-sm">
+            {/*
+              The number used to be named here ("from +92 …") so a customer
+              knew whose call to expect. Removed 22 Oct 2026: the current
+              number is temporary and must not appear as text or a link. The
+              founder will reinstate it with the permanent number.
+            */}
             <strong className="font-semibold">
-              We&apos;ll confirm before printing
+              We&apos;ll confirm before printing.
             </strong>{" "}
-            from {SITE.whatsappDisplay}. Please keep your phone on: we wait
-            about a week, then cancel orders we can&apos;t confirm.
+            Please keep your phone on: we wait about a week, then cancel orders
+            we can&apos;t confirm.
           </p>
           <p className="text-ink mt-3 text-sm font-semibold" aria-hidden>
             How should we reach you?

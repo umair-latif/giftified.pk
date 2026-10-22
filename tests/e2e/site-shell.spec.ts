@@ -32,9 +32,15 @@ test("site header shows the cart count and the footer links", async ({
   await expect(info.getByTestId("made-in")).toHaveText(
     "Made with care in Pakistan",
   );
-  await expect(info.getByTestId("footer-whatsapp-number")).toHaveText(
-    "+92 336 9005786",
-  );
+  // The number is never shown, as text or as a tel: link, while it is a
+  // temporary one (founder, 22 Oct 2026) — only the WhatsApp button. This is
+  // the guard SITE.whatsappDisplay's note points at.
+  await expect(info.getByTestId("footer-whatsapp-number")).toHaveCount(0);
+  await expect(info).not.toContainText("+92 336 9005786");
+  await expect(info.locator('a[href^="tel:"]')).toHaveCount(0);
+  await expect(
+    info.getByRole("link", { name: "Chat on WhatsApp" }),
+  ).toBeVisible();
   await expect(
     info.getByRole("link", { name: "DesignBanana on Facebook" }),
   ).toHaveAttribute("href", "https://www.facebook.com/DesignBananaPakistan/");
