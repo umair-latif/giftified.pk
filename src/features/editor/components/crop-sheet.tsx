@@ -6,8 +6,10 @@ import {
   FULL_RECT,
   MAX_CROP_ZOOM,
   panView,
+  resizeRect,
   rectToView,
   viewToRect,
+  type CropHandle,
   type CropView,
   type NormRect,
 } from "../engine/crop";
@@ -27,7 +29,8 @@ interface Props {
 
 /**
  * Full-screen crop: the frame stays still, the photo moves under it.
- * Drag to move, pinch or use the slider to zoom, pick a shape and proportions below.
+ * Drag to move, pinch or use the slider to zoom, drag the edges/corners for any size,
+ * or pick a shape and proportions below.
  */
 export function CropSheet({ target, onCancel, onApply }: Props) {
   const { imageAspect } = target;
@@ -46,6 +49,10 @@ export function CropSheet({ target, onCancel, onApply }: Props) {
     rectToView(imageAspect, target.rect),
   );
   const [shape, setShape] = useState<FrameShape | null>(target.shape);
+  // While an edge is being dragged the on-screen scale is frozen, so the edge stays under the finger.
+  const [lock, setLock] = useState<{ imgW: number; imgH: number } | null>(
+    null,
+  );
   const areaRef = useRef<HTMLDivElement>(null);
   const [area, setArea] = useState({ w: 320, h: 320 });
 
@@ -64,14 +71,57 @@ export function CropSheet({ target, onCancel, onApply }: Props) {
   // A polaroid's border sits outside the photo frame: leave it room.
   const polaroid = shape === "polaroid";
   const room = polaroid ? 0.8 : 1;
-  const frameW = Math.max(
+  const rect = viewToRect(imageAspect, view);
+  const fitW = Math.max(
     40,
     Math.min(area.w - 48, (area.h - 48) * view.frameAspect) * room,
   );
-  const frameH = frameW / view.frameAspect;
-  const rect = viewToRect(imageAspect, view);
-  const imgW = frameW / rect.w;
-  const imgH = frameH / rect.h;
+  const frameW = lock ? rect.w * lock.imgW : fitW;
+  const frameH = lock ? rect.h * lock.imgH : fitW / view.frameAspect;
+  const imgW = lock ? lock.imgW : frameW / rect.w;
+  const imgH = lock ? lock.imgH : frameH / rect.h;
+  // Fixed-proportion shapes (circle, heart, …) keep their shape; "No frame" and Rounded resize freely.
+  const freeResize = !shape || FRAME_SHAPE_INFO[shape].aspect === null;
+
+  // Free-form crop: drag an edge or corner; deltas are relative to the drag start.
+  const drag = useRef<{
+    handle: CropHandle;
+    x: number;
+    y: number;
+    rect: NormRect;
+    imgW: number;
+    imgH: number;
+  } | null>(null);
+  const onHandleDown = (handle: CropHandle) => (e: React.PointerEvent) => {
+    e.stopPropagation();
+    e.currentTarget.setPointerCapture(e.pointerId);
+    drag.current = {
+      handle,
+      x: e.clientX,
+      y: e.clientY,
+      rect,
+      imgW,
+      imgH,
+    };
+    setLock({ imgW, imgH });
+  };
+  const onHandleMove = (e: React.PointerEvent) => {
+    const d = drag.current;
+    if (!d) return;
+    e.stopPropagation();
+    const next = resizeRect(
+      d.rect,
+      d.handle,
+      (e.clientX - d.x) / d.imgW,
+      (e.clientY - d.y) / d.imgH,
+    );
+    setView(rectToView(imageAspect, next));
+  };
+  const onHandleUp = (e: React.PointerEvent) => {
+    e.stopPropagation();
+    drag.current = null;
+    setLock(null);
+  };
 
   // Pointer gestures: one finger pans, two fingers zoom.
   const pointers = useRef(new Map<number, { x: number; y: number }>());
@@ -192,6 +242,30 @@ export function CropSheet({ target, onCancel, onApply }: Props) {
             <div className="absolute inset-x-0 top-1/3 border-t border-white/30" />
             <div className="absolute inset-x-0 top-2/3 border-t border-white/30" />
           </div>
+          {freeResize &&
+            HANDLES.map((h) => (
+              <div
+                key={h.id}
+                aria-label={h.label}
+                data-testid={`crop-handle-${h.id}`}
+                className="absolute z-10 flex h-11 w-11 -translate-x-1/2 -translate-y-1/2 touch-none items-center justify-center"
+                style={{ left: `${h.x * 100}%`, top: `${h.y * 100}%` }}
+                onPointerDown={onHandleDown(h.id)}
+                onPointerMove={onHandleMove}
+                onPointerUp={onHandleUp}
+                onPointerCancel={onHandleUp}
+              >
+                <span
+                  className={`block rounded-sm bg-white shadow ${
+                    h.id.length === 2
+                      ? "h-3.5 w-3.5"
+                      : h.id === "n" || h.id === "s"
+                        ? "h-1.5 w-7"
+                        : "h-7 w-1.5"
+                  }`}
+                />
+              </div>
+            ))}
           {polaroid && (
             <div
               aria-hidden
@@ -287,6 +361,17 @@ export function CropSheet({ target, onCancel, onApply }: Props) {
     </div>
   );
 }
+
+const HANDLES: { id: CropHandle; label: string; x: number; y: number }[] = [
+  { id: "nw", label: "Crop top-left corner", x: 0, y: 0 },
+  { id: "n", label: "Crop top edge", x: 0.5, y: 0 },
+  { id: "ne", label: "Crop top-right corner", x: 1, y: 0 },
+  { id: "e", label: "Crop right edge", x: 1, y: 0.5 },
+  { id: "se", label: "Crop bottom-right corner", x: 1, y: 1 },
+  { id: "s", label: "Crop bottom edge", x: 0.5, y: 1 },
+  { id: "sw", label: "Crop bottom-left corner", x: 0, y: 1 },
+  { id: "w", label: "Crop left edge", x: 0, y: 0.5 },
+];
 
 const clampZoom = (z: number) => Math.min(MAX_CROP_ZOOM, Math.max(1, z));
 

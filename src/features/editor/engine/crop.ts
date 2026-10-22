@@ -88,3 +88,33 @@ export function rectsEqual(a: NormRect, b: NormRect, eps = 1e-6): boolean {
     Math.abs(a.h - b.h) < eps
   );
 }
+
+/** Edges/corners of the crop frame that can be dragged for a free-form crop. */
+export type CropHandle = "n" | "s" | "e" | "w" | "ne" | "nw" | "se" | "sw";
+
+/**
+ * Smallest free-form crop side (normalised). 1 / MAX_CROP_ZOOM keeps the result
+ * inside what `rectToView` can express (zoom ≤ MAX_CROP_ZOOM).
+ */
+export const MIN_CROP_SIDE = 1 / MAX_CROP_ZOOM;
+
+/**
+ * Free-form crop: drag `handle` of `rect` by (dx, dy) in NORMALISED image units.
+ * Only the dragged edges move; they stay inside the image and keep MIN_CROP_SIDE.
+ */
+export function resizeRect(
+  rect: NormRect,
+  handle: CropHandle,
+  dx: number,
+  dy: number,
+): NormRect {
+  let left = rect.x;
+  let top = rect.y;
+  let right = rect.x + rect.w;
+  let bottom = rect.y + rect.h;
+  if (handle.includes("w")) left = clamp(left + dx, 0, right - MIN_CROP_SIDE);
+  if (handle.includes("e")) right = clamp(right + dx, left + MIN_CROP_SIDE, 1);
+  if (handle.includes("n")) top = clamp(top + dy, 0, bottom - MIN_CROP_SIDE);
+  if (handle.includes("s")) bottom = clamp(bottom + dy, top + MIN_CROP_SIDE, 1);
+  return { x: left, y: top, w: right - left, h: bottom - top };
+}

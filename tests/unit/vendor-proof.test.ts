@@ -52,7 +52,18 @@ function input(over: Partial<VendorProofInput> = {}): VendorProofInput {
  * Pulls the drawn text out of a pdf-lib PDF: inflate every stream, then decode
  * the hex strings passed to `Tj` (WinAnsi = Windows-1252 bytes).
  */
-const winAnsi = new TextDecoder("windows-1252");
+// Not TextDecoder("windows-1252"): some Node/ICU builds decode that label as plain latin1.
+const WIN_1252_HIGH =
+  "\u20ac\u0081\u201a\u0192\u201e\u2026\u2020\u2021\u02c6\u2030\u0160\u2039\u0152\u008d\u017d\u008f" +
+  "\u0090\u2018\u2019\u201c\u201d\u2022\u2013\u2014\u02dc\u2122\u0161\u203a\u0153\u009d\u017e\u0178";
+const winAnsi = {
+  decode: (bytes: Uint8Array) =>
+    Array.from(bytes, (b) =>
+      b >= 0x80 && b <= 0x9f
+        ? WIN_1252_HIGH.charAt(b - 0x80)
+        : String.fromCharCode(b),
+    ).join(""),
+};
 function pdfText(pdf: Uint8Array): string {
   const raw = Buffer.from(pdf).toString("latin1");
   const parts: string[] = [];

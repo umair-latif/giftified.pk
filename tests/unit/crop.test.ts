@@ -5,6 +5,8 @@ import {
   panView,
   rectToView,
   rectsEqual,
+  resizeRect,
+  MIN_CROP_SIDE,
   viewToRect,
 } from "@/features/editor/engine/crop";
 
@@ -91,5 +93,47 @@ describe("crop maths", () => {
     expect(moved.center.y).toBeCloseTo(0.5);
     const far = panView(wide, start, 10_000, 0, 200);
     expect(far.center.x).toBeCloseTo(0.25); // clamped at the left edge
+  });
+});
+
+describe("resizeRect (free-form crop)", () => {
+  const r = { x: 0.2, y: 0.2, w: 0.6, h: 0.6 };
+
+  it("moves only the dragged edge", () => {
+    const out = resizeRect(r, "e", -0.1, 0.3);
+    expect(out.x).toBe(0.2);
+    expect(out.y).toBe(0.2);
+    expect(out.w).toBeCloseTo(0.5);
+    expect(out.h).toBeCloseTo(0.6);
+  });
+
+  it("moves two edges for a corner", () => {
+    const out = resizeRect(r, "nw", 0.1, 0.1);
+    expect(out.x).toBeCloseTo(0.3);
+    expect(out.y).toBeCloseTo(0.3);
+    expect(out.w).toBeCloseTo(0.5);
+    expect(out.h).toBeCloseTo(0.5);
+  });
+
+  it("stays inside the image", () => {
+    const out = resizeRect(r, "se", 5, 5);
+    expect(out.x + out.w).toBeCloseTo(1);
+    expect(out.y + out.h).toBeCloseTo(1);
+    const out2 = resizeRect(r, "nw", -5, -5);
+    expect(out2.x).toBe(0);
+    expect(out2.y).toBe(0);
+  });
+
+  it("never gets smaller than the minimum side", () => {
+    const out = resizeRect(r, "w", 5, 0);
+    expect(out.w).toBeCloseTo(MIN_CROP_SIDE);
+    expect(out.x + out.w).toBeCloseTo(0.8);
+  });
+
+  it("survives a round trip through the crop view", () => {
+    const ia = 1.5;
+    const out = resizeRect(r, "e", -0.3, 0);
+    const back = viewToRect(ia, rectToView(ia, out));
+    expect(rectsEqual(back, out)).toBe(true);
   });
 });
