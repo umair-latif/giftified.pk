@@ -1,10 +1,14 @@
 import { buttonClass } from "@/components/ui/button";
 import { WhatsappIcon } from "@/components/ui/icons";
-import { SITE, whatsappUrl } from "@/config/site";
+import { whatsappUrl } from "@/config/site";
 
 /**
- * The WhatsApp number as text (people copy it or call it) plus the "Chat on
- * WhatsApp" button. Contact, Help and the home page help block use it.
+ * The "Chat on WhatsApp" button. Contact, Help and the home page help block
+ * use it.
+ *
+ * The number itself is NOT shown, as text or as a `tel:` link (founder,
+ * 22 Oct 2026): the current number is temporary. It goes back when the
+ * permanent one exists — see the note on `SITE.whatsappDisplay`.
  */
 export function WhatsappHelp({
   message,
@@ -25,16 +29,6 @@ export function WhatsappHelp({
         <WhatsappIcon width={22} height={22} />
         Chat on WhatsApp
       </a>
-      <p className="text-ink">
-        or call / message{" "}
-        <a
-          href={`tel:+${SITE.whatsapp}`}
-          className="text-accent-text font-semibold whitespace-nowrap underline"
-          data-testid="whatsapp-number"
-        >
-          {SITE.whatsappDisplay}
-        </a>
-      </p>
     </div>
   );
 }

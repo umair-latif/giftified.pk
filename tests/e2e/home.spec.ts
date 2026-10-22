@@ -24,12 +24,14 @@ test("home page: hero, products, sections, no horizontal scroll", async ({
   await expect(occasion).not.toContainText("Order by");
   await expect(occasion.locator("img")).toHaveAttribute("alt", "");
 
-  // Help block with the number as text.
+  // Help block: the WhatsApp button only — the number is not shown while it
+  // is a temporary one (founder, 22 Oct 2026).
+  const help = page.getByRole("region", { name: "Questions? Ask us" });
   await expect(
-    page
-      .getByRole("region", { name: "Questions? Ask us" })
-      .getByTestId("whatsapp-number"),
-  ).toHaveText("+92 336 9005786");
+    help.getByRole("link", { name: "Chat on WhatsApp" }),
+  ).toBeVisible();
+  await expect(help.getByTestId("whatsapp-number")).toHaveCount(0);
+  await expect(help).not.toContainText("+92 336 9005786");
   await expect(
     page.getByRole("region", { name: "How it works" }),
   ).toContainText("Pay cash when it arrives");

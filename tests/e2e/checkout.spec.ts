@@ -110,10 +110,12 @@ test("two cart items → checkout → one order with both lines", async ({
   );
   expect(scrollWidth).toBeLessThanOrEqual(360);
 
-  // The confirmation call: from which number, and the shopper can pick WhatsApp.
-  await expect(page.getByTestId("confirm-call")).toContainText(
-    "+92 336 9005786",
-  );
+  // The confirmation call. The number used to be named here so the shopper
+  // knew whose call to expect; it is out while the number is temporary
+  // (founder, 22 Oct 2026), so the promise stays but the digits do not.
+  const confirm = page.getByTestId("confirm-call");
+  await expect(confirm).toContainText("We'll confirm before printing");
+  await expect(confirm).not.toContainText("+92 336 9005786");
   await page.getByText("WhatsApp me").tap();
   await expect(page.getByRole("radio", { name: "WhatsApp me" })).toBeChecked();
 

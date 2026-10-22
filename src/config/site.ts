@@ -27,7 +27,17 @@ export const SITE = {
   tagline: "Kuch khaas banao",
   /** E.164 without "+", for https://wa.me/<number>. Empty = hide WhatsApp links. */
   whatsapp: "923369005786",
-  /** The same number as people read and dial it (footer, Contact, Help). */
+  /**
+   * The number as people read and dial it.
+   *
+   * **Not rendered anywhere right now** (founder, 22 Oct 2026): this number is
+   * temporary, so it must not appear as text or as a `tel:` link. Only the
+   * "Chat on WhatsApp" button, which uses `whatsapp` above, is shown. When the
+   * permanent number exists, put it back in the footer, the WhatsApp help
+   * block and the checkout confirmation line — the checkout one matters most,
+   * because naming the number tells a customer whose call to expect about
+   * their COD order. `tests/e2e/site-shell.spec.ts` fails if it reappears.
+   */
   whatsappDisplay: "+92 336 9005786",
   /**
    * The address customers write to and every customer-facing email is sent
