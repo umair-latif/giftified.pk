@@ -662,6 +662,8 @@ export function createWooCommerceClient(config: WooConfig): CommerceClient {
               409,
             );
           return {
+            productId: l.productId,
+            unitPricePkr: design.pricePkr,
             wooProductId: design.wooProductId,
             wooVariationId: 0,
             quantity: l.quantity,
@@ -675,6 +677,8 @@ export function createWooCommerceClient(config: WooConfig): CommerceClient {
           };
         }
         return {
+          productId: l.productId,
+          unitPricePkr: variant.pricePkr,
           wooProductId: product.wooProductId,
           wooVariationId: variant.wooVariationId,
           quantity: l.quantity,

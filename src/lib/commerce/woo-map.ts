@@ -11,6 +11,11 @@ import type {
   PkMobile,
 } from "@/types/order";
 import type { Coupon } from "@/lib/coupons";
+import {
+  launchOfferDiscountPkr,
+  OFFER_COUPON_MESSAGE,
+  OFFER_NAME,
+} from "@/lib/offers";
 import type {
   CatalogProduct,
   CatalogVariant,
@@ -371,6 +376,9 @@ export function isIp(v: string): boolean {
 }
 
 export interface ResolvedLine {
+  /** Our product id, and the store's unit price: the launch offer is worked out from them. */
+  productId: string;
+  unitPricePkr: number;
   wooProductId: number;
   wooVariationId: number;
   quantity: number;
@@ -398,6 +406,8 @@ export function buildOrderBody(
   shippingPkr: number,
 ) {
   const { first, last } = splitName(input.customer.fullName);
+  const offerPkr = launchOfferDiscountPkr(lines);
+  if (offerPkr > 0 && input.couponCode) throw new Error(OFFER_COUPON_MESSAGE);
   const address = {
     ...(input.email ? { email: input.email } : {}),
     first_name: first,
@@ -446,6 +456,18 @@ export function buildOrderBody(
       ],
     })),
     ...(input.couponCode ? { coupon_lines: [{ code: input.couponCode }] } : {}),
+    // Launch offer: a negative fee, so the total is right and the order shows it.
+    ...(offerPkr > 0
+      ? {
+          fee_lines: [
+            {
+              name: OFFER_NAME,
+              tax_status: "none",
+              total: String(-offerPkr),
+            },
+          ],
+        }
+      : {}),
     ...(input.customerId ? { customer_id: input.customerId } : {}),
     ...(input.customerIp && isIp(input.customerIp)
       ? { customer_ip_address: input.customerIp }
@@ -504,6 +526,12 @@ export function mapOrder(o: WooOrder, catalog: CatalogProduct[]): Order {
     ...(landmark ? { landmark } : {}),
   };
 
+  // Coupon discount, plus the launch offer (a negative fee line named OFFER_NAME).
+  const offerPkr = (o.fee_lines ?? [])
+    .filter((f) => f.name === OFFER_NAME)
+    // parsePkr refuses negatives, so read the (negative) fee as a plain number.
+    .reduce((s, f) => s + Math.max(0, Math.round(-Number(f.total) || 0)), 0);
+  const discountPkr = (parsePkr(o.discount_total ?? "") ?? 0) + offerPkr;
   const lines = o.line_items.map((li) => {
     const templateId = metaValue(li.meta_data, META.templateId);
     const noteProduct = metaValue(li.meta_data, META.baseProduct);
@@ -576,9 +604,7 @@ export function mapOrder(o: WooOrder, catalog: CatalogProduct[]): Order {
       : {}),
     lines,
     shippingPkr: parsePkr(o.shipping_total) ?? 0,
-    ...((parsePkr(o.discount_total ?? "") ?? 0) > 0
-      ? { discountPkr: parsePkr(o.discount_total ?? "") ?? 0 }
-      : {}),
+    ...(discountPkr > 0 ? { discountPkr } : {}),
     totalPkr: parsePkr(o.total) ?? 0,
     paymentMethod: "cod",
   };

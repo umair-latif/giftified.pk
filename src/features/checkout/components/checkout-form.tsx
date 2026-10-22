@@ -597,6 +597,14 @@ export function CheckoutForm() {
           <dd className="text-right" data-testid="subtotal">
             {quote ? formatPkr(quote.subtotalPkr) : "…"}
           </dd>
+          {quote && quote.offerDiscountPkr > 0 && (
+            <>
+              <dt className="text-ink/65">Launch offer</dt>
+              <dd className="text-right" data-testid="offer">
+                −{formatPkr(quote.offerDiscountPkr)}
+              </dd>
+            </>
+          )}
           {quote && quote.discountPkr > 0 && (
             <>
               <dt className="text-ink/65">Coupon</dt>

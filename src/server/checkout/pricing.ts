@@ -3,6 +3,11 @@ import { canonicalCity } from "@/config/cities";
 import type { ProductId } from "@/config/products";
 import type { CommerceClient } from "@/lib/commerce";
 import {
+  launchOfferDiscountPkr,
+  OFFER_COUPON_MESSAGE,
+  type OfferLine,
+} from "@/lib/offers";
+import {
   couponMessage,
   evaluateCoupon,
   normalizeCouponCode,
@@ -26,6 +31,8 @@ export interface CartPricing {
   lineTitles: (string | null)[];
   /** Whole rupees off from the coupon (0 = none). */
   discountPkr: number;
+  /** Whole rupees off from the launch offer, buy 1 mug get 1 free (0 = none). */
+  offerDiscountPkr: number;
   /** The accepted coupon code, lower-case. */
   couponCode?: string;
   /** Why a coupon was refused (customer-facing). */
@@ -65,6 +72,7 @@ export async function priceCart(
   ]);
 
   const couponLines: CouponLine[] = [];
+  const offerLines: OfferLine[] = [];
   const unitPricePkr = input.lines.map((l) => {
     const product = products[ids.indexOf(l.productId)];
     if (l.templateId) {
@@ -74,6 +82,11 @@ export async function priceCart(
       couponLines.push({
         wooProductId: d.wooProductId,
         categoryIds: d.categoryIds ?? [],
+        unitPricePkr: d.pricePkr,
+        quantity: l.quantity,
+      });
+      offerLines.push({
+        productId: l.productId,
         unitPricePkr: d.pricePkr,
         quantity: l.quantity,
       });
@@ -93,6 +106,12 @@ export async function priceCart(
         unitPricePkr: variant.pricePkr,
         quantity: l.quantity,
       });
+    if (variant)
+      offerLines.push({
+        productId: l.productId,
+        unitPricePkr: variant.pricePkr,
+        quantity: l.quantity,
+      });
     return variant?.pricePkr ?? null;
   });
   const subtotalPkr = input.lines.reduce(
@@ -100,11 +119,16 @@ export async function priceCart(
     0,
   );
 
+  const offerDiscountPkr = launchOfferDiscountPkr(offerLines);
+
   let discountPkr = 0;
   let couponCode: string | undefined;
   let couponError: string | undefined;
   let freeShipping = false;
-  if (input.couponCode?.trim() && couponLines.length > 0) {
+  if (input.couponCode?.trim() && offerDiscountPkr > 0) {
+    // One discount per order: the launch offer never stacks with a coupon.
+    couponError = OFFER_COUPON_MESSAGE;
+  } else if (input.couponCode?.trim() && couponLines.length > 0) {
     const code = normalizeCouponCode(input.couponCode);
     const result = evaluateCoupon(
       await commerce.findCoupon(code),
@@ -130,9 +154,10 @@ export async function priceCart(
     ),
     subtotalPkr,
     discountPkr,
+    offerDiscountPkr,
     ...(couponCode ? { couponCode } : {}),
     ...(couponError ? { couponError } : {}),
     shippingPkr,
-    totalPkr: subtotalPkr - discountPkr + (shippingPkr ?? 0),
+    totalPkr: subtotalPkr - discountPkr - offerDiscountPkr + (shippingPkr ?? 0),
   };
 }

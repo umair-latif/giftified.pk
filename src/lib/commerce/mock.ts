@@ -4,6 +4,7 @@ import {
   normalizeCouponCode,
   type Coupon,
 } from "@/lib/coupons";
+import { launchOfferDiscountPkr, OFFER_COUPON_MESSAGE } from "@/lib/offers";
 import { descriptionHtml } from "./woo-map";
 import type {
   CreateOrderInput,
@@ -324,7 +325,9 @@ export function createMockCommerce(
         (s, l) => s + l.unitPricePkr * l.quantity,
         0,
       );
-      let discountPkr = 0;
+      let discountPkr = launchOfferDiscountPkr(lines);
+      if (discountPkr > 0 && input.couponCode)
+        throw new Error(OFFER_COUPON_MESSAGE);
       if (input.couponCode) {
         const coupon = coupons.get(normalizeCouponCode(input.couponCode));
         const result = evaluateCoupon(
