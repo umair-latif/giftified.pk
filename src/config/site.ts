@@ -18,9 +18,8 @@ function isPreviewSite(): boolean {
  */
 export const OFFER = {
   enabled: false,
-  headline: "Buy one mug, get one free",
-  cta: "Shop mugs",
-  terms: "Lower-priced mug free · 1 offer per order · Delivery extra",
+  headline: "Launch offer: buy 1 mug, get 1 free.",
+  cta: "Shop or customise mugs.",
   href: "/designs?product=mugs",
   endsAt: null as string | null,
 };
