@@ -8,5 +8,8 @@ export default defineConfig({
   test: {
     include: ["tests/unit/**/*.test.ts"],
     environment: "node",
+    // Unit tests price carts of two mugs everywhere: keep the launch offer off
+    // unless a test switches it on (OFFER.enabled = true).
+    env: { OFFER_ENABLED: "0" },
   },
 });

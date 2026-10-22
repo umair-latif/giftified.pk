@@ -38,6 +38,8 @@ export default defineConfig({
     // e2e runs a production build without WooCommerce: opt in to the mock store.
     env: {
       COMMERCE_MOCK: "1",
+      // Existing flows price two-mug carts and coupons at full price.
+      OFFER_ENABLED: "0",
       TEMPLATE_EDITOR_EMAILS: "template-editor@example.pk",
     },
   },
