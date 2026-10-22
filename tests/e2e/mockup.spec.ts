@@ -79,14 +79,14 @@ test("preview gallery: arrows and swiping move between views", async ({
       "aria-current",
       "true",
     );
-  // Mug views run right, front, left, lifestyle, flat lay.
-  await current("right");
+  // Mug views run left, front, right, lifestyle, flat lay (PR #196).
+  await current("left");
   // Arrows show on a phone too; none before the first picture.
   await expect(page.getByTestId("preview-prev")).toBeHidden();
   await page.getByTestId("preview-next").tap();
   await current("front");
   await page.getByTestId("preview-prev").tap();
-  await current("right");
+  await current("left");
 
   // Swipe left (drag) on the picture -> next view; swipe right -> back.
   const box = (await page.getByTestId("preview-mockup").boundingBox())!;
@@ -100,7 +100,7 @@ test("preview gallery: arrows and swiping move between views", async ({
   await drag(0.8, 0.2);
   await current("front");
   await drag(0.2, 0.8);
-  await current("right");
+  await current("left");
 });
 
 test("black mug: black canvas in the editor, black photos in the preview, Rs 1,000 in the cart", async ({
