@@ -7,6 +7,7 @@ import {
   type CatalogCard,
 } from "@/features/templates/components/design-catalog";
 import {
+  DESIGN_PRODUCT_GROUPS,
   DESIGN_SORTS,
   occasionsOf,
   parseDesignFilters,
@@ -67,9 +68,18 @@ export default async function DesignsPage({
     };
   });
   // Only offer filters that have designs behind them.
-  const products = editableProductIds()
+  const products: { id: string; label: string }[] = editableProductIds()
     .filter((id) => all.some((t) => t.productId === id))
     .map((id) => ({ id, label: productName(id) }));
+  // "All mugs" chip first among the mug chips, when more than one mug has designs.
+  const mugs = products.filter((p) =>
+    (DESIGN_PRODUCT_GROUPS.mugs as readonly string[]).includes(p.id),
+  );
+  if (mugs.length > 1)
+    products.splice(products.indexOf(mugs[0]!), 0, {
+      id: "mugs",
+      label: "All mugs",
+    });
   const occasions = OCCASIONS.filter((o) =>
     designs.some((d) => d.occasions.includes(o.slug)),
   );

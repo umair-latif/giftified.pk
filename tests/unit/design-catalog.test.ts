@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   occasionsOf,
+  parseDesignFilters,
   selectDesigns,
   type CatalogDesign,
 } from "@/features/templates/design-filters";
@@ -81,5 +82,24 @@ describe("design catalog", () => {
     expect(selectDesigns(all, { sort: "price-desc" }).map((x) => x.id)).toEqual(
       ["b", "a", "c", "d"],
     );
+  });
+
+  it('the "mugs" group matches every mug type but nothing else', () => {
+    const withDual = [
+      ...all,
+      d("e", "Dual – Mug", "two-tone-mug", [], 1500, "2026-10-10"),
+    ];
+    expect(
+      selectDesigns(withDual, { product: "mugs", sort: "price-asc" }).map(
+        (x) => x.id,
+      ),
+    ).toEqual(["c", "a", "e"]);
+  });
+
+  it("reads product=mugs (the offer banner link) from the address", () => {
+    expect(parseDesignFilters({ product: "mugs" })).toEqual({
+      product: "mugs",
+    });
+    expect(parseDesignFilters({ product: "nonsense" })).toEqual({});
   });
 });
