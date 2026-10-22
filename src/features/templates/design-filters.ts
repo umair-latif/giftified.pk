@@ -1,9 +1,22 @@
 import { PRODUCT_IDS, type ProductId } from "@/config/products";
 import { OCCASION_SLUGS, type OccasionSlug } from "@/server/templates/types";
 
+/**
+ * Product groups the /designs `product` filter also accepts: "mugs" is every
+ * mug (Custom and Dual Accent), for links like the mug offer banner.
+ */
+export const DESIGN_PRODUCT_GROUPS = {
+  mugs: ["mug", "two-tone-mug"],
+} as const satisfies Record<string, readonly ProductId[]>;
+
+export type DesignProductGroup = keyof typeof DESIGN_PRODUCT_GROUPS;
+
+const isGroup = (v: string): v is DesignProductGroup =>
+  Object.hasOwn(DESIGN_PRODUCT_GROUPS, v);
+
 /** Filters on /designs, from the query string (unknown values are ignored). */
 export interface DesignFilters {
-  product?: ProductId;
+  product?: ProductId | DesignProductGroup;
   occasion?: OccasionSlug;
 }
 
@@ -16,6 +29,7 @@ export function parseDesignFilters(
   const product = first(params.product);
   const occasion = first(params.occasion);
   return {
+    ...(product && isGroup(product) ? { product } : {}),
     ...(product && (PRODUCT_IDS as readonly string[]).includes(product)
       ? { product: product as ProductId }
       : {}),
@@ -68,6 +82,13 @@ const norm = (s: string) =>
     .replace(/[^a-z0-9]+/g, " ")
     .trim();
 
+/** A design's product against the filter: an exact product id, or a group such as "mugs". */
+function matchesProduct(productId: string, filter: string): boolean {
+  return isGroup(filter)
+    ? (DESIGN_PRODUCT_GROUPS[filter] as readonly string[]).includes(productId)
+    : productId === filter;
+}
+
 /**
  * Designs matching the product, occasion and search text (name, product or
  * occasion; every word must match), sorted. Pure, so the server render and
@@ -81,7 +102,7 @@ export function selectDesigns<T extends CatalogDesign>(
     .split(" ")
     .filter(Boolean);
   const out = designs.filter((d) => {
-    if (f.product && d.productId !== f.product) return false;
+    if (f.product && !matchesProduct(d.productId, f.product)) return false;
     if (f.occasion && !d.occasions.includes(f.occasion)) return false;
     if (words.length === 0) return true;
     const hay = norm([d.name, d.productName, ...d.occasionLabels].join(" "));

@@ -312,6 +312,8 @@ describe("design product lines", () => {
       },
       [
         {
+          productId: "mug",
+          unitPricePkr: 1500,
           wooProductId: 777,
           wooVariationId: 0,
           quantity: 2,

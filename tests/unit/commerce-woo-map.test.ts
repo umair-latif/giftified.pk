@@ -259,7 +259,14 @@ describe("buildOrderBody — delivery address", () => {
     lines: [],
   };
   const lines = [
-    { wooProductId: 101, wooVariationId: 1011, quantity: 1, designId: "d1" },
+    {
+      productId: "tshirt",
+      unitPricePkr: 1999,
+      wooProductId: 101,
+      wooVariationId: 1011,
+      quantity: 1,
+      designId: "d1",
+    },
   ];
 
   it("uses one address for billing and shipping by default", () => {

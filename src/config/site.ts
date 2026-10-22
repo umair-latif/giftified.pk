@@ -9,6 +9,34 @@ function isPreviewSite(): boolean {
   return process.env.NODE_ENV === "development";
 }
 
+/** On by default; `OFFER_ENABLED=0` / `=1` overrides it (Vercel env var, tests). */
+function offerEnabled(): boolean {
+  const flag = process.env.OFFER_ENABLED;
+  return flag === "1" || flag === "0" ? flag === "1" : true;
+}
+
+/**
+ * The site-wide offer bar above the header (components/site/offer-banner.tsx).
+ * Pilot: buy one mug, get one free (the lower-priced mug), mugs only, one offer
+ * per order, delivery not included. Both the bar and the discount follow
+ * `enabled`; set `OFFER_ENABLED=0` in the environment to switch the pilot off
+ * without a code change (the shop pages are built statically, so redeploy). `endsAt` (ISO 8601, Pakistan time) hides the bar
+ * by itself; null = no end date.
+ */
+export const OFFER = {
+  enabled: offerEnabled(),
+  headline: "Launch offer: buy 1 mug, get 1 free.",
+  cta: "Shop or customise mugs.",
+  href: "/designs?product=mugs",
+  endsAt: null as string | null,
+};
+
+/** True while the offer bar should show: enabled and not past `endsAt`. */
+export function offerIsLive(now: number = Date.now()): boolean {
+  if (!OFFER.enabled) return false;
+  return !OFFER.endsAt || now <= Date.parse(OFFER.endsAt);
+}
+
 export const SITE = {
   name: "DesignBanana",
   /**

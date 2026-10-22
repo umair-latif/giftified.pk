@@ -92,6 +92,10 @@ export const wooOrderSchema = z.object({
   billing: wooAddressSchema,
   shipping: wooAddressSchema,
   line_items: z.array(wooLineItemSchema),
+  /** Negative fees: the launch offer is one (lib/offers.ts OFFER_NAME). */
+  fee_lines: z
+    .array(z.object({ name: z.string(), total: z.string() }))
+    .optional(),
   meta_data: z.array(wooMetaSchema).default([]),
 });
 export type WooOrder = z.infer<typeof wooOrderSchema>;
