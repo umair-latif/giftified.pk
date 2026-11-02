@@ -1,3 +1,4 @@
+import { CARD, cardSuitOf } from "@/features/editor/engine/card-frame";
 import {
   fitFace,
   fontForFamily,
@@ -118,6 +119,9 @@ export function designFontFaces(fabric: Json): FaceRef[] {
         }
       }
     }
+    // Playing-card frames draw their corner letter in the serif.
+    if (cardSuitOf(o.frameShape))
+      add(fontForFamily(`'${CARD.font.family}'`), CARD.font.weight, "normal");
     if (Array.isArray(o.objects)) o.objects.filter(isObj).forEach(visit);
   };
   visit(fabric);

@@ -307,6 +307,44 @@ describe("renderPrintFile — images from originals", () => {
     expect(atMm(108, 44.5)[3]).toBe(255); // photo still there
   });
 
+  it("draws a playing card round the photo, with the letter in the corner", async () => {
+    // Photo box 100 × 40 mm centred (108, 44.5); card units: window 463 × 834.
+    const mm = (ux: number, uy: number) =>
+      [108 + (ux * 100) / 463, 44.5 + (uy * 40) / 834] as const;
+    const render = async (letter: string) => {
+      const doc = imageDesign();
+      Object.assign((doc.fabric.objects as Record<string, unknown>[])[0]!, {
+        frameShape: "card-heart",
+        frameLetter: letter,
+      });
+      return pixels((await renderPrintFile(doc, { resolveAsset })).png);
+    };
+    const { atMm } = await render("K");
+    const at = (ux: number, uy: number) => {
+      const p = atMm(...mm(ux, uy));
+      return [p[0], p[1], p[2], p[3]];
+    };
+    expect(at(-300, 0)).toEqual([255, 255, 255, 255]); // white card body
+    expect(at(-375, 0)[3]).toBe(255); // still card, near its edge
+    expect(at(-395, 0)[3]).toBe(0); // outside the card
+    expect(at(0, 0)[3]).toBe(255); // photo still there
+    // The inner frame's outer bar, in the artwork red (198, 22, 24).
+    expect(at(-258, 0)).toEqual([198, 22, 24, 255]);
+
+    // Red ink in the letter box only when there is a letter.
+    const redIn = (a: typeof atMm) => {
+      let n = 0;
+      for (let ux = -368; ux <= -281; ux += 3)
+        for (let uy = -500; uy <= -416; uy += 3) {
+          const [r, g, , al] = a(...mm(ux, uy));
+          if (al === 255 && r > 150 && g < 100) n++;
+        }
+      return n;
+    };
+    expect(redIn(atMm)).toBeGreaterThan(20);
+    expect(redIn((await render("")).atMm)).toBe(0);
+  });
+
   it("throws a clear error naming a missing asset", async () => {
     const doc = imageDesign();
     const obj = (doc.fabric.objects as Record<string, unknown>[])[0]!;

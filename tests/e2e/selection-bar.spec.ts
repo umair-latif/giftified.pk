@@ -293,6 +293,25 @@ test("crop & shape: pick a shape, it is remembered, and Replace keeps the frame"
   await dialog.getByRole("button", { name: "Done" }).click();
   await expect(status(page)).toHaveText(/ 0°/); // tilt undone
 
+  // Playing card: drawn round the photo, letter typed once (capitalised).
+  await bar(page).getByRole("button", { name: "Crop & frames" }).click();
+  await expect(dialog.getByLabel("Card letter")).toHaveCount(0);
+  await dialog.getByRole("radio", { name: "Heart card" }).click();
+  await expect(dialog.getByTestId("card-frame")).toBeVisible();
+  const letter = dialog.getByLabel("Card letter");
+  await expect(letter).toHaveValue("K");
+  await letter.fill("q!7x");
+  await expect(letter).toHaveValue("Q7");
+  await dialog.getByRole("button", { name: "Done" }).click();
+  await bar(page).getByRole("button", { name: "Crop & frames" }).click();
+  await expect(
+    dialog.getByRole("radio", { name: "Heart card" }),
+  ).toHaveAttribute("aria-checked", "true");
+  await expect(dialog.getByLabel("Card letter")).toHaveValue("Q7");
+  // Back to the square circle for the steps below.
+  await dialog.getByRole("radio", { name: "Circle" }).click();
+  await dialog.getByRole("button", { name: "Done" }).click();
+
   // Replace: a different photo goes into the same square frame.
   const before = await readout(page);
   await bar(page).getByRole("button", { name: "Replace" }).click();

@@ -19,12 +19,22 @@ import {
   type FrameShape,
 } from "../engine/frame-shape";
 import { POLAROID } from "../engine/polaroid";
+import {
+  CARD,
+  CARD_OUTER,
+  cardSuitOf,
+  drawCardFrame,
+  normaliseCardLetter,
+  type CardSuit,
+} from "../engine/card-frame";
+import { fontForFamily } from "@/config/fonts";
+import { loadFaces } from "../fonts/load-fonts";
 import type { CropTarget } from "../hooks/use-fabric-canvas";
 
 interface Props {
   target: CropTarget;
   onCancel: () => void;
-  onApply: (rect: NormRect, shape: FrameShape | null) => void;
+  onApply: (rect: NormRect, shape: FrameShape | null, letter: string) => void;
 }
 
 /**
@@ -49,10 +59,10 @@ export function CropSheet({ target, onCancel, onApply }: Props) {
     rectToView(imageAspect, target.rect),
   );
   const [shape, setShape] = useState<FrameShape | null>(target.shape);
+  const [letter, setLetter] = useState(target.letter || CARD.defaultLetter);
+  const suit = cardSuitOf(shape);
   // While an edge is being dragged the on-screen scale is frozen, so the edge stays under the finger.
-  const [lock, setLock] = useState<{ imgW: number; imgH: number } | null>(
-    null,
-  );
+  const [lock, setLock] = useState<{ imgW: number; imgH: number } | null>(null);
   const areaRef = useRef<HTMLDivElement>(null);
   const [area, setArea] = useState({ w: 320, h: 320 });
 
@@ -68,9 +78,9 @@ export function CropSheet({ target, onCancel, onApply }: Props) {
   }, []);
 
   // Frame fits the available space with 24 px breathing room.
-  // A polaroid's border sits outside the photo frame: leave it room.
+  // A polaroid's border and a playing card sit outside the photo frame: leave them room.
   const polaroid = shape === "polaroid";
-  const room = polaroid ? 0.8 : 1;
+  const room = polaroid ? 0.8 : suit ? 1 / CARD_OUTER.w : 1;
   const rect = viewToRect(imageAspect, view);
   const fitW = Math.max(
     40,
@@ -179,7 +189,13 @@ export function CropSheet({ target, onCancel, onApply }: Props) {
         <h2 className="text-sm font-semibold">Crop &amp; frames</h2>
         <button
           type="button"
-          onClick={() => onApply(viewToRect(imageAspect, view), shape)}
+          onClick={() =>
+            onApply(
+              viewToRect(imageAspect, view),
+              shape,
+              normaliseCardLetter(letter),
+            )
+          }
           className="bg-action text-ink press h-10 rounded-full px-5 text-sm font-semibold"
         >
           Done
@@ -266,6 +282,14 @@ export function CropSheet({ target, onCancel, onApply }: Props) {
                 />
               </div>
             ))}
+          {suit && (
+            <CardOverlay
+              suit={suit}
+              letter={letter}
+              width={frameW}
+              height={frameH}
+            />
+          )}
           {polaroid && (
             <div
               aria-hidden
@@ -288,6 +312,22 @@ export function CropSheet({ target, onCancel, onApply }: Props) {
       </div>
 
       <div className="space-y-3 px-4 pt-2 pb-[calc(1rem+env(safe-area-inset-bottom))]">
+        {suit && (
+          <div className="flex items-center gap-3 text-sm text-white/80">
+            <label htmlFor="card-letter">Card letter</label>
+            <input
+              id="card-letter"
+              value={letter}
+              onChange={(e) => setLetter(normaliseCardLetter(e.target.value))}
+              autoCapitalize="characters"
+              autoComplete="off"
+              spellCheck={false}
+              placeholder="K"
+              className="text-ink h-10 w-20 rounded-xl bg-white px-3 text-center text-base font-semibold"
+            />
+            <span className="text-xs text-white/60">A–Z or 0–9, up to 2</span>
+          </div>
+        )}
         <div className="flex items-center gap-3 text-sm text-white/80">
           <label htmlFor="crop-zoom">Zoom</label>
           <input
@@ -372,6 +412,66 @@ const HANDLES: { id: CropHandle; label: string; x: number; y: number }[] = [
   { id: "sw", label: "Crop bottom-left corner", x: 0, y: 1 },
   { id: "w", label: "Crop left edge", x: 0, y: 0.5 },
 ];
+
+const CARD_FACE = (() => {
+  const font = fontForFamily(`'${CARD.font.family}'`);
+  return font
+    ? [{ font, weight: CARD.font.weight, style: "normal" as const }]
+    : [];
+})();
+
+/**
+ * The playing card round the photo, drawn by the same code as the editor and
+ * the print file, on a canvas centred on the photo frame. The letter waits
+ * for its serif font, then redraws.
+ */
+function CardOverlay({
+  suit,
+  letter,
+  width,
+  height,
+}: {
+  suit: CardSuit;
+  letter: string;
+  width: number;
+  height: number;
+}) {
+  const ref = useRef<HTMLCanvasElement>(null);
+  const [fontReady, setFontReady] = useState(0);
+  useEffect(() => {
+    let live = true;
+    void loadFaces(CARD_FACE).then(() => live && setFontReady((n) => n + 1));
+    return () => {
+      live = false;
+    };
+  }, []);
+  const outerW = width * CARD_OUTER.w;
+  const outerH = height * CARD_OUTER.h;
+  useEffect(() => {
+    const canvas = ref.current;
+    const ctx = canvas?.getContext("2d");
+    if (!canvas || !ctx) return;
+    const dpr = window.devicePixelRatio || 1;
+    canvas.width = Math.round(outerW * dpr);
+    canvas.height = Math.round(outerH * dpr);
+    ctx.setTransform(dpr, 0, 0, dpr, (outerW * dpr) / 2, (outerH * dpr) / 2);
+    drawCardFrame(ctx, width, height, suit, letter);
+  }, [suit, letter, width, height, outerW, outerH, fontReady]);
+  return (
+    <canvas
+      ref={ref}
+      aria-hidden
+      data-testid="card-frame"
+      className="pointer-events-none absolute"
+      style={{
+        width: outerW,
+        height: outerH,
+        left: (width - outerW) / 2,
+        top: (height - outerH) / 2,
+      }}
+    />
+  );
+}
 
 const clampZoom = (z: number) => Math.min(MAX_CROP_ZOOM, Math.max(1, z));
 

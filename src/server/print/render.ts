@@ -1,6 +1,7 @@
 import type { Canvas as NodeCanvas } from "canvas";
 import type { FabricObject } from "fabric";
 import { installPolaroid } from "@/features/editor/engine/polaroid";
+import { installCardFrame } from "@/features/editor/engine/card-frame";
 import { buildFrameClip } from "@/features/editor/engine/frame-shape";
 import { parseAssetRef } from "@/features/editor/assets/asset-ref";
 import { migrateDesignFonts } from "@/features/editor/fonts/migrate";
@@ -189,6 +190,7 @@ export const renderPrintFile: RenderPrintFile = async (doc, opts = {}) => {
   await registerServerFonts();
   const { StaticCanvas, FabricImage, Path } = await import("fabric/node");
   installPolaroid(FabricImage);
+  installCardFrame(FabricImage);
   const canvas = new StaticCanvas(undefined, {
     width,
     height,

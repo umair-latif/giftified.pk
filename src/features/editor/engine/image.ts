@@ -14,10 +14,18 @@ import { FULL_RECT, viewToRect, type NormRect } from "./crop";
 import { buildFrameClip, isFrameShape, type FrameShape } from "./frame-shape";
 import { initialImageWidthMm } from "./image-fit";
 import { POLAROID, installPolaroid } from "./polaroid";
+import {
+  CARD,
+  CARD_OUTER,
+  cardSuitOf,
+  installCardFrame,
+  normaliseCardLetter,
+} from "./card-frame";
 
 // Serialise our asset metadata with every image (history, drafts, orders).
 FabricImage.customProperties = [...IMAGE_CUSTOM_PROPS];
 installPolaroid(FabricImage);
+installCardFrame(FabricImage);
 
 export interface ImageAssetMeta {
   assetId: string;
@@ -35,6 +43,8 @@ interface PreviewMeta {
 export type AssetImage = FabricImage &
   Partial<ImageAssetMeta & PreviewMeta> & {
     frameShape?: FrameShape;
+    /** Playing-card frames: the corner letter. */
+    frameLetter?: string;
     /** "Customer's photo": must be replaced before ordering. */
     placeholder?: boolean;
     /** Sample-library photo shown in a customer's photo. */
@@ -114,10 +124,20 @@ export function applyCrop(
   rect: NormRect = FULL_RECT,
   shape?: FrameShape | null,
   softShadow = false,
+  letter?: string,
+  /** The print area, so a new playing card fits inside its safe zone. */
+  area?: PrintArea,
 ): void {
   const img = canvas.getActiveObject();
   if (!isAssetImage(img)) return;
+  const wasCard = !!cardSuitOf(img.frameShape);
   if (shape !== undefined) setFrameShape(img, shape, softShadow);
+  const isCard = !!cardSuitOf(img.frameShape);
+  if (isCard) {
+    if (letter !== undefined) img.frameLetter = normaliseCardLetter(letter);
+    else if (img.frameLetter === undefined)
+      img.frameLetter = CARD.defaultLetter;
+  } else delete img.frameLetter;
   const { w, h } = previewSize(img);
   const printedWidthMm = img.getScaledWidth();
   const centre = img.getCenterPoint();
@@ -127,7 +147,21 @@ export function applyCrop(
     width: rect.w * w,
     height: rect.h * h,
   });
-  const scale = printedWidthMm / img.width;
+  let scale = printedWidthMm / img.width;
+  if (isCard && !wasCard) {
+    // The card is ~1.65× wider and ~1.29× taller than the photo: when it is
+    // first chosen, shrink it to fit the print area and pull it inside, so
+    // the corner letters are never cut off.
+    const fit = fitCardToArea(
+      canvas,
+      area,
+      img.width * scale,
+      img.height * scale,
+    );
+    scale *= fit.scale;
+    centre.x = clamp(centre.x, fit.min.x, fit.max.x);
+    centre.y = clamp(centre.y, fit.min.y, fit.max.y);
+  }
   img.set({ scaleX: scale, scaleY: scale });
   img.setPositionByOrigin(new Point(centre.x, centre.y), "center", "center");
   refreshFrameClip(img);
@@ -135,6 +169,42 @@ export function applyCrop(
   canvas.requestRenderAll();
   canvas.fire("object:modified", { target: img });
 }
+
+/**
+ * How much a photo of `photoW` × `photoH` mm must shrink so its playing card
+ * fits inside the print area's safe zone, and where its centre may then sit.
+ * Without `area` the canvas is used (scene units are mm), with no margin.
+ */
+function fitCardToArea(
+  canvas: Canvas,
+  area: PrintArea | undefined,
+  photoW: number,
+  photoH: number,
+) {
+  const zoom = canvas.viewportTransform[0] || 1;
+  const areaW = area?.widthMm ?? canvas.getWidth() / zoom;
+  const areaH = area?.heightMm ?? canvas.getHeight() / zoom;
+  const m = area?.safeMarginMm ?? 0;
+  const cardW = photoW * CARD_OUTER.w;
+  const cardH = photoH * CARD_OUTER.h;
+  const scale = Math.min(1, (areaW - 2 * m) / cardW, (areaH - 2 * m) / cardH);
+  const halfW = Math.min(areaW / 2, (cardW * scale) / 2);
+  const halfH = Math.min(areaH / 2, (cardH * scale) / 2);
+  return {
+    scale,
+    min: {
+      x: Math.min(areaW / 2, m + halfW),
+      y: Math.min(areaH / 2, m + halfH),
+    },
+    max: {
+      x: Math.max(areaW / 2, areaW - m - halfW),
+      y: Math.max(areaH / 2, areaH - m - halfH),
+    },
+  };
+}
+
+const clamp = (v: number, lo: number, hi: number) =>
+  Math.min(Math.max(v, lo), hi);
 
 /**
  * Sets the shape. A polaroid also gets a slight tilt and, where the product
@@ -170,6 +240,11 @@ function setFrameShape(
 /** The photo's frame shape (null = plain rectangle). */
 export function getFrameShape(img: AssetImage): FrameShape | null {
   return isFrameShape(img.frameShape) ? img.frameShape : null;
+}
+
+/** The corner letter of a playing-card frame ("" = none or not a card). */
+export function getFrameLetter(img: AssetImage): string {
+  return cardSuitOf(img.frameShape) ? normaliseCardLetter(img.frameLetter) : "";
 }
 
 /** Rebuilds the clip from `frameShape` for the photo's current visible box. */
