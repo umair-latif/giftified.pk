@@ -59,6 +59,8 @@ export interface CropTarget {
   rect: NormRect;
   /** Current frame shape, null = plain rectangle. */
   shape: FrameShape | null;
+  /** Corner letter of a playing-card frame ("" when not a card). */
+  letter: string;
 }
 
 export interface PrintQuality {
@@ -467,6 +469,7 @@ export function useFabricCanvas(
       imageAspect: previewW / previewH,
       rect: full,
       shape: engine.getFrameShape(obj),
+      letter: engine.getFrameLetter(obj),
     };
   }, []);
 
@@ -528,10 +531,17 @@ export function useFabricCanvas(
   );
 
   const applyCrop = useCallback(
-    (rect: NormRect, shape: FrameShape | null) =>
+    (rect: NormRect, shape: FrameShape | null, letter?: string) =>
       // Soft shadows are only OK on mugs; apparel prints none (vendors unconfirmed).
       run((e, dc) =>
-        e.applyCrop(dc.canvas, rect, shape, product.kind === "mug"),
+        e.applyCrop(
+          dc.canvas,
+          rect,
+          shape,
+          product.kind === "mug",
+          letter,
+          dc.area,
+        ),
       ),
     [run, product.kind],
   );

@@ -330,8 +330,8 @@ export function DesignEditor({
         <CropSheet
           target={cropTarget}
           onCancel={() => setCropTarget(null)}
-          onApply={(rect, shape) => {
-            ed.applyCrop(rect, shape);
+          onApply={(rect, shape, letter) => {
+            ed.applyCrop(rect, shape, letter);
             setCropTarget(null);
           }}
         />

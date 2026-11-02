@@ -7,6 +7,8 @@
  * stored on the image. The clip is rebuilt from the id wherever the photo's
  * pixel size changes (preview → original), never trusted from saved JSON.
  */
+import { CARD } from "./card-frame";
+
 export const FRAME_SHAPES = [
   "circle",
   "rounded",
@@ -14,6 +16,8 @@ export const FRAME_SHAPES = [
   "arch",
   "star",
   "polaroid",
+  "card-heart",
+  "card-diamond",
 ] as const;
 export type FrameShape = (typeof FRAME_SHAPES)[number];
 
@@ -74,6 +78,19 @@ export const FRAME_SHAPE_INFO: Record<FrameShape, FrameShapeInfo> = {
     id: "polaroid",
     label: "Polaroid",
     aspect: 1,
+    path: "",
+  },
+  // Not cut-outs either: the playing card is drawn by `card-frame.ts`.
+  "card-heart": {
+    id: "card-heart",
+    label: "Heart card",
+    aspect: CARD.window.w / CARD.window.h,
+    path: "",
+  },
+  "card-diamond": {
+    id: "card-diamond",
+    label: "Diamond card",
+    aspect: CARD.window.w / CARD.window.h,
     path: "",
   },
 };

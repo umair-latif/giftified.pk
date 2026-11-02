@@ -13,6 +13,8 @@ export const IMAGE_CUSTOM_PROPS = [
   "previewWidthPx",
   "previewHeightPx",
   "frameShape",
+  /** Playing-card frames: the letter in the corners ("K", "Q", an initial). */
+  "frameLetter",
   /** "Customer's photo": a sample the customer must replace before ordering. */
   "placeholder",
   /** Which sample-library photo a customer's photo shows (designers pick it). */

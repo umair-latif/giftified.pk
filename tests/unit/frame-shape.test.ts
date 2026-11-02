@@ -24,7 +24,8 @@ class FakePath {
 
 describe("frame shapes", () => {
   it("every shape is a closed path inside the 0–100 square", () => {
-    for (const id of FRAME_SHAPES.filter((s) => s !== "polaroid")) {
+    // Polaroid and the playing cards are drawn frames, not cut-outs.
+    for (const id of FRAME_SHAPES.filter((s) => FRAME_SHAPE_INFO[s].path)) {
       const { path } = FRAME_SHAPE_INFO[id];
       expect(path.startsWith("M")).toBe(true);
       expect(path.endsWith("Z")).toBe(true);
@@ -57,8 +58,10 @@ describe("frame shapes", () => {
     });
   });
 
-  it("a polaroid is a border, not a clip", () => {
+  it("a polaroid or a playing card is a drawn frame, not a clip", () => {
     expect(buildFrameClip(FakePath, "polaroid", 600, 600)).toBeNull();
+    expect(buildFrameClip(FakePath, "card-heart", 463, 834)).toBeNull();
+    expect(buildFrameClip(FakePath, "card-diamond", 463, 834)).toBeNull();
   });
 
   it("returns null for no shape, unknown shape or an empty box", () => {

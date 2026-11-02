@@ -34,6 +34,7 @@ export {
   applyCrop,
   getCrop,
   getFrameShape,
+  getFrameLetter,
   isAssetImage,
   objectDpi,
   replaceImage,
