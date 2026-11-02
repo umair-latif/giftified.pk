@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { BannerCard } from "@/components/ui/banner-card";
 import { CardCta } from "@/components/ui/card-cta";
 import { Container } from "@/components/ui/page";
 import { PromoCard } from "@/components/ui/promo-card";
@@ -17,12 +18,27 @@ export const OCCASIONS: readonly { slug: string; label: string }[] = [
 ];
 
 /**
- * Artwork behind the featured tile, per occasion. Occasions without a picture
+ * Artwork for the featured tile, per occasion. Occasions without a picture
  * fall back to the plain tile, so a new occasion never ships a broken one.
- * 1200x400 WebP with a flat `brand`-teal left half (docs/ops/banner-assets.md).
+ * - `banner`: 1600x800 WebP, picture on top on phones, half and half on
+ *   desktop (BannerCard). New occasion art is drawn this way.
+ * - `promo`: the older 1200x400 strip with a flat teal left half (PromoCard),
+ *   kept until that art is redrawn at 2:1.
+ * Spec for both: docs/ops/banner-assets.md.
  */
-const OCCASION_ART: Partial<Record<string, string>> = {
-  birthday: "/banners/occasion-birthday.webp",
+const OCCASION_ART: Partial<
+  Record<
+    string,
+    | { layout: "banner"; src: string; bg: "page" | "brand" | "action" }
+    | { layout: "promo"; src: string }
+  >
+> = {
+  birthday: { layout: "promo", src: "/banners/occasion-birthday.webp" },
+  shaadi: {
+    layout: "banner",
+    src: "/banners/occasion-shaadi.webp",
+    bg: "page",
+  },
 };
 
 /**
@@ -36,6 +52,12 @@ const OCCASION_ART: Partial<Record<string, string>> = {
 export function Occasions({ featured }: { featured: FeaturedOccasion }) {
   const main = OCCASIONS.find((o) => o.slug === featured.slug) ?? OCCASIONS[1]!;
   const rest = OCCASIONS.filter((o) => o.slug !== main.slug);
+  const art = OCCASION_ART[main.slug];
+  const href = `/occasions/${main.slug}` as const;
+  const eyebrow = featured.season ?? (featured.date ? "Coming up" : "Any time");
+  const title = `${main.label} designs`;
+  const body = "Start from a ready-made design and make it yours.";
+  const cta = `See ${main.label} designs`;
   return (
     <section aria-labelledby="home-occasions" className="pt-10">
       <Container width="wide">
@@ -45,34 +67,40 @@ export function Occasions({ featured }: { featured: FeaturedOccasion }) {
         <p className="text-ink mt-1 text-sm">
           Pick a moment and start from a ready-made design.
         </p>
-        {OCCASION_ART[main.slug] ? (
+        {art?.layout === "banner" ? (
+          <BannerCard
+            href={href}
+            bg={art.bg}
+            art={art.src}
+            eyebrow={eyebrow}
+            title={title}
+            body={body}
+            cta={cta}
+            testId="featured-occasion"
+            className="mt-4"
+          />
+        ) : art?.layout === "promo" ? (
           <PromoCard
-            href={`/occasions/${main.slug}`}
+            href={href}
             bg="brand"
-            art={OCCASION_ART[main.slug]!}
-            eyebrow={featured.date ? "Coming up" : "Any time"}
-            title={`${main.label} designs`}
-            body="Start from a ready-made design and make it yours."
-            cta={`See ${main.label} designs`}
+            art={art.src}
+            eyebrow={eyebrow}
+            title={title}
+            body={body}
+            cta={cta}
             testId="featured-occasion"
             className="mt-4"
           />
         ) : (
           <Link
-            href={`/occasions/${main.slug}`}
+            href={href}
             className="card card-pop mt-4 flex min-h-28 flex-col justify-center gap-1 px-5 py-4"
             data-testid="featured-occasion"
           >
-            <span className="type-eyebrow text-deep">
-              {featured.date ? "Coming up" : "Any time"}
-            </span>
-            <span className="type-card-title text-ink">
-              {main.label} designs
-            </span>
-            <span className="text-ink text-sm">
-              Start from a ready-made design and make it yours.
-            </span>
-            <CardCta className="mt-1">{`See ${main.label} designs`}</CardCta>
+            <span className="type-eyebrow text-deep">{eyebrow}</span>
+            <span className="type-card-title text-ink">{title}</span>
+            <span className="text-ink text-sm">{body}</span>
+            <CardCta className="mt-1">{cta}</CardCta>
           </Link>
         )}
         <ul className="mt-3 flex flex-wrap gap-2" aria-label="More occasions">

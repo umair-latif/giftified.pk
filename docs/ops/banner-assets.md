@@ -1,17 +1,39 @@
 # Banner artwork
 
-Artwork for `PromoCard` (`src/components/ui/promo-card.tsx`): a tappable card
-with the picture on the right and the words on the left. Files live in
-`public/banners/`.
+Two card shapes, both with artwork in `public/banners/`:
 
-| File                                    | Where it shows                              | Card colour     |
-| --------------------------------------- | ------------------------------------------- | --------------- |
-| `public/banners/occasion-birthday.webp` | Home, the featured occasion tile (birthday) | `brand` (teal)  |
-| `public/banners/designs-mugs.webp`      | `/products`, under the product grid         | `action` (yellow) |
+- **`BannerCard`** (`src/components/ui/banner-card.tsx`), the shape for new
+  art: a 2:1 picture across the top on phones with the words underneath, and
+  half picture, half words from `md` up.
+- **`PromoCard`** (`src/components/ui/promo-card.tsx`), the older strip:
+  picture on the right, words on the left on a flat colour. Kept for the art
+  already drawn that way until it is redrawn at 2:1.
 
-Both drawn by the founder in Canva, Oct 2026.
+| File                                    | Card         | Where it shows                              | Card colour       |
+| --------------------------------------- | ------------ | ------------------------------------------- | ----------------- |
+| `public/banners/occasion-shaadi.webp`   | `BannerCard` | Home, the featured occasion tile (shaadi)   | `page` (mint)     |
+| `public/banners/occasion-birthday.webp` | `PromoCard`  | Home, the featured occasion tile (birthday) | `brand` (teal)    |
+| `public/banners/designs-mugs.webp`      | `PromoCard`  | `/products`, under the product grid         | `action` (yellow) |
 
-## What a banner file must be
+All drawn by the founder in Canva, Oct–Nov 2026.
+
+## BannerCard art (new banners)
+
+- **1600 × 800 WebP (2:1), under about 60 KB.** Flat line art; a photograph
+  will not get this small.
+- **One flat ground colour across the whole picture**, and the card's `bg` set
+  to the same colour: `page` `#f3fbf9`, `brand` `#14b8a6` or `action`
+  `#ffe135`. On a desktop the words sit on that colour next to the picture,
+  so it reads as one banner, not a picture with a band added. Lossy WebP may
+  shift the ground by one step; that is invisible.
+- **The picture is never cropped** (it keeps 2:1 on every screen), but keep
+  objects a little away from the edges so they do not touch the card outline.
+- **On a phone the whole picture is about 330 px wide**: lettering that is part
+  of the artwork (the sample designs) is fine if it is large; small text is
+  not. The headline and link are real HTML; never bake them in.
+- **Desktop shows it at about 500 × 250**, next to the words.
+
+## PromoCard art (older strip)
 
 - **1200 × 400 WebP, under 40 KB.** Flat line art compresses to this easily; a
   photograph will not.
@@ -41,11 +63,15 @@ Both drawn by the founder in Canva, Oct 2026.
 
 1. Save the WebP in `public/banners/`.
 2. For an occasion, add it to `OCCASION_ART` in `src/features/home/occasions.tsx`,
-   keyed by slug. Occasions with no entry fall back to the plain tile, so a new
+   keyed by slug, with `layout: "banner"` and its `bg` (or `layout: "promo"` for
+   an old strip). Occasions with no entry fall back to the plain tile, so a new
    occasion can never ship a broken one.
-3. Anywhere else, use `<PromoCard>` directly and give it `href`, `bg`, `art`
-   and the words.
-4. Check it at 360 px, not just on a desktop: that is where the picture and
+3. Anywhere else, use `<BannerCard>` (or `<PromoCard>`) directly and give it
+   `href`, `bg`, `art` and the words.
+4. When an occasion is featured is set in `src/config/occasion-dates.ts`:
+   dated occasions (Eid, Mother's Day, 14 August) and seasons (wedding season,
+   November until Ramadan). A season in progress wins.
+5. Check it at 360 px, not just on a desktop: that is where the picture and
    the words compete.
 
 ## Colour and contrast

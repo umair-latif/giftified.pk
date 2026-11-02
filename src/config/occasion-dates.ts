@@ -13,6 +13,35 @@ const EID: readonly { slug: "eid"; date: string }[] = [
   { slug: "eid", date: "2028-05-05" }, // Eid ul-Adha (expected)
 ];
 
+/**
+ * Seasons: stretches of weeks when one occasion is featured, ahead of any
+ * dated one (founder, 2 Nov 2026). Wedding season runs from November until
+ * Ramadan starts; Eid takes over from then, because it is under 60 days away.
+ * `until` is the last day shown, inclusive (UTC dates).
+ * TODO(owner): check each Ramadan start a few weeks before and correct `until`.
+ */
+const SEASONS: readonly {
+  slug: string;
+  label: string;
+  from: string;
+  until: string;
+}[] = [
+  // Ramadan 1448 expected to start 8 Feb 2027.
+  {
+    slug: "shaadi",
+    label: "Wedding season",
+    from: "2026-11-01",
+    until: "2027-02-07",
+  },
+  // Ramadan 1449 expected to start 28 Jan 2028.
+  {
+    slug: "shaadi",
+    label: "Wedding season",
+    from: "2027-11-01",
+    until: "2028-01-27",
+  },
+];
+
 /** Feature a dated occasion only when it is this close (days). */
 export const FEATURE_WITHIN_DAYS = 60;
 /** Without one, feature this (it is never out of season). */
@@ -43,15 +72,29 @@ export interface FeaturedOccasion {
   date: Date | null;
   /** Last day to order so it arrives in time (date − the longest delivery). */
   orderBy: Date | null;
+  /** Set when a season is featured: the tile's eyebrow ("Wedding season"). */
+  season?: string;
 }
 
-/** The next occasion worth featuring on the home page, from `today` (UTC date). */
+/**
+ * The occasion to feature on the home page, from `today` (UTC date): a season
+ * in progress, else the next dated occasion within reach, else the fallback.
+ */
 export function featuredOccasion(today: Date): FeaturedOccasion {
   const day = utc(
     today.getUTCFullYear(),
     today.getUTCMonth(),
     today.getUTCDate(),
   );
+  const iso = day.toISOString().slice(0, 10);
+  const season = SEASONS.find((s) => s.from <= iso && iso <= s.until);
+  if (season)
+    return {
+      slug: season.slug,
+      date: null,
+      orderBy: null,
+      season: season.label,
+    };
   const y = day.getUTCFullYear();
   const upcoming = [...datedFor(y), ...datedFor(y + 1)]
     .map((o) => ({

@@ -14,12 +14,28 @@ describe("featured occasion", () => {
   });
 
   it("features a dated occasion within 60 days, with an order-by date", () => {
-    const eid = on("2027-02-01");
+    const eid = on("2027-02-10");
     expect(eid.slug).toBe("eid");
     expect(ymd(eid.date)).toBe("2027-03-10");
     expect(ymd(eid.orderBy)).toBe("2027-02-28");
     const aug = on("2027-07-20");
     expect([aug.slug, ymd(aug.orderBy)]).toEqual(["14-august", "2027-08-04"]);
+  });
+
+  it("features wedding season from November until Ramadan, then Eid", () => {
+    expect(on("2026-11-02")).toEqual({
+      slug: "shaadi",
+      date: null,
+      orderBy: null,
+      season: "Wedding season",
+    });
+    // Eid is already under 60 days away, but the season still wins.
+    expect(on("2027-02-07").slug).toBe("shaadi");
+    const after = on("2027-02-08");
+    expect([after.slug, ymd(after.date)]).toEqual(["eid", "2027-03-10"]);
+    expect(after.season).toBeUndefined();
+    expect(on("2027-10-31").slug).toBe("birthday");
+    expect(on("2027-11-01").slug).toBe("shaadi");
   });
 
   it("knows Mother's Day is the 2nd Sunday of May", () => {
