@@ -18,6 +18,12 @@ test("home page: hero, products, sections, no horizontal scroll", async ({
   await expect(
     page.getByRole("region", { name: "Why DesignBanana" }),
   ).toContainText("Cash on delivery everywhere in Pakistan");
+  // One launch sticker at most. The home page is pre-built, so it follows the
+  // offer setting at BUILD time (on by default), not the e2e server's env.
+  const sticker = page.getByTestId("offer-sticker");
+  expect(await sticker.count()).toBeLessThanOrEqual(1);
+  if (await sticker.count())
+    await expect(sticker).toHaveAttribute("href", "/designs?product=mugs");
   // The featured occasion tile carries its artwork and no order-by date.
   const occasion = page.getByTestId("featured-occasion");
   await expect(occasion).toHaveAttribute("href", /\/occasions\//);
