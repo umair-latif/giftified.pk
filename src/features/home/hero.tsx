@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { buttonClass } from "@/components/ui/button";
 import { Container } from "@/components/ui/page";
+import { OfferSticker } from "./offer-sticker";
 
 /**
  * Founder's Canva picture: the shop on a phone, then the three numbered steps
@@ -23,6 +24,7 @@ export function Hero() {
         className="md:grid md:grid-cols-2 md:items-center md:gap-10"
       >
         <div>
+          <OfferSticker />
           <h1 className="type-display text-ink">
             Design it yourself. See it before you buy.
           </h1>

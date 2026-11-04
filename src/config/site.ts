@@ -29,6 +29,17 @@ export const OFFER = {
   cta: "Shop or customise mugs.",
   href: "/designs?product=mugs",
   endsAt: null as string | null,
+  /**
+   * The sticker above the home page heading (features/home/offer-sticker.tsx):
+   * a round badge (three short lines, keep them this short so they stay inside
+   * the circle) and the pink strip next to it, which links to `href`.
+   */
+  sticker: {
+    top: "Launch offer",
+    big: "1+1",
+    bottom: "on mugs",
+    strip: "See ready-made mugs",
+  },
 };
 
 /** True while the offer bar should show: enabled and not past `endsAt`. */

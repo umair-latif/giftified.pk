@@ -21,4 +21,14 @@ describe("offer bar", () => {
   it("links to the all-mugs design filter", () => {
     expect(OFFER.href).toBe("/designs?product=mugs");
   });
+
+  it("keeps the hero sticker's badge lines short enough for the circle", () => {
+    // Measured at 360 px and on desktop: these lengths fit with room to spare.
+    const { top, big, bottom, strip } = OFFER.sticker;
+    expect(top.length).toBeLessThanOrEqual(12);
+    expect(big.length).toBeLessThanOrEqual(4);
+    expect(bottom.length).toBeLessThanOrEqual(8);
+    // The strip sits next to the badge on one line at 360 px.
+    expect(strip.length).toBeLessThanOrEqual(20);
+  });
 });
