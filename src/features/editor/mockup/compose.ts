@@ -9,6 +9,7 @@ import {
   type MockupSide,
   type WrapGeometry,
 } from "./mapping";
+import { MOCKUP_QUALITY } from "./resolution";
 import { isGarmentSpec, type ProductMockupSpec } from "./specs";
 
 /** Dark mugs: how much of the body's shading darkens the ink (0 = none, 1 = all). */
@@ -20,32 +21,6 @@ function loadImage(src: string): Promise<HTMLImageElement> {
   const img = new Image();
   img.src = src;
   return img.decode().then(() => img);
-}
-
-/** Bilinear sample of premultiplied-free RGBA at fractional pixel coords. */
-function sample(
-  d: Uint8ClampedArray,
-  w: number,
-  h: number,
-  fx: number,
-  fy: number,
-  out: number[],
-) {
-  const x = Math.min(w - 1, Math.max(0, fx - 0.5));
-  const y = Math.min(h - 1, Math.max(0, fy - 0.5));
-  const x0 = Math.floor(x),
-    y0 = Math.floor(y);
-  const x1 = Math.min(w - 1, x0 + 1),
-    y1 = Math.min(h - 1, y0 + 1);
-  const tx = x - x0,
-    ty = y - y0;
-  for (let k = 0; k < 4; k++) {
-    const a = d[(y0 * w + x0) * 4 + k]!;
-    const b = d[(y0 * w + x1) * 4 + k]!;
-    const c = d[(y1 * w + x0) * 4 + k]!;
-    const e = d[(y1 * w + x1) * 4 + k]!;
-    out[k] = (a * (1 - tx) + b * tx) * (1 - ty) + (c * (1 - tx) + e * tx) * ty;
-  }
 }
 
 /**
@@ -145,47 +120,133 @@ export async function composeMockup(
   const yTo = outline
     ? H - 1
     : Math.min(H - 1, Math.ceil(y0 + bandPx + sagMax + 2));
-  const s = [0, 0, 0, 0];
+  // Each photo pixel averages a 3 × 3 grid of points of the design: it is
+  // drawn finer than the photo (resolution.ts) and the mug's edge compresses
+  // it further, so one sample per pixel would lose thin lines and small text.
+  // Everything that depends only on the column (angle, design x, outline
+  // edges) is worked out once per column, not per pixel: this loop is the
+  // slow part of the Preview step on a phone.
   const SUB = [-1 / 3, 0, 1 / 3];
+  const NS = SUB.length;
+  const xStart = Math.ceil(left) + 1;
+  const xEnd = Math.ceil(right - 1); // exclusive
+  const cols = Math.max(0, xEnd - xStart);
+  const n = cols * NS;
+  const ok = new Uint8Array(n);
+  const angles = new Float64Array(n);
+  const ix0 = new Int32Array(n);
+  const ix1 = new Int32Array(n);
+  const txs = new Float64Array(n);
+  const eTop = new Float64Array(n);
+  const eH = new Float64Array(n);
+  for (let c = 0; c < cols; c++) {
+    for (let j = 0; j < NS; j++) {
+      const k = c * NS + j;
+      const sxPhoto = xStart + c + 0.5 + SUB[j]!;
+      const angle = columnAngleDeg(sxPhoto, cx, r);
+      const mm = designXmm(angle, geo, side);
+      if (mm === null) continue;
+      ok[k] = 1;
+      angles[k] = angle;
+      const fx = Math.min(dw - 1, Math.max(0, (mm / geo.wrapMm) * dw - 0.5));
+      ix0[k] = Math.floor(fx);
+      ix1[k] = Math.min(dw - 1, ix0[k]! + 1);
+      txs[k] = fx - ix0[k]!;
+      if (outline) {
+        // Band edges follow the mug's measured top/base edges in this column.
+        const e = outlineBand(
+          outline,
+          mirror ? W - sxPhoto : sxPhoto,
+          vTop,
+          vBot,
+        );
+        eTop[k] = e.top;
+        eH[k] = e.bottom - e.top;
+      }
+    }
+  }
+
   for (let y = yFrom; y <= yTo; y++) {
-    for (let x = Math.ceil(left) + 1; x < right - 1; x++) {
-      // Average a few sub-columns: the edge of the mug compresses the design.
+    for (let c = 0; c < cols; c++) {
       let ar = 0,
         ag = 0,
         ab = 0,
         aa = 0;
-      for (const o of SUB) {
-        const angle = columnAngleDeg(x + 0.5 + o, cx, r);
-        const mm = designXmm(angle, geo, side);
-        if (mm === null) continue;
-        let inBand: number;
+      for (let j = 0; j < NS; j++) {
+        const k = c * NS + j;
+        if (!ok[k]) continue;
+        let mid: number;
         let height: number;
         if (outline) {
-          // Band edges follow the mug's measured top/base edges in this column.
-          const sx = mirror ? W - (x + 0.5 + o) : x + 0.5 + o;
-          const e = outlineBand(outline, sx, vTop, vBot);
-          height = e.bottom - e.top;
-          inBand = y + 0.5 - e.top;
+          mid = y + 0.5 - eTop[k]!;
+          height = eH[k]!;
         } else {
           // Row on a flat (centre-of-mug) scale: the band follows the mug's
-          // curved horizontal lines.
-          inBand = centreY(y + 0.5, angle, curve) - y0;
+          // curved horizontal lines. Sub-rows just shift by their offset.
+          mid = centreY(y + 0.5, angles[k]!, curve) - y0;
           height = bandPx;
         }
-        // Soft top/bottom edge (1 px) so the curved edges are not jagged.
-        const cover = Math.min(1, inBand + 0.5, height - inBand + 0.5);
-        if (cover <= 0) continue;
-        const fy = Math.min(dh, Math.max(0, (inBand / height) * dh));
-        sample(dd, dw, dh, (mm / geo.wrapMm) * dw, fy, s);
-        const a = (s[3]! / 255) * cover;
-        ar += s[0]! * a;
-        ag += s[1]! * a;
-        ab += s[2]! * a;
-        aa += a;
+        if (mid < -1 || mid > height + 1) continue;
+        const x0 = ix0[k]!;
+        const x1 = ix1[k]!;
+        const tx = txs[k]!;
+        for (let jy = 0; jy < NS; jy++) {
+          const inBand = mid + SUB[jy]!;
+          // Soft top/bottom edge so the curved edges are not jagged.
+          const cover = Math.min(
+            1,
+            3 * (inBand + 1 / 6),
+            3 * (height - inBand + 1 / 6),
+          );
+          if (cover <= 0) continue;
+          const fy = Math.min(
+            dh - 1,
+            Math.max(0, (inBand / height) * dh - 0.5),
+          );
+          const y0i = Math.floor(fy);
+          const y1i = Math.min(dh - 1, y0i + 1);
+          const ty = fy - y0i;
+          const r0 = y0i * dw;
+          const r1 = y1i * dw;
+          const a00 = (r0 + x0) * 4;
+          const a01 = (r0 + x1) * 4;
+          const a10 = (r1 + x0) * 4;
+          const a11 = (r1 + x1) * 4;
+          const w00 = (1 - tx) * (1 - ty);
+          const w01 = tx * (1 - ty);
+          const w10 = (1 - tx) * ty;
+          const w11 = tx * ty;
+          const alpha =
+            dd[a00 + 3]! * w00 +
+            dd[a01 + 3]! * w01 +
+            dd[a10 + 3]! * w10 +
+            dd[a11 + 3]! * w11;
+          if (alpha <= 0) continue;
+          const a = (alpha / 255) * cover;
+          ar +=
+            (dd[a00]! * w00 +
+              dd[a01]! * w01 +
+              dd[a10]! * w10 +
+              dd[a11]! * w11) *
+            a;
+          ag +=
+            (dd[a00 + 1]! * w00 +
+              dd[a01 + 1]! * w01 +
+              dd[a10 + 1]! * w10 +
+              dd[a11 + 1]! * w11) *
+            a;
+          ab +=
+            (dd[a00 + 2]! * w00 +
+              dd[a01 + 2]! * w01 +
+              dd[a10 + 2]! * w10 +
+              dd[a11 + 2]! * w11) *
+            a;
+          aa += a;
+        }
       }
       if (aa <= 0) continue;
-      const a = aa / SUB.length;
-      const i = (y * W + x) * 4;
+      const a = aa / (NS * NS);
+      const i = (y * W + xStart + c) * 4;
       const lum = 0.299 * px[i]! + 0.587 * px[i + 1]! + 0.114 * px[i + 2]!;
       const rel = Math.min(1, lum / white);
       const shade = dark ? 1 - DARK_SHADE * (1 - rel) : rel;
@@ -193,21 +254,18 @@ export async function composeMockup(
       const gloss = dark
         ? GLOSS * Math.max(0, (lum - typical) / Math.max(1, white - typical))
         : 0;
-      const inv = 1 / aa;
-      for (const [k, c] of [
-        [0, ar],
-        [1, ag],
-        [2, ab],
-      ] as const) {
-        const ink = c * inv * shade;
-        const lit = ink + (255 - ink) * gloss;
-        px[i + k] = px[i + k]! * (1 - a) + lit * a;
-      }
+      const k = shade / aa;
+      const inkR = ar * k;
+      const inkG = ag * k;
+      const inkB = ab * k;
+      px[i] = px[i]! * (1 - a) + (inkR + (255 - inkR) * gloss) * a;
+      px[i + 1] = px[i + 1]! * (1 - a) + (inkG + (255 - inkG) * gloss) * a;
+      px[i + 2] = px[i + 2]! * (1 - a) + (inkB + (255 - inkB) * gloss) * a;
     }
   }
   ctx.putImageData(img, 0, 0);
-  const url = canvas.toDataURL("image/webp", 0.85);
+  const url = canvas.toDataURL("image/webp", MOCKUP_QUALITY);
   return url.startsWith("data:image/webp")
     ? url
-    : canvas.toDataURL("image/jpeg", 0.85);
+    : canvas.toDataURL("image/jpeg", MOCKUP_QUALITY);
 }

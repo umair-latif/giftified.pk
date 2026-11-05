@@ -18,6 +18,7 @@ import { loadDraft } from "../draft";
 import { MOCKUP_SPECS, specsForColour } from "../mockup/specs";
 import { loadFaces, whenFacesLoaded } from "../fonts/load-fonts";
 import { designFontFaces, migrateDesignFonts } from "../fonts/migrate";
+import { previewRenderWidth } from "../mockup/resolution";
 
 /**
  * The preview is a gallery of photographed mockups: one entry per spec in
@@ -102,9 +103,12 @@ export function DesignPreview({
         import("../engine"),
         loadFaces(faces),
       ]);
-      const width =
+      // Sharp enough for the product photos, not just for the screen.
+      const width = previewRenderWidth(
+        draft.printArea,
         Math.min(window.innerWidth, 448) *
-        Math.min(window.devicePixelRatio || 1, 3);
+          Math.min(window.devicePixelRatio || 1, 3),
+      );
       const { fabric } = await resolveAssetRefs(draft.fabric);
       return {
         kind: "ready",
