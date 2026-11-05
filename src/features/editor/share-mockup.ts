@@ -13,7 +13,7 @@ const LOGO_SRC = "/brand/designbanana-logo.png";
 /** Logo width as a share of the photo's width (corner mark, founder's pick). */
 const LOGO_WIDTH = 0.28;
 const SITE_TEXT = "designbanana.pk";
-const JPEG_QUALITY = 0.9;
+const JPEG_QUALITY = 0.92;
 
 function loadImage(src: string): Promise<HTMLImageElement> {
   return new Promise((resolve, reject) => {

@@ -1,5 +1,6 @@
 import { makeGarmentMap } from "./garment-map";
 import type { GarmentMockupSpec, InkSettings } from "./specs";
+import { MOCKUP_QUALITY } from "./resolution";
 
 function loadImage(src: string): Promise<HTMLImageElement> {
   const img = new Image();
@@ -111,6 +112,33 @@ function blur(src: Float32Array, w: number, h: number, sigma: number) {
  * thinner on thread ridges; and it follows the folds by a couple of pixels.
  * Returns a WebP/JPEG data URL at the photo's size.
  */
+/**
+ * `img` resized to `w` × `h` in halving steps, so a big reduction averages
+ * every source pixel instead of skipping most of them.
+ */
+function shrink(
+  img: HTMLImageElement,
+  w: number,
+  h: number,
+): HTMLCanvasElement {
+  let src: CanvasImageSource = img;
+  let sw = img.naturalWidth;
+  let sh = img.naturalHeight;
+  for (;;) {
+    const nw = Math.max(w, Math.round(sw / 2));
+    const nh = Math.max(h, Math.round(sh / 2));
+    const c = document.createElement("canvas");
+    c.width = nw;
+    c.height = nh;
+    const cctx = c.getContext("2d", { willReadFrequently: true });
+    if (!cctx) throw new Error("Canvas not available");
+    cctx.imageSmoothingQuality = "high";
+    cctx.drawImage(src, 0, 0, sw, sh, 0, 0, nw, nh);
+    if (nw === w && nh === h) return c;
+    [src, sw, sh] = [c, nw, nh];
+  }
+}
+
 export async function composeGarmentMockup(
   designSrc: string,
   spec: GarmentMockupSpec,
@@ -129,16 +157,6 @@ export async function composeGarmentMockup(
   ctx.drawImage(photo, 0, 0, W, H);
   const img = ctx.getImageData(0, 0, W, H);
   const px = img.data;
-
-  const dw = design.naturalWidth;
-  const dh = design.naturalHeight;
-  const dc = document.createElement("canvas");
-  dc.width = dw;
-  dc.height = dh;
-  const dctx = dc.getContext("2d", { willReadFrequently: true });
-  if (!dctx) throw new Error("Canvas not available");
-  dctx.drawImage(design, 0, 0);
-  const dd = dctx.getImageData(0, 0, dw, dh).data;
 
   // Optional per-photo layers (see GarmentMockupSpec): exact outline, fold
   // displacement, shadow and highlight. Each is an image scaled to the photo.
@@ -161,6 +179,17 @@ export async function composeGarmentMockup(
   ]);
 
   const map = makeGarmentMap(spec);
+
+  // The design is drawn finer than any garment photo needs (resolution.ts).
+  // One sample per pixel from a much larger image would shimmer, so shrink it
+  // first (smoothly) to about twice the print's size in this photo.
+  const fit = Math.min(1, (2 * map.size[0]) / design.naturalWidth);
+  const dw = Math.max(1, Math.round(design.naturalWidth * fit));
+  const dh = Math.max(1, Math.round(design.naturalHeight * fit));
+  const dc = shrink(design, dw, dh);
+  const dctx = dc.getContext("2d", { willReadFrequently: true });
+  if (!dctx) throw new Error("Canvas not available");
+  const dd = dctx.getImageData(0, 0, dw, dh).data;
   const [bx0, by0, bx1, by1] = map.bounds;
   // Work area: the print plus a margin for the blurs and the fold warp.
   const PAD = 40;
@@ -277,8 +306,8 @@ export async function composeGarmentMockup(
     octx.imageSmoothingQuality = "high";
     octx.drawImage(canvas, x, y, size, size, 0, 0, outPx, outPx);
   }
-  const url = out.toDataURL("image/webp", 0.85);
+  const url = out.toDataURL("image/webp", MOCKUP_QUALITY);
   return url.startsWith("data:image/webp")
     ? url
-    : out.toDataURL("image/jpeg", 0.85);
+    : out.toDataURL("image/jpeg", MOCKUP_QUALITY);
 }
